@@ -38,5 +38,5 @@ func highlightTime(input string) string {
 func highlightDate(input string) string {
 	expression := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
 
-	return expression.ReplaceAllString(input, Green(`$0`).String())
+	return expression.ReplaceAllString(input, Cyan(`$0`).String())
 }
