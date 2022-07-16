@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"io/ioutil"
@@ -8,11 +9,16 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 type editorFinishedMsg struct{ err error }
 
 func openEditor() tea.Cmd {
+	content := getFileContent()
+
+	///
+
 	tmpFile, err := ioutil.TempFile("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
 	if err != nil {
 		log.Fatal("Could not create temporary file", err)
@@ -28,14 +34,7 @@ func openEditor() tea.Cmd {
 	fmt.Println("Created temp file: ", tmpFile.Name())
 
 	fmt.Println("Writing some data to the temp file")
-	if _, err = tmpFile.WriteString("test data"); err != nil {
-		log.Fatal("Unable to write to temporary file", err)
-	} else {
-		fmt.Println("Data should have been written")
-	}
-
-	fmt.Println("Writing more data to the temp file")
-	if _, err = tmpFile.WriteString("\nnew test data"); err != nil {
+	if _, err = tmpFile.WriteString(content); err != nil {
 		log.Fatal("Unable to write to temporary file", err)
 	} else {
 		fmt.Println("Data should have been written")
@@ -48,6 +47,31 @@ func openEditor() tea.Cmd {
 	return tea.ExecProcess(c, func(err error) tea.Msg {
 		return editorFinishedMsg{err}
 	})
+}
+
+func getFileContent() string {
+	filePath := os.Args[1]
+	readFile, err := os.Open(filePath)
+
+	if err != nil {
+		panic(err)
+	}
+	fileScanner := bufio.NewScanner(readFile)
+	fileScanner.Split(bufio.ScanLines)
+	var fileLines []string
+
+	for fileScanner.Scan() {
+		fileLines = append(fileLines, fileScanner.Text())
+	}
+
+	_ = readFile.Close()
+
+	var b strings.Builder
+	for _, line := range fileLines {
+		b.WriteString(line + "\n")
+	}
+
+	return b.String()
 }
 
 func WrapLess(path string) *exec.Cmd {
