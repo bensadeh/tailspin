@@ -33,14 +33,9 @@ func openEditor() tea.Cmd {
 
 	fmt.Println("Created temp file: ", tmpFile.Name())
 
-	fmt.Println("Writing some data to the temp file")
 	if _, err = tmpFile.WriteString(content); err != nil {
 		log.Fatal("Unable to write to temporary file", err)
-	} else {
-		fmt.Println("Data should have been written")
 	}
-
-	fmt.Println("Trying to read the temp file now")
 
 	c := WrapLess(tmpFile.Name()) //nolint:gosec
 
