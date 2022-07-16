@@ -14,52 +14,20 @@ import (
 type editorFinishedMsg struct{ err error }
 
 func openEditor(m *model) tea.Cmd {
-	tp, err := ioutil.TempFile("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
-	if err != nil {
-		log.Fatal("Could not create temporary file", err)
-	}
 
-	m.tmpFile = tp
-
-	if _, err = m.tmpFile.WriteString(""); err != nil {
-		log.Fatal("Unable to write to temporary file", err)
-	}
-
-	////////////////////////////////////////////////////////// Tail
-	filePath := os.Args[1]
-
-	file, tailErr := tail.TailFile(
-		filePath, tail.Config{Follow: true, ReOpen: true})
-	if tailErr != nil {
-		panic(err)
-	}
-
-	m.tail = file
-
-	go startTailing(m, m.tmpFile)
-	////////////////////////////////////////////////////////// Tail
-
-	c := WrapLess(m.tmpFile.Name()) //nolint:gosec
+	c := less(m.tempFile.Name())
 
 	return tea.ExecProcess(c, func(err error) tea.Msg {
-		m.tail.Done()
 		return editorFinishedMsg{err}
 	})
 }
 
-func startTailing(m *model, file *os.File) {
-	for line := range m.tail.Lines {
-		_, _ = file.WriteString(line.Text + "\n")
-	}
-}
-
-func WrapLess(path string) *exec.Cmd {
+func less(path string) *exec.Cmd {
 	command := exec.Command("less",
-		path,
 		"--RAW-CONTROL-CHARS",
 		"--ignore-case",
-		"--tilde",
-		"--use-color")
+		"+F", // similar to 'tail -f'
+		path)
 
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout
@@ -69,8 +37,8 @@ func WrapLess(path string) *exec.Cmd {
 
 type model struct {
 	hasStarted bool
-	tail       *tail.Tail
-	tmpFile    *os.File
+	tailFile   *tail.Tail
+	tempFile   *os.File
 }
 
 func (m model) Init() tea.Cmd {
@@ -80,19 +48,6 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg.(type) {
 	case editorFinishedMsg:
-
-		tpErr := m.tmpFile.Close()
-		if tpErr != nil {
-			panic(tpErr)
-		}
-
-		tailErr := m.tail.Stop()
-		if tailErr != nil {
-			panic(tailErr)
-		}
-		//m.tail.Done()
-		//m.tail.Cleanup()
-
 		return m, tea.Quit
 	}
 
@@ -109,88 +64,55 @@ func (m model) View() string {
 }
 
 func main() {
-	m := model{}
-	if err := tea.NewProgram(m).Start(); err != nil {
-		fmt.Println("Error running program:", err)
-		os.Exit(1)
-	}
-}
+	m := new(model)
 
-func oldMain() {
-	//filePath := os.Args[1]
-	//readFile, err := os.Open(filePath)
-	//
-	//if err != nil {
-	//	fmt.Println(err)
-	//}
-	//fileScanner := bufio.NewScanner(readFile)
-	//fileScanner.Split(bufio.ScanLines)
-	//var fileLines []string
-	//
-	//for fileScanner.Scan() {
-	//	fileLines = append(fileLines, fileScanner.Text())
-	//}
-	//
-	//_ = readFile.Close()
-	//
-	//for _, line := range fileLines {
-	//	fmt.Println(line)
-	//}
-
-	tmpFile, err := ioutil.TempFile("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
+	tp, err := ioutil.TempFile("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
 	if err != nil {
 		log.Fatal("Could not create temporary file", err)
 	}
 
-	defer func(tmpFile *os.File) {
-		err := tmpFile.Close()
-		if err != nil {
-			panic(err)
-		}
-	}(tmpFile)
+	m.tempFile = tp
 
-	fmt.Println("Created temp file: ", tmpFile.Name())
-
-	fmt.Println("Writing some data to the temp file")
-	if _, err = tmpFile.WriteString("test data"); err != nil {
+	if _, err = m.tempFile.WriteString(""); err != nil {
 		log.Fatal("Unable to write to temporary file", err)
-	} else {
-		fmt.Println("Data should have been written")
 	}
 
-	fmt.Println("Writing more data to the temp file")
-	if _, err = tmpFile.WriteString("\nnew test data"); err != nil {
-		log.Fatal("Unable to write to temporary file", err)
-	} else {
-		fmt.Println("Data should have been written")
-	}
+	////////////////////////////////////////////////////////// Tail
+	filePath := os.Args[1]
 
-	fmt.Println("Trying to read the temp file now")
-
-	less(tmpFile.Name())
-
-	//if err = s.Err(); err != nil {
-	//	log.Fatal("error reading temp file", err)
-	//}
-
-	//t, _ := tail.TailFile("/Users/E0O/.dotfiles/local.log", tail.Config{Follow: true})
-	//for line := range t.Lines {
-	//	fmt.Println(line.Text)
-	//}
-}
-
-func less(path string) {
-	command := exec.Command("less",
-		path,
-		"--RAW-CONTROL-CHARS",
-		"--ignore-case",
-		"--tilde")
-
-	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-
-	if err := command.Run(); err != nil {
+	file, tailErr := tail.TailFile(
+		filePath, tail.Config{Follow: true})
+	if tailErr != nil {
 		panic(err)
 	}
+
+	m.tailFile = file
+
+	go func() {
+		for line := range m.tailFile.Lines {
+			_, _ = m.tempFile.WriteString(line.Text + "\n")
+		}
+	}()
+	////////////////////////////////////////////////////////// Tail
+
+	if err := tea.NewProgram(m).Start(); err != nil {
+		fmt.Println("Error running program:", err)
+	}
+
+	fmt.Println("Finished running Bubble Tea")
+
+	fmt.Println("Closing temp file stream...")
+	tpErr := m.tempFile.Close()
+	if tpErr != nil {
+		panic(tpErr)
+	}
+
+	fmt.Println("Closing tail stream...")
+	tErr := m.tailFile.Stop()
+	if tErr != nil {
+		panic(tErr)
+	}
+	//m.tailFile.Done()
+	//m.tailFile.Cleanup()
+
 }
