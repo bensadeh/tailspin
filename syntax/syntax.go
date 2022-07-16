@@ -13,7 +13,8 @@ const (
 func Highlight(line string) string {
 	line = highlightCommonKeywords(line)
 	line = highlightTime(line)
-	line = highlightDate(line)
+	line = highlightDateInDigits(line)
+	line = highlightDateInWords(line)
 
 	return reset + line
 }
@@ -35,8 +36,14 @@ func highlightTime(input string) string {
 	return expression.ReplaceAllString(input, Magenta(`$0`).String())
 }
 
-func highlightDate(input string) string {
+func highlightDateInDigits(input string) string {
 	expression := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+
+	return expression.ReplaceAllString(input, Cyan(`$0`).String())
+}
+
+func highlightDateInWords(input string) string {
+	expression := regexp.MustCompile(`(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{2}`)
 
 	return expression.ReplaceAllString(input, Cyan(`$0`).String())
 }
