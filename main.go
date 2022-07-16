@@ -27,8 +27,6 @@ func main() {
 		fmt.Println(line)
 	}
 
-	fmt.Println(fileLines)
-
 	//t, _ := tail.TailFile("/Users/E0O/.dotfiles/local.log", tail.Config{Follow: true})
 	//for line := range t.Lines {
 	//	fmt.Println(line.Text)
