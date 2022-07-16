@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	tea "github.com/charmbracelet/bubbletea"
 	"io/ioutil"
 	"log"
 	"os"
@@ -9,7 +10,95 @@ import (
 	"path/filepath"
 )
 
+type editorFinishedMsg struct{ err error }
+
+func openEditor() tea.Cmd {
+	tmpFile, err := ioutil.TempFile("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
+	if err != nil {
+		log.Fatal("Could not create temporary file", err)
+	}
+
+	defer func(tmpFile *os.File) {
+		err := tmpFile.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(tmpFile)
+
+	fmt.Println("Created temp file: ", tmpFile.Name())
+
+	fmt.Println("Writing some data to the temp file")
+	if _, err = tmpFile.WriteString("test data"); err != nil {
+		log.Fatal("Unable to write to temporary file", err)
+	} else {
+		fmt.Println("Data should have been written")
+	}
+
+	fmt.Println("Writing more data to the temp file")
+	if _, err = tmpFile.WriteString("\nnew test data"); err != nil {
+		log.Fatal("Unable to write to temporary file", err)
+	} else {
+		fmt.Println("Data should have been written")
+	}
+
+	fmt.Println("Trying to read the temp file now")
+
+	c := WrapLess(tmpFile.Name()) //nolint:gosec
+
+	return tea.ExecProcess(c, func(err error) tea.Msg {
+		return editorFinishedMsg{err}
+	})
+}
+
+func WrapLess(path string) *exec.Cmd {
+	command := exec.Command("less",
+		path,
+		"--RAW-CONTROL-CHARS",
+		"--ignore-case",
+		"--tilde",
+		"--use-color")
+
+	command.Stdin = os.Stdin
+	command.Stdout = os.Stdout
+
+	return command
+}
+
+type model struct {
+	hasStarted bool
+}
+
+func (m model) Init() tea.Cmd {
+	return nil
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg.(type) {
+	case editorFinishedMsg:
+		return m, tea.Quit
+	}
+
+	if m.hasStarted {
+		return m, nil
+	}
+
+	m.hasStarted = true
+	return m, openEditor()
+}
+
+func (m model) View() string {
+	return ""
+}
+
 func main() {
+	m := model{}
+	if err := tea.NewProgram(m).Start(); err != nil {
+		fmt.Println("Error running program:", err)
+		os.Exit(1)
+	}
+}
+
+func oldMain() {
 	//filePath := os.Args[1]
 	//readFile, err := os.Open(filePath)
 	//
