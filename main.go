@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"spin/syntax"
 )
 
 type editorFinishedMsg struct{ err error }
@@ -90,7 +91,8 @@ func main() {
 
 	go func() {
 		for line := range m.tailFile.Lines {
-			_, _ = m.tempFile.WriteString(line.Text + "\n")
+			syntaxHighlightedLine := syntax.Highlight(line.Text)
+			_, _ = m.tempFile.WriteString(syntaxHighlightedLine + "\n")
 		}
 	}()
 	////////////////////////////////////////////////////////// Tail
@@ -112,7 +114,5 @@ func main() {
 	if tErr != nil {
 		panic(tErr)
 	}
-	//m.tailFile.Done()
-	//m.tailFile.Cleanup()
 
 }
