@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/hpcloud/tail"
 	"io/ioutil"
 	"log"
 	"os"
@@ -14,34 +15,48 @@ import (
 
 type editorFinishedMsg struct{ err error }
 
-func openEditor() tea.Cmd {
+func openEditor(m *model) tea.Cmd {
 	content := getFileContent()
 
 	///
 
-	tmpFile, err := ioutil.TempFile("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
+	tp, err := ioutil.TempFile("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
 	if err != nil {
 		log.Fatal("Could not create temporary file", err)
 	}
 
-	defer func(tmpFile *os.File) {
-		err := tmpFile.Close()
-		if err != nil {
-			panic(err)
-		}
-	}(tmpFile)
+	m.tmpFile = tp
 
-	fmt.Println("Created temp file: ", tmpFile.Name())
-
-	if _, err = tmpFile.WriteString(content); err != nil {
+	if _, err = m.tmpFile.WriteString(content); err != nil {
 		log.Fatal("Unable to write to temporary file", err)
 	}
 
-	c := WrapLess(tmpFile.Name()) //nolint:gosec
+	////////////////////////////////////////////////////////// Tail
+	filePath := os.Args[1]
+
+	file, tailErr := tail.TailFile(
+		filePath, tail.Config{Follow: true, ReOpen: true})
+	if tailErr != nil {
+		panic(err)
+	}
+
+	m.tail = file
+
+	go startTailing(m, m.tmpFile)
+	////////////////////////////////////////////////////////// Tail
+
+	c := WrapLess(m.tmpFile.Name()) //nolint:gosec
 
 	return tea.ExecProcess(c, func(err error) tea.Msg {
+		m.tail.Done()
 		return editorFinishedMsg{err}
 	})
+}
+
+func startTailing(m *model, file *os.File) {
+	for line := range m.tail.Lines {
+		_, _ = file.WriteString(line.Text + "\n")
+	}
 }
 
 func getFileContent() string {
@@ -85,6 +100,8 @@ func WrapLess(path string) *exec.Cmd {
 
 type model struct {
 	hasStarted bool
+	tail       *tail.Tail
+	tmpFile    *os.File
 }
 
 func (m model) Init() tea.Cmd {
@@ -94,6 +111,19 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg.(type) {
 	case editorFinishedMsg:
+
+		tpErr := m.tmpFile.Close()
+		if tpErr != nil {
+			panic(tpErr)
+		}
+
+		tailErr := m.tail.Stop()
+		if tailErr != nil {
+			panic(tailErr)
+		}
+		//m.tail.Done()
+		//m.tail.Cleanup()
+
 		return m, tea.Quit
 	}
 
@@ -102,7 +132,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	m.hasStarted = true
-	return m, openEditor()
+	return m, openEditor(&m)
 }
 
 func (m model) View() string {
