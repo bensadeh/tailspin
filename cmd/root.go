@@ -13,7 +13,7 @@ var (
 
 func Root() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:     "spin",
+		Use:     "spin {file}",
 		Short:   "a better 'tail -f'",
 		Long:    "tailspin lets you tail log files with syntax highlighting",
 		Version: app.Version,
