@@ -11,10 +11,14 @@ const (
 )
 
 func Highlight(line string) string {
+	// Carriage return (\r) messes with the regexp, so we remove it
+	line = strings.ReplaceAll(line, "\r", "")
+
 	line = highlightCommonKeywords(line)
 	line = highlightTime(line)
 	line = highlightDateInDigits(line)
 	line = highlightDateInWords(line)
+	line = highlightDigits(line)
 
 	return reset + line
 }
@@ -40,7 +44,7 @@ func highlightCommonKeywords(input string) string {
 }
 
 func highlightTime(input string) string {
-	expression := regexp.MustCompile(`\d{2}:\d{2}:\d{2}\.\d{2,3}`)
+	expression := regexp.MustCompile(`\d{2}:\d{2}:\d{2}(\.\d{2,3}| )`)
 
 	return expression.ReplaceAllString(input, Magenta(`$0`).String())
 }
@@ -54,6 +58,13 @@ func highlightDateInDigits(input string) string {
 func highlightDateInWords(input string) string {
 	expression := regexp.MustCompile(
 		`(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{2}`)
+
+	return expression.ReplaceAllString(input, Magenta(`$0`).String())
+}
+
+func highlightDigits(input string) string {
+	input += " "
+	expression := regexp.MustCompile(` \d+[\s|$]`)
 
 	return expression.ReplaceAllString(input, Cyan(`$0`).String())
 }
