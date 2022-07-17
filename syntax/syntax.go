@@ -68,7 +68,7 @@ func highlightDateInWords(input string) string {
 }
 
 func highlightDigits(input string) string {
-	expression := regexp.MustCompile(` \d+[\s|$]`)
+	expression := regexp.MustCompile(` \d+[\s|$|,]`)
 
 	return expression.ReplaceAllString(input, Cyan(`$0`).String())
 }
