@@ -20,11 +20,20 @@ func Highlight(line string) string {
 }
 
 func highlightCommonKeywords(input string) string {
+	input = strings.ReplaceAll(input, "null", Red("null").String())
+	input = strings.ReplaceAll(input, "NULL", Red("NULL").String())
+	input = strings.ReplaceAll(input, "nil", Red("nil").String())
+	input = strings.ReplaceAll(input, "true", Red("true").String())
+	input = strings.ReplaceAll(input, "false", Red("false").String())
+
 	input = strings.ReplaceAll(input, "ERROR", Red("ERROR").String())
+	input = strings.ReplaceAll(input, "FAIL", Red("FAIL").String())
+	input = strings.ReplaceAll(input, "FAILURE", Red("FAILURE").String())
 	input = strings.ReplaceAll(input, "error", Red("error").String())
 
 	input = strings.ReplaceAll(input, "INFO", Blue("INFO").String())
-	input = strings.ReplaceAll(input, "DEBUG", Yellow("DEBUG").String())
+	input = strings.ReplaceAll(input, "DEBUG", Green("DEBUG").String())
+	input = strings.ReplaceAll(input, "WARN", Yellow("WARN").String())
 	input = strings.ReplaceAll(input, "TRACE", Faint("TRACE").Italic().String())
 
 	return input
@@ -39,7 +48,7 @@ func highlightTime(input string) string {
 func highlightDateInDigits(input string) string {
 	expression := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
 
-	return expression.ReplaceAllString(input, Cyan(`$0`).String())
+	return expression.ReplaceAllString(input, Magenta(`$0`).String())
 }
 
 func highlightDateInWords(input string) string {
