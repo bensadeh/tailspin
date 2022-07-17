@@ -28,11 +28,11 @@ func Highlight(line string) string {
 }
 
 func highlightCommonKeywords(input string) string {
-	input = strings.ReplaceAll(input, "null", Red("null").String())
-	input = strings.ReplaceAll(input, "NULL", Red("NULL").String())
-	input = strings.ReplaceAll(input, "nil", Red("nil").String())
-	input = strings.ReplaceAll(input, "true", Red("true").String())
-	input = strings.ReplaceAll(input, "false", Red("false").String())
+	input = strings.ReplaceAll(input, "null", Red("null").Italic().String())
+	input = strings.ReplaceAll(input, "NULL", Red("NULL").Italic().String())
+	input = strings.ReplaceAll(input, "nil", Red("nil").Italic().String())
+	input = strings.ReplaceAll(input, "true", Red("true").Italic().String())
+	input = strings.ReplaceAll(input, "false", Red("false").Italic().String())
 
 	input = strings.ReplaceAll(input, "ERROR", Red("ERROR").String())
 	input = strings.ReplaceAll(input, "FAIL", Red("FAIL").String())
@@ -44,6 +44,12 @@ func highlightCommonKeywords(input string) string {
 	input = strings.ReplaceAll(input, "WARN", Yellow("WARN").String())
 	input = strings.ReplaceAll(input, "WARNING", Yellow("WARNING").String())
 	input = strings.ReplaceAll(input, "TRACE", Faint("TRACE").Italic().String())
+
+	input = strings.ReplaceAll(input, "GET", Green("GET").String())
+	input = strings.ReplaceAll(input, "PUT", Yellow("PUT").String())
+	input = strings.ReplaceAll(input, "POST", Magenta("POST").String())
+	input = strings.ReplaceAll(input, "PATCH", Blue("PATCH").String())
+	input = strings.ReplaceAll(input, "DELETE", Red("DELETE").String())
 
 	return input
 }
