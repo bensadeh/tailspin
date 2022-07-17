@@ -101,15 +101,11 @@ func main() {
 		fmt.Println("Error running program:", err)
 	}
 
-	fmt.Println("Finished running Bubble Tea")
-
-	fmt.Println("Closing temp file stream...")
 	tpErr := m.tempFile.Close()
 	if tpErr != nil {
 		panic(tpErr)
 	}
 
-	fmt.Println("Closing tail stream...")
 	tErr := m.tailFile.Stop()
 	if tErr != nil {
 		panic(tErr)
