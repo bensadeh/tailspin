@@ -22,6 +22,7 @@ func Highlight(line string) string {
 	line = highlightGUIDs(line)
 	line = highlightDigits(line)
 	line = highlightConstants(line)
+	line = highlightExceptions(line)
 
 	return reset + line
 }
@@ -82,4 +83,10 @@ func highlightConstants(input string) string {
 	expression := regexp.MustCompile(`[A-Z\d]*_[A-Z\d_]+`)
 
 	return expression.ReplaceAllString(input, Yellow(`$0`).Italic().String())
+}
+
+func highlightExceptions(input string) string {
+	expression := regexp.MustCompile(`[\w|.]+Exception`)
+
+	return expression.ReplaceAllString(input, Red(`$0`).Italic().String())
 }
