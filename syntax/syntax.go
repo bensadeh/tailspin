@@ -13,6 +13,7 @@ const (
 func Highlight(line string) string {
 	// Carriage return (\r) messes with the regexp, so we remove it
 	line = strings.ReplaceAll(line, "\r", "")
+	line = line + " "
 
 	line = highlightCommonKeywords(line)
 	line = highlightTime(line)
@@ -20,6 +21,7 @@ func Highlight(line string) string {
 	line = highlightDateInWords(line)
 	line = highlightGUIDs(line)
 	line = highlightDigits(line)
+	line = highlightConstants(line)
 
 	return reset + line
 }
@@ -74,4 +76,10 @@ func highlightGUIDs(input string) string {
 	expression := regexp.MustCompile(`[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+`)
 
 	return expression.ReplaceAllString(input, Yellow(`$0`).String())
+}
+
+func highlightConstants(input string) string {
+	expression := regexp.MustCompile(`[A-Z\d]*_[A-Z\d_]+`)
+
+	return expression.ReplaceAllString(input, Yellow(`$0`).Italic().String())
 }
