@@ -18,6 +18,7 @@ func Highlight(line string) string {
 	line = highlightTime(line)
 	line = highlightDateInDigits(line)
 	line = highlightDateInWords(line)
+	line = highlightGUIDs(line)
 	line = highlightDigits(line)
 
 	return reset + line
@@ -38,6 +39,7 @@ func highlightCommonKeywords(input string) string {
 	input = strings.ReplaceAll(input, "INFO", Blue("INFO").String())
 	input = strings.ReplaceAll(input, "DEBUG", Green("DEBUG").String())
 	input = strings.ReplaceAll(input, "WARN", Yellow("WARN").String())
+	input = strings.ReplaceAll(input, "WARNING", Yellow("WARNING").String())
 	input = strings.ReplaceAll(input, "TRACE", Faint("TRACE").Italic().String())
 
 	return input
@@ -63,8 +65,13 @@ func highlightDateInWords(input string) string {
 }
 
 func highlightDigits(input string) string {
-	input += " "
 	expression := regexp.MustCompile(` \d+[\s|$]`)
 
 	return expression.ReplaceAllString(input, Cyan(`$0`).String())
+}
+
+func highlightGUIDs(input string) string {
+	expression := regexp.MustCompile(`[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+`)
+
+	return expression.ReplaceAllString(input, Yellow(`$0`).String())
 }
