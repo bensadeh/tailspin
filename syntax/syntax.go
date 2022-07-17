@@ -68,9 +68,9 @@ func highlightDateInWords(input string) string {
 }
 
 func highlightDigits(input string) string {
-	expression := regexp.MustCompile(` \d+[\s|$|,]`)
+	expression := regexp.MustCompile(`([ |\[|(])(\d+)([\s|$|,|\]|)])`)
 
-	return expression.ReplaceAllString(input, Cyan(`$0`).String())
+	return expression.ReplaceAllString(input, `$1`+Cyan(`$2`).String()+`$3`)
 }
 
 func highlightGUIDs(input string) string {
