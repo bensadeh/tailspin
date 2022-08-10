@@ -4,7 +4,6 @@ import (
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/nxadm/tail"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -15,12 +14,12 @@ import (
 func Setup() {
 	m := new(handler.Model)
 
-	tp, err := ioutil.TempFile("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
+	temporaryFile, err := os.CreateTemp("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
 	if err != nil {
 		log.Fatal("Could not create temporary file", err)
 	}
 
-	m.TempFile = tp
+	m.TempFile = temporaryFile
 
 	if _, err = m.TempFile.WriteString(""); err != nil {
 		log.Fatal("Unable to write to temporary file", err)
