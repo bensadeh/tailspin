@@ -2,7 +2,7 @@ package handler
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/hpcloud/tail"
+	"github.com/nxadm/tail"
 	"os"
 	"os/exec"
 )

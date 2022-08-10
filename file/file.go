@@ -3,7 +3,7 @@ package file
 import (
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/hpcloud/tail"
+	"github.com/nxadm/tail"
 	"io/ioutil"
 	"log"
 	"os"
