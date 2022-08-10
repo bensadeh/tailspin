@@ -14,8 +14,8 @@ var (
 func Root() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:     "spin {file}",
-		Short:   "a better 'tail -f'",
-		Long:    "tailspin lets you tail log files with syntax highlighting",
+		Short:   "tailspin is a better way to tail your logfiles",
+		Long:    "tailspin is a better way to tail your logfiles",
 		Version: app.Version,
 		Args:    cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -28,6 +28,7 @@ func Root() *cobra.Command {
 	rootCmd.CompletionOptions.DisableDefaultCmd = true
 
 	rootCmd.AddCommand(versionCmd())
+	rootCmd.AddCommand(debugCmd())
 
 	configureFlags(rootCmd)
 
