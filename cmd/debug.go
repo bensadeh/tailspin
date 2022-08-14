@@ -1,9 +1,8 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
-	"spin/app"
+	"spin/file"
 )
 
 var (
@@ -17,15 +16,10 @@ func debugCmd() *cobra.Command {
 		Short:  "debug tailspin",
 		Hidden: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println(app.Version)
+			config := getConfig()
+			config.DebugMode = true
 
-			//config := getConfig()
-
-			fmt.Println(debugFile)
-
-			//_ = getConfig()
-			//
-			//file.Setup()
+			file.Setup(config)
 		},
 	}
 

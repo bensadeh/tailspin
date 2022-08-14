@@ -19,9 +19,9 @@ func Root() *cobra.Command {
 		Version: app.Version,
 		Args:    cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			_ = getConfig()
+			config := getConfig()
 
-			file.Setup()
+			file.Setup(config)
 		},
 	}
 

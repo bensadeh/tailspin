@@ -8,10 +8,11 @@ import (
 	"os"
 	"path/filepath"
 	"spin/handler"
+	"spin/settings"
 	"spin/syntax"
 )
 
-func Setup() {
+func Setup(config *settings.Config) {
 	m := new(handler.Model)
 
 	temporaryFile, err := os.CreateTemp("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
@@ -29,7 +30,7 @@ func Setup() {
 	filePath := os.Args[1]
 
 	file, tailErr := tail.TailFile(
-		filePath, tail.Config{Follow: true})
+		filePath, tail.Config{Follow: config.Follow})
 	if tailErr != nil {
 		panic(err)
 	}
