@@ -27,10 +27,10 @@ func Setup(config *settings.Config) {
 	}
 
 	////////////////////////////////////////////////////////// Tail
-	filePath := os.Args[1]
+	fileToTail := getPathToFileToBeTailed()
 
 	file, tailErr := tail.TailFile(
-		filePath, tail.Config{Follow: config.Follow})
+		fileToTail, tail.Config{Follow: config.Follow})
 	if tailErr != nil {
 		panic(err)
 	}
@@ -59,4 +59,8 @@ func Setup(config *settings.Config) {
 		panic(tErr)
 	}
 
+}
+
+func getPathToFileToBeTailed() string {
+	return os.Args[1]
 }
