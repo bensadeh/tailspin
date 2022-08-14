@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	debugMode bool
+	follow bool
 )
 
 func Root() *cobra.Command {
@@ -36,18 +36,16 @@ func Root() *cobra.Command {
 }
 
 func configureFlags(rootCmd *cobra.Command) {
-	rootCmd.PersistentFlags().BoolVarP(&debugMode, "debug-mode", "q", false,
-		"debug tailspin by tailing a static log file")
-
-	//rootCmd.PersistentFlags().BoolVarP(&debugMode, "debug-mode", "q", false,
-	//	"enable debug mode (offline mode) by using mock data for the endpoints")
-	//rootCmd.Flag("debug-mode").Hidden = true
+	rootCmd.PersistentFlags().BoolVarP(&follow, "follow", "f", false,
+		"Scroll forward, and keep trying to read when the end of file is reached. "+
+			"It is a way to monitor the tail of a file which is growing while it is being viewed. "+
+			"(The behavior is similar to the \"tail -f\" command.)")
 }
 
 func getConfig() *settings.Config {
 	config := settings.New()
 
-	config.DebugFile = debugFile
+	config.Follow = follow
 
 	return config
 }
