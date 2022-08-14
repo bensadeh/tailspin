@@ -5,6 +5,6 @@
 #
 
 <p align="center">
-  🍍 Tail your log files with syntax highlighting
+A better way to browse your logfiles
 </p>
   

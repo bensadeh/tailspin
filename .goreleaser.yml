@@ -26,7 +26,7 @@ brews:
     tap:
       owner: bensadeh
       name: homebrew-tailspin
-    description: "Tail your log files with syntax highlighting"
+    description: "A better way to browse your logfiles"
     homepage: "https://github.com/bensadeh/tailspin/"
     license: "MIT"
     dependencies:

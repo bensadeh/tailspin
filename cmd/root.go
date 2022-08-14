@@ -14,8 +14,8 @@ var (
 func Root() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:     "spin {file}",
-		Short:   "tailspin is a better way to tail your logfiles",
-		Long:    "tailspin is a better way to tail your logfiles",
+		Short:   "tailspin is a better way to browse your logfiles",
+		Long:    "tailspin is a better way to browse your logfiles",
 		Version: app.Version,
 		Args:    cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
