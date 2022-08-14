@@ -30,7 +30,7 @@ func debugCmd() *cobra.Command {
 	}
 
 	command.PersistentFlags().IntVarP(&debugFile, "file", "e", 0,
-		"debug tailspin by tailing a static log file")
+		"select a specific log file for debugging")
 
 	return command
 }
