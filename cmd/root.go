@@ -47,9 +47,7 @@ func configureFlags(rootCmd *cobra.Command) {
 func getConfig() *settings.Config {
 	config := settings.New()
 
-	if debugMode {
-		config.DebugMode = true
-	}
+	config.DebugFile = debugFile
 
 	return config
 }
