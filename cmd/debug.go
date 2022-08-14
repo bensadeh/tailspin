@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	debugFile int
+	debugType int
 )
 
 func debugCmd() *cobra.Command {
@@ -23,7 +23,7 @@ func debugCmd() *cobra.Command {
 		},
 	}
 
-	command.PersistentFlags().IntVarP(&debugFile, "file", "e", 0,
+	command.PersistentFlags().IntVarP(&debugType, "debug-type", "e", 0,
 		"select a specific log file for debugging")
 
 	return command

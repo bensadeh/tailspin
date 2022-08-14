@@ -1,15 +1,15 @@
 package settings
 
 type Config struct {
-	DebugMode bool
-	DebugFile int
 	Follow    bool
+	DebugMode bool
+	DebugType int
 }
 
 func New() *Config {
 	return &Config{
-		DebugMode: false,
-		DebugFile: 0,
 		Follow:    false,
+		DebugMode: false,
+		DebugType: 0,
 	}
 }
