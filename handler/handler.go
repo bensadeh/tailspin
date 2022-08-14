@@ -5,6 +5,7 @@ import (
 	"github.com/nxadm/tail"
 	"os"
 	"os/exec"
+	"spin/settings"
 )
 
 type editorFinishedMsg struct{ err error }
@@ -12,24 +13,30 @@ type editorFinishedMsg struct{ err error }
 type Model struct {
 	TailFile   *tail.Tail
 	TempFile   *os.File
+	Config     *settings.Config
 	hasStarted bool
 }
 
 func openEditor(m *Model) tea.Cmd {
-
-	c := less(m.TempFile.Name())
+	c := less(m.TempFile.Name(), m.Config)
 
 	return tea.ExecProcess(c, func(err error) tea.Msg {
 		return editorFinishedMsg{err}
 	})
 }
 
-func less(path string) *exec.Cmd {
-	command := exec.Command("less",
+func less(path string, config *settings.Config) *exec.Cmd {
+	args := []string{
 		"--RAW-CONTROL-CHARS",
-		"--ignore-case",
-		"+F", // similar to 'tail -f'
-		path)
+		"--ignore-case"}
+
+	if config.Follow {
+		args = append(args, "+F")
+	}
+
+	args = append(args, path)
+
+	command := exec.Command("less", args...)
 
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout

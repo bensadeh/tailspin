@@ -21,6 +21,7 @@ func Setup(config *settings.Config) {
 	}
 
 	m.TempFile = temporaryFile
+	m.Config = config
 
 	if _, err = m.TempFile.WriteString(""); err != nil {
 		log.Fatal("Unable to write to temporary file", err)
@@ -30,7 +31,7 @@ func Setup(config *settings.Config) {
 	fileToTail := getPathToFileToBeTailed()
 
 	file, tailErr := tail.TailFile(
-		fileToTail, tail.Config{Follow: config.Follow})
+		fileToTail, tail.Config{Follow: true})
 	if tailErr != nil {
 		panic(err)
 	}
