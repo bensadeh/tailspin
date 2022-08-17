@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="assets/logo-transparent.png" width="300"/>
+  <img src="assets/logo-new.png" width="600"/>
 </p>
-
-#
 
 <p align="center">
 A better way to view your logfiles
 </p>
+
+
 
 ## See also
  
