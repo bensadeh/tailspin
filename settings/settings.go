@@ -3,13 +3,13 @@ package settings
 type Config struct {
 	Follow    bool
 	DebugMode bool
-	DebugType int
+	DebugFile int
 }
 
 func New() *Config {
 	return &Config{
 		Follow:    false,
 		DebugMode: false,
-		DebugType: 0,
+		DebugFile: 0,
 	}
 }

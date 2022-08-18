@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"os"
 	"spin/app"
 	"spin/file"
 	"spin/settings"
@@ -22,7 +23,7 @@ func Root() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			config := getConfig()
 
-			file.Setup(config)
+			file.Setup(config, os.Args[1])
 		},
 	}
 
@@ -41,12 +42,23 @@ func configureFlags(rootCmd *cobra.Command) {
 		"Scroll forward, and keep trying to read when the end of file is reached.\n"+
 			"It is a way to monitor the tail of a file which is growing while it is\n"+
 			"being viewed. (The behavior is similar to the \"tail -f\" command.)")
+
+	// Flags and settings for debugging
+	rootCmd.PersistentFlags().IntVar(&debugFile, "debug-file", 0,
+		"select a specific log file for debugging")
+	rootCmd.Flag("debug-file").Hidden = true
+
 }
 
 func getConfig() *settings.Config {
 	config := settings.New()
 
 	config.Follow = follow
+
+	if debugFile != 0 {
+		config.DebugMode = true
+		config.DebugFile = debugFile
+	}
 
 	return config
 }

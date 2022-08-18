@@ -12,7 +12,7 @@ import (
 	"spin/syntax"
 )
 
-func Setup(config *settings.Config) {
+func Setup(config *settings.Config, pathToFileToBeTailed string) {
 	m := new(handler.Model)
 
 	temporaryFile, err := os.CreateTemp("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
@@ -28,10 +28,7 @@ func Setup(config *settings.Config) {
 	}
 
 	////////////////////////////////////////////////////////// Tail
-	fileToTail := getPathToFileToBeTailed()
-
-	file, tailErr := tail.TailFile(
-		fileToTail, tail.Config{Follow: true})
+	file, tailErr := tail.TailFile(pathToFileToBeTailed, tail.Config{Follow: true})
 	if tailErr != nil {
 		panic(err)
 	}
