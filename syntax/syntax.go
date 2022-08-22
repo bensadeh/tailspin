@@ -3,6 +3,7 @@ package syntax
 import (
 	. "github.com/logrusorgru/aurora/v3"
 	"regexp"
+	"spin/block"
 	"strings"
 )
 
@@ -15,16 +16,26 @@ func Highlight(line string) string {
 	line = strings.ReplaceAll(line, "\r", "")
 	line = line + " "
 
-	line = highlightCommonKeywords(line)
-	line = highlightTime(line)
-	line = highlightDateInDigits(line)
-	line = highlightDateInWords(line)
-	line = highlightGUIDs(line)
-	line = highlightDigits(line)
-	line = highlightConstants(line)
-	line = highlightExceptions(line)
+	newLine := ""
 
-	return reset + line
+	segments := block.ExtractSegments(line)
+
+	for _, segment := range segments {
+		text := segment.Content
+
+		text = highlightCommonKeywords(text)
+		text = highlightTime(text)
+		text = highlightDateInDigits(text)
+		text = highlightDateInWords(text)
+		text = highlightGUIDs(text)
+		text = highlightDigits(text)
+		text = highlightConstants(text)
+		text = highlightExceptions(text)
+
+		newLine = newLine + text
+	}
+
+	return reset + newLine
 }
 
 func highlightCommonKeywords(input string) string {

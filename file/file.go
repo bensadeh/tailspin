@@ -58,7 +58,3 @@ func Setup(config *settings.Config, pathToFileToBeTailed string) {
 	}
 
 }
-
-func getPathToFileToBeTailed() string {
-	return os.Args[1]
-}
