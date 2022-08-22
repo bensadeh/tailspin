@@ -33,7 +33,7 @@ func debugCmd() *cobra.Command {
 		},
 	}
 
-	command.PersistentFlags().IntVar(&debugFile, "debug-file", 0,
+	command.PersistentFlags().IntVar(&debugFile, "file", 0,
 		"select a specific log file for debugging")
 
 	return command
