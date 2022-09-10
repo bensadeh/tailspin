@@ -9,7 +9,8 @@ type Segment struct {
 
 func ExtractSegments(text string) []*Segment {
 	isOccurringEvenNumberOfTimes := strings.Count(text, `"`)%2 == 0
-	if isOccurringEvenNumberOfTimes {
+
+	if !isOccurringEvenNumberOfTimes {
 		return []*Segment{
 			{
 				Content:   text,
@@ -22,7 +23,7 @@ func ExtractSegments(text string) []*Segment {
 	var segments []*Segment
 
 	for i, block := range blocks {
-		isInsideQuotesBlock := i%2 == 0
+		isInsideQuotesBlock := i%2 != 0
 
 		segment := &Segment{
 			Content:   block,

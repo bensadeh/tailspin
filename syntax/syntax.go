@@ -8,7 +8,14 @@ import (
 )
 
 const (
-	reset = "\033[0m"
+	reset   = "\033[0m"
+	bold    = "\033[1m"
+	reverse = "\033[7m"
+	italic  = "\033[3m"
+	magenta = "\033[35m"
+	faint   = "\033[2m"
+	green   = "\033[32m"
+	red     = "\033[31m"
 )
 
 func Highlight(line string) string {
@@ -16,7 +23,7 @@ func Highlight(line string) string {
 	line = strings.ReplaceAll(line, "\r", "")
 	line = line + " "
 
-	newLine := ""
+	highlightedLine := ""
 
 	segments := block.ExtractSegments(line)
 
@@ -32,10 +39,16 @@ func Highlight(line string) string {
 		text = highlightConstants(text)
 		text = highlightExceptions(text)
 
-		newLine = newLine + text
+		separator := Green(segment.Separator).String()
+
+		if segment.Separator == `"` {
+			separator = separator + green
+		}
+
+		highlightedLine = highlightedLine + separator + text + separator + reset
 	}
 
-	return reset + newLine
+	return reset + highlightedLine
 }
 
 func highlightCommonKeywords(input string) string {
