@@ -7,7 +7,7 @@ import (
 )
 
 //go:embed defaults/defaults.yaml
-var defaultTheme string
+var defaultTheme []byte
 
 type Theme struct {
 	SearchAndReplace  []SearchAndReplace  `yaml:"search_and_replace"`
@@ -28,11 +28,9 @@ type Date struct {
 }
 
 func GetTheme() *Theme {
-	data := defaultTheme
-
 	theme := Theme{}
 
-	err := yaml.Unmarshal([]byte(data), &theme)
+	err := yaml.Unmarshal(defaultTheme, &theme)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
