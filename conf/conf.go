@@ -1,4 +1,4 @@
-package settings
+package conf
 
 type Config struct {
 	Follow    bool

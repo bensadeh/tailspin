@@ -5,7 +5,7 @@ import (
 	"github.com/nxadm/tail"
 	"os"
 	"os/exec"
-	"spin/settings"
+	"spin/conf"
 )
 
 type editorFinishedMsg struct{ err error }
@@ -13,7 +13,7 @@ type editorFinishedMsg struct{ err error }
 type Model struct {
 	TailFile   *tail.Tail
 	TempFile   *os.File
-	Config     *settings.Config
+	Config     *conf.Config
 	hasStarted bool
 }
 
@@ -25,7 +25,7 @@ func openEditor(m *Model) tea.Cmd {
 	})
 }
 
-func less(path string, config *settings.Config) *exec.Cmd {
+func less(path string, config *conf.Config) *exec.Cmd {
 	args := []string{
 		"--RAW-CONTROL-CHARS",
 		"--ignore-case"}

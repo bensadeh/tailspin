@@ -7,12 +7,12 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"spin/conf"
 	"spin/handler"
-	"spin/settings"
 	"spin/syntax"
 )
 
-func Setup(config *settings.Config, pathToFileToBeTailed string) {
+func Setup(config *conf.Config, pathToFileToBeTailed string) {
 	m := new(handler.Model)
 
 	temporaryFile, err := os.CreateTemp("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))

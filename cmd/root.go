@@ -4,8 +4,8 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"spin/app"
+	"spin/conf"
 	"spin/file"
-	"spin/settings"
 )
 
 var (
@@ -50,8 +50,8 @@ func configureFlags(rootCmd *cobra.Command) {
 
 }
 
-func getConfig() *settings.Config {
-	config := settings.New()
+func getConfig() *conf.Config {
+	config := conf.New()
 
 	config.Follow = follow
 
