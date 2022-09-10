@@ -1,11 +1,11 @@
 search_and_replace:
-  - keywords: ['Apple', 'Orange', 'Strawberry', 'Mango']
-    fg: ""
-  - keywords: ['Apple', 'Orange', 'Strawberry', 'Mango']
-    fg: ""
+  - keywords: [ 'Apple', 'Orange' ]
+    fg: "green"
+  - keywords: [ 'Strawberry', 'Mango' ]
+    fg: "blue"
 regular_expression:
-  - regexp: ['','']
-    fg: ""
+  - regexp: [ '','' ]
+    fg: "red"
 date:
-  regexp: ['','']
-  fg: ""
+  regexp: [ '','' ]
+  fg: "yellow"

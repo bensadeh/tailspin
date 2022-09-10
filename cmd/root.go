@@ -6,6 +6,7 @@ import (
 	"spin/app"
 	"spin/conf"
 	"spin/file"
+	"spin/mapper"
 	"spin/styling"
 )
 
@@ -24,8 +25,9 @@ func Root() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			config := getConfig()
 			theme := styling.GetTheme()
+			scheme := mapper.MapTheme(theme)
 
-			println(theme)
+			println(scheme)
 
 			file.Setup(config, os.Args[1])
 		},
