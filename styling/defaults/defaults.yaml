@@ -1,0 +1,11 @@
+search_and_replace:
+  - keywords: ['Apple', 'Orange', 'Strawberry', 'Mango']
+    fg: ""
+  - keywords: ['Apple', 'Orange', 'Strawberry', 'Mango']
+    fg: ""
+regular_expression:
+  - regexp: ['','']
+    fg: ""
+date:
+  regexp: ['','']
+  fg: ""

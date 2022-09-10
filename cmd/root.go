@@ -6,6 +6,7 @@ import (
 	"spin/app"
 	"spin/conf"
 	"spin/file"
+	"spin/styling"
 )
 
 var (
@@ -22,6 +23,9 @@ func Root() *cobra.Command {
 		Args:    cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			config := getConfig()
+			theme := styling.GetTheme()
+
+			println(theme)
 
 			file.Setup(config, os.Args[1])
 		},
@@ -47,7 +51,6 @@ func configureFlags(rootCmd *cobra.Command) {
 	rootCmd.PersistentFlags().IntVar(&debugFile, "debug-file", 0,
 		"select a specific log file for debugging")
 	rootCmd.Flag("debug-file").Hidden = true
-
 }
 
 func getConfig() *conf.Config {

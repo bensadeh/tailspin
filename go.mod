@@ -2,6 +2,8 @@ module spin
 
 go 1.19
 
+require gopkg.in/yaml.v2 v2.4.0
+
 require (
 	github.com/charmbracelet/bubbletea v0.22.0 // indirect
 	github.com/containerd/console v1.0.3 // indirect
