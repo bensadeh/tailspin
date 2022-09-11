@@ -16,6 +16,7 @@ java.lang.NullPointerException: Sample Java Logback Exception
    at Sample.errorLevel3(Sample.java:35)
    at Sample.errorLevel2(Sample.java:31)
    at Sample.errorLevel1(Sample.java:27)
+   at Sample.errorLevel1(Unknown Source)
    at Sample.main(Sample.java:15)
 localhost:8000
 https://www.geeksforgeeks.org/lru-cache-implementation/#hastest?name=234ksldjfkl&sjkldf=
