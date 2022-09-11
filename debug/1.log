@@ -8,23 +8,15 @@ Sun Aug 14 10:51:19.272 <airport[285]> _handleLinkEvent: WiFi is not powered. Re
 Sun Aug 14 10:51:19.314 <airport[285]> -[dpsManager handleDPSEventWithType:eventInfo:networkName:BSSID:channelInfo:isCriticalAppInUse:]_block_invoke: Ignoring non-dps events while not in monitoring period/ Ignoring DPS event while in monitoring period
 Sun Aug 14 10:51:19.316 Usb Host Notification Error Apple80211Set: Device power is off seqNum 17 Total 4 chg 1 en0
 Sun Aug 14 10:51:19.321 <kernel> IO80211VirtualInterface::handleSIOCSIFFLAGS : Source handleIoctlGated calling peerManager->disable
-Sun Aug 14 10:51:19.421 <airport[285]> _ipv6EventCallback: Unable to update NDP offload settings (Device power is off)
-Sun Aug 14 10:51:19.426 <airport[285]> _processIPv4Changes: Unable to update ARP offload settings (Device power is off)
-Sun Aug 14 10:51:21.230 <airport[285]> -[dpsManager handleDPSEventWithType:eventInfo:networkName:BSSID:channelInfo:isCriticalAppInUse:]_block_invoke: Ignoring non-dps events while not in monitoring period/ Ignoring DPS event while in monitoring period
-Sun Aug 14 10:51:21.235 Usb Host Notification Apple80211Set: seqNum 18 Total 4 chg 1 en0
-Sun Aug 14 10:51:21.235 <kernel> IO80211VirtualInterface::handleSIOCSIFFLAGS : Source handleIoctlGated calling peerManager->enable
-Sun Aug 14 10:51:21.346 Usb Host Notification Apple80211Set: seqNum 19 Total 4 chg 1 en0
-Sun Aug 14 10:51:22.545 <airport[285]> ERROR: rapportd (513) is not entitled for com.apple.wifi.join_history, will not allow request
-Sun Aug 14 10:51:22.552 <airport[285]> ERROR: sharingd (542) is not entitled for com.apple.wifi.join_history, will not allow request
-Sun Aug 14 10:51:22.567 <airport[285]> -[dpsManager handleDPSEventWithType:eventInfo:networkName:BSSID:channelInfo:isCriticalAppInUse:]_block_invoke: Ignoring non-dps events while not in monitoring period/ Ignoring DPS event while in monitoring period
-Sun Aug 14 10:51:22.577 <airport[285]> ERROR: sharingd (542) is not entitled for com.apple.wifi.join_history, will not allow request
-Sun Aug 14 10:51:22.585 <airport[285]> ERROR: rapportd (513) is not entitled for com.apple.wifi.join_history, will not allow request
-Sun Aug 14 10:51:22.585 <airport[285]> ERROR: sharingd (542) is not entitled for com.apple.wifi.join_history, will not allow request
-Sun Aug 14 10:51:22.602 <airport[285]> ERROR: rapportd (513) is not entitled for com.apple.wifi.join_history, will not allow request
 Sun Aug 14 10:51:22.602 <airport[285]> ERROR: sharingd (542) is not entitled for com.apple.wifi.join_history, will not allow request
 Sun Aug 14 10:51:22.625 <airport[285]> ERROR: rapportd (513) is not entitled for com.apple.wifi.join_history, will not allow request
 Sun Aug 14 10:51:23.325 <airport[285]> -[dpsManager handleDPSEventWithType:eventInfo:networkName:BSSID:channelInfo:isCriticalAppInUse:]_block_invoke: Ignoring non-dps events while not in monitoring period/ Ignoring DPS event while in monitoring period
 Sun Aug 14 10:51:23.361 <airport[285]> -[dpsManager handleDPSEventWithType:eventInfo:networkName:BSSID:channelInfo:isCriticalAppInUse:]_block_invoke: Ignoring non-dps events while not in monitoring period/ Ignoring DPS event while in monitoring period
+java.lang.NullPointerException: Sample Java Logback Exception
+   at Sample.errorLevel3(Sample.java:35)
+   at Sample.errorLevel2(Sample.java:31)
+   at Sample.errorLevel1(Sample.java:27)
+   at Sample.main(Sample.java:15)
 localhost:8000
 https://www.geeksforgeeks.org/lru-cache-implementation/#hastest?name=234ksldjfkl&sjkldf=
 https://developer.ibm.com/series/kubernetes-learning-path/

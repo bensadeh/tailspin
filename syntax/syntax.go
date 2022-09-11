@@ -37,6 +37,7 @@ func Highlight(line string, scheme *core.Scheme) string {
 		text = highlightDateInDigits(text)
 		text = highlightUrl(text)
 		text = highlightWithRegExp(text, scheme.RegularExpressions)
+		text = highlightJavaExceptionBody(text)
 
 		text = highlightGUIDs(text)
 		text = highlightDigits(text)
@@ -92,6 +93,12 @@ func highlightUrl(input string) string {
 		Yellow(`$protocol`).String()+Blue("//").String()+
 			Blue(`$host`).String()+Cyan(`$port`).String()+Red(`$path`).String()+
 			Green(`$search`).String()+Cyan(`$hash`).String())
+}
+
+func highlightJavaExceptionBody(input string) string {
+	expression := regexp.MustCompile(`(^\s*at)(\s+\S+)\((\w+\.\w+):(\d+)\)`)
+
+	return expression.ReplaceAllString(input, Yellow(`$1`).String()+Red(`$2`).String()+"("+Magenta(`$3`).String()+":"+Cyan(`$4`).String()+")")
 }
 
 func highlightDigits(input string) string {
