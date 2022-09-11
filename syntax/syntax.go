@@ -35,7 +35,7 @@ func Highlight(line string, scheme *core.Scheme) string {
 		text = highlightCommonKeywords(text, scheme.Keywords)
 		text = highlightTime(text)
 		text = highlightDateInDigits(text)
-		//text = highlightDateInWords(text)
+		text = highlightUrl(text)
 		text = highlightWithRegExp(text, scheme.RegularExpressions)
 
 		text = highlightGUIDs(text)
@@ -85,11 +85,13 @@ func highlightDateInDigits(input string) string {
 	return expression.ReplaceAllString(input, Magenta(`$0`).String())
 }
 
-func highlightDateInWords(input string) string {
+func highlightUrl(input string) string {
 	expression := regexp.MustCompile(
-		`(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{2}`)
-
-	return expression.ReplaceAllString(input, Magenta(`$0`).String())
+		`(?P<protocol>http[s]?:)?\/\/(?P<host>[a-z0-9A-Z-_.]+)(?P<port>:\d+)?(?P<path>[\/a-zA-Z0-9-\.]+)?(?P<search>\?[^#\n]+)?(?P<hash>#.*)?`)
+	return expression.ReplaceAllString(input,
+		Yellow(`$protocol`).String()+Blue("//").String()+
+			Blue(`$host`).String()+Cyan(`$port`).String()+Red(`$path`).String()+
+			Green(`$search`).String()+Cyan(`$hash`).String())
 }
 
 func highlightDigits(input string) string {
