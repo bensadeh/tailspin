@@ -1,7 +1,7 @@
-search_and_replace:
-  - keywords: [ 'Apple', 'Orange' ]
+keyword:
+  - strings: [ 'Apple', 'Orange' ]
     fg: "green"
-  - keywords: [ 'Strawberry', 'Mango' ]
+  - strings: [ 'Strawberry', 'Mango' ]
     fg: "blue"
 regular_expression:
   - regexp: [ '','' ]

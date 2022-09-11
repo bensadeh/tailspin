@@ -10,13 +10,13 @@ import (
 var defaultTheme []byte
 
 type Theme struct {
-	SearchAndReplace  []SearchAndReplace  `yaml:"search_and_replace"`
-	RegularExpression []RegularExpression `yaml:"regular_expression"`
-	Date              Date                `yaml:"date"`
+	Keywords           []Keyword           `yaml:"keyword"`
+	RegularExpressions []RegularExpression `yaml:"regular_expression"`
+	Date               Date                `yaml:"date"`
 }
-type SearchAndReplace struct {
-	Keywords []string `yaml:"keywords"`
-	Fg       string   `yaml:"fg"`
+type Keyword struct {
+	Strings []string `yaml:"strings"`
+	Fg      string   `yaml:"fg"`
 }
 type RegularExpression struct {
 	Regexp []string `yaml:"regexp"`

@@ -1,20 +1,20 @@
 package core
 
 type Scheme struct {
-	SearchAndReplace  []SearchAndReplace
-	RegularExpression []RegularExpression
-	Date              []Date
+	Keywords           []Keyword
+	RegularExpressions []RegularExpression
+	Date               []Date
 }
 
-type SearchAndReplace struct {
-	Keyword string
-	Fg      string
+type Keyword struct {
+	String string
+	Fg     string
 }
 type RegularExpression struct {
-	Regexp string
+	RegExp string
 	Fg     string
 }
 type Date struct {
-	Regexp string
+	RegExp string
 	Fg     string
 }

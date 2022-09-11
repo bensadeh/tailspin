@@ -7,25 +7,25 @@ import (
 
 func MapTheme(theme *styling.Theme) *core.Scheme {
 	scheme := core.Scheme{}
-	scheme.SearchAndReplace = FlattenSearchAndReplace(theme.SearchAndReplace)
+	scheme.Keywords = FlattenKeywords(theme.Keywords)
 
 	return &scheme
 }
 
-func FlattenSearchAndReplace(searchAndReplace []styling.SearchAndReplace) []core.SearchAndReplace {
-	var flatSearchAndReplace []core.SearchAndReplace
+func FlattenKeywords(keywords []styling.Keyword) []core.Keyword {
+	var flatKeywords []core.Keyword
 
-	for _, item := range searchAndReplace {
-		for _, keyword := range item.Keywords {
+	for _, item := range keywords {
+		for _, str := range item.Strings {
 
-			sAndR := core.SearchAndReplace{
-				Keyword: keyword,
-				Fg:      item.Fg,
+			sAndR := core.Keyword{
+				String: str,
+				Fg:     item.Fg,
 			}
 
-			flatSearchAndReplace = append(flatSearchAndReplace, sAndR)
+			flatKeywords = append(flatKeywords, sAndR)
 		}
 	}
 
-	return flatSearchAndReplace
+	return flatKeywords
 }
