@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-A better way to view your logfiles
+A better way to view (and <code>tail</code>) your logfiles
 </p>
 
 
