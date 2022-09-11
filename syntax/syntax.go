@@ -37,12 +37,12 @@ func Highlight(line string, scheme *core.Scheme) string {
 		text = highlightDateInDigits(text)
 		text = highlightUrl(text)
 		text = highlightWithRegExp(text, scheme.RegularExpressions)
+		//text = highlightJavaExceptionHeader(text)
 		text = highlightJavaExceptionBody(text)
 
 		text = highlightGUIDs(text)
 		text = highlightDigits(text)
 		text = highlightConstants(text)
-		text = highlightExceptions(text)
 
 		separator := Green(segment.Separator).String()
 
@@ -95,10 +95,16 @@ func highlightUrl(input string) string {
 			Green(`$search`).String()+Cyan(`$hash`).String())
 }
 
-func highlightJavaExceptionBody(input string) string {
-	expression := regexp.MustCompile(`(^\s*at)(\s+\S+)\((\w+\.\w+):(\d+)\)`)
+func highlightJavaExceptionHeader(input string) string {
+	expression := regexp.MustCompile(`(?:([^:,\s]+):\s+([^:\n]+)|(!\A))`)
 
 	return expression.ReplaceAllString(input, Yellow(`$1`).String()+Red(`$2`).String()+"("+Magenta(`$3`).String()+":"+Cyan(`$4`).String()+")")
+}
+
+func highlightJavaExceptionBody(input string) string {
+	expression := regexp.MustCompile(`(^\s*at)(\s+\S+)\((\w+\.\w+|Unknown Source)(:?)(\d+)?\)`)
+
+	return expression.ReplaceAllString(input, Yellow(`$1`).String()+Red(`$2`).String()+"("+Magenta(`$3`).String()+`$4`+Cyan(`$5`).String()+")")
 }
 
 func highlightDigits(input string) string {
@@ -117,10 +123,4 @@ func highlightConstants(input string) string {
 	expression := regexp.MustCompile(`[A-Z\d]*_[A-Z\d_]+`)
 
 	return expression.ReplaceAllString(input, Yellow(`$0`).Italic().String())
-}
-
-func highlightExceptions(input string) string {
-	expression := regexp.MustCompile(`[\w|.]+Exception`)
-
-	return expression.ReplaceAllString(input, Red(`$0`).Italic().String())
 }
