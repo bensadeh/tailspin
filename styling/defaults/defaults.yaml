@@ -4,8 +4,8 @@ keyword:
   - strings: [ 'Downloaded', 'Mango' ]
     fg: "blue"
 regular_expression:
-  - regexp: [ '','' ]
-    fg: "red"
+  - regexp: [ '(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{2}' ]
+    fg: "green"
 date:
   regexp: [ '','' ]
   fg: "yellow"

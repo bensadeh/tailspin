@@ -7,7 +7,9 @@ import (
 
 func MapTheme(theme *styling.Theme) *core.Scheme {
 	scheme := core.Scheme{}
+
 	scheme.Keywords = FlattenKeywords(theme.Keywords)
+	scheme.RegularExpressions = FlattenRegularExpressions(theme.RegularExpressions)
 
 	return &scheme
 }
@@ -27,4 +29,21 @@ func FlattenKeywords(keywords []styling.Keyword) []*core.Keyword {
 	}
 
 	return flatKeywords
+}
+
+func FlattenRegularExpressions(regExpressions []styling.RegularExpression) []*core.RegularExpression {
+	var flatRegExpressions []*core.RegularExpression
+
+	for _, item := range regExpressions {
+		for _, regexp := range item.Regexp {
+
+			var regExpressions = core.RegularExpression{
+				RegExp: regexp,
+				Fg:     item.Fg,
+			}
+			flatRegExpressions = append(flatRegExpressions, &regExpressions)
+		}
+	}
+
+	return flatRegExpressions
 }

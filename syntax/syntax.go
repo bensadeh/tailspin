@@ -35,7 +35,9 @@ func Highlight(line string, scheme *core.Scheme) string {
 		text = highlightCommonKeywords(text, scheme.Keywords)
 		text = highlightTime(text)
 		text = highlightDateInDigits(text)
-		text = highlightDateInWords(text)
+		//text = highlightDateInWords(text)
+		text = highlightWithRegExp(text, scheme.RegularExpressions)
+
 		text = highlightGUIDs(text)
 		text = highlightDigits(text)
 		text = highlightConstants(text)
@@ -56,6 +58,16 @@ func Highlight(line string, scheme *core.Scheme) string {
 func highlightCommonKeywords(input string, keywords []*core.Keyword) string {
 	for _, keyword := range keywords {
 		input = strings.ReplaceAll(input, keyword.String, color.C(keyword.Fg, keyword.String))
+	}
+
+	return input
+}
+
+func highlightWithRegExp(input string, regExpressions []*core.RegularExpression) string {
+	for _, regExpression := range regExpressions {
+		expression := regexp.MustCompile(regExpression.RegExp)
+
+		input = expression.ReplaceAllString(input, color.C(regExpression.Fg, `$0`))
 	}
 
 	return input
