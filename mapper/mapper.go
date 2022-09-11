@@ -12,18 +12,17 @@ func MapTheme(theme *styling.Theme) *core.Scheme {
 	return &scheme
 }
 
-func FlattenKeywords(keywords []styling.Keyword) []core.Keyword {
-	var flatKeywords []core.Keyword
+func FlattenKeywords(keywords []styling.Keyword) []*core.Keyword {
+	var flatKeywords []*core.Keyword
 
 	for _, item := range keywords {
 		for _, str := range item.Strings {
 
-			sAndR := core.Keyword{
+			var sAndR = core.Keyword{
 				String: str,
 				Fg:     item.Fg,
 			}
-
-			flatKeywords = append(flatKeywords, sAndR)
+			flatKeywords = append(flatKeywords, &sAndR)
 		}
 	}
 

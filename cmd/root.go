@@ -27,9 +27,7 @@ func Root() *cobra.Command {
 			theme := styling.GetTheme()
 			scheme := mapper.MapTheme(theme)
 
-			println(scheme)
-
-			file.Setup(config, os.Args[1])
+			file.Setup(config, os.Args[1], scheme)
 		},
 	}
 

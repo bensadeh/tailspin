@@ -1,9 +1,9 @@
 package core
 
 type Scheme struct {
-	Keywords           []Keyword
-	RegularExpressions []RegularExpression
-	Date               []Date
+	Keywords           []*Keyword
+	RegularExpressions []*RegularExpression
+	Date               []*Date
 }
 
 type Keyword struct {

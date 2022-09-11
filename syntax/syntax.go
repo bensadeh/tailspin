@@ -4,6 +4,8 @@ import (
 	. "github.com/logrusorgru/aurora/v3"
 	"regexp"
 	"spin/block"
+	"spin/color"
+	"spin/core"
 	"strings"
 )
 
@@ -18,7 +20,7 @@ const (
 	red     = "\033[31m"
 )
 
-func Highlight(line string) string {
+func Highlight(line string, scheme *core.Scheme) string {
 	// Carriage return (\r) messes with the regexp, so we remove it
 	line = strings.ReplaceAll(line, "\r", "")
 	line = line + " "
@@ -30,7 +32,7 @@ func Highlight(line string) string {
 	for _, segment := range segments {
 		text := segment.Content
 
-		text = highlightCommonKeywords(text)
+		text = highlightCommonKeywords(text, scheme.Keywords)
 		text = highlightTime(text)
 		text = highlightDateInDigits(text)
 		text = highlightDateInWords(text)
@@ -51,29 +53,10 @@ func Highlight(line string) string {
 	return reset + highlightedLine
 }
 
-func highlightCommonKeywords(input string) string {
-	input = strings.ReplaceAll(input, "null", Red("null").Italic().String())
-	input = strings.ReplaceAll(input, "NULL", Red("NULL").Italic().String())
-	input = strings.ReplaceAll(input, "nil", Red("nil").Italic().String())
-	input = strings.ReplaceAll(input, "true", Red("true").Italic().String())
-	input = strings.ReplaceAll(input, "false", Red("false").Italic().String())
-
-	input = strings.ReplaceAll(input, "ERROR", Red("ERROR").String())
-	input = strings.ReplaceAll(input, "FAIL", Red("FAIL").String())
-	input = strings.ReplaceAll(input, "FAILURE", Red("FAILURE").String())
-	input = strings.ReplaceAll(input, "error", Red("error").String())
-
-	input = strings.ReplaceAll(input, "INFO", Blue("INFO").String())
-	input = strings.ReplaceAll(input, "DEBUG", Green("DEBUG").String())
-	input = strings.ReplaceAll(input, "WARN", Yellow("WARN").String())
-	input = strings.ReplaceAll(input, "WARNING", Yellow("WARNING").String())
-	input = strings.ReplaceAll(input, "TRACE", Faint("TRACE").Italic().String())
-
-	input = strings.ReplaceAll(input, "GET", Green("GET").String())
-	input = strings.ReplaceAll(input, "PUT", Yellow("PUT").String())
-	input = strings.ReplaceAll(input, "POST", Magenta("POST").String())
-	input = strings.ReplaceAll(input, "PATCH", Blue("PATCH").String())
-	input = strings.ReplaceAll(input, "DELETE", Red("DELETE").String())
+func highlightCommonKeywords(input string, keywords []*core.Keyword) string {
+	for _, keyword := range keywords {
+		input = strings.ReplaceAll(input, keyword.String, color.C(keyword.Fg, keyword.String))
+	}
 
 	return input
 }

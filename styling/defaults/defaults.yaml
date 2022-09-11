@@ -1,7 +1,7 @@
 keyword:
-  - strings: [ 'Apple', 'Orange' ]
-    fg: "green"
-  - strings: [ 'Strawberry', 'Mango' ]
+  - strings: [ 'INFO', 'Orange' ]
+    fg: "red"
+  - strings: [ 'Downloaded', 'Mango' ]
     fg: "blue"
 regular_expression:
   - regexp: [ '','' ]

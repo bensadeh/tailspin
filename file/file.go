@@ -8,11 +8,12 @@ import (
 	"os"
 	"path/filepath"
 	"spin/conf"
+	"spin/core"
 	"spin/handler"
 	"spin/syntax"
 )
 
-func Setup(config *conf.Config, pathToFileToBeTailed string) {
+func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme) {
 	m := new(handler.Model)
 
 	temporaryFile, err := os.CreateTemp("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
@@ -37,7 +38,7 @@ func Setup(config *conf.Config, pathToFileToBeTailed string) {
 
 	go func() {
 		for line := range m.TailFile.Lines {
-			syntaxHighlightedLine := syntax.Highlight(line.Text)
+			syntaxHighlightedLine := syntax.Highlight(line.Text, scheme)
 			_, _ = m.TempFile.WriteString(syntaxHighlightedLine + "\n")
 		}
 	}()

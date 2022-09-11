@@ -6,6 +6,8 @@ import (
 	"os"
 	"spin/debug"
 	"spin/file"
+	"spin/mapper"
+	"spin/styling"
 )
 
 var (
@@ -27,7 +29,10 @@ func debugCmd() *cobra.Command {
 			content := debug.GetDebugFile(debugFile)
 			_, _ = tempDebugFile.WriteString(content)
 
-			file.Setup(config, tempDebugFile.Name())
+			theme := styling.GetTheme()
+			scheme := mapper.MapTheme(theme)
+
+			file.Setup(config, tempDebugFile.Name(), scheme)
 
 			defer tempDebugFile.Close()
 		},
