@@ -3,9 +3,9 @@ package syntax
 import (
 	. "github.com/logrusorgru/aurora/v3"
 	"regexp"
-	"spin/block"
 	"spin/color"
 	"spin/core"
+	"spin/parser"
 	"strings"
 )
 
@@ -27,7 +27,7 @@ func Highlight(line string, scheme *core.Scheme) string {
 
 	highlightedLine := ""
 
-	segments := block.ExtractSegments(line)
+	segments := parser.ExtractSegments(line)
 
 	for _, segment := range segments {
 		text := segment.Content
