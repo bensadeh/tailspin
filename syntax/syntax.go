@@ -88,11 +88,10 @@ func highlightDateInDigits(input string) string {
 
 func highlightUrl(input string) string {
 	expression := regexp.MustCompile(
-		`(?P<protocol>http[s]?:)?\/\/(?P<host>[a-z0-9A-Z-_.]+)(?P<port>:\d+)?(?P<path>[\/a-zA-Z0-9-\.]+)?(?P<search>\?[^#\n]+)?(?P<hash>#.*)?`)
+		`(?P<protocol>http[s]?:)?//(?P<host>[a-z0-9A-Z-_.]+)(?P<port>:\d+)?(?P<path>[\/a-zA-Z0-9-\.]+)?(?P<search>\?[^#\n]+)?`)
 	return expression.ReplaceAllString(input,
-		Yellow(`$protocol`).String()+Blue("//").String()+
-			Blue(`$host`).String()+Cyan(`$port`).String()+Red(`$path`).String()+
-			Green(`$search`).String()+Cyan(`$hash`).String())
+		Yellow(`$protocol`).String()+"//"+Blue(`$host`).String()+Cyan(`$port`).String()+
+			Red(`$path`).String()+Green(`$search`).String())
 }
 
 func highlightJavaExceptionHeader(input string) string {
