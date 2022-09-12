@@ -87,11 +87,28 @@ func highlightDateInDigits(input string) string {
 }
 
 func highlightUrl(input string) string {
+	start := `[CLX_URL_START]`
+	stop := `[CLX_URL_STOP]`
+
 	expression := regexp.MustCompile(
 		`(?P<protocol>http[s]?:)?//(?P<host>[a-z0-9A-Z-_.]+)(?P<port>:\d+)?(?P<path>[\/a-zA-Z0-9-\.]+)?(?P<search>\?[^#\n]+)?`)
-	return expression.ReplaceAllString(input,
-		Yellow(`$protocol`).String()+"//"+Blue(`$host`).String()+Cyan(`$port`).String()+
-			Red(`$path`).String()+Green(`$search`).String())
+	input = expression.ReplaceAllString(input, start+
+		Magenta(`$protocol`).String()+"//"+Blue(`$host`).String()+Cyan(`$port`).String()+
+		Green(`$path`).String()+Yellow(`$search`).String()+stop)
+
+	questionMarks := regexp.MustCompile(`(` + start + `.*)(\?)(.*` + stop + `)`)
+	input = questionMarks.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
+
+	ampersands := regexp.MustCompile(`(` + start + `.*)(\&)(.*` + stop + `)`)
+	input = ampersands.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
+
+	equals := regexp.MustCompile(`(` + start + `.*)(\=)(.*` + stop + `)`)
+	input = equals.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
+
+	//input = strings.ReplaceAll(input, start, "")
+	//input = strings.ReplaceAll(input, stop, "")
+
+	return input
 }
 
 func highlightJavaExceptionHeader(input string) string {
