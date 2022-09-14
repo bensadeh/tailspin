@@ -94,8 +94,8 @@ func highlightUrl(input string) string {
 	expression := regexp.MustCompile(
 		`(?P<protocol>http[s]?:)?//(?P<host>[a-z0-9A-Z-_.]+)(?P<port>:\d+)?(?P<path>[\/a-zA-Z0-9-\.]+)?(?P<search>\?[^#\n]+)?`)
 	input = expression.ReplaceAllString(input, start+
-		Magenta(`$protocol`).String()+"//"+Blue(`$host`).String()+Cyan(`$port`).String()+
-		Green(`$path`).String()+`$search`+stop)
+		Green(`$protocol`).String()+"//"+Blue(`$host`).String()+Cyan(`$port`).String()+
+		Yellow(`$path`).String()+`$search`+stop)
 
 	//input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "?", color.ColorAndResetTo("red", "?", "green"))
 	input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "&", color.ColorAndResetTo("red", "&", "cyan"))
@@ -111,8 +111,8 @@ func highlightUrl(input string) string {
 	//equals := regexp.MustCompile(`(` + start + `.*)(\=)(.*` + stop + `)`)
 	//input = equals.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
 
-	//input = strings.ReplaceAll(input, start, "")
-	//input = strings.ReplaceAll(input, stop, "")
+	input = strings.ReplaceAll(input, start, "")
+	input = strings.ReplaceAll(input, stop, "")
 
 	return input
 }
