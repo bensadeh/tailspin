@@ -31,6 +31,10 @@ func C(color string, text string) string {
 	return getColor(color) + text + Reset
 }
 
+func ColorAndResetTo(color string, text string, resetTo string) string {
+	return getColor(color) + text + getColor(resetTo)
+}
+
 func getColor(color string) string {
 	switch color {
 	case "black":

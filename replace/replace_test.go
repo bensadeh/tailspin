@@ -28,7 +28,7 @@ func Test_searchAndReplaceInBetweenTokens(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := searchAndReplaceInBetweenTokens(tt.args.leftToken, tt.args.rightToken, tt.args.s, tt.args.old, tt.args.new); got != tt.want {
+			if got := SearchAndReplaceInBetweenTokens(tt.args.leftToken, tt.args.rightToken, tt.args.s, tt.args.old, tt.args.new); got != tt.want {
 				t.Errorf("\n got: %v, \nwant: %v", got, tt.want)
 			}
 		})

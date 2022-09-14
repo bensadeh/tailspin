@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func searchAndReplaceInBetweenTokens(leftToken, rightToken, s, old, new string) string {
+func SearchAndReplaceInBetweenTokens(leftToken, rightToken, s, old, new string) string {
 	leftTokenCount := strings.Count(s, leftToken)
 	rightTokenCount := strings.Count(s, rightToken)
 
@@ -36,7 +36,7 @@ func searchAndReplaceInBetweenTokens(leftToken, rightToken, s, old, new string) 
 func searchAndReplaceToTheLeftOfToken(token, s, old, new string) string {
 	split := strings.Split(s, token)
 
-	if len(split) == 1 {
+	if len(split) == 1 || !strings.ContainsAny(s, token) {
 		return s
 	}
 

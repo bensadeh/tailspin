@@ -6,6 +6,7 @@ import (
 	"spin/color"
 	"spin/core"
 	"spin/parser"
+	"spin/replace"
 	"strings"
 )
 
@@ -94,16 +95,21 @@ func highlightUrl(input string) string {
 		`(?P<protocol>http[s]?:)?//(?P<host>[a-z0-9A-Z-_.]+)(?P<port>:\d+)?(?P<path>[\/a-zA-Z0-9-\.]+)?(?P<search>\?[^#\n]+)?`)
 	input = expression.ReplaceAllString(input, start+
 		Magenta(`$protocol`).String()+"//"+Blue(`$host`).String()+Cyan(`$port`).String()+
-		Green(`$path`).String()+Yellow(`$search`).String()+stop)
+		Green(`$path`).String()+`$search`+stop)
 
-	questionMarks := regexp.MustCompile(`(` + start + `.*)(\?)(.*` + stop + `)`)
-	input = questionMarks.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
+	//input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "?", color.ColorAndResetTo("red", "?", "green"))
+	input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "&", color.ColorAndResetTo("red", "&", "cyan"))
+	input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "=", color.ColorAndResetTo("red", "=", "magenta"))
+	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "?", color.ColorAndResetTo("red", "?", "cyan"))
 
-	ampersands := regexp.MustCompile(`(` + start + `.*)(\&)(.*` + stop + `)`)
-	input = ampersands.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
-
-	equals := regexp.MustCompile(`(` + start + `.*)(\=)(.*` + stop + `)`)
-	input = equals.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
+	//questionMarks := regexp.MustCompile(`(` + start + `.*)(\?)(.*` + stop + `)`)
+	//input = questionMarks.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
+	//
+	//ampersands := regexp.MustCompile(`(` + start + `.*)(\&)(.*` + stop + `)`)
+	//input = ampersands.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
+	//
+	//equals := regexp.MustCompile(`(` + start + `.*)(\=)(.*` + stop + `)`)
+	//input = equals.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
 
 	//input = strings.ReplaceAll(input, start, "")
 	//input = strings.ReplaceAll(input, stop, "")
