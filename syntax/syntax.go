@@ -38,7 +38,7 @@ func Highlight(line string, scheme *core.Scheme) string {
 		text = highlightDateInDigits(text)
 		text = highlightUrl(text)
 		text = highlightWithRegExp(text, scheme.RegularExpressions)
-		//text = highlightJavaExceptionHeader(text)
+		text = highlightJavaExceptionHeader(text)
 		text = highlightJavaExceptionBody(text)
 
 		text = highlightGUIDs(text)
@@ -118,22 +118,25 @@ func highlightUrl(input string) string {
 }
 
 func highlightJavaExceptionHeader(input string) string {
-	expression := regexp.MustCompile(`(?:([^:,\s]+):\s+([^:\n]+)|(!\A))`)
+	expression := regexp.MustCompile(`(\S+\.)([A-Z]\S+Exception)(: )`)
 
-	return expression.ReplaceAllString(input, Yellow(`$1`).String()+Red(`$2`).String()+"("+Magenta(`$3`).String()+":"+Cyan(`$4`).String()+")")
+	return expression.ReplaceAllString(input, Red(`$1`).String()+Red(`$2`).Bold().String()+`$3`)
 }
 
 func highlightJavaExceptionBody(input string) string {
 	start := "[JAVA_EXCEPTION_BODY_START]"
 	stop := "[JAVA_EXCEPTION_BODY_STOP]"
 
-	expression := regexp.MustCompile(`(^\s*at)(\s+\S+)\((\w+\.\w+|Unknown Source)(:?)(\d+)?\)`)
+	expression := regexp.MustCompile(`(^\s*at)(\s+\S+)\((\w+\.\w+|Unknown Source|Native Method)(:?)(\d+)?\)`)
 
 	input = expression.ReplaceAllString(input, start+Yellow(`$1`).String()+Red(`$2`).String()+"("+
 		Magenta(`$3`).String()+`$4`+Cyan(`$5`).String()+")"+stop)
 
 	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "Unknown Source",
 		highlighter.ColorStyle("", "reset faint", "Unknown Source"))
+
+	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "Native Method",
+		highlighter.ColorStyle("green", "reset faint", "Native Method"))
 
 	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, ".java",
 		highlighter.ColorStyle("", "reset", ".java"))

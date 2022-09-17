@@ -15,6 +15,7 @@ Sun Aug 14 10:51:23.361 <airport[285]> -[dpsManager handleDPSEventWithType:event
 java.lang.NullPointerException: Sample Java Logback Exception
    at Sample.errorLevel3(Sample.java:35)
    at Sample.errorLevel2(Sample.java:31)
+   at Sample.errorLevel2(Native Method)
    at Sample.errorLevel1(Sample.java:27)
    at Sample.errorLevel1(Unknown Source)
    at Sample.main(Sample.java:15)
