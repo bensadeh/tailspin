@@ -146,7 +146,7 @@ func highlightDigits(input string) string {
 func highlightGUIDs(input string) string {
 	expression := regexp.MustCompile(`[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+`)
 
-	return expression.ReplaceAllString(input, Yellow(`$0`).String())
+	return expression.ReplaceAllString(input, Yellow(`$0`).Underline().String())
 }
 
 func highlightConstants(input string) string {
