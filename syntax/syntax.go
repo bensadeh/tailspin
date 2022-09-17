@@ -3,8 +3,8 @@ package syntax
 import (
 	. "github.com/logrusorgru/aurora/v3"
 	"regexp"
-	"spin/color"
 	"spin/core"
+	"spin/highlighter"
 	"spin/parser"
 	"spin/replace"
 	"strings"
@@ -59,7 +59,7 @@ func Highlight(line string, scheme *core.Scheme) string {
 
 func highlightCommonKeywords(input string, keywords []*core.Keyword) string {
 	for _, keyword := range keywords {
-		input = strings.ReplaceAll(input, keyword.String, color.C(keyword.Fg, keyword.String))
+		input = strings.ReplaceAll(input, keyword.String, highlighter.Color(keyword.Fg, keyword.String))
 	}
 
 	return input
@@ -69,7 +69,7 @@ func highlightWithRegExp(input string, regExpressions []*core.RegularExpression)
 	for _, regExpression := range regExpressions {
 		expression := regexp.MustCompile(regExpression.RegExp)
 
-		input = expression.ReplaceAllString(input, color.C(regExpression.Fg, `$0`))
+		input = expression.ReplaceAllString(input, highlighter.Color(regExpression.Fg, `$0`))
 	}
 
 	return input
@@ -98,9 +98,9 @@ func highlightUrl(input string) string {
 		Yellow(`$path`).String()+`$search`+stop)
 
 	//input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "?", color.ColorAndResetTo("red", "?", "green"))
-	input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "&", color.ColorAndResetTo("red", "&", "cyan"))
-	input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "=", color.ColorAndResetTo("red", "=", "magenta"))
-	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "?", color.ColorAndResetTo("red", "?", "cyan"))
+	input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "&", highlighter.ColorAndResetTo("red", "&", "cyan"))
+	input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "=", highlighter.ColorAndResetTo("red", "=", "magenta"))
+	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "?", highlighter.ColorAndResetTo("red", "?", "cyan"))
 
 	//questionMarks := regexp.MustCompile(`(` + start + `.*)(\?)(.*` + stop + `)`)
 	//input = questionMarks.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)

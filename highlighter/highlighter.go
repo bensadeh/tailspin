@@ -1,4 +1,4 @@
-package color
+package highlighter
 
 const (
 	Normal = iota
@@ -27,12 +27,20 @@ const (
 	FgWhite   = "\033[37m"
 )
 
-func C(color string, text string) string {
+func Color(color, text string) string {
 	return getColor(color) + text + Reset
 }
 
-func ColorAndResetTo(color string, text string, resetTo string) string {
-	return getColor(color) + text + getColor(resetTo)
+func ColorStyle(color, style, text string) string {
+	return getColor(color) + getStyle(style) + text + Reset
+}
+
+func ColorAndResetTo(color, text, resetToColor string) string {
+	return getColor(color) + text + getColor(resetToColor)
+}
+
+func ColorStyleAndResetTo(color, style, text, resetToColor, resetToStyle string) string {
+	return getColor(color) + getStyle(style) + text + getColor(resetToColor) + getStyle(resetToStyle)
 }
 
 func getColor(color string) string {
@@ -53,6 +61,21 @@ func getColor(color string) string {
 		return FgCyan
 	case "white":
 		return FgWhite
+	default:
+		return ""
+	}
+}
+
+func getStyle(style string) string {
+	switch style {
+	case "reset":
+		return Reset
+	case "bold":
+		return Bold
+	case "italic":
+		return Italic
+	case "faint":
+		return Faint
 	default:
 		return ""
 	}
