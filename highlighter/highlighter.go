@@ -1,5 +1,7 @@
 package highlighter
 
+import "strings"
+
 const (
 	Normal = iota
 	Black
@@ -31,16 +33,16 @@ func Color(color, text string) string {
 	return getColor(color) + text + Reset
 }
 
-func ColorStyle(color, style, text string) string {
-	return getColor(color) + getStyle(style) + text + Reset
+func ColorStyle(color, styles, text string) string {
+	return getColor(color) + getStyles(styles) + text + Reset
 }
 
 func ColorAndResetTo(color, text, resetToColor string) string {
 	return getColor(color) + text + getColor(resetToColor)
 }
 
-func ColorStyleAndResetTo(color, style, text, resetToColor, resetToStyle string) string {
-	return getColor(color) + getStyle(style) + text + getColor(resetToColor) + getStyle(resetToStyle)
+func ColorStyleAndResetTo(color, styles, text, resetToColor, resetToStyles string) string {
+	return getColor(color) + getStyles(styles) + text + getColor(resetToColor) + getStyles(resetToStyles)
 }
 
 func getColor(color string) string {
@@ -64,6 +66,16 @@ func getColor(color string) string {
 	default:
 		return ""
 	}
+}
+
+func getStyles(style string) string {
+	styles := ""
+
+	for _, s2 := range strings.Fields(style) {
+		styles += getStyle(s2)
+	}
+
+	return styles
 }
 
 func getStyle(style string) string {

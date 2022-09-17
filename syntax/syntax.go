@@ -124,9 +124,24 @@ func highlightJavaExceptionHeader(input string) string {
 }
 
 func highlightJavaExceptionBody(input string) string {
+	start := "[JAVA_EXCEPTION_BODY_START]"
+	stop := "[JAVA_EXCEPTION_BODY_STOP]"
+
 	expression := regexp.MustCompile(`(^\s*at)(\s+\S+)\((\w+\.\w+|Unknown Source)(:?)(\d+)?\)`)
 
-	return expression.ReplaceAllString(input, Yellow(`$1`).String()+Red(`$2`).String()+"("+Magenta(`$3`).String()+`$4`+Cyan(`$5`).String()+")")
+	input = expression.ReplaceAllString(input, start+Yellow(`$1`).String()+Red(`$2`).String()+"("+
+		Magenta(`$3`).String()+`$4`+Cyan(`$5`).String()+")"+stop)
+
+	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "Unknown Source",
+		highlighter.ColorStyle("", "reset faint", "Unknown Source"))
+
+	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, ".java",
+		highlighter.ColorStyle("", "reset", ".java"))
+
+	input = strings.ReplaceAll(input, start, "")
+	input = strings.ReplaceAll(input, stop, "")
+
+	return input
 }
 
 func highlightDigits(input string) string {
