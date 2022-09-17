@@ -88,8 +88,8 @@ func highlightDateInDigits(input string) string {
 }
 
 func highlightUrl(input string) string {
-	start := `[CLX_URL_START]`
-	stop := `[CLX_URL_STOP]`
+	start := `[URL_START]`
+	stop := `[URL_STOP]`
 
 	expression := regexp.MustCompile(
 		`(?P<protocol>http[s]?:)?//(?P<host>[a-z0-9A-Z-_.]+)(?P<port>:\d+)?(?P<path>[\/a-zA-Z0-9-\.]+)?(?P<search>\?[^#\n]+)?`)
