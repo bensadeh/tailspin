@@ -97,19 +97,9 @@ func highlightUrl(input string) string {
 		Green(`$protocol`).String()+"//"+Blue(`$host`).String()+Cyan(`$port`).String()+
 		Yellow(`$path`).String()+`$search`+stop)
 
-	//input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "?", color.ColorAndResetTo("red", "?", "green"))
 	input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "&", highlighter.ColorAndResetTo("red", "&", "cyan"))
 	input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "=", highlighter.ColorAndResetTo("red", "=", "magenta"))
 	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "?", highlighter.ColorAndResetTo("red", "?", "cyan"))
-
-	//questionMarks := regexp.MustCompile(`(` + start + `.*)(\?)(.*` + stop + `)`)
-	//input = questionMarks.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
-	//
-	//ampersands := regexp.MustCompile(`(` + start + `.*)(\&)(.*` + stop + `)`)
-	//input = ampersands.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
-	//
-	//equals := regexp.MustCompile(`(` + start + `.*)(\=)(.*` + stop + `)`)
-	//input = equals.ReplaceAllString(input, `$1`+Red(`$2`).String()+`$3`)
 
 	input = strings.ReplaceAll(input, start, "")
 	input = strings.ReplaceAll(input, stop, "")
