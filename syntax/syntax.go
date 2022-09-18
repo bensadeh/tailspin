@@ -65,7 +65,10 @@ func highlightCommonKeywords(input string, keywords []*core.Keyword) string {
 			continue
 		}
 
-		expression := regexp.MustCompile(`([ |[])(` + keyword.String + `)([]|:| ])`)
+		lineHasKeywordOnly := regexp.MustCompile(`^` + keyword.String + `$`)
+		input = lineHasKeywordOnly.ReplaceAllString(input, highlighter.ColorStyle(keyword.Fg, keyword.Style, `$0`))
+
+		expression := regexp.MustCompile(`([ |[|(]|=)(` + keyword.String + `)([]|:| |,|.|)])`)
 		input = expression.ReplaceAllString(input, `$1`+highlighter.ColorStyle(keyword.Fg, keyword.Style, `$2`)+`$3`)
 	}
 
