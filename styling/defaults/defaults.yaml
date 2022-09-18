@@ -8,11 +8,11 @@ keyword:
     style: ""
     strict: false
   - strings: [ 'debug', 'DEBUG' ]
-    fg: "yellow"
-    style: "italic"
+    fg: "green"
+    style: ""
     strict: false
   - strings: [ 'info', 'INFO' ]
-    fg: "green"
+    fg: "blue"
     style: ""
     strict: false
   - strings: [ 'trace', 'TRACE' ]
