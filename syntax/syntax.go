@@ -154,7 +154,7 @@ func highlightGUIDs(input string) string {
 }
 
 func highlightConstants(input string) string {
-	expression := regexp.MustCompile(`[A-Z\d]*_[A-Z\d_]+`)
+	expression := regexp.MustCompile(`[A-Z\d_]+_[A-Z\d]+[^a-z]\b`)
 
-	return expression.ReplaceAllString(input, Yellow(`$0`).Italic().String())
+	return expression.ReplaceAllString(input, Magenta(`$0`).Italic().String())
 }
