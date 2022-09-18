@@ -144,9 +144,13 @@ func highlightDigits(input string) string {
 }
 
 func highlightGUIDs(input string) string {
-	expression := regexp.MustCompile(`[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+-[0-9a-fA-F]+`)
+	expression := regexp.MustCompile(`\b([a-zA-Z 0-9]{8})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{12})[^/]`)
 
-	return expression.ReplaceAllString(input, Yellow(`$0`).Underline().String())
+	return expression.ReplaceAllString(input, Yellow(`$1`).Italic().String()+
+		Red("-").String()+Yellow(`$2`).Italic().String()+
+		Red("-").String()+Yellow(`$3`).Italic().String()+
+		Red("-").String()+Yellow(`$4`).Italic().String()+
+		Red("-").String()+Yellow(`$5`).Italic().String())
 }
 
 func highlightConstants(input string) string {
