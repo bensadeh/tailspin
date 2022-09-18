@@ -59,7 +59,14 @@ func Highlight(line string, scheme *core.Scheme) string {
 
 func highlightCommonKeywords(input string, keywords []*core.Keyword) string {
 	for _, keyword := range keywords {
-		input = strings.ReplaceAll(input, keyword.String, highlighter.Color(keyword.Fg, keyword.String))
+		if keyword.Strict {
+			input = strings.ReplaceAll(input, keyword.String, highlighter.ColorStyle(keyword.Fg, keyword.Style, keyword.String))
+
+			continue
+		}
+
+		expression := regexp.MustCompile(`([ |[])(` + keyword.String + `)([]|:| ])`)
+		input = expression.ReplaceAllString(input, `$1`+highlighter.ColorStyle(keyword.Fg, keyword.Style, `$2`)+`$3`)
 	}
 
 	return input

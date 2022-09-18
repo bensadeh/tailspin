@@ -22,6 +22,7 @@ java.lang.NullPointerException: Sample Java Logback Exception
 localhost:8000
 https://www.geeksforgeeks.org/lru-cache-implementation/ Do not highlight these: ? & =
 http://www.abc.com/search?q=cannot+find+package
+http://www.error.com/error?error=cannot+find+error Do not highlight error keyword on this line
 https://developer.ibm.com/42882f64-e51f-4b5f-8f3e-2d10d0e0ad87/kubernetes-learning-path/ Do not highlight UUIDs in Urls
 https://www.google.com/search?q=cannot+find+package+%22context%22+in+any+of%3A&oq=cannot+find+package+
 https://myaccount.google.com/name?utm_source=google-account&utm_medium=web&pli=1&rapt=AEjHL4PXc8zLqgF

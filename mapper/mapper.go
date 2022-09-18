@@ -23,6 +23,8 @@ func FlattenKeywords(keywords []styling.Keyword) []*core.Keyword {
 			var sAndR = core.Keyword{
 				String: str,
 				Fg:     item.Fg,
+				Style:  item.Style,
+				Strict: item.Strict,
 			}
 			flatKeywords = append(flatKeywords, &sAndR)
 		}

@@ -17,6 +17,8 @@ type Theme struct {
 type Keyword struct {
 	Strings []string `yaml:"strings"`
 	Fg      string   `yaml:"fg"`
+	Style   string   `yaml:"style"`
+	Strict  bool     `yaml:"strict"`
 }
 type RegularExpression struct {
 	Regexp []string `yaml:"regexp"`

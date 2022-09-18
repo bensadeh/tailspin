@@ -9,6 +9,8 @@ type Scheme struct {
 type Keyword struct {
 	String string
 	Fg     string
+	Style  string
+	Strict bool
 }
 type RegularExpression struct {
 	RegExp string
