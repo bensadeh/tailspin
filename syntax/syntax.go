@@ -148,9 +148,12 @@ func highlightJavaExceptionBody(input string) string {
 }
 
 func highlightDigits(input string) string {
-	expression := regexp.MustCompile(`([ |\[|(])(\d+)([\s|$|,|\]|)])`)
+	hasKeywordOnly := regexp.MustCompile(`^\d+$`)
+	input = hasKeywordOnly.ReplaceAllString(input, Cyan(`$0`).String())
 
-	return expression.ReplaceAllString(input, `$1`+Cyan(`$2`).String()+`$3`)
+	expression := regexp.MustCompile(`([ |\[|(])(\d+\.)*(\d+)([\s|$|,|\]|)])`)
+
+	return expression.ReplaceAllString(input, `$1`+Cyan(`$2`).String()+Cyan(`$3`).String()+`$4`)
 }
 
 func highlightGUIDs(input string) string {

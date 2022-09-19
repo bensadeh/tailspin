@@ -20,6 +20,7 @@ java.lang.NullPointerException: Sample Java Logback Exception
    at Sample.errorLevel1(Unknown Source)
    at Sample.main(Sample.java:15)
 localhost:8000
+Numbers: '2' 2 [2] "2" " 2 " (2) 2.2 test 2
 wordnullword [null] =null  null,  null. (null) " null " "null"
 https://www.geeksforgeeks.org/lru-cache-implementation/ // Do not highlight these: ? & =
 http://www.abc.com/search?q=cannot+find+package
