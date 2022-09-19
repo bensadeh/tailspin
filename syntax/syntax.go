@@ -34,8 +34,7 @@ func Highlight(line string, scheme *core.Scheme) string {
 		text := segment.Content
 
 		text = highlightCommonKeywords(text, scheme.Keywords)
-		text = highlightTime(text)
-		text = highlightDateInDigits(text)
+		text = highlightDate(text)
 		text = highlightUrl(text)
 		text = highlightWithRegExp(text, scheme.RegularExpressions)
 		text = highlightJavaExceptionHeader(text)
@@ -85,16 +84,16 @@ func highlightWithRegExp(input string, regExpressions []*core.RegularExpression)
 	return input
 }
 
-func highlightTime(input string) string {
-	expression := regexp.MustCompile(`\d{2}:\d{2}:\d{2}(\.\d{2,3}| )`)
+func highlightDate(input string) string {
+	dayMonthYear := regexp.MustCompile(`(Mon|Tue|Wed|Thu|Fri|Sat|Sun)? ?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{1,2}( ?\d{4})?`)
+	input = dayMonthYear.ReplaceAllString(input, Yellow(`$0`).String())
 
-	return expression.ReplaceAllString(input, Magenta(`$0`).String())
-}
+	date := regexp.MustCompile(`\d{4}(.\d{2}){2}(\s|T)`)
+	input = date.ReplaceAllString(input, Yellow(`$0`).String())
 
-func highlightDateInDigits(input string) string {
-	expression := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+	time := regexp.MustCompile(`(\d{2}.){2}\d{2}[ |,|\.|+]\d*`)
 
-	return expression.ReplaceAllString(input, Magenta(`$0`).String())
+	return time.ReplaceAllString(input, Yellow(`$0`).String())
 }
 
 func highlightUrl(input string) string {
