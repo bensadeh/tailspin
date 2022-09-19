@@ -92,8 +92,12 @@ func highlightDate(input string) string {
 	input = date.ReplaceAllString(input, Yellow(`$0`).String())
 
 	time := regexp.MustCompile(`(\s|T)(\d{2}.){2}\d{2}[ |,|\.|+]\d{3,6}`)
+	input = time.ReplaceAllString(input, Yellow(`$0`).String())
 
-	return time.ReplaceAllString(input, Yellow(`$0`).String())
+	simpleTime := regexp.MustCompile(` \d{2}:\d{2}:\d{2} `)
+	input = simpleTime.ReplaceAllString(input, Yellow(`$0`).String())
+
+	return input
 }
 
 func highlightUrl(input string) string {
