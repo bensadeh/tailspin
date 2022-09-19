@@ -11,6 +11,7 @@ import (
 	"spin/core"
 	"spin/handler"
 	"spin/syntax"
+	"strings"
 )
 
 func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme) {
@@ -28,21 +29,37 @@ func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme
 		log.Fatal("Unable to write to temporary file", err)
 	}
 
-	////////////////////////////////////////////////////////// Tail
-	file, tailErr := tail.TailFile(pathToFileToBeTailed, tail.Config{Follow: true})
-	if tailErr != nil {
-		panic(err)
-	}
-
-	m.TailFile = file
-
-	go func() {
-		for line := range m.TailFile.Lines {
-			syntaxHighlightedLine := syntax.Highlight(line.Text, scheme)
-			_, _ = m.TempFile.WriteString(syntaxHighlightedLine + "\n")
+	if config.Follow {
+		////////////////////////////////////////////////////////// Tail
+		file, tailErr := tail.TailFile(pathToFileToBeTailed, tail.Config{Follow: true})
+		if tailErr != nil {
+			panic(err)
 		}
-	}()
-	////////////////////////////////////////////////////////// Tail
+
+		m.TailFile = file
+
+		go func() {
+			for line := range m.TailFile.Lines {
+				syntaxHighlightedLine := syntax.Highlight(line.Text, scheme)
+				_, _ = m.TempFile.WriteString(syntaxHighlightedLine + "\n")
+			}
+		}()
+		////////////////////////////////////////////////////////// Tail
+	} else {
+		b, err := os.ReadFile(pathToFileToBeTailed)
+		if err != nil {
+			fmt.Print(err)
+		}
+		str := string(b) // convert content to a 'string'
+
+		output := ""
+		for _, line := range strings.Split(str, "\n") {
+			syntaxHighlightedLine := syntax.Highlight(line, scheme)
+			output += syntaxHighlightedLine + "\n"
+		}
+
+		_, _ = m.TempFile.WriteString(output)
+	}
 
 	if err := tea.NewProgram(m).Start(); err != nil {
 		fmt.Println("Error running program:", err)
@@ -53,9 +70,11 @@ func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme
 		panic(tpErr)
 	}
 
-	tErr := m.TailFile.Stop()
-	if tErr != nil {
-		panic(tErr)
+	if config.Follow {
+		tErr := m.TailFile.Stop()
+		if tErr != nil {
+			panic(tErr)
+		}
 	}
 
 }
