@@ -88,10 +88,10 @@ func highlightDate(input string) string {
 	dayMonthYear := regexp.MustCompile(`(Mon|Tue|Wed|Thu|Fri|Sat|Sun)? ?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{1,2}( ?\d{4})?`)
 	input = dayMonthYear.ReplaceAllString(input, Yellow(`$0`).String())
 
-	date := regexp.MustCompile(`\d{4}(.\d{2}){2}(\s|T)`)
+	date := regexp.MustCompile(`20\d{2}(.\d{2}){2}`)
 	input = date.ReplaceAllString(input, Yellow(`$0`).String())
 
-	time := regexp.MustCompile(`(\d{2}.){2}\d{2}[ |,|\.|+]\d*`)
+	time := regexp.MustCompile(`(\s|T)(\d{2}.){2}\d{2}[ |,|\.|+]\d{3,6}`)
 
 	return time.ReplaceAllString(input, Yellow(`$0`).String())
 }
