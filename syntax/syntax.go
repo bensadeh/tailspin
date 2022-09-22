@@ -124,7 +124,7 @@ func highlightUrl(input string, resetToColor string) string {
 	stop := `[URL_STOP]`
 
 	expression := regexp.MustCompile(
-		`(?P<protocol>http[s]?:)?//(?P<host>[a-z0-9A-Z-_.]+)(?P<port>:\d+)?(?P<path>[\/a-zA-Z0-9-\.]+)?(?P<search>\?[^#\n]+)?`)
+		`(?P<protocol>http[s]?:)?//(?P<host>[a-z0-9A-Z-_.]+)(?P<port>:\d+)?(?P<path>[\/a-zA-Z0-9-\.]+)?(?P<search>\?[^#\n ]+)?`)
 	input = expression.ReplaceAllString(input, start+
 		Green(`$protocol`).String()+"//"+Blue(`$host`).String()+Cyan(`$port`).String()+
 		Yellow(`$path`).String()+`$search`+stop)
