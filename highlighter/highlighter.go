@@ -42,7 +42,7 @@ func ColorAndResetTo(color, text, resetToColor string) string {
 }
 
 func ColorStyleAndResetTo(color, styles, text, resetToColor, resetToStyles string) string {
-	return getStyles(styles) + getColor(color) + text + getColor(resetToColor) + getStyles(resetToStyles)
+	return getStyles(styles) + getColor(color) + text + Reset + getColor(resetToColor) + getStyles(resetToStyles)
 }
 
 func getColor(color string) string {

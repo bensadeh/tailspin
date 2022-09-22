@@ -22,6 +22,7 @@ const (
 )
 
 func Highlight(line string, scheme *core.Scheme) string {
+
 	// Carriage return (\r) messes with the regexp, so we remove it
 	line = strings.ReplaceAll(line, "\r", "")
 	line = line + " "
@@ -31,12 +32,14 @@ func Highlight(line string, scheme *core.Scheme) string {
 	segments := parser.ExtractSegments(line)
 
 	for _, segment := range segments {
+		resetToColor := getQuotesColor(segment.Separator)
+
 		text := segment.Content
 
-		text = highlightCommonKeywords(text, scheme.Keywords)
+		text = highlightKeywords(text, scheme.Keywords, resetToColor)
 		text = highlightDate(text)
 		text = highlightUrl(text)
-		text = highlightWithRegExp(text, scheme.RegularExpressions)
+		text = highlightWithRegExp(text, scheme.RegularExpressions, resetToColor)
 		text = highlightJavaExceptionHeader(text)
 		text = highlightJavaExceptionBody(text)
 
@@ -56,29 +59,40 @@ func Highlight(line string, scheme *core.Scheme) string {
 	return reset + highlightedLine
 }
 
-func highlightCommonKeywords(input string, keywords []*core.Keyword) string {
+func getQuotesColor(separator string) (color string) {
+	if separator == `"` {
+		return "green"
+	}
+
+	return ""
+}
+
+func highlightKeywords(input string, keywords []*core.Keyword, resetToColor string) string {
 	for _, keyword := range keywords {
 		if keyword.Strict {
-			input = strings.ReplaceAll(input, keyword.String, highlighter.ColorStyle(keyword.Fg, keyword.Style, keyword.String))
+			input = strings.ReplaceAll(input, keyword.String, highlighter.ColorStyleAndResetTo(keyword.Fg,
+				keyword.Style, keyword.String, resetToColor, ""))
 
 			continue
 		}
 
 		lineHasKeywordOnly := regexp.MustCompile(`^` + keyword.String + `$`)
-		input = lineHasKeywordOnly.ReplaceAllString(input, highlighter.ColorStyle(keyword.Fg, keyword.Style, `$0`))
+		input = lineHasKeywordOnly.ReplaceAllString(input, highlighter.ColorStyleAndResetTo(keyword.Fg,
+			keyword.Style, `$0`, resetToColor, ""))
 
 		expression := regexp.MustCompile(`([ |[|(]|=)(` + keyword.String + `)([]|:| |,|.|)])`)
-		input = expression.ReplaceAllString(input, `$1`+highlighter.ColorStyle(keyword.Fg, keyword.Style, `$2`)+`$3`)
+		input = expression.ReplaceAllString(input, `$1`+highlighter.ColorStyleAndResetTo(keyword.Fg,
+			keyword.Style, `$2`, resetToColor, "")+`$3`)
 	}
 
 	return input
 }
 
-func highlightWithRegExp(input string, regExpressions []*core.RegularExpression) string {
+func highlightWithRegExp(input string, regExpressions []*core.RegularExpression, resetToColor string) string {
 	for _, regExpression := range regExpressions {
 		expression := regexp.MustCompile(regExpression.RegExp)
 
-		input = expression.ReplaceAllString(input, highlighter.Color(regExpression.Fg, `$0`))
+		input = expression.ReplaceAllString(input, highlighter.ColorAndResetTo(regExpression.Fg, `$0`, resetToColor))
 	}
 
 	return input

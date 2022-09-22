@@ -19,7 +19,7 @@ keyword:
     fg: ""
     style: "faint"
     strict: false
-  - strings: [ 'NULL', 'null', 'true', 'false', 'TRUE', 'FALSE' ]
+  - strings: [ 'NULL', 'null', 'nil', 'true', 'false', 'TRUE', 'FALSE' ]
     fg: "red"
     style: "italic"
     strict: false
