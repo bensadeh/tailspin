@@ -1,0 +1,59 @@
+level=error ts=2022-09-22T07:46:34.171406833Z caller=main.go:129 msg="Starting Loki" version="(version=, branch=, revision=)"
+level=warn ts=2022-09-22T07:46:34.171800155Z caller=server.go:239 http=[::]:3100 grpc=[::]:9095 msg="server listening on addresses"
+level=debug ts=2022-09-22T07:46:34.172389889Z caller=modules.go:504 msg="RulerStorage is not configured in single binary mode and will not be started."
+level=trace ts=2022-09-22T07:46:34.173343577Z caller=shipper_index_client.go:108 msg="starting boltdb shipper in 0 mode"
+level=info ts=2022-09-22T07:46:34.173623411Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:46:34.177117984Z caller=modules.go:529 msg="RulerStorage is nil.  Not starting the ruler."
+level=info ts=2022-09-22T07:46:34.178200675Z caller=module_service.go:59 msg=initialising module=server
+level=info ts=2022-09-22T07:46:34.178280264Z caller=module_service.go:59 msg=initialising module=memberlist-kv
+level=info ts=2022-09-22T07:46:34.178365471Z caller=module_service.go:59 msg=initialising module=store
+level=info ts=2022-09-22T07:46:34.178778368Z caller=module_service.go:59 msg=initialising module=ingester
+level=info ts=2022-09-22T07:46:34.179028065Z caller=module_service.go:59 msg=initialising module=ring
+level=info ts=2022-09-22T07:46:34.179373831Z caller=ring.go:275 msg="ring doesn't exist in KV store yet"
+level=info ts=2022-09-22T07:46:34.179500448Z caller=client.go:247 msg="value is nil" key=collectors/ring index=1
+level=info ts=2022-09-22T07:46:34.179638941Z caller=module_service.go:59 msg=initialising module=table-manager
+level=info ts=2022-09-22T07:46:34.179966708Z caller=module_service.go:59 msg=initialising module=ingester-querier
+level=info ts=2022-09-22T07:46:34.179375742Z caller=lifecycler.go:530 msg="not loading tokens from file, tokens file path is empty"
+level=info ts=2022-09-22T07:46:34.180325822Z caller=lifecycler.go:559 msg="instance not found in ring, adding with no tokens" ring=ingester
+level=info ts=2022-09-22T07:46:34.180611947Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T07:46:34.18085029Z caller=lifecycler.go:406 msg="auto-joining cluster after timeout" ring=ingester
+level=info ts=2022-09-22T07:46:34.181115582Z caller=module_service.go:59 msg=initialising module=distributor
+level=info ts=2022-09-22T07:46:34.181572591Z caller=loki.go:272 msg="Loki started"
+level=info ts=2022-09-22T07:47:34.173832745Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:48:34.174045463Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:48:37.729496146Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T07:49:34.181855073Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:50:34.17982263Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:50:34.180242674Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T07:51:34.173650568Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:51:34.173685304Z caller=table_manager.go:208 msg="syncing tables"
+level=info ts=2022-09-22T07:52:34.174253904Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:52:34.180731416Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T07:53:34.173927559Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:54:34.174196077Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:54:34.180682409Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T07:55:34.174247394Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:56:34.173888737Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:56:34.173927164Z caller=table_manager.go:208 msg="syncing tables"
+level=info ts=2022-09-22T07:56:34.180396607Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T07:57:34.174140935Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:58:34.173649694Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T07:58:34.180400363Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T07:59:34.174673066Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T08:00:34.174146762Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T08:00:34.180633584Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T08:01:34.180379898Z caller=table_manager.go:208 msg="syncing tables"
+level=info ts=2022-09-22T08:01:34.180406501Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T08:02:34.179299129Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T08:02:34.180722479Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T08:03:34.173747161Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T08:04:34.173688235Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T08:04:34.18118391Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T08:05:34.174073357Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T08:06:34.173948908Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T08:06:34.173946105Z caller=table_manager.go:208 msg="syncing tables"
+level=info ts=2022-09-22T08:06:34.180438646Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T08:07:34.173754263Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T08:08:34.17419279Z caller=table_manager.go:171 msg="uploading tables"
+level=info ts=2022-09-22T08:08:34.180660187Z caller=table_manager.go:324 msg="synching tables" expected_tables=62
+level=info ts=2022-09-22T08:09:34.179718027Z caller=table_manager.go:171 msg="uploading tables"
