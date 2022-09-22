@@ -41,7 +41,7 @@ func Highlight(line string, scheme *core.Scheme) string {
 		text = highlightJavaExceptionBody(text)
 
 		text = highlightGUIDs(text)
-		text = highlightDigits(text)
+		text = highlightNumbers(text)
 		text = highlightConstants(text)
 
 		separator := Green(segment.Separator).String()
@@ -150,13 +150,18 @@ func highlightJavaExceptionBody(input string) string {
 	return input
 }
 
-func highlightDigits(input string) string {
+func highlightNumbers(input string) string {
 	hasKeywordOnly := regexp.MustCompile(`^\d+$`)
 	input = hasKeywordOnly.ReplaceAllString(input, Cyan(`$0`).String())
 
-	expression := regexp.MustCompile(`([ |\[|(])(\d+\.)*(\d+)([\s|$|,|\]|)])`)
+	// We handle this special case to avoid highlighting numbers in timestamps, i.e. 10:00
+	noTime := regexp.MustCompile(`([\D]:)(\d+)`)
+	input = noTime.ReplaceAllString(input, "$1"+Cyan(`$2`).String())
 
-	return expression.ReplaceAllString(input, `$1`+Cyan(`$2`).String()+Cyan(`$3`).String()+`$4`)
+	mostCommonNumberMatches := regexp.MustCompile(`([ \[|(=])(\d+\.)*(\d+)([\s,\])])`)
+	input = mostCommonNumberMatches.ReplaceAllString(input, `$1`+Cyan(`$2`).String()+Cyan(`$3`).String()+`$4`)
+
+	return input
 }
 
 func highlightGUIDs(input string) string {
