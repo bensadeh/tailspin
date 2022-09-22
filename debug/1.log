@@ -18,6 +18,7 @@ date "date 09:50:18.749 date" 09:50:18.749
 Numbers: '2' 2 [2] "2" " 2 " (2) 2.2 test 2
 wordnullword [null] =null  null,  null. (null) " null " "null"
 https://www.geeksforgeeks.org/lru-cache-implementation/ // Do not highlight these: ? & =
+"url url https://www.xyz.com/search url url"
 http://www.abc.com/search?q=cannot+find+package
 http://www.null.com/null?null=null+find+package    // Do not highlight keywords in urls
 http://www.error.com/error?error=cannot+find+error // Do not highlight keywords in urls

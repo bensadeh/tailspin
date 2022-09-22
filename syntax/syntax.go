@@ -38,7 +38,7 @@ func Highlight(line string, scheme *core.Scheme) string {
 
 		text = highlightKeywords(text, scheme.Keywords, resetToColor)
 		text = highlightDate(text, resetToColor)
-		text = highlightUrl(text)
+		text = highlightUrl(text, resetToColor)
 		text = highlightWithRegExp(text, scheme.RegularExpressions, resetToColor)
 		text = highlightJavaExceptionHeader(text)
 		text = highlightJavaExceptionBody(text)
@@ -118,7 +118,7 @@ func highlightDate(input string, resetToColor string) string {
 	return input
 }
 
-func highlightUrl(input string) string {
+func highlightUrl(input string, resetToColor string) string {
 	start := `[URL_START]`
 	stop := `[URL_STOP]`
 
@@ -133,7 +133,7 @@ func highlightUrl(input string) string {
 	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "?", highlighter.ColorAndResetTo("red", "?", "cyan"))
 
 	input = strings.ReplaceAll(input, start, "")
-	input = strings.ReplaceAll(input, stop, "")
+	input = strings.ReplaceAll(input, stop, highlighter.ColorStyleAndResetTo("", "", "", resetToColor, ""))
 
 	return input
 }
