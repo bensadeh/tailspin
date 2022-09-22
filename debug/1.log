@@ -1,17 +1,11 @@
 Aug 14 00:30:00 abc-MBP newsyslog[79597]: logfile turned over
-Sun Aug 14 08:23:55.927 <airport[285]> -[dpsManager handleDPSEventWithType:eventInfo:networkName:BSSID:channelInfo:isCriticalAppInUse:]_block_invoke: Ignoring non-dps events while not in monitoring period/ Ignoring DPS event while in monitoring period
-Sun Aug 14 09:50:18.749 <airport[285]> Could not set property APPLE80211_REGKEY_AWDL_MAC_ADDRESS_IN_USE to 1
-Sun Aug 14 09:50:18.752 <airport[285]> Could not set property APPLE80211_REGKEY_AWDL_MAC_ADDRESS_IN_USE to 0
-Sun Aug 14 10:51:19.239 <airport[285]> -[dpsManager handleDPSEventWithType:eventInfo:networkName:BSSID:channelInfo:isCriticalAppInUse:]_block_invoke: Ignoring non-dps events while not in monitoring period/ Ignoring DPS event while in monitoring period
-Sun Aug 14 10:51:19.251 Usb Host Notification Error Apple80211Set: Device power is off seqNum 16 Total 4 chg 1 en0
-Sun Aug 14 10:51:19.272 <airport[285]> _handleLinkEvent: WiFi is not powered. Resetting state variables.
-Sun Aug 14 10:51:19.314 <airport[285]> -[dpsManager handleDPSEventWithType:eventInfo:networkName:BSSID:channelInfo:isCriticalAppInUse:]_block_invoke: Ignoring non-dps events while not in monitoring period/ Ignoring DPS event while in monitoring period
-Sun Aug 14 10:51:19.316 Usb Host Notification Error Apple80211Set: Device power is off seqNum 17 Total 4 chg 1 en0
-Sun Aug 14 10:51:19.321 <kernel> IO80211VirtualInterface::handleSIOCSIFFLAGS : Source handleIoctlGated calling peerManager->disable
-Sun Aug 14 10:51:22.602 <airport[285]> ERROR: sharingd (542) is not entitled for com.apple.wifi.join_history, will not allow request
-Sun Aug 14 10:51:22.625 <airport[285]> ERROR: rapportd (513) is not entitled for com.apple.wifi.join_history, will not allow request
-Sun Aug 14 10:51:23.325 <airport[285]> -[dpsManager handleDPSEventWithType:eventInfo:networkName:BSSID:channelInfo:isCriticalAppInUse:]_block_invoke: Ignoring non-dps events while not in monitoring period/ Ignoring DPS event while in monitoring period
-Sun Aug 14 10:51:23.361 <airport[285]> -[dpsManager handleDPSEventWithType:eventInfo:networkName:BSSID:channelInfo:isCriticalAppInUse:]_block_invoke: Ignoring non-dps events while not in monitoring period/ Ignoring DPS event while in monitoring period
+Sun Aug 14 08:23:55.927 INFO  Ignoring non-dps events while not in monitoring period/ Ignoring DPS event while in monitoring period
+Sun Aug 14 09:50:18.749 WARN  Could not set property APPLE80211_REGKEY_AWDL_MAC_ADDRESS_IN_USE to 1
+Sun Aug 14 10:51:19.239 DEBUG [fcfff715-82cc-400d-88b4-56f25b5a5239:networkName:BSSID:]
+Sun Aug 14 10:51:19.251 ERROR Usb Host Notification Error Apple80211Set: Device power is off seqNum 16 Total 4 chg 1 en0
+Sun Aug 14 10:51:19.272 INFO  _handleLinkEvent: WiFi is not powered. Resetting state variables.
+Sun Aug 14 10:51:19.316 DEBUG Usb Host Notification Error Apple80211Set: Device power is off seqNum 17 Total 4 chg 1 en0
+Sun Aug 14 10:51:22.602 DEBUG sharingd (542) is not entitled for com.apple.wifi.join_history, will not allow request
 java.lang.NullPointerException: Sample Java Logback Exception
    at Sample.errorLevel3(Sample.java:35)
    at Sample.errorLevel2(Sample.java:31)
@@ -20,6 +14,7 @@ java.lang.NullPointerException: Sample Java Logback Exception
    at Sample.errorLevel1(Unknown Source)
    at Sample.main(Sample.java:15)
 word word "word error word"
+date "date 09:50:18.749 date" 09:50:18.749
 Numbers: '2' 2 [2] "2" " 2 " (2) 2.2 test 2
 wordnullword [null] =null  null,  null. (null) " null " "null"
 https://www.geeksforgeeks.org/lru-cache-implementation/ // Do not highlight these: ? & =
