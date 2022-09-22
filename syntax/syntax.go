@@ -43,9 +43,9 @@ func Highlight(line string, scheme *core.Scheme) string {
 		text = highlightJavaExceptionHeader(text)
 		text = highlightJavaExceptionBody(text)
 
-		text = highlightGUIDs(text)
-		text = highlightNumbers(text)
-		text = highlightConstants(text)
+		text = highlightGUIDs(text, resetToColor)
+		text = highlightNumbers(text, "cyan", resetToColor)
+		//text = highlightConstants(text)
 
 		separator := Green(segment.Separator).String()
 
@@ -99,7 +99,8 @@ func highlightWithRegExp(input string, regExpressions []*core.RegularExpression,
 }
 
 func highlightDate(input string, resetToColor string) string {
-	dayMonthYear := regexp.MustCompile(`(Mon|Tue|Wed|Thu|Fri|Sat|Sun)? ?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{1,2}( ?\d{4})?`)
+	dayMonthYear := regexp.MustCompile(
+		`(Mon|Tue|Wed|Thu|Fri|Sat|Sun)? ?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{1,2}( ?\d{4})?`)
 	input = dayMonthYear.ReplaceAllString(input, highlighter.ColorStyleAndResetTo("yellow", "", `$0`,
 		resetToColor, ""))
 
@@ -168,32 +169,37 @@ func highlightJavaExceptionBody(input string) string {
 	return input
 }
 
-func highlightNumbers(input string) string {
+func highlightNumbers(input string, color string, resetToColor string) string {
 	hasKeywordOnly := regexp.MustCompile(`^\d+$`)
-	input = hasKeywordOnly.ReplaceAllString(input, Cyan(`$0`).String())
+	input = hasKeywordOnly.ReplaceAllString(input, highlighter.ColorAndResetTo(color, `$0`, resetToColor))
 
 	// We handle this special case to avoid highlighting numbers in timestamps, i.e. 10:00
 	noTime := regexp.MustCompile(`([\D]:)(\d+)`)
-	input = noTime.ReplaceAllString(input, "$1"+Cyan(`$2`).String())
+	input = noTime.ReplaceAllString(input, "$1"+highlighter.ColorAndResetTo(color, `$2`, resetToColor))
 
 	mostCommonNumberMatches := regexp.MustCompile(`([ \[|(=])(\d+\.)*(\d+)([\s,\])])`)
-	input = mostCommonNumberMatches.ReplaceAllString(input, `$1`+Cyan(`$2`).String()+Cyan(`$3`).String()+`$4`)
+	input = mostCommonNumberMatches.ReplaceAllString(input, `$1`+highlighter.Color(color, `$2`)+
+		highlighter.ColorAndResetTo(color, `$3`, resetToColor)+`$4`)
 
 	return input
 }
 
-func highlightGUIDs(input string) string {
-	expression := regexp.MustCompile(`\b([a-zA-Z 0-9]{8})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{12})[^/]`)
+func highlightGUIDs(input string, resetToColor string) string {
+	expression := regexp.MustCompile(
+		`\b([a-zA-Z 0-9]{8})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{12})[^/]`)
 
 	return expression.ReplaceAllString(input, Yellow(`$1`).Italic().String()+
 		Red("-").String()+Yellow(`$2`).Italic().String()+
 		Red("-").String()+Yellow(`$3`).Italic().String()+
 		Red("-").String()+Yellow(`$4`).Italic().String()+
-		Red("-").String()+Yellow(`$5`).Italic().String())
+		Red("-").String()+
+		highlighter.ColorStyleAndResetTo("yellow", "italic", `$5`, resetToColor, ""))
 }
 
-func highlightConstants(input string) string {
+func highlightConstants(input string, resetToColor string) string {
 	expression := regexp.MustCompile(`[A-Z\d_]+_[A-Z\d]+[^a-z]\b`)
+	input = expression.ReplaceAllString(input, highlighter.ColorStyleAndResetTo("magenta", "italic", `$0`,
+		resetToColor, ""))
 
-	return expression.ReplaceAllString(input, Magenta(`$0`).Italic().String())
+	return input
 }

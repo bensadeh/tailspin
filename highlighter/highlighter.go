@@ -38,7 +38,7 @@ func ColorStyle(color, styles, text string) string {
 }
 
 func ColorAndResetTo(color, text, resetToColor string) string {
-	return getColor(color) + text + getColor(resetToColor)
+	return getColor(color) + text + Reset + getColor(resetToColor)
 }
 
 func ColorStyleAndResetTo(color, styles, text, resetToColor, resetToStyles string) string {
