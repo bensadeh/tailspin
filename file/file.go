@@ -68,7 +68,7 @@ func beginTailingAndHighlighting(follow bool, pathToFileToBeTailed string, m *ha
 		for line := range m.TailFile.Lines {
 			syntaxHighlightedLine := syntax.Highlight(line.Text, scheme)
 			_, _ = m.TempFile.WriteString(syntaxHighlightedLine + "\n")
-		
+
 			if currentLine < numberOfLines {
 				wg.Done()
 				currentLine++

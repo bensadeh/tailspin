@@ -83,7 +83,7 @@ func highlightDate(input string, resetToColor string) string {
 	input = date.ReplaceAllString(input, highlighter.ColorStyleAndResetTo("yellow", "", `$0`,
 		resetToColor, ""))
 
-	time := regexp.MustCompile(`(\s|T)(\d{2}.){2}\d{2}[ |,|\.|+]\d{3,9}Z?`)
+	time := regexp.MustCompile(`(\s|T)(\d{2}.){2}\d{2}[ |,|\.|+]\d{2,9}Z?`)
 	input = time.ReplaceAllString(input, highlighter.ColorStyleAndResetTo("yellow", "", `$0`,
 		resetToColor, ""))
 
