@@ -1,9 +1,12 @@
 package file
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/nxadm/tail"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -11,7 +14,7 @@ import (
 	"spin/core"
 	"spin/handler"
 	"spin/syntax"
-	"strings"
+	"sync"
 )
 
 func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme) {
@@ -46,19 +49,34 @@ func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme
 		}()
 		////////////////////////////////////////////////////////// Tail
 	} else {
-		b, err := os.ReadFile(pathToFileToBeTailed)
-		if err != nil {
-			fmt.Print(err)
-		}
-		str := string(b) // convert content to a 'string'
+		var wg sync.WaitGroup
+		reader, _ := os.Open(pathToFileToBeTailed)
+		numberOfLines, _ := lineCounter(reader)
+		wg.Add(numberOfLines)
 
-		output := ""
-		for _, line := range strings.Split(str, "\n") {
-			syntaxHighlightedLine := syntax.Highlight(line, scheme)
-			output += syntaxHighlightedLine + "\n"
+		////////////////////////////////////////////////////////// Tail
+		file, tailErr := tail.TailFile(pathToFileToBeTailed, tail.Config{Follow: true})
+		if tailErr != nil {
+			panic(err)
 		}
 
-		_, _ = m.TempFile.WriteString(output)
+		m.TailFile = file
+
+		go func() {
+			currentLine := 0
+			for line := range m.TailFile.Lines {
+				syntaxHighlightedLine := syntax.Highlight(line.Text, scheme)
+				_, _ = m.TempFile.WriteString(syntaxHighlightedLine + "\n")
+				if currentLine < numberOfLines {
+					wg.Done()
+				}
+
+				currentLine++
+			}
+		}()
+		////////////////////////////////////////////////////////// Tail
+
+		wg.Wait()
 	}
 
 	if err := tea.NewProgram(m).Start(); err != nil {
@@ -70,11 +88,68 @@ func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme
 		panic(tpErr)
 	}
 
-	if config.Follow {
-		tErr := m.TailFile.Stop()
-		if tErr != nil {
-			panic(tErr)
+	tErr := m.TailFile.Stop()
+	if tErr != nil {
+		panic(tErr)
+	}
+
+}
+
+//var wg sync.WaitGroup
+//reader, _ := os.Open(pathToFileToBeTailed)
+//numberOfLines, _ := lineCounter(reader)
+//wg.Add(numberOfLines)
+//
+//////////////////////////////////////////////////////////// Tail
+//file, tailErr := tail.TailFile(pathToFileToBeTailed, tail.Config{Follow: true})
+//if tailErr != nil {
+//panic(err)
+//}
+//
+//m.TailFile = file
+//
+//go func() {
+//	currentLine := 0
+//	for line := range m.TailFile.Lines {
+//		syntaxHighlightedLine := syntax.Highlight(line.Text, scheme)
+//		_, _ = m.TempFile.WriteString(syntaxHighlightedLine + "\n")
+//		if currentLine < numberOfLines {
+//			wg.Done()
+//		}
+//
+//		currentLine++
+//	}
+//}()
+//////////////////////////////////////////////////////////// Tail
+//
+//wg.Wait()
+
+func lineCounter(r io.Reader) (int, error) {
+
+	var count int
+	const lineBreak = '\n'
+
+	buf := make([]byte, bufio.MaxScanTokenSize)
+
+	for {
+		bufferSize, err := r.Read(buf)
+		if err != nil && err != io.EOF {
+			return 0, err
+		}
+
+		var buffPosition int
+		for {
+			i := bytes.IndexByte(buf[buffPosition:], lineBreak)
+			if i == -1 || bufferSize == buffPosition {
+				break
+			}
+			buffPosition += i + 1
+			count++
+		}
+		if err == io.EOF {
+			break
 		}
 	}
 
+	return count, nil
 }
