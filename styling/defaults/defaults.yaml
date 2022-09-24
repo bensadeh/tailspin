@@ -12,7 +12,7 @@ keyword:
     style: ""
     strict: false
   - strings: [ 'info', 'INFO' ]
-    fg: "blue"
+    fg: "white"
     style: ""
     strict: false
   - strings: [ 'trace', 'TRACE' ]
