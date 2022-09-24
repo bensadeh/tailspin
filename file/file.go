@@ -1,7 +1,6 @@
 package file
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
@@ -64,14 +63,12 @@ func beginTailingAndHighlighting(follow bool, pathToFileToBeTailed string, m *ha
 	wg.Add(numberOfLines)
 
 	go func() {
-		currentLine := 0
 		for line := range m.TailFile.Lines {
 			syntaxHighlightedLine := syntax.Highlight(line.Text, scheme)
 			_, _ = m.TempFile.WriteString(syntaxHighlightedLine + "\n")
 
-			if currentLine < numberOfLines {
+			if line.Num <= numberOfLines {
 				wg.Done()
-				currentLine++
 			}
 		}
 	}()
@@ -82,31 +79,20 @@ func beginTailingAndHighlighting(follow bool, pathToFileToBeTailed string, m *ha
 }
 
 func lineCounter(r io.Reader) (int, error) {
-
-	var count int
-	const lineBreak = '\n'
-
-	buf := make([]byte, bufio.MaxScanTokenSize)
+	buf := make([]byte, 32*1024)
+	count := 0
+	lineSep := []byte{'\n'}
 
 	for {
-		bufferSize, err := r.Read(buf)
-		if err != nil && err != io.EOF {
-			return 0, err
-		}
+		c, err := r.Read(buf)
+		count += bytes.Count(buf[:c], lineSep)
 
-		var buffPosition int
-		for {
-			i := bytes.IndexByte(buf[buffPosition:], lineBreak)
-			if i == -1 || bufferSize == buffPosition {
-				break
-			}
-			buffPosition += i + 1
-			count++
-		}
-		if err == io.EOF {
-			break
+		switch {
+		case err == io.EOF:
+			return count, nil
+
+		case err != nil:
+			return count, err
 		}
 	}
-
-	return count, nil
 }
