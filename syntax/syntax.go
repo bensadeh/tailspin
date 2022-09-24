@@ -35,19 +35,11 @@ func Highlight(line string, scheme *core.Scheme) string {
 	line = highlightJavaExceptionHeader(line)
 	line = highlightJavaExceptionBody(line)
 
-	line = highlightGUIDs(line, resetToColor)
+	line = highlightUUIDs(line)
 	line = highlightNumbers(line, "cyan", resetToColor)
 	//line = highlightConstants(line)
 
 	return reset + line
-}
-
-func getQuotesColor(separator string) (color string) {
-	if separator == `"` {
-		return "green"
-	}
-
-	return ""
 }
 
 func highlightKeywords(input string, keywords []*core.Keyword, resetToColor string) string {
@@ -109,8 +101,11 @@ func highlightUrl(input string, resetToColor string) string {
 	expression := regexp.MustCompile(
 		`(?P<protocol>http[s]?:)?//(?P<host>[a-z0-9A-Z-_.]+)(?P<port>:\d+)?(?P<path>[\/a-zA-Z0-9-\.]+)?(?P<search>\?[^#\n ]+)?`)
 	input = expression.ReplaceAllString(input, start+
-		Green(`$protocol`).String()+"//"+Blue(`$host`).String()+Cyan(`$port`).String()+
-		Yellow(`$path`).String()+`$search`+stop)
+		`$protocol`+"//"+Blue(`$host`).Faint().String()+Cyan(`$port`).String()+
+		Blue(`$path`).String()+`$search`+stop)
+
+	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "https:", highlighter.ColorStyle("white", "", "https:"))
+	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "http:", highlighter.ColorStyle("white", "faint", "http:"))
 
 	input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "&", highlighter.ColorAndResetTo("red", "&", "cyan"))
 	input = replace.SearchAndReplaceInBetweenTokens("?", stop, input, "=", highlighter.ColorAndResetTo("red", "=", "magenta"))
@@ -167,16 +162,15 @@ func highlightNumbers(input string, color string, resetToColor string) string {
 	return input
 }
 
-func highlightGUIDs(input string, resetToColor string) string {
+func highlightUUIDs(input string) string {
 	expression := regexp.MustCompile(
-		`\b([a-zA-Z 0-9]{8})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{12})[^/]`)
+		`\b([a-zA-Z 0-9]{8})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{4})-([a-zA-Z 0-9]{12})([^/])`)
 
-	return expression.ReplaceAllString(input, Yellow(`$1`).Italic().String()+
-		Red("-").String()+Yellow(`$2`).Italic().String()+
-		Red("-").String()+Yellow(`$3`).Italic().String()+
-		Red("-").String()+Yellow(`$4`).Italic().String()+
-		Red("-").String()+
-		highlighter.ColorStyleAndResetTo("yellow", "italic", `$5`, resetToColor, ""))
+	return expression.ReplaceAllString(input, Blue(`$1`).Italic().String()+
+		Red("-").String()+Blue(`$2`).Italic().String()+
+		Red("-").String()+Blue(`$3`).Italic().String()+
+		Red("-").String()+Blue(`$4`).Italic().String()+
+		Red("-").String()+Blue(`$5`).Italic().String()+`$6`)
 }
 
 func highlightConstants(input string, resetToColor string) string {
