@@ -133,10 +133,10 @@ func highlightJavaExceptionBody(input string) string {
 		Magenta(`$3`).String()+`$4`+Cyan(`$5`).String()+")"+stop)
 
 	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "Unknown Source",
-		highlighter.ColorStyle("", "reset faint", "Unknown Source"))
+		highlighter.ColorStyle("", "reset faint italic", "Unknown Source"))
 
 	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "Native Method",
-		highlighter.ColorStyle("green", "reset faint", "Native Method"))
+		highlighter.ColorStyle("green", "reset faint italic", "Native Method"))
 
 	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, ".java",
 		highlighter.ColorStyle("", "reset", ".java"))
@@ -148,9 +148,6 @@ func highlightJavaExceptionBody(input string) string {
 }
 
 func highlightNumbers(input string, color string, resetToColor string) string {
-	hasKeywordOnly := regexp.MustCompile(`^\d+$`)
-	input = hasKeywordOnly.ReplaceAllString(input, highlighter.ColorAndResetTo(color, `$0`, resetToColor))
-
 	// We handle this special case to avoid highlighting numbers in timestamps, i.e. 10:00
 	noTime := regexp.MustCompile(`([\D]:)(\d+)`)
 	input = noTime.ReplaceAllString(input, "$1"+highlighter.ColorAndResetTo(color, `$2`, resetToColor))
