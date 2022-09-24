@@ -136,7 +136,7 @@ func highlightJavaExceptionBody(input string) string {
 		highlighter.ColorStyle("", "reset faint italic", "Unknown Source"))
 
 	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, "Native Method",
-		highlighter.ColorStyle("green", "reset faint italic", "Native Method"))
+		highlighter.ColorStyle("green", "reset faint", "Native Method"))
 
 	input = replace.SearchAndReplaceInBetweenTokens(start, stop, input, ".java",
 		highlighter.ColorStyle("", "reset", ".java"))
