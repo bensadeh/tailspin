@@ -3,10 +3,14 @@
 </p>
 
 <p align="center">
-A better way to view (and <code>tail</code>) your logfiles
+A log file highlighter
 </p>
 
 
+
+## Overview
+
+`tailspin` is a command line tool for viewing (and `tail`-ing) log files. It highlights important keywords to make navigating log files easier.
 
 ## See also
  
