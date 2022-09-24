@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"spin/core"
 	"spin/highlighter"
-	"spin/parser"
 	"spin/replace"
 	"strings"
 )
@@ -27,36 +26,20 @@ func Highlight(line string, scheme *core.Scheme) string {
 	line = strings.ReplaceAll(line, "\r", "")
 	line = line + " "
 
-	highlightedLine := ""
+	resetToColor := ""
 
-	segments := parser.ExtractSegments(line)
+	line = highlightKeywords(line, scheme.Keywords, resetToColor)
+	line = highlightDate(line, resetToColor)
+	line = highlightUrl(line, resetToColor)
+	line = highlightWithRegExp(line, scheme.RegularExpressions, resetToColor)
+	line = highlightJavaExceptionHeader(line)
+	line = highlightJavaExceptionBody(line)
 
-	for _, segment := range segments {
-		resetToColor := getQuotesColor(segment.Separator)
+	line = highlightGUIDs(line, resetToColor)
+	line = highlightNumbers(line, "cyan", resetToColor)
+	//line = highlightConstants(line)
 
-		text := segment.Content
-
-		text = highlightKeywords(text, scheme.Keywords, resetToColor)
-		text = highlightDate(text, resetToColor)
-		text = highlightUrl(text, resetToColor)
-		text = highlightWithRegExp(text, scheme.RegularExpressions, resetToColor)
-		text = highlightJavaExceptionHeader(text)
-		text = highlightJavaExceptionBody(text)
-
-		text = highlightGUIDs(text, resetToColor)
-		text = highlightNumbers(text, "cyan", resetToColor)
-		//text = highlightConstants(text)
-
-		separator := Green(segment.Separator).String()
-
-		if segment.Separator == `"` {
-			separator = separator + green
-		}
-
-		highlightedLine = highlightedLine + separator + text + separator + reset
-	}
-
-	return reset + highlightedLine
+	return reset + line
 }
 
 func getQuotesColor(separator string) (color string) {
@@ -108,7 +91,7 @@ func highlightDate(input string, resetToColor string) string {
 	input = date.ReplaceAllString(input, highlighter.ColorStyleAndResetTo("yellow", "", `$0`,
 		resetToColor, ""))
 
-	time := regexp.MustCompile(`(\s|T)(\d{2}.){2}\d{2}[ |,|\.|+]\d{3,6}`)
+	time := regexp.MustCompile(`(\s|T)(\d{2}.){2}\d{2}[ |,|\.|+]\d{3,9}Z?`)
 	input = time.ReplaceAllString(input, highlighter.ColorStyleAndResetTo("yellow", "", `$0`,
 		resetToColor, ""))
 
