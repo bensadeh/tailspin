@@ -32,54 +32,16 @@ func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme
 		log.Fatal("Unable to write to temporary file", err)
 	}
 
-	if config.Follow {
-		////////////////////////////////////////////////////////// Tail
-		file, tailErr := tail.TailFile(pathToFileToBeTailed, tail.Config{Follow: true})
-		if tailErr != nil {
-			panic(err)
-		}
-
-		m.TailFile = file
-
-		go func() {
-			for line := range m.TailFile.Lines {
-				syntaxHighlightedLine := syntax.Highlight(line.Text, scheme)
-				_, _ = m.TempFile.WriteString(syntaxHighlightedLine + "\n")
-			}
-		}()
-		////////////////////////////////////////////////////////// Tail
-	} else {
-		var wg sync.WaitGroup
-		reader, _ := os.Open(pathToFileToBeTailed)
-		numberOfLines, _ := lineCounter(reader)
-		wg.Add(numberOfLines)
-
-		////////////////////////////////////////////////////////// Tail
-		file, tailErr := tail.TailFile(pathToFileToBeTailed, tail.Config{Follow: true})
-		if tailErr != nil {
-			panic(err)
-		}
-
-		m.TailFile = file
-
-		go func() {
-			currentLine := 0
-			for line := range m.TailFile.Lines {
-				syntaxHighlightedLine := syntax.Highlight(line.Text, scheme)
-				_, _ = m.TempFile.WriteString(syntaxHighlightedLine + "\n")
-				if currentLine < numberOfLines {
-					wg.Done()
-				}
-
-				currentLine++
-			}
-		}()
-		////////////////////////////////////////////////////////// Tail
-
-		wg.Wait()
+	file, err := tail.TailFile(pathToFileToBeTailed, tail.Config{Follow: true})
+	if err != nil {
+		panic(err)
 	}
 
-	if err := tea.NewProgram(m).Start(); err != nil {
+	m.TailFile = file
+
+	beginTailingAndHighlighting(config.Follow, pathToFileToBeTailed, m, scheme)
+
+	if err = tea.NewProgram(m).Start(); err != nil {
 		fmt.Println("Error running program:", err)
 	}
 
@@ -95,34 +57,29 @@ func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme
 
 }
 
-//var wg sync.WaitGroup
-//reader, _ := os.Open(pathToFileToBeTailed)
-//numberOfLines, _ := lineCounter(reader)
-//wg.Add(numberOfLines)
-//
-//////////////////////////////////////////////////////////// Tail
-//file, tailErr := tail.TailFile(pathToFileToBeTailed, tail.Config{Follow: true})
-//if tailErr != nil {
-//panic(err)
-//}
-//
-//m.TailFile = file
-//
-//go func() {
-//	currentLine := 0
-//	for line := range m.TailFile.Lines {
-//		syntaxHighlightedLine := syntax.Highlight(line.Text, scheme)
-//		_, _ = m.TempFile.WriteString(syntaxHighlightedLine + "\n")
-//		if currentLine < numberOfLines {
-//			wg.Done()
-//		}
-//
-//		currentLine++
-//	}
-//}()
-//////////////////////////////////////////////////////////// Tail
-//
-//wg.Wait()
+func beginTailingAndHighlighting(follow bool, pathToFileToBeTailed string, m *handler.Model, scheme *core.Scheme) {
+	reader, _ := os.Open(pathToFileToBeTailed)
+	numberOfLines, _ := lineCounter(reader)
+	var wg sync.WaitGroup
+	wg.Add(numberOfLines)
+
+	go func() {
+		currentLine := 0
+		for line := range m.TailFile.Lines {
+			syntaxHighlightedLine := syntax.Highlight(line.Text, scheme)
+			_, _ = m.TempFile.WriteString(syntaxHighlightedLine + "\n")
+			if currentLine < numberOfLines {
+				wg.Done()
+			}
+
+			currentLine++
+		}
+	}()
+
+	if !follow {
+		wg.Wait()
+	}
+}
 
 func lineCounter(r io.Reader) (int, error) {
 
