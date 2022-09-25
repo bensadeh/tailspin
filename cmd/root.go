@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/logrusorgru/aurora/v3"
 	"github.com/spf13/cobra"
 	"os"
 	"spin/app"
@@ -17,8 +18,7 @@ var (
 func Root() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:     "spin {file}",
-		Short:   "tailspin is a better way to browse your logfiles",
-		Long:    "tailspin is a better way to browse your logfiles",
+		Short:   "\n" + aurora.Magenta("tailspin").Italic().String() + " is a log file highlighter",
 		Example: "spin system.log -f",
 		Version: app.Version,
 		Args:    cobra.MinimumNArgs(1),
@@ -43,9 +43,8 @@ func Root() *cobra.Command {
 
 func configureFlags(rootCmd *cobra.Command) {
 	rootCmd.PersistentFlags().BoolVarP(&follow, "follow", "f", false,
-		"Scroll forward, and keep trying to read when the end of file is reached.\n"+
-			"It is a way to monitor the tail of a file which is growing while it is\n"+
-			"being viewed. (The behavior is similar to the \"tail -f\" command.)")
+		"scroll forward, and keep trying to read when the end of file is reached\n"+
+			"(Similar to "+aurora.Magenta("tail -f").Italic().String()+")")
 
 	// Flags and settings for debugging
 	rootCmd.PersistentFlags().IntVar(&debugFile, "debug-file", 0,

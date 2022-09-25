@@ -2,7 +2,7 @@
 
 ## 0.1
 
-_WIP_
+_25.09.22_
 
 **Initial release**
 
