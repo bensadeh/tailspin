@@ -6,14 +6,17 @@
 A log file highlighter
 </p>
 
-
+<p align="center">
+  <img src="assets/example.png" width="700"/>
+</p>
 
 ## Overview
 
-`tailspin` is a command line tool for viewing (and `tail`-ing) log files. It highlights important keywords to make navigating log files easier.
+`tailspin` is a command line tool for viewing (and `tail`-ing) log files. It highlights important keywords to make
+navigating log files easier.
 
 ## See also
- 
+
 * [lnav](https://github.com/tstack/lnav)
 * [grc](https://github.com/garabik/grc)
 
