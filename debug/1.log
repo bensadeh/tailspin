@@ -15,7 +15,7 @@ java.lang.NullPointerException: Sample Java Logback Exception
    at Sample.main(Sample.java:15)
 word word "word error word"
 date "date 09:50:18.749 date" 09:50:18.749
-Numbers: '2' 2 [2] "2" " 2 " (2) 2.2 test 2
+Numbers: '2' 2 [2] "2" " 2 " (2) 2.2 test:2 2
 wordnullword [null] =null  null,  null. (null) " null " "null"
 https://www.geeksforgeeks.org/lru-cache-implementation/ // Do not highlight these: ? & =
 "url url https://www.xyz.com/search url url"

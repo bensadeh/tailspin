@@ -152,7 +152,7 @@ func highlightNumbers(input string, color string, resetToColor string) string {
 	noTime := regexp.MustCompile(`([\D]:)(\d+)`)
 	input = noTime.ReplaceAllString(input, "$1"+highlighter.ColorAndResetTo(color, `$2`, resetToColor))
 
-	mostCommonNumberMatches := regexp.MustCompile(`([ \[|(=])(\d+\.)*(\d+)([\s,\])])`)
+	mostCommonNumberMatches := regexp.MustCompile(`([ \[|(="'])(\d+\.)*(\d+)(["'\s,\])])`)
 	input = mostCommonNumberMatches.ReplaceAllString(input, `$1`+highlighter.Color(color, `$2`)+
 		highlighter.ColorAndResetTo(color, `$3`, resetToColor)+`$4`)
 
