@@ -7,7 +7,7 @@ keyword:
     fg: "yellow"
     style: ""
     strict: false
-  - strings: [ 'debug', 'DEBUG' ]
+  - strings: [ 'debug', 'DEBUG', 'GET' ]
     fg: "green"
     style: ""
     strict: false
@@ -21,6 +21,10 @@ keyword:
     strict: false
   - strings: [ 'NULL', 'null', 'nil', 'true', 'false', 'TRUE', 'FALSE' ]
     fg: "red"
+    style: "italic"
+    strict: false
+  - strings: [ 'POST' ]
+    fg: "magenta"
     style: "italic"
     strict: false
 date:
