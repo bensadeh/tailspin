@@ -15,6 +15,18 @@ A log file highlighter
 `tailspin` is a command line tool for viewing (and `tail`-ing) log files. It highlights important keywords to make
 navigating log files easier.
 
+## Installing
+
+### Homebrew
+
+```console
+# Install
+brew install bensadeh/tailspin/tailspin
+
+# Run
+spin [file]
+```
+
 ## See also
 
 * [lnav](https://github.com/tstack/lnav)
