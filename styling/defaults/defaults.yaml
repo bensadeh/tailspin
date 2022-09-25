@@ -23,10 +23,6 @@ keyword:
     fg: "red"
     style: "italic"
     strict: false
-  - strings: [ 'warn', 'WARN' ]
-    fg: "yellow"
-    style: ""
-    strict: false
 date:
   regexp: [ '','' ]
   fg: "yellow"

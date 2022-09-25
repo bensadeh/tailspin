@@ -14,6 +14,9 @@ var d3 string
 //go:embed 4.log
 var d4 string
 
+//go:embed 5.log
+var d5 string
+
 func GetDebugFile(i int) string {
 	switch i {
 	case 1:
@@ -24,6 +27,8 @@ func GetDebugFile(i int) string {
 		return d3
 	case 4:
 		return d4
+	case 5:
+		return d5
 	default:
 		return ""
 	}
