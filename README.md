@@ -1,15 +1,13 @@
 <p align="center">
-  <img src="assets/tailspin.svg" width="200"/>
+  <img src="assets/logo-new.png" width="600"/>
 </p>
-
-#
 
 <p align="center">
 A log file highlighter
 </p>
 
 <p align="center">
-  <img src="assets/example.png" width="800"/>
+  <img src="assets/example.png" width="700"/>
 </p>
 
 ## Overview
