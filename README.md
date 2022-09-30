@@ -1,6 +1,8 @@
 <p align="center">
-  <img src="assets/logo-new.png" width="600"/>
+  <img src="assets/tailspin.png" width="230"/>
 </p>
+
+# 
 
 <p align="center">
 A log file highlighter
