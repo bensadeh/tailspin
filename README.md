@@ -27,6 +27,9 @@ brew install bensadeh/tailspin/tailspin
 
 # Run
 spin [file]
+
+# Tail
+spin -f [file]
 ```
 
 ## See also
