@@ -25,10 +25,10 @@ navigating log files easier.
 # Install
 brew install bensadeh/tailspin/tailspin
 
-# Run
+# View log file
 spin [file]
 
-# Tail
+# Tail log file
 spin -f [file]
 ```
 
