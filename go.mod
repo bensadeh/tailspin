@@ -6,14 +6,14 @@ require (
 	github.com/charmbracelet/bubbletea v0.22.0
 	github.com/logrusorgru/aurora/v3 v3.0.0
 	github.com/nxadm/tail v1.4.8
-	github.com/spf13/cobra v1.5.0
+	github.com/spf13/cobra v1.6.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
