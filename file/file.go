@@ -45,14 +45,14 @@ func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme
 		fmt.Println("Error running program:", teaErr)
 	}
 
-	tpErr := m.TempFile.Close()
-	if tpErr != nil {
-		panic(tpErr)
+	closeTempFileErr := m.TempFile.Close()
+	if closeTempFileErr != nil {
+		panic(closeTempFileErr)
 	}
 
-	tErr := m.TailFile.Stop()
-	if tErr != nil {
-		panic(tErr)
+	stopTailErr := m.TailFile.Stop()
+	if stopTailErr != nil {
+		panic(stopTailErr)
 	}
 
 }
