@@ -1,12 +1,14 @@
 package syntax
 
 import (
-	. "github.com/logrusorgru/aurora/v3"
 	"regexp"
+	"strings"
+
+	. "github.com/logrusorgru/aurora/v3"
+
 	"spin/core"
 	"spin/highlighter"
 	"spin/replace"
-	"strings"
 )
 
 const (
@@ -21,7 +23,6 @@ const (
 )
 
 func Highlight(line string, scheme *core.Scheme) string {
-
 	// Carriage return (\r) messes with the regexp, so we remove it
 	line = strings.ReplaceAll(line, "\r", "")
 	line = line + " "

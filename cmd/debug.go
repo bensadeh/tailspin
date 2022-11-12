@@ -2,20 +2,19 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
+
 	"spin/debug"
 	"spin/file"
 	"spin/mapper"
 	"spin/styling"
 )
 
-var (
-	debugFile int
-)
+var debugFile int
 
 func debugCmd() *cobra.Command {
-
 	command := &cobra.Command{
 		Use:    "debug [-file n]",
 		Short:  "debug tailspin",

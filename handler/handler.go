@@ -1,10 +1,12 @@
 package handler
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nxadm/tail"
 	"os"
 	"os/exec"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/nxadm/tail"
+
 	"spin/conf"
 )
 
@@ -28,7 +30,8 @@ func openEditor(m *Model) tea.Cmd {
 func less(path string, config *conf.Config) *exec.Cmd {
 	args := []string{
 		"--RAW-CONTROL-CHARS",
-		"--ignore-case"}
+		"--ignore-case",
+	}
 
 	if config.Follow {
 		args = append(args, "+F")

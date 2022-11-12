@@ -2,8 +2,9 @@ package styling
 
 import (
 	_ "embed"
-	"gopkg.in/yaml.v2"
 	"log"
+
+	"gopkg.in/yaml.v2"
 )
 
 //go:embed defaults/defaults.yaml

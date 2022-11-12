@@ -20,7 +20,7 @@ func FlattenKeywords(keywords []styling.Keyword) []*core.Keyword {
 	for _, item := range keywords {
 		for _, str := range item.Strings {
 
-			var sAndR = core.Keyword{
+			sAndR := core.Keyword{
 				String: str,
 				Fg:     item.Fg,
 				Style:  item.Style,
@@ -39,7 +39,7 @@ func FlattenRegularExpressions(regExpressions []styling.RegularExpression) []*co
 	for _, item := range regExpressions {
 		for _, regexp := range item.Regexp {
 
-			var regExpressions = core.RegularExpression{
+			regExpressions := core.RegularExpression{
 				RegExp: regexp,
 				Fg:     item.Fg,
 			}

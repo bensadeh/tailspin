@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/logrusorgru/aurora/v3"
 	"github.com/spf13/cobra"
-	"os"
+
 	"spin/app"
 	"spin/conf"
 	"spin/file"
@@ -11,9 +13,7 @@ import (
 	"spin/styling"
 )
 
-var (
-	follow bool
-)
+var follow bool
 
 func Root() *cobra.Command {
 	rootCmd := &cobra.Command{

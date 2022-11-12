@@ -3,17 +3,19 @@ package file
 import (
 	"bytes"
 	"fmt"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/nxadm/tail"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/nxadm/tail"
+
 	"spin/conf"
 	"spin/core"
 	"spin/handler"
 	"spin/syntax"
-	"sync"
 )
 
 func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme) {
@@ -54,7 +56,6 @@ func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme
 	if stopTailErr != nil {
 		panic(stopTailErr)
 	}
-
 }
 
 func beginTailingAndHighlighting(follow bool, pathToFileToBeTailed string, m *handler.Model, scheme *core.Scheme) {

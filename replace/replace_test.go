@@ -10,21 +10,22 @@ func Test_searchAndReplaceInBetweenTokens(t *testing.T) {
 		old        string
 		new        string
 	}
-	var tests = []struct {
+	tests := []struct {
 		name string
 		args args
 		want string
-	}{{
-		name: "",
-		args: args{
-			leftToken:  "[S]",
-			rightToken: "[X]",
-			s:          "abc abc [S] def def [X] def def [S]jkl jkl [X] mno mno",
-			old:        "def",
-			new:        "XYZ",
+	}{
+		{
+			name: "",
+			args: args{
+				leftToken:  "[S]",
+				rightToken: "[X]",
+				s:          "abc abc [S] def def [X] def def [S]jkl jkl [X] mno mno",
+				old:        "def",
+				new:        "XYZ",
+			},
+			want: "abc abc [S] XYZ XYZ [X] def def [S]jkl jkl [X] mno mno",
 		},
-		want: "abc abc [S] XYZ XYZ [X] def def [S]jkl jkl [X] mno mno",
-	},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
