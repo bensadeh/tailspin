@@ -19,29 +19,30 @@ import (
 func Setup(config *conf.Config, pathToFileToBeTailed string, scheme *core.Scheme) {
 	m := new(handler.Model)
 
-	temporaryFile, err := os.CreateTemp("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
-	if err != nil {
-		log.Fatal("Could not create temporary file", err)
+	temporaryFile, createTempErr := os.CreateTemp("", fmt.Sprintf("%s-", filepath.Base(os.Args[0])))
+	if createTempErr != nil {
+		log.Fatal("Could not create temporary file", createTempErr)
 	}
 
 	m.TempFile = temporaryFile
 	m.Config = config
 
-	if _, err = m.TempFile.WriteString(""); err != nil {
-		log.Fatal("Unable to write to temporary file", err)
+	if _, writeErr := m.TempFile.WriteString(""); writeErr != nil {
+		log.Fatal("Unable to write to temporary file", writeErr)
 	}
 
-	file, err := tail.TailFile(pathToFileToBeTailed, tail.Config{Follow: true})
-	if err != nil {
-		panic(err)
+	file, tailErr := tail.TailFile(pathToFileToBeTailed, tail.Config{Follow: true})
+	if tailErr != nil {
+		panic(tailErr)
 	}
 
 	m.TailFile = file
 
 	beginTailingAndHighlighting(config.Follow, pathToFileToBeTailed, m, scheme)
 
-	if err = tea.NewProgram(m).Start(); err != nil {
-		fmt.Println("Error running program:", err)
+	_, teaErr := tea.NewProgram(m).Run()
+	if teaErr != nil {
+		fmt.Println("Error running program:", teaErr)
 	}
 
 	tpErr := m.TempFile.Close()
