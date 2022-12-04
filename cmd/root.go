@@ -45,11 +45,6 @@ func configureFlags(rootCmd *cobra.Command) {
 	rootCmd.PersistentFlags().BoolVarP(&follow, "follow", "f", false,
 		"scroll forward, and keep trying to read when the end of file is reached\n"+
 			"(Similar to "+aurora.Magenta("tail -f").Italic().String()+")")
-
-	// Flags and settings for debugging
-	rootCmd.PersistentFlags().IntVar(&debugFile, "debug-file", 0,
-		"select a specific log file for debugging")
-	rootCmd.Flag("debug-file").Hidden = true
 }
 
 func getConfig() *conf.Config {
