@@ -1,6 +1,6 @@
 module spin
 
-go 1.19
+go 1.20
 
 require (
 	github.com/charmbracelet/bubbletea v0.23.2

@@ -2,5 +2,5 @@ package app
 
 const (
 	Name    = "tailspin"
-	Version = "0.2-dev"
+	Version = "0.1.1"
 )
