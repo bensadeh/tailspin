@@ -2,8 +2,14 @@
 name = "tailspin"
 version = "0.1.0"
 edition = "2021"
+authors = ["Ben Sadeh"]
+description = "tailspin is a log file highlighter and a drop-in replacement for tail -f"
+repository = "https://github.com/bensadeh/tailspin"
+keywords = ["log", "syntax-highlighting", "tail", "less"]
+license = "MIT"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "spin"
 
 [dependencies]
 clap = { version = "4.3.0", features = ["derive"] }
