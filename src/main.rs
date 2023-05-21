@@ -1,29 +1,18 @@
-use std::{
-    io::Write,
-    process::{Command, Stdio},
-};
+use linemux::MuxedLines;
 
-fn main() {
-    let text = "This is the text to be displayed by less.";
+#[tokio::main]
+async fn main() -> std::io::Result<()> {
+    let mut lines = MuxedLines::new()?;
 
-    run_less_with_input(text);
+    // Register some files to be tailed, whether they currently exist or not.
+    lines.add_file_from_start("golang/debug/1.log").await?;
 
-    println!("it works!")
-}
+    // Wait for `Line` event, which contains the line captured for a given
+    // source path.
 
-fn run_less_with_input(input: &str) {
-    let mut less_child = Command::new("less")
-        .stdin(Stdio::piped())
-        .spawn()
-        .expect("Failed to execute 'less' command");
-
-    if let Some(less_stdin) = less_child.stdin.as_mut() {
-        less_stdin
-            .write_all(input.as_bytes())
-            .expect("Failed to write to 'less' stdin");
+    while let Ok(Some(line)) = lines.next_line().await {
+        println!("{}", line.line());
     }
 
-    less_child
-        .wait()
-        .expect("Failed to wait for 'less' command");
+    Ok(())
 }
