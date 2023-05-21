@@ -9,6 +9,7 @@ keywords = ["log", "syntax-highlighting", "tail", "less"]
 license = "MIT"
 
 [[bin]]
+path = "src/main.rs"
 name = "spin"
 
 [dependencies]
