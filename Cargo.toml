@@ -12,4 +12,3 @@ license = "MIT"
 name = "spin"
 
 [dependencies]
-clap = { version = "4.3.0", features = ["derive"] }
