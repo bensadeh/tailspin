@@ -3,7 +3,7 @@ module spin
 go 1.20
 
 require (
-	github.com/charmbracelet/bubbletea v0.24.0
+	github.com/charmbracelet/bubbletea v0.24.1
 	github.com/logrusorgru/aurora/v3 v3.0.0
 	github.com/nxadm/tail v1.4.8
 	github.com/spf13/cobra v1.7.0
