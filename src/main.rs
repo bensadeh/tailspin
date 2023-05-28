@@ -1,8 +1,9 @@
 use linemux::MuxedLines;
-use std::io::{BufRead, BufWriter, Write};
+use regex::Regex;
+use std::io;
+use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 use std::process::Command;
-use std::{fs::File, io};
 use tempfile::NamedTempFile;
 
 #[tokio::main]
@@ -38,7 +39,9 @@ where
     lines.add_file_from_start(path).await?;
 
     while let Ok(Some(line)) = lines.next_line().await {
-        writeln!(output_writer, "{}", line.line())?;
+        let highlighted_string = highlight_numbers_in_blue(line.line());
+
+        writeln!(output_writer, "{}", highlighted_string)?;
         output_writer.flush()?;
     }
 
@@ -58,4 +61,14 @@ fn open_file_with_less(path: &str) {
             eprintln!("Failed to execute pager command: {}", err);
         }
     }
+}
+
+fn highlight_numbers_in_blue(input: &str) -> String {
+    let number_regex = Regex::new(r"\b\d+\b").expect("Invalid regex pattern");
+
+    let highlighted = number_regex.replace_all(input, |caps: &regex::Captures<'_>| {
+        format!("\x1B[34m{}\x1B[0m", &caps[0])
+    });
+
+    highlighted.into_owned()
 }
