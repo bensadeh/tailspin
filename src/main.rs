@@ -1,5 +1,6 @@
 use linemux::MuxedLines;
 use std::io::{BufRead, BufWriter, Write};
+use std::path::PathBuf;
 use std::process::Command;
 use std::{fs::File, io};
 use tempfile::NamedTempFile;
@@ -18,13 +19,15 @@ async fn main() {
             .expect("TODO: panic message");
     });
 
-    // ... Other parts of your program ...
-    // sleep for 3 seconds
-    // tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
-
-    // Wait for the tail_file task to complete
-    // let _ = tail_file_task.await;
     open_file_with_less(output_path.to_str().unwrap());
+
+    cleanup(output_path);
+}
+
+fn cleanup(output_path: PathBuf) {
+    if let Err(err) = std::fs::remove_file(output_path) {
+        eprintln!("Failed to remove the temporary file: {}", err);
+    }
 }
 
 async fn tail_file<R>(path: &str, mut output_writer: BufWriter<R>) -> io::Result<()>
