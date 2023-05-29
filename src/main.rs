@@ -75,6 +75,11 @@ fn highlight_numbers_in_blue(input: &str) -> String {
 }
 
 fn highlight_quotes(input: &str) -> String {
+    let quote_count: usize = input.chars().filter(|&ch| ch == '"').count();
+    if quote_count % 2 != 0 {
+        return input.to_string();
+    }
+
     let mut output = String::new();
     let mut inside_quote = false;
     let mut potential_color_code = String::new();
@@ -109,11 +114,6 @@ fn highlight_quotes(input: &str) -> String {
         } else {
             output.push(ch);
         }
-    }
-
-    if inside_quote {
-        // There is an unclosed quote
-        return input.to_string();
     }
 
     output
