@@ -1,24 +1,34 @@
 use linemux::MuxedLines;
 use regex::Regex;
+use std::fs::File;
 use std::io;
-use std::io::{BufWriter, Write};
-use std::path::PathBuf;
+use std::io::{BufRead, BufWriter, Write};
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use tempfile::NamedTempFile;
+use tokio::sync::oneshot;
+
+mod highlighter;
 
 #[tokio::main]
 async fn main() {
-    let input = "golang/debug/1.log";
+    let input = "example-logs/1.log";
+    let line_count = count_lines(input).expect("Failed to count lines");
 
     let output_file = NamedTempFile::new().unwrap();
     let output_path = output_file.path().to_path_buf();
     let output_writer = BufWriter::new(output_file);
 
+    let (tx, rx) = oneshot::channel::<()>();
+
     tokio::spawn(async move {
-        tail_file(input, output_writer)
+        tail_file(input, output_writer, line_count, Some(tx))
             .await
             .expect("TODO: panic message");
     });
+
+    // Wait for the signal from the other task before continuing
+    rx.await.expect("Failed receiving from oneshot channel");
 
     open_file_with_less(output_path.to_str().unwrap());
 
@@ -31,19 +41,31 @@ fn cleanup(output_path: PathBuf) {
     }
 }
 
-async fn tail_file<R>(path: &str, mut output_writer: BufWriter<R>) -> io::Result<()>
+async fn tail_file<R>(
+    path: &str,
+    mut output_writer: BufWriter<R>,
+    line_count: usize,
+    mut tx: Option<oneshot::Sender<()>>,
+) -> io::Result<()>
 where
     R: Write + Send + 'static,
 {
     let mut lines = MuxedLines::new()?;
+    let mut current_line = 1;
     lines.add_file_from_start(path).await?;
 
     while let Ok(Some(line)) = lines.next_line().await {
+        if current_line == line_count {
+            if let Some(tx) = tx.take() {
+                tx.send(()).expect("Failed sending to oneshot channel");
+            }
+        }
         let highlighted_string = highlight_numbers_in_blue(line.line());
         let highlighted_string2 = highlight_quotes(highlighted_string.as_str());
 
         writeln!(output_writer, "{}", highlighted_string2)?;
         output_writer.flush()?;
+        current_line += 1;
     }
 
     Ok(())
@@ -62,6 +84,13 @@ fn open_file_with_less(path: &str) {
             eprintln!("Failed to execute pager command: {}", err);
         }
     }
+}
+
+fn count_lines<P: AsRef<Path>>(file_path: P) -> io::Result<usize> {
+    let file = File::open(file_path)?;
+    let reader = io::BufReader::new(file);
+
+    Ok(reader.lines().count())
 }
 
 fn highlight_numbers_in_blue(input: &str) -> String {
