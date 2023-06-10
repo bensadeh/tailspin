@@ -1,24 +1,30 @@
+mod config_parser;
 mod highlighter;
 
 use crate::highlighter::Highlighter;
 
 use linemux::MuxedLines;
+use rand::random;
 use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufWriter, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use tempfile::NamedTempFile;
 use tokio::sync::oneshot;
 
 #[tokio::main]
 async fn main() {
+    // let config = config_parser::load_config(None);
+
     let input = "example-logs/1.log";
     let line_count = count_lines(input).expect("Failed to count lines");
     let highlighter = Highlighter::new();
 
-    let output_file = NamedTempFile::new().unwrap();
-    let output_path = output_file.path().to_path_buf();
+    let unique_id: u32 = random();
+    let filename = format!("tailspin.temp.{}", unique_id);
+    let temp_dir = tempfile::tempdir().unwrap();
+    let output_path = temp_dir.path().join(filename);
+    let output_file = File::create(&output_path).unwrap();
     let output_writer = BufWriter::new(output_file);
 
     let (tx, rx) = oneshot::channel::<()>();
