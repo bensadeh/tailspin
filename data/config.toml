@@ -1,2 +1,3 @@
 [builtins]
-numbers = { fg = "blue", bg= "none", style = "bold" , enabled = true},
+numbers = { enabled = true, highlight = {fg = "blue", bg= "none", style = "bold"}}
+quotes = { symbol = "\"", enabled = true, highlight = {fg = "blue", bg= "none", style = "bold"}}
