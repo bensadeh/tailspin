@@ -4,14 +4,14 @@ use std::path::Path;
 
 const DEFAULT_CONFIG: &str = include_str!("../data/config.toml");
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Highlight {
     fg: String,
     bg: String,
     style: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Feature {
     enabled: bool,
     highlight: Highlight,
@@ -20,22 +20,22 @@ pub struct Feature {
     symbol: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Builtins {
     numbers: Feature,
     quotes: Feature,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Keyword {
-    strings: Vec<String>,
-    highlight: Highlight,
+    pub(crate) strings: Vec<String>,
+    pub(crate) highlight: Highlight,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Config {
     builtins: Builtins,
-    keywords: Vec<Keyword>,
+    pub(crate) keywords: Vec<Keyword>,
 }
 
 pub fn load_config(path: Option<String>) -> Config {

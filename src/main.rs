@@ -1,4 +1,5 @@
 mod config_parser;
+mod config_util;
 mod highlighter;
 
 use crate::highlighter::Highlighter;
@@ -15,7 +16,10 @@ use tokio::sync::oneshot;
 #[tokio::main]
 async fn main() {
     let config = config_parser::load_config(None);
+    let flattened_keywords = config_util::flatten_keywords(config.keywords.clone());
+
     dbg!(&config);
+    dbg!(&flattened_keywords);
 
     let input = "example-logs/1.log";
     let line_count = count_lines(input).expect("Failed to count lines");
