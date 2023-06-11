@@ -1,4 +1,4 @@
-mod colors;
+mod color;
 mod config_parser;
 mod config_util;
 mod highlight_processor;

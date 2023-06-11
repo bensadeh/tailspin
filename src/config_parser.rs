@@ -1,4 +1,4 @@
-use crate::colors::{Bg, Fg, Style};
+use crate::color::{Bg, Fg, Style};
 use serde::Deserialize;
 use std::fs;
 use std::path::Path;
