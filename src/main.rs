@@ -26,7 +26,7 @@ async fn main() {
 
     let input = "example-logs/1.log";
     let line_count = count_lines(input).expect("Failed to count lines");
-    let highlighter = Highlighters::new(config.settings, flattened_keywords);
+    let highlighter = Highlighters::new(config, flattened_keywords);
     let highlight_processor = HighlightProcessor::new(highlighter);
 
     let unique_id: u32 = random();

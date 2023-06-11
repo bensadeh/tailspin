@@ -3,6 +3,8 @@ use serde::Deserialize;
 use std::fmt;
 use std::str::FromStr;
 
+const RESET: &str = "\x1b[0m";
+
 #[derive(Debug, Clone, Default)]
 pub enum Fg {
     Red,
@@ -10,6 +12,8 @@ pub enum Fg {
     Blue,
     Yellow,
     White,
+    Magenta,
+    Cyan,
     #[default]
     None,
 }
@@ -43,9 +47,27 @@ impl FromStr for Fg {
             "green" => Ok(Fg::Green),
             "blue" => Ok(Fg::Blue),
             "yellow" => Ok(Fg::Yellow),
+            "magenta" => Ok(Fg::Magenta),
+            "cyan" => Ok(Fg::Cyan),
             "white" => Ok(Fg::White),
             _ => Ok(Fg::None),
         }
+    }
+}
+
+impl ToString for Fg {
+    fn to_string(&self) -> String {
+        match self {
+            Fg::Red => "\x1b[31m",
+            Fg::Green => "\x1b[32m",
+            Fg::Yellow => "\x1b[33m",
+            Fg::Blue => "\x1b[34m",
+            Fg::Magenta => "\x1b[35m",
+            Fg::Cyan => "\x1b[36m",
+            Fg::White => "\x1b[37m",
+            Fg::None => "\x1b[0m",
+        }
+        .to_string()
     }
 }
 

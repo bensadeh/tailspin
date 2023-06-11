@@ -1,4 +1,5 @@
-use crate::config_parser::Settings;
+use crate::colors::Fg;
+use crate::config_parser::{Config, Settings};
 use crate::config_util::FlattenKeyword;
 use regex::Regex;
 
@@ -11,7 +12,7 @@ pub struct Highlighters {
 }
 
 impl Highlighters {
-    pub fn new(settings: Settings, keywords: Vec<FlattenKeyword>) -> Highlighters {
+    pub fn new(config: Config, keywords: Vec<FlattenKeyword>) -> Highlighters {
         let mut before_fns: HighlightFnVec = Vec::new();
         let mut after_fns: HighlightFnVec = Vec::new();
 
