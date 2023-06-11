@@ -23,7 +23,12 @@ pub struct KeywordGroup {
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Settings {
+    #[serde(default = "default_quotes_token")]
     quotes_token: String,
+}
+
+fn default_quotes_token() -> String {
+    String::from("\"")
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
