@@ -1,3 +1,4 @@
+use crate::colors::{Bg, Fg, Style};
 use serde::Deserialize;
 use std::fs;
 use std::path::Path;
@@ -6,9 +7,12 @@ const DEFAULT_CONFIG: &str = include_str!("../data/config.toml");
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Highlight {
-    fg: String,
-    bg: String,
-    style: String,
+    #[serde(default)]
+    fg: Fg,
+    #[serde(default)]
+    bg: Bg,
+    #[serde(default)]
+    style: Style,
 }
 
 #[derive(Debug, Deserialize, Clone)]

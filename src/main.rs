@@ -1,3 +1,4 @@
+mod colors;
 mod config_parser;
 mod config_util;
 mod highlighter;
