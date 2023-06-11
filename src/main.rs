@@ -1,10 +1,11 @@
 mod colors;
 mod config_parser;
 mod config_util;
-mod highlighter;
+mod highlight_processor;
+mod highlighters;
 
-use crate::highlighter::Highlighter;
-
+use crate::highlight_processor::HighlightProcessor;
+use crate::highlighters::Highlighters;
 use linemux::MuxedLines;
 use rand::random;
 use std::fs::File;
@@ -25,7 +26,8 @@ async fn main() {
 
     let input = "example-logs/1.log";
     let line_count = count_lines(input).expect("Failed to count lines");
-    let highlighter = Highlighter::new();
+    let highlighter = Highlighters::new(config.settings, flattened_keywords);
+    let highlight_processor = HighlightProcessor::new(highlighter);
 
     let unique_id: u32 = random();
     let filename = format!("tailspin.temp.{}", unique_id);
@@ -37,9 +39,15 @@ async fn main() {
     let (tx, rx) = oneshot::channel::<()>();
 
     tokio::spawn(async move {
-        tail_file(input, output_writer, highlighter, line_count, Some(tx))
-            .await
-            .expect("TODO: panic message");
+        tail_file(
+            input,
+            output_writer,
+            highlight_processor,
+            line_count,
+            Some(tx),
+        )
+        .await
+        .expect("TODO: panic message");
     });
 
     // Wait for the signal from the other task before continuing
@@ -59,7 +67,7 @@ fn cleanup(output_path: PathBuf) {
 async fn tail_file<R>(
     path: &str,
     mut output_writer: BufWriter<R>,
-    highlighter: Highlighter,
+    highlighter: HighlightProcessor,
     line_count: usize,
     mut tx: Option<oneshot::Sender<()>>,
 ) -> io::Result<()>

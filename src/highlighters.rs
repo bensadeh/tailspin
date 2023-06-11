@@ -1,18 +1,30 @@
+use crate::config_parser::Settings;
+use crate::config_util::FlattenKeyword;
 use regex::Regex;
 
-pub struct Highlighter {}
+type HighlightFn = Box<dyn Fn(&str) -> String + Send>;
+type HighlightFnVec = Vec<HighlightFn>;
 
-impl Highlighter {
-    pub fn new() -> Highlighter {
-        Highlighter {}
+pub struct Highlighters {
+    pub before: HighlightFnVec,
+    pub after: HighlightFnVec,
+}
+
+impl Highlighters {
+    pub fn new(settings: Settings, keywords: Vec<FlattenKeyword>) -> Highlighters {
+        let mut before_fns: HighlightFnVec = Vec::new();
+        let mut after_fns: HighlightFnVec = Vec::new();
+
+        before_fns.push(Box::new(Highlighters::highlight_numbers_in_blue));
+        after_fns.push(Box::new(Highlighters::highlight_quotes));
+
+        Highlighters {
+            before: before_fns,
+            after: after_fns,
+        }
     }
 
-    pub fn apply(&self, input: &str) -> String {
-        let highlighted_string = self.highlight_numbers_in_blue(input);
-        self.highlight_quotes(highlighted_string.as_str())
-    }
-
-    fn highlight_numbers_in_blue(&self, input: &str) -> String {
+    fn highlight_numbers_in_blue(input: &str) -> String {
         let number_regex = Regex::new(r"\b\d+\b").expect("Invalid regex pattern");
 
         let highlighted = number_regex.replace_all(input, |caps: &regex::Captures<'_>| {
@@ -22,7 +34,7 @@ impl Highlighter {
         highlighted.into_owned()
     }
 
-    fn highlight_quotes(&self, input: &str) -> String {
+    fn highlight_quotes(input: &str) -> String {
         let quote_count: usize = input.chars().filter(|&ch| ch == '"').count();
         if quote_count % 2 != 0 {
             return input.to_string();
