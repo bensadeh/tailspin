@@ -1,11 +1,10 @@
-[builtins]
-numbers = { enabled = true, highlight = { fg = "blue", bg = "", style = "" } }
-quotes = { symbol = "\"", enabled = true, highlight = { fg = "blue", bg = "", style = "" } }
+[settings]
+quotes_token = '"'
 
-[[keywords]]
-strings = ['error', 'ERROR']
-highlight = { fg = "red", bg = "", style = "" }
-
-[[keywords]]
-strings = ['warn', 'WARN', 'WARNING', 'warning']
-highlight = { fg = "yellow", bg = "", style = "" }
+[groups]
+numbers = { fg = "blue", bg = "", style = "" }
+quotes = { fg = "yellow", bg = "", style = "" }
+keywords = [
+    { tokens = ['info', 'INFO'], highlight = { fg = "green", bg = "", style = "" } },
+    { tokens = ['debug', 'DEBUG'], highlight = { fg = "cyan", bg = "", style = "" } },
+]

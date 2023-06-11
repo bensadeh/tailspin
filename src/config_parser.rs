@@ -5,41 +5,38 @@ use std::path::Path;
 
 const DEFAULT_CONFIG: &str = include_str!("../data/config.toml");
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Default, Clone)]
 pub struct Highlight {
     #[serde(default)]
-    fg: Fg,
+    pub fg: Fg,
     #[serde(default)]
-    bg: Bg,
+    pub bg: Bg,
     #[serde(default)]
-    style: Style,
+    pub style: Style,
 }
 
-#[derive(Debug, Deserialize, Clone)]
-pub struct Feature {
-    enabled: bool,
-    highlight: Highlight,
-    #[serde(default)]
-    // `symbol` is not present for all features, so we use `serde(default)` to handle its absence
-    symbol: Option<String>,
+#[derive(Debug, Deserialize, Default, Clone)]
+pub struct KeywordGroup {
+    pub highlight: Highlight,
+    pub tokens: Vec<String>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
-pub struct Builtins {
-    numbers: Feature,
-    quotes: Feature,
+#[derive(Debug, Deserialize, Default, Clone)]
+pub struct Settings {
+    quotes_token: String,
 }
 
-#[derive(Debug, Deserialize, Clone)]
-pub struct Keyword {
-    pub(crate) strings: Vec<String>,
-    pub(crate) highlight: Highlight,
+#[derive(Debug, Deserialize, Default, Clone)]
+pub struct Groups {
+    pub numbers: Option<Highlight>,
+    pub quotes: Option<Highlight>,
+    pub keywords: Option<Vec<KeywordGroup>>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Default, Clone)]
 pub struct Config {
-    builtins: Builtins,
-    pub(crate) keywords: Vec<Keyword>,
+    pub settings: Settings,
+    pub groups: Groups,
 }
 
 pub fn load_config(path: Option<String>) -> Config {

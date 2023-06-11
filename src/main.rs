@@ -17,7 +17,8 @@ use tokio::sync::oneshot;
 #[tokio::main]
 async fn main() {
     let config = config_parser::load_config(None);
-    let flattened_keywords = config_util::flatten_keywords(config.keywords.clone());
+    let keywords_or_empty = config.groups.keywords.clone().unwrap_or_default();
+    let flattened_keywords = config_util::flatten_keywords(keywords_or_empty);
 
     dbg!(&config);
     dbg!(&flattened_keywords);
