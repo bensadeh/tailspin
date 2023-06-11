@@ -27,8 +27,15 @@ pub struct Builtins {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Keyword {
+    strings: Vec<String>,
+    highlight: Highlight,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Config {
     builtins: Builtins,
+    keywords: Vec<Keyword>,
 }
 
 pub fn load_config(path: Option<String>) -> Config {

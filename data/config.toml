@@ -1,3 +1,11 @@
 [builtins]
-numbers = { enabled = true, highlight = {fg = "blue", bg= "none", style = "bold"}}
-quotes = { symbol = "\"", enabled = true, highlight = {fg = "blue", bg= "none", style = "bold"}}
+numbers = { enabled = true, highlight = {fg = "blue", bg= "", style = ""}}
+quotes = { symbol = "\"", enabled = true, highlight = {fg = "blue", bg= "", style = ""}}
+
+[[keywords]]
+strings = [ 'error', 'ERROR' ]
+highlight = {fg = "red", bg= "", style = ""}
+
+[[keywords]]
+strings = [ 'warn', 'WARN', 'WARNING', 'warning' ]
+highlight = {fg = "yellow", bg= "", style = ""}
