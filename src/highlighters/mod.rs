@@ -1,9 +1,8 @@
-mod quotes_highlighter;
+mod quotes;
 
 use crate::color::{Fg, RESET};
 use crate::config_parser::{Config, Settings};
 use crate::config_util::FlattenKeyword;
-use crate::highlighters::quotes_highlighter::highlight_quotes;
 use regex::Regex;
 
 type HighlightFn = Box<dyn Fn(&str) -> String + Send>;
@@ -23,7 +22,7 @@ impl Highlighters {
         let color_for_quotes = Fg::Yellow;
 
         before_fns.push(Highlighters::highlight_numbers(color_for_numbers));
-        after_fns.push(highlight_quotes(color_for_quotes.to_string(), '"'));
+        after_fns.push(quotes::highlight(color_for_quotes.to_string(), '"'));
 
         Highlighters {
             before: before_fns,

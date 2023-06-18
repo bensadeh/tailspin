@@ -1,8 +1,8 @@
-use crate::highlighters::quotes_highlighter::State::{InsideQuote, OutsideQuote};
+use crate::highlighters::quotes::State::{InsideQuote, OutsideQuote};
 use crate::highlighters::HighlightFn;
 
-pub fn highlight_quotes(color: String, quote_symbol: char) -> HighlightFn {
-    Box::new(move |input: &str| -> String { highlight_string(&color, input, quote_symbol) })
+pub fn highlight(color: String, quote_symbol: char) -> HighlightFn {
+    Box::new(move |input: &str| -> String { highlight_inside_quotes(&color, input, quote_symbol) })
 }
 
 enum State {
@@ -13,7 +13,7 @@ enum State {
     OutsideQuote,
 }
 
-fn highlight_string(color: &str, input: &str, quote_symbol: char) -> String {
+fn highlight_inside_quotes(color: &str, input: &str, quote_symbol: char) -> String {
     const RESET: &str = "\x1b[0m";
 
     let has_unmatched_quotes = input.chars().filter(|&ch| ch == quote_symbol).count() % 2 != 0;
@@ -73,7 +73,7 @@ mod tests {
     #[test]
     fn highlight_quotes_with_ansi() {
         let ansi_red = String::from("\x1b[33");
-        let highlighter = highlight_quotes(ansi_red, '"');
+        let highlighter = highlight(ansi_red, '"');
         let result = highlighter("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected =
             "outside \x1b[33\"hello \x1b[34;42;3m42\x1b[0m\x1b[33 world\"\x1b[0m outside";
@@ -83,7 +83,7 @@ mod tests {
     #[test]
     fn highlight_quotes_without_ansi() {
         let color = String::from("[color]");
-        let highlighter = highlight_quotes(color, '"');
+        let highlighter = highlight(color, '"');
         let result = highlighter("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected =
             "outside [color]\"hello \x1b[34;42;3m42\x1b[0m[color] world\"\x1b[0m outside";
@@ -93,7 +93,7 @@ mod tests {
     #[test]
     fn do_nothing_on_uneven_number_of_quotes() {
         let color = String::from("[color]");
-        let highlighter = highlight_quotes(color, '"');
+        let highlighter = highlight(color, '"');
         let result = highlighter("outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected = "outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
         assert_eq!(result, expected);
