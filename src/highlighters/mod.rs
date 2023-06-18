@@ -1,3 +1,4 @@
+mod numbers;
 mod quotes;
 
 use crate::color::{Fg, RESET};
@@ -21,24 +22,12 @@ impl Highlighters {
         let color_for_numbers = Fg::Blue;
         let color_for_quotes = Fg::Yellow;
 
-        before_fns.push(Highlighters::highlight_numbers(color_for_numbers));
+        before_fns.push(numbers::highlight(color_for_numbers.to_string()));
         after_fns.push(quotes::highlight(color_for_quotes.to_string(), '"'));
 
         Highlighters {
             before: before_fns,
             after: after_fns,
         }
-    }
-
-    fn highlight_numbers(color: Fg) -> HighlightFn {
-        Box::new(move |s: &str| -> String {
-            let number_regex = Regex::new(r"\b\d+\b").expect("Invalid regex pattern");
-
-            let highlighted = number_regex.replace_all(s, |caps: &regex::Captures<'_>| {
-                format!("{}{}{}", color, &caps[0], RESET)
-            });
-
-            highlighted.into_owned()
-        })
     }
 }
