@@ -1,3 +1,4 @@
+mod keyword;
 mod numbers;
 mod quotes;
 
@@ -23,6 +24,7 @@ impl Highlighters {
         let color_for_quotes = Fg::Yellow;
 
         before_fns.push(numbers::highlight(color_for_numbers.to_string()));
+        before_fns.push(keyword::highlight(Fg::Red.to_string(), "null".to_string()));
         after_fns.push(quotes::highlight(color_for_quotes.to_string(), '"'));
 
         Highlighters {
