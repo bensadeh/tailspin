@@ -1,6 +1,7 @@
 use crate::color::{Fg, RESET};
 use crate::config_parser::{Config, Settings};
 use crate::config_util::FlattenKeyword;
+use crate::highlighters::State::{InsideQuote, OutsideQuote};
 use regex::Regex;
 
 type HighlightFn = Box<dyn Fn(&str) -> String + Send>;
@@ -11,16 +12,24 @@ pub struct Highlighters {
     pub after: HighlightFnVec,
 }
 
+enum State {
+    InsideQuote {
+        color: String,
+        potential_reset_code: String,
+    },
+    OutsideQuote,
+}
+
 impl Highlighters {
     pub fn new(config: Config, keywords: Vec<FlattenKeyword>) -> Highlighters {
         let mut before_fns: HighlightFnVec = Vec::new();
         let mut after_fns: HighlightFnVec = Vec::new();
 
-        let color_for_numbers = Fg::Green;
-        let color_for_quotes = Fg::Magenta;
+        let color_for_numbers = Fg::Blue;
+        let color_for_quotes = Fg::Yellow;
 
         before_fns.push(Highlighters::highlight_numbers(color_for_numbers));
-        after_fns.push(Highlighters::highlight_quotes(color_for_quotes));
+        after_fns.push(Highlighters::highlight_quotes(color_for_quotes.to_string()));
 
         Highlighters {
             before: before_fns,
@@ -40,46 +49,59 @@ impl Highlighters {
         })
     }
 
-    fn highlight_quotes(color: Fg) -> HighlightFn {
+    fn highlight_quotes(color: String) -> HighlightFn {
+        const RESET: &str = "\x1b[0m";
+        const QUOTE_SYMBOL: char = '"';
+
         Box::new(move |input: &str| -> String {
-            // Implement your highlighting logic here with respect to color
-            // The color value is captured by the closure and can be used here
-            let quote_count: usize = input.chars().filter(|&ch| ch == '"').count();
-            if quote_count % 2 != 0 {
+            let has_unmatched_quotes =
+                input.chars().filter(|&ch| ch == QUOTE_SYMBOL).count() % 2 != 0;
+            if has_unmatched_quotes {
                 return input.to_string();
             }
 
+            let mut state = OutsideQuote;
             let mut output = String::new();
-            let mut inside_quote = false;
-            let mut potential_color_code = String::new();
 
             for ch in input.chars() {
-                if ch == '"' {
-                    inside_quote = !inside_quote;
-                    if inside_quote {
-                        output.push_str(&color.to_string());
-                        output.push(ch);
-                    } else {
+                state = match (ch, &mut state) {
+                    (QUOTE_SYMBOL, InsideQuote { .. }) => {
+                        output.push_str(&color);
                         output.push(ch);
                         output.push_str(RESET);
+                        OutsideQuote
                     }
-                    continue;
-                }
-
-                if inside_quote {
-                    potential_color_code.push(ch);
-
-                    if potential_color_code == RESET {
-                        output.push_str(&potential_color_code);
-                        output.push_str(&color.to_string());
-                        potential_color_code.clear();
-                    } else if !RESET.starts_with(&potential_color_code) {
-                        output.push_str(&potential_color_code);
-                        potential_color_code.clear();
+                    (QUOTE_SYMBOL, OutsideQuote) => {
+                        output.push_str(&color);
+                        output.push(ch);
+                        InsideQuote {
+                            color: color.clone(),
+                            potential_reset_code: String::new(),
+                        }
                     }
-                } else {
-                    output.push(ch);
-                }
+                    (
+                        _,
+                        InsideQuote {
+                            color,
+                            ref mut potential_reset_code,
+                        },
+                    ) => {
+                        potential_reset_code.push(ch);
+                        if potential_reset_code.as_str() == RESET {
+                            output.push_str(potential_reset_code);
+                            output.push_str(&color);
+                            potential_reset_code.clear();
+                        } else if !RESET.starts_with(potential_reset_code.as_str()) {
+                            output.push_str(potential_reset_code);
+                            potential_reset_code.clear();
+                        }
+                        continue;
+                    }
+                    (_, OutsideQuote) => {
+                        output.push(ch);
+                        continue;
+                    }
+                };
             }
 
             output
