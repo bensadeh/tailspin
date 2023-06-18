@@ -28,7 +28,6 @@ fn highlight_string(color: &str, input: &str) -> String {
     for ch in input.chars() {
         state = match (ch, &mut state) {
             (QUOTE_SYMBOL, InsideQuote { .. }) => {
-                output.push_str(color);
                 output.push(ch);
                 output.push_str(RESET);
                 OutsideQuote
@@ -78,7 +77,7 @@ mod tests {
         let highlighter = highlight_quotes(String::from("\x1b[33"));
         let result = highlighter("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected =
-            "outside \x1b[33\"hello \x1b[34;42;3m42\x1b[0m\x1b[33 world\x1b[33\"\x1b[0m outside";
+            "outside \x1b[33\"hello \x1b[34;42;3m42\x1b[0m\x1b[33 world\"\x1b[0m outside";
         assert_eq!(result, expected);
     }
 }
