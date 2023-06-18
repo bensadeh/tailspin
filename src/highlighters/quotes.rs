@@ -1,8 +1,11 @@
+use crate::color::{Bg, Fg, Style};
 use crate::highlighters::quotes::State::{InsideQuote, OutsideQuote};
 use crate::highlighters::HighlightFn;
 
-pub fn highlight(color: String, quote_symbol: char) -> HighlightFn {
-    Box::new(move |input: &str| -> String { highlight_inside_quotes(&color, input, quote_symbol) })
+pub fn highlight(fg: Fg, bg: Bg, style: Style, quotes_token: char) -> HighlightFn {
+    let color = crate::color::to_ansi(fg, bg, style);
+
+    Box::new(move |input: &str| -> String { highlight_inside_quotes(&color, input, quotes_token) })
 }
 
 enum State {
@@ -13,10 +16,10 @@ enum State {
     OutsideQuote,
 }
 
-fn highlight_inside_quotes(color: &str, input: &str, quote_symbol: char) -> String {
+fn highlight_inside_quotes(color: &str, input: &str, quotes_token: char) -> String {
     const RESET: &str = "\x1b[0m";
 
-    let has_unmatched_quotes = input.chars().filter(|&ch| ch == quote_symbol).count() % 2 != 0;
+    let has_unmatched_quotes = input.chars().filter(|&ch| ch == quotes_token).count() % 2 != 0;
     if has_unmatched_quotes {
         return input.to_string();
     }
@@ -30,7 +33,7 @@ fn highlight_inside_quotes(color: &str, input: &str, quote_symbol: char) -> Stri
                 color_inside_quote: color,
                 ref mut potential_reset_code,
             } => {
-                if ch == quote_symbol {
+                if ch == quotes_token {
                     output.push(ch);
                     output.push_str(RESET);
                     state = OutsideQuote;
@@ -48,7 +51,7 @@ fn highlight_inside_quotes(color: &str, input: &str, quote_symbol: char) -> Stri
                 }
             }
             OutsideQuote => {
-                if ch == quote_symbol {
+                if ch == quotes_token {
                     output.push_str(color);
                     output.push(ch);
                     state = InsideQuote {
@@ -72,8 +75,7 @@ mod tests {
 
     #[test]
     fn highlight_quotes_with_ansi() {
-        let ansi_red = String::from("\x1b[33");
-        let highlighter = highlight(ansi_red, '"');
+        let highlighter = highlight(Fg::Red, Bg::None, Style::None, '"');
         let result = highlighter("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected =
             "outside \x1b[33\"hello \x1b[34;42;3m42\x1b[0m\x1b[33 world\"\x1b[0m outside";
@@ -82,9 +84,9 @@ mod tests {
 
     #[test]
     fn highlight_quotes_without_ansi() {
-        let color = String::from("[color]");
-        let highlighter = highlight(color, '"');
-        let result = highlighter("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
+        let color = "[color]";
+        let input = "outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
+        let result = highlight_inside_quotes(color, input, '"');
         let expected =
             "outside [color]\"hello \x1b[34;42;3m42\x1b[0m[color] world\"\x1b[0m outside";
         assert_eq!(result, expected);
@@ -92,8 +94,7 @@ mod tests {
 
     #[test]
     fn do_nothing_on_uneven_number_of_quotes() {
-        let color = String::from("[color]");
-        let highlighter = highlight(color, '"');
+        let highlighter = highlight(Fg::Red, Bg::None, Style::None, '"');
         let result = highlighter("outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected = "outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
         assert_eq!(result, expected);

@@ -1,4 +1,5 @@
 use crate::color::{Bg, Fg, Style};
+
 use serde::Deserialize;
 use std::fs;
 use std::path::Path;
@@ -24,11 +25,11 @@ pub struct KeywordGroup {
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Settings {
     #[serde(default = "default_quotes_token")]
-    quotes_token: String,
+    pub(crate) quotes_token: char,
 }
 
-fn default_quotes_token() -> String {
-    String::from("\"")
+fn default_quotes_token() -> char {
+    '"'
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]

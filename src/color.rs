@@ -38,6 +38,45 @@ pub enum Style {
     None,
 }
 
+pub fn to_ansi(fg: Fg, bg: Bg, style: Style) -> String {
+    let style_code = match style {
+        Style::Bold => Some("1"),
+        Style::Italic => Some("3"),
+        Style::Faint => Some("2"),
+        Style::None => None,
+    };
+
+    let fg_code = match fg {
+        Fg::Red => Some("31"),
+        Fg::Green => Some("32"),
+        Fg::Blue => Some("34"),
+        Fg::Yellow => Some("33"),
+        Fg::White => Some("37"),
+        Fg::Magenta => Some("35"),
+        Fg::Cyan => Some("36"),
+        Fg::None => None,
+    };
+
+    let bg_code = match bg {
+        Bg::Red => Some("41"),
+        Bg::Green => Some("42"),
+        Bg::Blue => Some("44"),
+        Bg::Yellow => Some("43"),
+        Bg::White => Some("47"),
+        Bg::None => None,
+    };
+
+    let codes = [style_code, fg_code, bg_code];
+
+    let joined_codes = codes
+        .iter()
+        .filter_map(|&code| code)
+        .collect::<Vec<&str>>()
+        .join(";");
+
+    format!("\x1b[{}m", joined_codes)
+}
+
 impl FromStr for Fg {
     type Err = ();
 

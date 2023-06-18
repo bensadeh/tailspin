@@ -5,7 +5,6 @@ mod quotes;
 use crate::color::{Fg, RESET};
 use crate::config_parser::{Config, Settings};
 use crate::config_util::FlattenKeyword;
-use regex::Regex;
 
 type HighlightFn = Box<dyn Fn(&str) -> String + Send>;
 type HighlightFnVec = Vec<HighlightFn>;
@@ -21,11 +20,20 @@ impl Highlighters {
         let mut after_fns: HighlightFnVec = Vec::new();
 
         let color_for_numbers = Fg::Blue;
-        let color_for_quotes = Fg::Yellow;
 
         before_fns.push(numbers::highlight(color_for_numbers.to_string()));
         before_fns.push(keyword::highlight(Fg::Red.to_string(), "null".to_string()));
-        after_fns.push(quotes::highlight(color_for_quotes.to_string(), '"'));
+
+        // let quotes = config.groups.quotes;
+
+        if let Some(quotes) = config.groups.quotes {
+            after_fns.push(quotes::highlight(
+                quotes.fg,
+                quotes.bg,
+                quotes.style,
+                config.settings.quotes_token,
+            ));
+        }
 
         Highlighters {
             before: before_fns,
