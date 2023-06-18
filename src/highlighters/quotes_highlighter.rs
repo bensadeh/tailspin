@@ -73,11 +73,22 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_highlight_quotes() {
-        let highlighter = highlight_quotes(String::from("\x1b[33"));
+    fn test_highlight_quotes_with_ansi() {
+        let ansi_red = String::from("\x1b[33");
+        let highlighter = highlight_quotes(ansi_red);
         let result = highlighter("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected =
             "outside \x1b[33\"hello \x1b[34;42;3m42\x1b[0m\x1b[33 world\"\x1b[0m outside";
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn test_highlight_quotes_without_ansi() {
+        let color = String::from("[color]");
+        let highlighter = highlight_quotes(color);
+        let result = highlighter("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
+        let expected =
+            "outside [color]\"hello \x1b[34;42;3m42\x1b[0m[color] world\"\x1b[0m outside";
         assert_eq!(result, expected);
     }
 }
