@@ -34,16 +34,17 @@ fn highlight_string(color: &str, input: &str, quote_symbol: char) -> String {
                     output.push(ch);
                     output.push_str(RESET);
                     state = OutsideQuote;
-                } else {
-                    potential_reset_code.push(ch);
-                    if potential_reset_code.as_str() == RESET {
-                        output.push_str(potential_reset_code);
-                        output.push_str(color);
-                        potential_reset_code.clear();
-                    } else if !RESET.starts_with(potential_reset_code.as_str()) {
-                        output.push_str(potential_reset_code);
-                        potential_reset_code.clear();
-                    }
+                    continue;
+                }
+
+                potential_reset_code.push(ch);
+                if potential_reset_code.as_str() == RESET {
+                    output.push_str(potential_reset_code);
+                    output.push_str(color);
+                    potential_reset_code.clear();
+                } else if !RESET.starts_with(potential_reset_code.as_str()) {
+                    output.push_str(potential_reset_code);
+                    potential_reset_code.clear();
                 }
             }
             OutsideQuote => {
@@ -54,9 +55,10 @@ fn highlight_string(color: &str, input: &str, quote_symbol: char) -> String {
                         color_inside_quote: color.to_string(),
                         potential_reset_code: String::new(),
                     };
-                } else {
-                    output.push(ch);
+                    continue;
                 }
+
+                output.push(ch);
             }
         };
     }
