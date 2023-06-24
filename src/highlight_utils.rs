@@ -59,3 +59,55 @@ fn split_into_chunks(input: &str) -> Vec<Chunk> {
 
     chunks
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use regex::Regex;
+
+    #[test]
+    fn test_highlight_with_awareness() {
+        let regex = Regex::new(r"\b\d+\b").unwrap();
+        let input = "Here is a number 12345, and here is another 54321.";
+        let color = "\x1b[31m"; // ANSI color code for red
+        let result = highlight_with_awareness(color, input, &regex);
+
+        assert_eq!(
+            result,
+            "Here is a number \x1b[31m12345\x1b[0m, and here is another \x1b[31m54321\x1b[0m."
+        );
+    }
+
+    #[test]
+    fn test_highlight_with_awareness_with_highlighted_chunks() {
+        let regex = Regex::new(r"\b\d+\b").unwrap();
+        let input = "Here is a date \x1b[31m2023-06-24\x1b[0m, and here is a number 12345.";
+        let color = "\x1b[31m"; // ANSI color code for red
+        let result = highlight_with_awareness(color, input, &regex);
+
+        assert_eq!(
+            result,
+            "Here is a date \x1b[31m2023-06-24\x1b[0m, and here is a number \x1b[31m12345\x1b[0m."
+        );
+    }
+
+    #[test]
+    fn test_split_into_chunks() {
+        let input = "Here is a date \x1b[31m2023-06-24\x1b[0m, and here is a number 12345.";
+        let chunks = split_into_chunks(input);
+
+        assert_eq!(chunks.len(), 3);
+        match &chunks[0] {
+            Chunk::Normal(text) => assert_eq!(*text, "Here is a date "),
+            _ => panic!("Unexpected chunk type."),
+        }
+        match &chunks[1] {
+            Chunk::Highlighted(text) => assert_eq!(*text, "\x1b[31m2023-06-24\x1b[0m"),
+            _ => panic!("Unexpected chunk type."),
+        }
+        match &chunks[2] {
+            Chunk::Normal(text) => assert_eq!(*text, ", and here is a number 12345."),
+            _ => panic!("Unexpected chunk type."),
+        }
+    }
+}
