@@ -2,6 +2,7 @@ mod color;
 mod config_parser;
 mod config_util;
 mod highlight_processor;
+mod highlight_utils;
 mod highlighters;
 
 use crate::highlight_processor::HighlightProcessor;
