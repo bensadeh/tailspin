@@ -37,11 +37,11 @@ fn highlight_urls(
     symbols_color: &str,
     input: &str,
 ) -> String {
-    let url_regex = regex::Regex::new(r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?")
+    let url_regex = Regex::new(r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?")
         .expect("Invalid regex pattern");
 
     let query_params_regex =
-        regex::Regex::new(r"(?P<delimiter>[?&])(?P<key>[^=]*)(?P<equal>=)(?P<value>[^&]*)")
+        Regex::new(r"(?P<delimiter>[?&])(?P<key>[^=]*)(?P<equal>=)(?P<value>[^&]*)")
             .expect("Invalid query params regex pattern");
 
     let highlighted = url_regex.replace_all(input, |caps: &regex::Captures<'_>| {
@@ -100,4 +100,40 @@ fn highlight_urls(
     });
 
     highlighted.into_owned()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_highlight_urls() {
+        let http_color = "\x1b[31m"; // Red color
+        let https_color = "\x1b[32m"; // Green color
+        let host_color = "\x1b[33m"; // Yellow color
+        let path_color = "\x1b[34m"; // Blue color
+        let query_params_key_color = "\x1b[35m"; // Magenta color
+        let query_params_value_color = "\x1b[36m"; // Cyan color
+        let symbols_color = "\x1b[37m"; // White color
+        let input = "Visit http://www.example.com/path?param1=value1&param2=value2";
+
+        let expected_output =
+            "Visit \u{1b}[31mhttp:\u{1b}[0m//\u{1b}[0m\u{1b}[33mwww.example.com\u{1b}\
+        [0m\u{1b}[34m/path\u{1b}[0m\u{1b}[37m?\u{1b}[35mparam1\u{1b}[37m=\u{1b}[36mvalue1\u{1b}\
+        [37m&\u{1b}[35mparam2\u{1b}[37m=\u{1b}[36mvalue2\u{1b}[0m\u{1b}[0m";
+
+        assert_eq!(
+            highlight_urls(
+                http_color,
+                https_color,
+                host_color,
+                path_color,
+                query_params_key_color,
+                query_params_value_color,
+                symbols_color,
+                input
+            ),
+            expected_output
+        );
+    }
 }
