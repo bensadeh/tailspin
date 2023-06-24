@@ -1,4 +1,4 @@
-#default format options: { fg = "", bg = "", bold = false, faint = false, italic = false, underline = false }
+# format options: { fg = "", bg = "", bold = false, faint = false, italic = false, underline = false }
 
 [settings]
 quotes_token = '"'
@@ -16,3 +16,12 @@ keywords = [
     { tokens = ['TRACE'], highlight = { faint = true } },
     { tokens = ['null', 'true', 'false'], highlight = { fg = "red", italic = true } },
 ]
+
+[groups.urls]
+http = { faint = true }
+https = { bold = true }
+host = { fg = "blue", faint = true }
+path = { fg = "blue" }
+query_params_key = { fg = "cyan" }
+query_params_value = { fg = "magenta" }
+symbols = { fg = "red" }

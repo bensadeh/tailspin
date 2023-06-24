@@ -35,6 +35,17 @@ pub struct UuidGroup {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
+pub struct UrlGroup {
+    pub http: Style,
+    pub https: Style,
+    pub host: Style,
+    pub path: Style,
+    pub query_params_key: Style,
+    pub query_params_value: Style,
+    pub symbols: Style,
+}
+
+#[derive(Debug, Deserialize, Default, Clone)]
 pub struct Settings {
     #[serde(default = "default_quotes_token")]
     pub(crate) quotes_token: char,
@@ -50,6 +61,7 @@ pub struct Groups {
     pub numbers: Option<Style>,
     pub quotes: Option<Style>,
     pub uuids: Option<UuidGroup>,
+    pub urls: Option<UrlGroup>,
     pub keywords: Option<Vec<KeywordGroup>>,
 }
 

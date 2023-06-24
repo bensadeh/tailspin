@@ -2,6 +2,7 @@ mod dates;
 mod keywords;
 mod numbers;
 mod quotes;
+mod urls;
 mod uuids;
 
 use crate::config_parser::Config;
@@ -26,6 +27,11 @@ impl Highlighters {
         // Dates
         if let Some(dates_style) = &config.groups.dates {
             before_fns.push(dates::highlight(dates_style));
+        }
+
+        // URLs
+        if let Some(url_group) = &config.groups.urls {
+            before_fns.push(urls::highlight(url_group));
         }
 
         // UUIDs
