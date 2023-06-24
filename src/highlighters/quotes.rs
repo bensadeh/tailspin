@@ -77,7 +77,7 @@ mod tests {
     #[test]
     fn highlight_quotes_with_ansi() {
         let style = Style {
-            fg: Fg::Red,
+            fg: Fg::Yellow,
             bg: Bg::None,
             italic: false,
             bold: false,
@@ -88,7 +88,7 @@ mod tests {
         let highlighter = highlight(&style, '"');
         let result = highlighter("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected =
-            "outside \x1b[33\"hello \x1b[34;42;3m42\x1b[0m\x1b[33 world\"\x1b[0m outside";
+            "outside \x1b[33m\"hello \x1b[34;42;3m42\x1b[0m\x1b[33m world\"\x1b[0m outside";
 
         assert_eq!(result, expected);
     }
