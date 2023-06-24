@@ -1,4 +1,4 @@
-use crate::color::{Bg, Fg, Style};
+use crate::color::{Bg, Fg};
 
 use serde::Deserialize;
 use std::fs;
@@ -7,18 +7,22 @@ use std::path::Path;
 const DEFAULT_CONFIG: &str = include_str!("../data/config.toml");
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct Highlight {
+pub struct Style {
     #[serde(default)]
     pub fg: Fg,
     #[serde(default)]
     pub bg: Bg,
     #[serde(default)]
-    pub style: Style,
+    pub italic: bool,
+    #[serde(default)]
+    pub bold: bool,
+    #[serde(default)]
+    pub underline: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct KeywordGroup {
-    pub highlight: Highlight,
+    pub highlight: Style,
     pub tokens: Vec<String>,
 }
 
@@ -34,8 +38,8 @@ fn default_quotes_token() -> char {
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Groups {
-    pub numbers: Option<Highlight>,
-    pub quotes: Option<Highlight>,
+    pub numbers: Option<Style>,
+    pub quotes: Option<Style>,
     pub keywords: Option<Vec<KeywordGroup>>,
 }
 

@@ -1,10 +1,13 @@
+# default format options: { fg = "", bg = "", italic = false, bold = false, underline = false }
+
 [settings]
 quotes_token = '"'
 
 [groups]
-numbers = { fg = "blue", bg = "", style = "" }
-quotes = { fg = "yellow", bg = "", style = "" }
+numbers = { fg = "blue" }
+quotes = { fg = "yellow" }
 keywords = [
-    { tokens = ['info', 'INFO'], highlight = { fg = "green", bg = "", style = "" } },
+    { tokens = ['null', 'true', 'false'], highlight = { fg = "red", italic = true } },
+    { tokens = ['info', 'INFO'], highlight = { fg = "green" } },
     { tokens = ['debug', 'DEBUG'], highlight = { fg = "cyan", bg = "", style = "" } },
 ]

@@ -29,53 +29,53 @@ pub enum Bg {
     None,
 }
 
-#[derive(Debug, Clone, Default)]
-pub enum Style {
-    Bold,
-    Italic,
-    Faint,
-    #[default]
-    None,
-}
+// #[derive(Debug, Clone, Default)]
+// pub enum Style {
+//     Bold,
+//     Italic,
+//     Faint,
+//     #[default]
+//     None,
+// }
 
-pub fn to_ansi(fg: Fg, bg: Bg, style: Style) -> String {
-    let style_code = match style {
-        Style::Bold => Some("1"),
-        Style::Italic => Some("3"),
-        Style::Faint => Some("2"),
-        Style::None => None,
-    };
-
-    let fg_code = match fg {
-        Fg::Red => Some("31"),
-        Fg::Green => Some("32"),
-        Fg::Blue => Some("34"),
-        Fg::Yellow => Some("33"),
-        Fg::White => Some("37"),
-        Fg::Magenta => Some("35"),
-        Fg::Cyan => Some("36"),
-        Fg::None => None,
-    };
-
-    let bg_code = match bg {
-        Bg::Red => Some("41"),
-        Bg::Green => Some("42"),
-        Bg::Blue => Some("44"),
-        Bg::Yellow => Some("43"),
-        Bg::White => Some("47"),
-        Bg::None => None,
-    };
-
-    let codes = [style_code, fg_code, bg_code];
-
-    let joined_codes = codes
-        .iter()
-        .filter_map(|&code| code)
-        .collect::<Vec<&str>>()
-        .join(";");
-
-    format!("\x1b[{}m", joined_codes)
-}
+// pub fn to_ansi(fg: Fg, bg: Bg, style: Style) -> String {
+//     let style_code = match style {
+//         Style::Bold => Some("1"),
+//         Style::Italic => Some("3"),
+//         Style::Faint => Some("2"),
+//         Style::None => None,
+//     };
+//
+//     let fg_code = match fg {
+//         Fg::Red => Some("31"),
+//         Fg::Green => Some("32"),
+//         Fg::Blue => Some("34"),
+//         Fg::Yellow => Some("33"),
+//         Fg::White => Some("37"),
+//         Fg::Magenta => Some("35"),
+//         Fg::Cyan => Some("36"),
+//         Fg::None => None,
+//     };
+//
+//     let bg_code = match bg {
+//         Bg::Red => Some("41"),
+//         Bg::Green => Some("42"),
+//         Bg::Blue => Some("44"),
+//         Bg::Yellow => Some("43"),
+//         Bg::White => Some("47"),
+//         Bg::None => None,
+//     };
+//
+//     let codes = [style_code, fg_code, bg_code];
+//
+//     let joined_codes = codes
+//         .iter()
+//         .filter_map(|&code| code)
+//         .collect::<Vec<&str>>()
+//         .join(";");
+//
+//     format!("\x1b[{}m", joined_codes)
+// }
 
 impl FromStr for Fg {
     type Err = ();
@@ -166,42 +166,6 @@ impl<'de> Visitor<'de> for BgVisitor {
     }
 
     fn visit_str<E: de::Error>(self, v: &str) -> Result<Bg, E> {
-        v.parse().map_err(|_| E::custom("Parse error"))
-    }
-}
-
-impl FromStr for Style {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_ascii_lowercase().as_str() {
-            "bold" => Ok(Style::Bold),
-            "faint" => Ok(Style::Faint),
-            "italic" => Ok(Style::Italic),
-            _ => Ok(Style::None),
-        }
-    }
-}
-
-impl<'de> Deserialize<'de> for Style {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_string(StyleVisitor)
-    }
-}
-
-struct StyleVisitor;
-
-impl<'de> Visitor<'de> for StyleVisitor {
-    type Value = Style;
-
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("expected a valid foreground color")
-    }
-
-    fn visit_str<E: de::Error>(self, v: &str) -> Result<Style, E> {
         v.parse().map_err(|_| E::custom("Parse error"))
     }
 }

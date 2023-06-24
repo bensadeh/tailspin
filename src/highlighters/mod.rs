@@ -22,15 +22,19 @@ impl Highlighters {
         let color_for_numbers = Fg::Blue;
 
         before_fns.push(numbers::highlight(color_for_numbers.to_string()));
-        before_fns.push(keyword::highlight(Fg::Red.to_string(), "null".to_string()));
+
+        // iterate over keywords and push them to before_fns
+        // for keyword in keywords {
+        //     before_fns.push(keyword.keyword, keyword.highlight);
+        // }
+
+        // before_fns.push(keyword::highlight(Fg::Red.to_string(), "null".to_string()));
 
         // let quotes = config.groups.quotes;
 
-        if let Some(quotes) = config.groups.quotes {
+        if let Some(quotes_style) = config.groups.quotes {
             after_fns.push(quotes::highlight(
-                quotes.fg,
-                quotes.bg,
-                quotes.style,
+                quotes_style,
                 config.settings.quotes_token,
             ));
         }

@@ -1,11 +1,14 @@
+use crate::config_parser::Style;
 use crate::highlighters::HighlightFn;
 use regex::Regex;
 
-pub fn highlight(color: String, keyword: String) -> HighlightFn {
-    Box::new(move |input: &str| -> String { highlight_keyword(&color, &keyword, input) })
+pub fn highlight(keyword: String, style: Style) -> HighlightFn {
+    let color = "\x1b[33m";
+
+    Box::new(move |input: &str| -> String { highlight_keyword(&keyword, &color, input) })
 }
 
-fn highlight_keyword(color: &str, keyword: &str, input: &str) -> String {
+fn highlight_keyword(keyword: &str, color: &str, input: &str) -> String {
     const RESET: &str = "\x1b[0m";
 
     let keyword = regex::escape(keyword);

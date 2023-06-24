@@ -1,9 +1,11 @@
-use crate::color::{Bg, Fg, Style};
+use crate::color::{Bg, Fg};
+use crate::config_parser::Style;
 use crate::highlighters::quotes::State::{InsideQuote, OutsideQuote};
 use crate::highlighters::HighlightFn;
 
-pub fn highlight(fg: Fg, bg: Bg, style: Style, quotes_token: char) -> HighlightFn {
-    let color = crate::color::to_ansi(fg, bg, style);
+pub fn highlight(style: Style, quotes_token: char) -> HighlightFn {
+    // let color = crate::color::to_ansi(fg, bg, style);
+    let color = "\x1b[33m";
 
     Box::new(move |input: &str| -> String { highlight_inside_quotes(&color, input, quotes_token) })
 }
@@ -75,10 +77,19 @@ mod tests {
 
     #[test]
     fn highlight_quotes_with_ansi() {
-        let highlighter = highlight(Fg::Red, Bg::None, Style::None, '"');
+        let style = Style {
+            fg: Fg::Red,
+            bg: Bg::None,
+            italic: false,
+            bold: false,
+            underline: false,
+        };
+
+        let highlighter = highlight(style, '"');
         let result = highlighter("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected =
             "outside \x1b[33\"hello \x1b[34;42;3m42\x1b[0m\x1b[33 world\"\x1b[0m outside";
+
         assert_eq!(result, expected);
     }
 
@@ -89,14 +100,24 @@ mod tests {
         let result = highlight_inside_quotes(color, input, '"');
         let expected =
             "outside [color]\"hello \x1b[34;42;3m42\x1b[0m[color] world\"\x1b[0m outside";
+
         assert_eq!(result, expected);
     }
 
     #[test]
     fn do_nothing_on_uneven_number_of_quotes() {
-        let highlighter = highlight(Fg::Red, Bg::None, Style::None, '"');
+        let style = Style {
+            fg: Fg::Red,
+            bg: Bg::None,
+            italic: false,
+            bold: false,
+            underline: false,
+        };
+
+        let highlighter = highlight(style, '"');
         let result = highlighter("outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected = "outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
+
         assert_eq!(result, expected);
     }
 }
