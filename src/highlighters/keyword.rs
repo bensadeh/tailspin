@@ -1,6 +1,6 @@
-use crate::color;
 use crate::color::to_ansi;
 use crate::config_parser::Style;
+use crate::highlight_utils;
 use crate::highlighters::HighlightFn;
 use regex::Regex;
 
@@ -14,9 +14,5 @@ fn highlight_keyword(keyword: &str, color: &str, input: &str) -> String {
     let keyword = regex::escape(keyword);
     let keyword_regex = Regex::new(&format!(r"\b{}\b", keyword)).expect("Invalid regex pattern");
 
-    let highlighted = keyword_regex.replace_all(input, |caps: &regex::Captures<'_>| {
-        format!("{}{}{}", color, &caps[0], color::RESET)
-    });
-
-    highlighted.into_owned()
+    highlight_utils::highlight_with_awareness(color, input, &keyword_regex)
 }
