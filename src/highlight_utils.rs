@@ -1,5 +1,11 @@
 use crate::color;
+use lazy_static::lazy_static;
 use regex::{Captures, Regex};
+
+lazy_static! {
+    static ref ESCAPE_CODE_REGEX: Regex =
+        Regex::new(r"\x1b\[[0-9;]*m").expect("Invalid regex pattern");
+}
 
 pub(crate) fn highlight_with_awareness(color: &str, input: &str, regex: &Regex) -> String {
     let chunks = split_into_chunks(input);
@@ -28,7 +34,6 @@ enum Chunk<'a> {
 }
 
 fn split_into_chunks(input: &str) -> Vec<Chunk> {
-    let escape_code_regex = Regex::new(r"\x1b\[\d+m").unwrap();
     let reset_code = "\x1b[0m";
 
     let mut rest = input;
@@ -37,7 +42,7 @@ fn split_into_chunks(input: &str) -> Vec<Chunk> {
 
     while !rest.is_empty() {
         if !inside_escape {
-            if let Some(mat) = escape_code_regex.find(rest) {
+            if let Some(mat) = ESCAPE_CODE_REGEX.find(rest) {
                 let (before_escape, from_escape) = rest.split_at(mat.start());
                 chunks.push(Chunk::Normal(before_escape));
                 rest = from_escape;
