@@ -1,3 +1,4 @@
+mod dates;
 mod keyword;
 mod numbers;
 mod quotes;
@@ -19,6 +20,7 @@ impl Highlighters {
         let mut before_fns: HighlightFnVec = Vec::new();
         let mut after_fns: HighlightFnVec = Vec::new();
 
+        // Numbers
         if let Some(numbers_style) = &config.groups.numbers {
             before_fns.push(numbers::highlight(numbers_style));
         }
@@ -29,6 +31,7 @@ impl Highlighters {
             before_fns.push(keyword::highlight(keyword.keyword, &keyword.style));
         }
 
+        // Quotes
         if let Some(quotes_style) = &config.groups.quotes {
             after_fns.push(quotes::highlight(
                 quotes_style,
