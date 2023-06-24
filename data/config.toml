@@ -4,6 +4,7 @@
 quotes_token = '"'
 
 [groups]
+dates = { fg = "magenta" }
 numbers = { fg = "blue" }
 quotes = { fg = "yellow" }
 keywords = [

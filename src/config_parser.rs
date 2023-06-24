@@ -40,6 +40,7 @@ fn default_quotes_token() -> char {
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Groups {
+    pub dates: Option<Style>,
     pub numbers: Option<Style>,
     pub quotes: Option<Style>,
     pub keywords: Option<Vec<KeywordGroup>>,

@@ -21,6 +21,11 @@ impl Highlighters {
         let mut after_fns: HighlightFnVec = Vec::new();
 
         // Numbers
+        if let Some(dates_style) = &config.groups.dates {
+            before_fns.push(dates::highlight(dates_style));
+        }
+
+        // Numbers
         if let Some(numbers_style) = &config.groups.numbers {
             before_fns.push(numbers::highlight(numbers_style));
         }
