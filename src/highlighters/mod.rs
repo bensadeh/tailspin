@@ -2,8 +2,7 @@ mod keyword;
 mod numbers;
 mod quotes;
 
-use crate::color::{Fg, RESET};
-use crate::config_parser::{Config, Settings};
+use crate::config_parser::Config;
 use crate::config_util;
 use crate::config_util::FlattenKeyword;
 

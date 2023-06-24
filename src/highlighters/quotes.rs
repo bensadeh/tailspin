@@ -1,3 +1,4 @@
+use crate::color;
 use crate::color::to_ansi;
 use crate::config_parser::Style;
 use crate::highlighters::quotes::State::{InsideQuote, OutsideQuote};
@@ -18,8 +19,6 @@ enum State {
 }
 
 fn highlight_inside_quotes(color: &str, input: &str, quotes_token: char) -> String {
-    const RESET: &str = "\x1b[0m";
-
     let has_unmatched_quotes = input.chars().filter(|&ch| ch == quotes_token).count() % 2 != 0;
     if has_unmatched_quotes {
         return input.to_string();
@@ -36,17 +35,17 @@ fn highlight_inside_quotes(color: &str, input: &str, quotes_token: char) -> Stri
             } => {
                 if ch == quotes_token {
                     output.push(ch);
-                    output.push_str(RESET);
+                    output.push_str(color::RESET);
                     state = OutsideQuote;
                     continue;
                 }
 
                 potential_reset_code.push(ch);
-                if potential_reset_code.as_str() == RESET {
+                if potential_reset_code.as_str() == color::RESET {
                     output.push_str(potential_reset_code);
                     output.push_str(color);
                     potential_reset_code.clear();
-                } else if !RESET.starts_with(potential_reset_code.as_str()) {
+                } else if !color::RESET.starts_with(potential_reset_code.as_str()) {
                     output.push_str(potential_reset_code);
                     potential_reset_code.clear();
                 }
@@ -86,7 +85,7 @@ mod tests {
             faint: false,
         };
 
-        let highlighter = highlight(style, '"');
+        let highlighter = highlight(&style, '"');
         let result = highlighter("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected =
             "outside \x1b[33\"hello \x1b[34;42;3m42\x1b[0m\x1b[33 world\"\x1b[0m outside";
@@ -116,7 +115,7 @@ mod tests {
             faint: false,
         };
 
-        let highlighter = highlight(style, '"');
+        let highlighter = highlight(&style, '"');
         let result = highlighter("outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected = "outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
 

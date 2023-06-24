@@ -19,7 +19,7 @@ use tokio::sync::oneshot;
 async fn main() {
     let config = config_parser::load_config(None);
 
-    dbg!(&config);
+    // dbg!(&config);
 
     let input = "example-logs/1.log";
     let line_count = count_lines(input).expect("Failed to count lines");

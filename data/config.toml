@@ -7,7 +7,10 @@ quotes_token = '"'
 numbers = { fg = "blue" }
 quotes = { fg = "yellow" }
 keywords = [
+    { tokens = ['ERROR'], highlight = { fg = "red" } },
+    { tokens = ['WARN'], highlight = { fg = "yellow" } },
+    { tokens = ['INFO'], highlight = { fg = "white" } },
+    { tokens = ['DEBUG'], highlight = { fg = "green" } },
+    { tokens = ['TRACE'], highlight = { faint = true } },
     { tokens = ['null', 'true', 'false'], highlight = { fg = "red", italic = true } },
-    { tokens = ['info', 'INFO'], highlight = { fg = "green" } },
-    { tokens = ['debug', 'DEBUG'], highlight = { fg = "cyan", bg = "", style = "" } },
 ]
