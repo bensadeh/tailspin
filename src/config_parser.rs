@@ -29,6 +29,12 @@ pub struct KeywordGroup {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
+pub struct UuidGroup {
+    pub segment: Style,
+    pub separator: Style,
+}
+
+#[derive(Debug, Deserialize, Default, Clone)]
 pub struct Settings {
     #[serde(default = "default_quotes_token")]
     pub(crate) quotes_token: char,
@@ -43,6 +49,7 @@ pub struct Groups {
     pub dates: Option<Style>,
     pub numbers: Option<Style>,
     pub quotes: Option<Style>,
+    pub uuids: Option<UuidGroup>,
     pub keywords: Option<Vec<KeywordGroup>>,
 }
 

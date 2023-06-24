@@ -5,8 +5,9 @@ quotes_token = '"'
 
 [groups]
 dates = { fg = "magenta" }
-numbers = { fg = "blue" }
+numbers = { fg = "cyan" }
 quotes = { fg = "yellow" }
+uuids = { segment = { fg = "blue", italic = true }, separator = { fg = "red" } }
 keywords = [
     { tokens = ['ERROR'], highlight = { fg = "red" } },
     { tokens = ['WARN'], highlight = { fg = "yellow" } },
