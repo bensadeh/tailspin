@@ -3,7 +3,7 @@ use crate::config_parser::{KeywordGroup, Style};
 #[derive(Debug, Clone)]
 pub struct FlattenKeyword {
     pub keyword: String,
-    pub highlight: Style,
+    pub style: Style,
 }
 
 pub fn flatten_keywords(keywords: Vec<KeywordGroup>) -> Vec<FlattenKeyword> {
@@ -13,7 +13,7 @@ pub fn flatten_keywords(keywords: Vec<KeywordGroup>) -> Vec<FlattenKeyword> {
         for string in keyword.tokens {
             flatten_keywords.push(FlattenKeyword {
                 keyword: string,
-                highlight: keyword.highlight.clone(),
+                style: keyword.highlight.clone(),
             });
         }
     }

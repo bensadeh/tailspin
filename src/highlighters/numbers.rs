@@ -1,7 +1,11 @@
+use crate::color::to_ansi;
+use crate::config_parser::Style;
 use crate::highlighters::HighlightFn;
 use regex::Regex;
 
-pub fn highlight(color: String) -> HighlightFn {
+pub fn highlight(style: &Style) -> HighlightFn {
+    let color = to_ansi(style);
+
     Box::new(move |input: &str| -> String { highlight_numbers(&color, input) })
 }
 

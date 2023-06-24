@@ -1,11 +1,10 @@
-use crate::color::{Bg, Fg};
+use crate::color::to_ansi;
 use crate::config_parser::Style;
 use crate::highlighters::quotes::State::{InsideQuote, OutsideQuote};
 use crate::highlighters::HighlightFn;
 
-pub fn highlight(style: Style, quotes_token: char) -> HighlightFn {
-    // let color = crate::color::to_ansi(fg, bg, style);
-    let color = "\x1b[33m";
+pub fn highlight(style: &Style, quotes_token: char) -> HighlightFn {
+    let color = to_ansi(style);
 
     Box::new(move |input: &str| -> String { highlight_inside_quotes(&color, input, quotes_token) })
 }
@@ -74,6 +73,7 @@ fn highlight_inside_quotes(color: &str, input: &str, quotes_token: char) -> Stri
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::color::{Bg, Fg};
 
     #[test]
     fn highlight_quotes_with_ansi() {
@@ -83,6 +83,7 @@ mod tests {
             italic: false,
             bold: false,
             underline: false,
+            faint: false,
         };
 
         let highlighter = highlight(style, '"');
@@ -112,6 +113,7 @@ mod tests {
             italic: false,
             bold: false,
             underline: false,
+            faint: false,
         };
 
         let highlighter = highlight(style, '"');

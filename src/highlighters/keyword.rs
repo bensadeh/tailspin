@@ -1,9 +1,10 @@
+use crate::color::to_ansi;
 use crate::config_parser::Style;
 use crate::highlighters::HighlightFn;
 use regex::Regex;
 
-pub fn highlight(keyword: String, style: Style) -> HighlightFn {
-    let color = "\x1b[33m";
+pub fn highlight(keyword: String, style: &Style) -> HighlightFn {
+    let color = to_ansi(style);
 
     Box::new(move |input: &str| -> String { highlight_keyword(&keyword, &color, input) })
 }

@@ -18,15 +18,12 @@ use tokio::sync::oneshot;
 #[tokio::main]
 async fn main() {
     let config = config_parser::load_config(None);
-    let keywords_or_empty = config.groups.keywords.clone().unwrap_or_default();
-    let flattened_keywords = config_util::flatten_keywords(keywords_or_empty);
 
     dbg!(&config);
-    dbg!(&flattened_keywords);
 
     let input = "example-logs/1.log";
     let line_count = count_lines(input).expect("Failed to count lines");
-    let highlighter = Highlighters::new(config, flattened_keywords);
+    let highlighter = Highlighters::new(config);
     let highlight_processor = HighlightProcessor::new(highlighter);
 
     let unique_id: u32 = random();

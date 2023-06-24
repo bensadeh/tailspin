@@ -4,6 +4,7 @@ mod quotes;
 
 use crate::color::{Fg, RESET};
 use crate::config_parser::{Config, Settings};
+use crate::config_util;
 use crate::config_util::FlattenKeyword;
 
 type HighlightFn = Box<dyn Fn(&str) -> String + Send>;
@@ -15,24 +16,21 @@ pub struct Highlighters {
 }
 
 impl Highlighters {
-    pub fn new(config: Config, keywords: Vec<FlattenKeyword>) -> Highlighters {
+    pub fn new(config: Config) -> Highlighters {
         let mut before_fns: HighlightFnVec = Vec::new();
         let mut after_fns: HighlightFnVec = Vec::new();
 
-        let color_for_numbers = Fg::Blue;
+        if let Some(numbers_style) = &config.groups.numbers {
+            before_fns.push(numbers::highlight(numbers_style));
+        }
 
-        before_fns.push(numbers::highlight(color_for_numbers.to_string()));
+        // Keywords
+        let flattened_keywords = Self::flatten(&config);
+        for keyword in flattened_keywords {
+            before_fns.push(keyword::highlight(keyword.keyword, &keyword.style));
+        }
 
-        // iterate over keywords and push them to before_fns
-        // for keyword in keywords {
-        //     before_fns.push(keyword.keyword, keyword.highlight);
-        // }
-
-        // before_fns.push(keyword::highlight(Fg::Red.to_string(), "null".to_string()));
-
-        // let quotes = config.groups.quotes;
-
-        if let Some(quotes_style) = config.groups.quotes {
+        if let Some(quotes_style) = &config.groups.quotes {
             after_fns.push(quotes::highlight(
                 quotes_style,
                 config.settings.quotes_token,
@@ -43,5 +41,11 @@ impl Highlighters {
             before: before_fns,
             after: after_fns,
         }
+    }
+
+    fn flatten(config: &Config) -> Vec<FlattenKeyword> {
+        let keywords_or_empty = config.groups.keywords.clone().unwrap_or_default();
+
+        config_util::flatten_keywords(keywords_or_empty)
     }
 }

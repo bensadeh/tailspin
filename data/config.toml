@@ -1,4 +1,4 @@
-# default format options: { fg = "", bg = "", italic = false, bold = false, underline = false }
+#default format options: { fg = "", bg = "", bold = false, faint = false, italic = false, underline = false }
 
 [settings]
 quotes_token = '"'

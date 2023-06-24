@@ -13,9 +13,11 @@ pub struct Style {
     #[serde(default)]
     pub bg: Bg,
     #[serde(default)]
-    pub italic: bool,
-    #[serde(default)]
     pub bold: bool,
+    #[serde(default)]
+    pub faint: bool,
+    #[serde(default)]
+    pub italic: bool,
     #[serde(default)]
     pub underline: bool,
 }
