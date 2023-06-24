@@ -16,6 +16,10 @@ impl HighlightProcessor {
             result = highlight(&result);
         }
 
+        for highlight in &self.highlighters.main {
+            result = highlight(&result);
+        }
+
         for highlight in &self.highlighters.after {
             result = highlight(&result);
         }
