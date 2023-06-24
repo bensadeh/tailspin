@@ -37,11 +37,12 @@ fn highlight_urls(
     symbols_color: &str,
     input: &str,
 ) -> String {
-    let url_regex = Regex::new(r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?")
+    let url_regex = regex::Regex::new(r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?")
         .expect("Invalid regex pattern");
 
-    let query_params_regex = Regex::new(r"(?P<delimiter>[?&])(?P<key>[^=]*)(=)(?P<value>[^&]*)")
-        .expect("Invalid query params regex pattern");
+    let query_params_regex =
+        regex::Regex::new(r"(?P<delimiter>[?&])(?P<key>[^=]*)(?P<equal>=)(?P<value>[^&]*)")
+            .expect("Invalid query params regex pattern");
 
     let highlighted = url_regex.replace_all(input, |caps: &regex::Captures<'_>| {
         let mut output = String::new();
@@ -75,14 +76,16 @@ fn highlight_urls(
                 |query_caps: &regex::Captures<'_>| {
                     let delimiter = query_caps.name("delimiter").map_or("", |m| m.as_str());
                     let key = query_caps.name("key").map_or("", |m| m.as_str());
+                    let equal = query_caps.name("equal").map_or("", |m| m.as_str());
                     let value = query_caps.name("value").map_or("", |m| m.as_str());
                     format!(
-                        "{}{}{}{}={}{}{}",
+                        "{}{}{}{}{}{}{}{}",
                         symbols_color,
                         delimiter,
                         query_params_key_color,
                         key,
                         symbols_color,
+                        equal,
                         query_params_value_color,
                         value
                     )
