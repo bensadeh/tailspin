@@ -7,10 +7,10 @@ use regex::Regex;
 pub fn highlight(keyword: String, style: &Style) -> HighlightFn {
     let color = to_ansi(style);
 
-    Box::new(move |input: &str| -> String { highlight_keyword(&keyword, &color, input) })
+    Box::new(move |input: &str| -> String { highlight_keywords(&keyword, &color, input) })
 }
 
-fn highlight_keyword(keyword: &str, color: &str, input: &str) -> String {
+fn highlight_keywords(keyword: &str, color: &str, input: &str) -> String {
     let keyword = regex::escape(keyword);
     let keyword_regex = Regex::new(&format!(r"\b{}\b", keyword)).expect("Invalid regex pattern");
 

@@ -1,5 +1,5 @@
 mod dates;
-mod keyword;
+mod keywords;
 mod numbers;
 mod quotes;
 
@@ -35,7 +35,7 @@ impl Highlighters {
         // Keywords
         let flattened_keywords = Self::flatten(&config);
         for keyword in flattened_keywords {
-            main_fns.push(keyword::highlight(keyword.keyword, &keyword.style));
+            main_fns.push(keywords::highlight(keyword.keyword, &keyword.style));
         }
 
         // Quotes
