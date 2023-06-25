@@ -127,7 +127,16 @@ impl<'de> Visitor<'de> for FgVisitor {
     }
 
     fn visit_str<E: de::Error>(self, v: &str) -> Result<Fg, E> {
-        v.parse().map_err(|_| E::custom("Parse error"))
+        let fg = v.parse().map_err(|_| E::custom("Parse error"))?;
+
+        match fg {
+            Fg::Red | Fg::Green | Fg::Blue | Fg::Yellow | Fg::Magenta | Fg::Cyan | Fg::White => {
+                Ok(fg)
+            }
+            _ => {
+                colored_panic("Invalid foreground color: ", v);
+            }
+        }
     }
 }
 
@@ -161,10 +170,31 @@ impl<'de> Visitor<'de> for BgVisitor {
     type Value = Bg;
 
     fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        formatter.write_str("expected a valid foreground color")
+        formatter.write_str("expected a valid background color")
     }
 
     fn visit_str<E: de::Error>(self, v: &str) -> Result<Bg, E> {
-        v.parse().map_err(|_| E::custom("Parse error"))
+        let bg = v.parse().map_err(|_| {
+            colored_panic("Parse error", &format!("Invalid background color: {}", v))
+        })?;
+
+        match bg {
+            Bg::Red | Bg::Green | Bg::Blue | Bg::Yellow | Bg::White => Ok(bg),
+            _ => {
+                colored_panic("Invalid background color: ", v);
+            }
+        }
     }
+}
+
+fn colored_panic(message: &str, invalid_value: &str) -> ! {
+    let color_yellow: &str = "\x1b[33m";
+    let color_reset: &str = "\x1b[0m";
+
+    let colored_message = format!(
+        "{}{}{}{}",
+        message, color_yellow, invalid_value, color_reset,
+    );
+    eprintln!("{}", colored_message);
+    std::process::exit(1);
 }
