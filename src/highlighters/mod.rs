@@ -1,9 +1,9 @@
-mod dates;
-mod keywords;
-mod numbers;
+mod date;
+mod keyword;
+mod number;
 mod quotes;
-mod urls;
-mod uuids;
+mod url;
+mod uuid;
 
 use crate::config_parser::Config;
 use crate::config_util;
@@ -26,28 +26,28 @@ impl Highlighters {
 
         // Dates
         if let Some(dates_style) = &config.groups.dates {
-            before_fns.push(dates::highlight(dates_style));
+            before_fns.push(date::highlight(dates_style));
         }
 
         // URLs
         if let Some(url_group) = &config.groups.urls {
-            before_fns.push(urls::highlight(url_group));
+            before_fns.push(url::highlight(url_group));
         }
 
         // UUIDs
         if let Some(uuids) = &config.groups.uuids {
-            before_fns.push(uuids::highlight(&uuids.segment, &uuids.separator));
+            before_fns.push(uuid::highlight(&uuids.segment, &uuids.separator));
         }
 
         // Numbers
         if let Some(numbers_style) = &config.groups.numbers {
-            main_fns.push(numbers::highlight(numbers_style));
+            main_fns.push(number::highlight(numbers_style));
         }
 
         // Keywords
         let flattened_keywords = Self::flatten(&config);
         for keyword in flattened_keywords {
-            main_fns.push(keywords::highlight(keyword.keyword, &keyword.style));
+            main_fns.push(keyword::highlight(keyword.keyword, &keyword.style));
         }
 
         // Quotes
