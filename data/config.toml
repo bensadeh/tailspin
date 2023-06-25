@@ -7,15 +7,10 @@ quotes_token = '"'
 dates = { fg = "magenta" }
 numbers = { fg = "cyan" }
 quotes = { fg = "yellow" }
-uuids = { segment = { fg = "blue", italic = true }, separator = { fg = "red" } }
-keywords = [
-    { tokens = ['ERROR'], highlight = { fg = "red" } },
-    { tokens = ['WARN'], highlight = { fg = "yellow" } },
-    { tokens = ['INFO'], highlight = { fg = "white" } },
-    { tokens = ['DEBUG'], highlight = { fg = "green" } },
-    { tokens = ['TRACE'], highlight = { faint = true } },
-    { tokens = ['null', 'true', 'false'], highlight = { fg = "red", italic = true } },
-]
+
+[groups.uuids]
+segment = { fg = "blue", italic = true }
+separator = { fg = "red" }
 
 [groups.urls]
 http = { faint = true }
@@ -25,3 +20,27 @@ path = { fg = "blue" }
 query_params_key = { fg = "cyan" }
 query_params_value = { fg = "magenta" }
 symbols = { fg = "red" }
+
+[[groups.keywords]]
+tokens = ['ERROR']
+highlight = { fg = "red" }
+
+[[groups.keywords]]
+tokens = ['WARN']
+highlight = { fg = "yellow" }
+
+[[groups.keywords]]
+tokens = ['INFO']
+highlight = { fg = "white" }
+
+[[groups.keywords]]
+tokens = ['DEBUG']
+highlight = { fg = "green" }
+
+[[groups.keywords]]
+tokens = ['TRACE']
+highlight = { faint = true }
+
+[[groups.keywords]]
+tokens = ['null', 'true', 'false']
+highlight = { fg = "red", italic = true }
