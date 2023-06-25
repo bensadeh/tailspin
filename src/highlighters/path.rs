@@ -16,23 +16,32 @@ pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
 
 fn highlight_paths(segment_color: &str, separator_color: &str, input: &str) -> String {
     let path_regex = Regex::new(
-        r"(?x)                    # Enable extended mode for readability
-    (?P<leading>^|[\s(])      # Capture the leading boundary (start of string or whitespace/parenthesis)
-    (?P<path>                 # Capture the path segment
-        [~/.]                 # Match a special character (~ or .)
-        [\w.-]*               # Match zero or more word characters, dots, or hyphens
-        (/[^\s/][\w.-]*)*     # Match zero or more path segments separated by slashes
-    )"
+        r"(?x)                        # Enable extended mode for readability
+        (?P<path>                     # Capture the path segment
+            [~/.][\w./-]*             # Match zero or more word characters, dots, slashes, or hyphens
+            /[\w.-]*                  # Match a path segment separated by a slash
+        )"
     ).expect("Invalid regex pattern");
 
     highlight_with_awareness(input, &path_regex, |caps: &Captures<'_>| {
         let mut output = String::new();
-        let chars = caps[2].chars().peekable();
-        for ch in chars {
-            if ch == '/' {
-                output.push_str(&format!("{}{}{}", separator_color, ch, color::RESET));
+        let path = &caps[0];
+        let chars: Vec<_> = path.chars().collect();
+
+        // Check if path starts with a valid character and not a double slash
+        if !(chars[0] == '/'
+            || chars[0] == '~'
+            || (chars[0] == '.' && chars.len() > 1 && chars[1] == '/'))
+            || (chars[0] == '/' && chars.len() > 1 && chars[1] == '/')
+        {
+            return path.to_string();
+        }
+
+        for i in 0..chars.len() {
+            if chars[i] == '/' {
+                output.push_str(&format!("{}{}{}", separator_color, chars[i], color::RESET));
             } else {
-                output.push_str(&format!("{}{}{}", segment_color, ch, color::RESET));
+                output.push_str(&format!("{}{}{}", segment_color, chars[i], color::RESET));
             }
         }
         output
