@@ -2,6 +2,7 @@ mod date;
 mod ip;
 mod keyword;
 mod number;
+mod path;
 mod quotes;
 mod url;
 mod uuid;
@@ -33,6 +34,11 @@ impl Highlighters {
         // URLs
         if let Some(url_group) = &config.groups.url {
             before_fns.push(url::highlight(url_group));
+        }
+
+        // Paths
+        if let Some(path_group) = &config.groups.path {
+            before_fns.push(path::highlight(&path_group.segment, &path_group.separator));
         }
 
         // IPs

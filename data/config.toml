@@ -16,6 +16,10 @@ separator = { fg = "red" }
 segment = { fg = "blue", italic = true }
 separator = { fg = "red" }
 
+[groups.path]
+segment = { fg = "green", italic = true }
+separator = { fg = "yellow" }
+
 [groups.url]
 http = { faint = true }
 https = { bold = true }

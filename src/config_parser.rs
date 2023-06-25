@@ -42,6 +42,12 @@ pub struct IpGroup {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
+pub struct PathGroup {
+    pub segment: Style,
+    pub separator: Style,
+}
+
+#[derive(Debug, Deserialize, Default, Clone)]
 pub struct UrlGroup {
     pub http: Style,
     pub https: Style,
@@ -70,6 +76,7 @@ pub struct Groups {
     pub uuid: Option<UuidGroup>,
     pub url: Option<UrlGroup>,
     pub ip: Option<IpGroup>,
+    pub path: Option<PathGroup>,
     pub keywords: Option<Vec<KeywordGroup>>,
 }
 
