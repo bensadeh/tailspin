@@ -3,6 +3,7 @@ use crate::color::{Bg, Fg};
 use serde::Deserialize;
 use std::fs;
 use std::path::Path;
+use std::process::exit;
 
 const DEFAULT_CONFIG: &str = include_str!("../data/config.toml");
 
@@ -77,8 +78,20 @@ pub fn load_config(path: Option<String>) -> Config {
             let p = &Path::new(&path);
             let contents = fs::read_to_string(p).expect("Could not read file");
 
-            toml::from_str(&contents).expect("Could not deserialize file")
+            match toml::from_str::<Config>(&contents) {
+                Ok(config) => config,
+                Err(err) => {
+                    println!("Could not deserialize file:\n\n{}", err);
+                    exit(1);
+                }
+            }
         }
-        None => toml::from_str(DEFAULT_CONFIG).expect("Could not deserialize default config"),
+        None => match toml::from_str(DEFAULT_CONFIG) {
+            Ok(config) => config,
+            Err(err) => {
+                println!("Could not deserialize default config:\n\n{}", err);
+                exit(1);
+            }
+        },
     }
 }
