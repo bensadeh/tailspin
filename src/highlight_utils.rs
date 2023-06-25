@@ -7,7 +7,11 @@ lazy_static! {
         Regex::new(r"\x1b\[[0-9;]*m").expect("Invalid regex pattern");
 }
 
-pub(crate) fn highlight_with_awareness(color: &str, input: &str, regex: &Regex) -> String {
+pub(crate) fn highlight_with_awareness_replace_all(
+    color: &str,
+    input: &str,
+    regex: &Regex,
+) -> String {
     let chunks = split_into_chunks(input);
 
     let mut output = String::new();
@@ -17,6 +21,28 @@ pub(crate) fn highlight_with_awareness(color: &str, input: &str, regex: &Regex) 
                 let highlighted = regex.replace_all(text, |caps: &Captures<'_>| {
                     format!("{}{}{}", color, &caps[0], color::RESET)
                 });
+                output.push_str(&highlighted);
+            }
+            Chunk::Highlighted(text) => {
+                output.push_str(text);
+            }
+        }
+    }
+
+    output
+}
+
+pub(crate) fn highlight_with_awareness<F>(input: &str, regex: &Regex, highlight_fn: F) -> String
+where
+    F: Fn(&Captures) -> String,
+{
+    let chunks = split_into_chunks(input);
+
+    let mut output = String::new();
+    for chunk in chunks {
+        match chunk {
+            Chunk::Normal(text) => {
+                let highlighted = regex.replace_all(text, |caps: &Captures<'_>| highlight_fn(caps));
                 output.push_str(&highlighted);
             }
             Chunk::Highlighted(text) => {
@@ -75,7 +101,7 @@ mod tests {
         let regex = Regex::new(r"\b\d+\b").unwrap();
         let input = "Here is a number 12345, and here is another 54321.";
         let color = "\x1b[31m"; // ANSI color code for red
-        let result = highlight_with_awareness(color, input, &regex);
+        let result = highlight_with_awareness_replace_all(color, input, &regex);
 
         assert_eq!(
             result,
@@ -88,7 +114,7 @@ mod tests {
         let regex = Regex::new(r"\b\d+\b").unwrap();
         let input = "Here is a date \x1b[31m2023-06-24\x1b[0m, and here is a number 12345.";
         let color = "\x1b[31m"; // ANSI color code for red
-        let result = highlight_with_awareness(color, input, &regex);
+        let result = highlight_with_awareness_replace_all(color, input, &regex);
 
         assert_eq!(
             result,

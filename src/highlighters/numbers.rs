@@ -13,5 +13,5 @@ pub fn highlight(style: &Style) -> HighlightFn {
 fn highlight_numbers(color: &str, input: &str) -> String {
     let number_regex = Regex::new(r"\b\d+\b").expect("Invalid regex pattern");
 
-    highlight_utils::highlight_with_awareness(color, input, &number_regex)
+    highlight_utils::highlight_with_awareness_replace_all(color, input, &number_regex)
 }

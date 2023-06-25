@@ -1,8 +1,9 @@
 use crate::color;
 use crate::color::to_ansi;
 use crate::config_parser::Style;
+use crate::highlight_utils::highlight_with_awareness;
 use crate::highlighters::HighlightFn;
-use regex::Regex;
+use regex::{Captures, Regex};
 
 pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
     let segment_color = to_ansi(segment);
@@ -18,7 +19,7 @@ fn highlight_uuids(segment_color: &str, separator_color: &str, input: &str) -> S
         r"(\b[0-9a-fA-F]{8}\b)(-)(\b[0-9a-fA-F]{4}\b)(-)(\b[0-9a-fA-F]{4}\b)(-)(\b[0-9a-fA-F]{4}\b)(-)(\b[0-9a-fA-F]{12}\b)"
     ).expect("Invalid regex pattern");
 
-    let highlighted = uuid_regex.replace_all(input, |caps: &regex::Captures<'_>| {
+    highlight_with_awareness(input, &uuid_regex, |caps: &Captures<'_>| {
         let mut output = String::new();
         for i in 1..caps.len() {
             if &caps[i] == "-" {
@@ -28,9 +29,7 @@ fn highlight_uuids(segment_color: &str, separator_color: &str, input: &str) -> S
             }
         }
         output
-    });
-
-    highlighted.into_owned()
+    })
 }
 
 #[cfg(test)]

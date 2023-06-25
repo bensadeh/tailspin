@@ -14,5 +14,5 @@ fn highlight_keywords(keyword: &str, color: &str, input: &str) -> String {
     let keyword = regex::escape(keyword);
     let keyword_regex = Regex::new(&format!(r"\b{}\b", keyword)).expect("Invalid regex pattern");
 
-    highlight_utils::highlight_with_awareness(color, input, &keyword_regex)
+    highlight_utils::highlight_with_awareness_replace_all(color, input, &keyword_regex)
 }
