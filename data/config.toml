@@ -4,15 +4,19 @@
 quotes_token = '"'
 
 [groups]
-dates = { fg = "magenta" }
-numbers = { fg = "cyan" }
+date = { fg = "magenta" }
+number = { fg = "cyan" }
 quotes = { fg = "yellow" }
 
-[groups.uuids]
+[groups.uuid]
 segment = { fg = "blue", italic = true }
 separator = { fg = "red" }
 
-[groups.urls]
+[groups.ip]
+segment = { fg = "blue", italic = true }
+separator = { fg = "red" }
+
+[groups.url]
 http = { faint = true }
 https = { bold = true }
 host = { fg = "blue", faint = true }

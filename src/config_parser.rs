@@ -36,6 +36,12 @@ pub struct UuidGroup {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
+pub struct IpGroup {
+    pub segment: Style,
+    pub separator: Style,
+}
+
+#[derive(Debug, Deserialize, Default, Clone)]
 pub struct UrlGroup {
     pub http: Style,
     pub https: Style,
@@ -58,11 +64,12 @@ fn default_quotes_token() -> char {
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Groups {
-    pub dates: Option<Style>,
-    pub numbers: Option<Style>,
+    pub date: Option<Style>,
+    pub number: Option<Style>,
     pub quotes: Option<Style>,
-    pub uuids: Option<UuidGroup>,
-    pub urls: Option<UrlGroup>,
+    pub uuid: Option<UuidGroup>,
+    pub url: Option<UrlGroup>,
+    pub ip: Option<IpGroup>,
     pub keywords: Option<Vec<KeywordGroup>>,
 }
 

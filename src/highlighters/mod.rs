@@ -1,4 +1,5 @@
 mod date;
+mod ip;
 mod keyword;
 mod number;
 mod quotes;
@@ -25,22 +26,27 @@ impl Highlighters {
         let mut after_fns: HighlightFnVec = Vec::new();
 
         // Dates
-        if let Some(dates_style) = &config.groups.dates {
+        if let Some(dates_style) = &config.groups.date {
             before_fns.push(date::highlight(dates_style));
         }
 
         // URLs
-        if let Some(url_group) = &config.groups.urls {
+        if let Some(url_group) = &config.groups.url {
             before_fns.push(url::highlight(url_group));
         }
 
+        // IPs
+        if let Some(ip_group) = &config.groups.ip {
+            before_fns.push(ip::highlight(&ip_group.segment, &ip_group.separator));
+        }
+
         // UUIDs
-        if let Some(uuids) = &config.groups.uuids {
+        if let Some(uuids) = &config.groups.uuid {
             before_fns.push(uuid::highlight(&uuids.segment, &uuids.separator));
         }
 
         // Numbers
-        if let Some(numbers_style) = &config.groups.numbers {
+        if let Some(numbers_style) = &config.groups.number {
             main_fns.push(number::highlight(numbers_style));
         }
 
