@@ -30,9 +30,13 @@ fn highlight_ip_addresses(
     segment_color: &str,
     separator_color: &str,
     input: &str,
-    _line_info: &LineInfo,
+    line_info: &LineInfo,
     ip_address_regex: &Regex,
 ) -> String {
+    if line_info.dots < 3 {
+        return input.to_string();
+    }
+
     let highlight_groups = [
         (segment_color, 1),
         (separator_color, 2),
@@ -43,7 +47,11 @@ fn highlight_ip_addresses(
         (segment_color, 7),
     ];
 
-    highlight_with_awareness(input, &ip_address_regex, |caps: &Captures<'_>| {
+    if line_info.dots < 3 {
+        return input.to_string();
+    }
+
+    highlight_with_awareness(input, ip_address_regex, |caps: &Captures<'_>| {
         let mut output = String::new();
         for &(color, group) in &highlight_groups {
             output.push_str(&format!("{}{}{}", color, &caps[group], color::RESET));
@@ -60,7 +68,7 @@ mod tests {
     fn test_highlight_ip_addresses() {
         let line_info = &LineInfo {
             dashes: 0,
-            dots: 0,
+            dots: 3,
             slashes: 0,
             double_quotes: 0,
             colon: 0,
@@ -109,7 +117,7 @@ mod tests {
     fn test_highlight_ip_addresses_no_ip() {
         let line_info = &LineInfo {
             dashes: 0,
-            dots: 0,
+            dots: 3,
             slashes: 0,
             double_quotes: 0,
             colon: 0,

@@ -31,9 +31,13 @@ fn highlight_uuids(
     segment_color: &str,
     separator_color: &str,
     input: &str,
-    _line_info: &LineInfo,
+    line_info: &LineInfo,
     uuid_regex: &Regex,
 ) -> String {
+    if line_info.dashes < 4 {
+        return input.to_string();
+    }
+
     highlight_with_awareness(input, uuid_regex, |caps: &Captures<'_>| {
         let mut output = String::new();
         for i in 1..caps.len() {
@@ -54,7 +58,7 @@ mod tests {
     #[test]
     fn test_highlight_uuids() {
         let line_info = &LineInfo {
-            dashes: 0,
+            dashes: 4,
             dots: 0,
             slashes: 0,
             double_quotes: 0,
@@ -109,7 +113,7 @@ mod tests {
     #[test]
     fn test_highlight_uuids_no_uuid() {
         let line_info = &LineInfo {
-            dashes: 0,
+            dashes: 4,
             dots: 0,
             slashes: 0,
             double_quotes: 0,
