@@ -12,15 +12,7 @@ pub fn highlight(keyword: String, style: &Style) -> HighlightFn {
 
 fn highlight_keywords(keyword: &str, color: &str, input: &str) -> String {
     let keyword = regex::escape(keyword);
-    let keyword_regex = Regex::new(&format!(
-        r"(?x)   # Enable comments and whitespace insensitivity
-        \b       # Word boundary, ensures we are at the start of a keyword
-        {}       # Matches the keyword, dynamically inserted
-        \b       # Word boundary, ensures we are at the end of a keyword
-        ",
-        keyword
-    ))
-    .expect("Invalid regex pattern");
+    let keyword_regex = Regex::new(&format!(r"\b{}\b", keyword)).expect("Invalid regex pattern");
 
     highlight_utils::highlight_with_awareness_replace_all(color, input, &keyword_regex)
 }
