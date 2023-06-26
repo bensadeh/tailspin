@@ -58,6 +58,7 @@ mod tests {
             dots: 0,
             slashes: 0,
             double_quotes: 0,
+            colon: 0,
         };
 
         let uuid = "550e8400-e29b-41d4-a716-446655440000";
@@ -112,6 +113,7 @@ mod tests {
             dots: 0,
             slashes: 0,
             double_quotes: 0,
+            colon: 0,
         };
 
         let text = "this is a test string with no uuid";

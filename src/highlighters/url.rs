@@ -51,10 +51,14 @@ fn highlight_urls(
     query_params_value_color: &str,
     symbols_color: &str,
     input: &str,
-    _line_info: &LineInfo,
+    line_info: &LineInfo,
     url_regex: &Regex,
     query_params_regex: &Regex,
 ) -> String {
+    if line_info.slashes < 1 || line_info.colon == 0 {
+        return input.to_string();
+    }
+
     let highlighted = url_regex.replace_all(input, |caps: &regex::Captures<'_>| {
         let mut output = String::new();
 
@@ -122,8 +126,9 @@ mod tests {
         let line_info = &LineInfo {
             dashes: 0,
             dots: 0,
-            slashes: 0,
+            slashes: 2,
             double_quotes: 0,
+            colon: 1,
         };
         let http_color = "\x1b[31m"; // Red color
         let https_color = "\x1b[32m"; // Green color
@@ -138,6 +143,84 @@ mod tests {
             "Visit \u{1b}[31mhttp:\u{1b}[0m//\u{1b}[0m\u{1b}[33mwww.example.com\u{1b}\
         [0m\u{1b}[34m/path\u{1b}[0m\u{1b}[37m?\u{1b}[35mparam1\u{1b}[37m=\u{1b}[36mvalue1\u{1b}\
         [37m&\u{1b}[35mparam2\u{1b}[37m=\u{1b}[36mvalue2\u{1b}[0m\u{1b}[0m";
+
+        assert_eq!(
+            highlight_urls(
+                http_color,
+                https_color,
+                host_color,
+                path_color,
+                query_params_key_color,
+                query_params_value_color,
+                symbols_color,
+                input,
+                line_info,
+                &url_regex(),
+                &query_params_regex(),
+            ),
+            expected_output
+        );
+    }
+
+    #[test]
+    fn test_short_circuit_on_few_slashes() {
+        let line_info = &LineInfo {
+            dashes: 0,
+            dots: 0,
+            slashes: 1,
+            double_quotes: 0,
+            colon: 0,
+        };
+
+        let http_color = "\x1b[31m"; // Red color
+        let https_color = "\x1b[32m"; // Green color
+        let host_color = "\x1b[33m"; // Yellow color
+        let path_color = "\x1b[34m"; // Blue color
+        let query_params_key_color = "\x1b[35m"; // Magenta color
+        let query_params_value_color = "\x1b[36m"; // Cyan color
+        let symbols_color = "\x1b[37m"; // White color
+        let input = "Visit http://www.example.com/path?param1=value1&param2=value2";
+
+        let expected_output = "Visit http://www.example.com/path?param1=value1&param2=value2";
+
+        assert_eq!(
+            highlight_urls(
+                http_color,
+                https_color,
+                host_color,
+                path_color,
+                query_params_key_color,
+                query_params_value_color,
+                symbols_color,
+                input,
+                line_info,
+                &url_regex(),
+                &query_params_regex(),
+            ),
+            expected_output
+        );
+    }
+
+    #[test]
+    fn test_short_circuit_on_no_colons() {
+        let line_info = &LineInfo {
+            dashes: 0,
+            dots: 0,
+            slashes: 2,
+            double_quotes: 0,
+            colon: 0,
+        };
+
+        let http_color = "\x1b[31m"; // Red color
+        let https_color = "\x1b[32m"; // Green color
+        let host_color = "\x1b[33m"; // Yellow color
+        let path_color = "\x1b[34m"; // Blue color
+        let query_params_key_color = "\x1b[35m"; // Magenta color
+        let query_params_value_color = "\x1b[36m"; // Cyan color
+        let symbols_color = "\x1b[37m"; // White color
+        let input = "Visit http://www.example.com/path?param1=value1&param2=value2";
+
+        let expected_output = "Visit http://www.example.com/path?param1=value1&param2=value2";
 
         assert_eq!(
             highlight_urls(

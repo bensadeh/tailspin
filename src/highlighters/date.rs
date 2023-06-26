@@ -64,6 +64,7 @@ mod tests {
             dots: 0,
             slashes: 0,
             double_quotes: 0,
+            colon: 0,
         };
 
         let input1 = "The time is 10:51:19.251.";
