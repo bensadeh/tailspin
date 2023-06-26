@@ -25,8 +25,21 @@ pub fn highlight(url_group: &UrlGroup) -> HighlightFn {
             &symbols_color,
             input,
             line_info,
+            &url_regex(),
+            &query_params_regex(),
         )
     })
+}
+
+fn url_regex() -> Regex {
+    Regex::new(
+        r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?")
+        .expect("Invalid regex pattern")
+}
+
+fn query_params_regex() -> Regex {
+    Regex::new(r"(?P<delimiter>[?&])(?P<key>[^=]*)(?P<equal>=)(?P<value>[^&]*)")
+        .expect("Invalid query params regex pattern")
 }
 
 fn highlight_urls(
@@ -39,14 +52,9 @@ fn highlight_urls(
     symbols_color: &str,
     input: &str,
     _line_info: &LineInfo,
+    url_regex: &Regex,
+    query_params_regex: &Regex,
 ) -> String {
-    let url_regex = Regex::new(r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?")
-        .expect("Invalid regex pattern");
-
-    let query_params_regex =
-        Regex::new(r"(?P<delimiter>[?&])(?P<key>[^=]*)(?P<equal>=)(?P<value>[^&]*)")
-            .expect("Invalid query params regex pattern");
-
     let highlighted = url_regex.replace_all(input, |caps: &regex::Captures<'_>| {
         let mut output = String::new();
 
@@ -142,6 +150,8 @@ mod tests {
                 symbols_color,
                 input,
                 line_info,
+                &url_regex(),
+                &query_params_regex(),
             ),
             expected_output
         );
