@@ -6,14 +6,19 @@ pub struct LineInfo {
 
 impl LineInfo {
     pub fn process(line: &str) -> LineInfo {
+        let (slashes, dots, dashes) =
+            line.chars()
+                .fold((0, 0, 0), |(slashes, dots, dashes), c| match c {
+                    '/' => (slashes + 1, dots, dashes),
+                    '.' => (slashes, dots + 1, dashes),
+                    '-' => (slashes, dots, dashes + 1),
+                    _ => (slashes, dots, dashes),
+                });
+
         LineInfo {
-            slashes: count_char(line, '/'),
-            dots: count_char(line, '.'),
-            dashes: count_char(line, '-'),
+            slashes,
+            dots,
+            dashes,
         }
     }
-}
-
-fn count_char(s: &str, c: char) -> usize {
-    s.chars().filter(|&x| x == c).count()
 }
