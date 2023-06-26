@@ -115,6 +115,7 @@ mod tests {
             dashes: 0,
             dots: 0,
             slashes: 0,
+            double_quotes: 0,
         };
         let http_color = "\x1b[31m"; // Red color
         let https_color = "\x1b[32m"; // Green color

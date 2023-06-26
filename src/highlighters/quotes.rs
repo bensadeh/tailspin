@@ -25,10 +25,9 @@ fn highlight_inside_quotes(
     color: &str,
     input: &str,
     quotes_token: char,
-    _line_info: &LineInfo,
+    line_info: &LineInfo,
 ) -> String {
-    let has_unmatched_quotes = input.chars().filter(|&ch| ch == quotes_token).count() % 2 != 0;
-    if has_unmatched_quotes {
+    if line_info.double_quotes % 2 != 0 {
         return input.to_string();
     }
 
@@ -97,6 +96,7 @@ mod tests {
             dashes: 0,
             dots: 0,
             slashes: 0,
+            double_quotes: 0,
         };
 
         let highlighter = highlight(&style, '"');
@@ -116,6 +116,7 @@ mod tests {
             dashes: 0,
             dots: 0,
             slashes: 0,
+            double_quotes: 0,
         };
         let color = "[color]";
         let input = "outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside";

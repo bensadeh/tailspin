@@ -19,8 +19,12 @@ fn highlight_paths(
     segment_color: &str,
     separator_color: &str,
     input: &str,
-    _line_info: &LineInfo,
+    line_info: &LineInfo,
 ) -> String {
+    if line_info.slashes == 0 {
+        return input.to_string();
+    }
+
     let path_regex = Regex::new(
         r"(?x)                        # Enable extended mode for readability
         (?P<path>                     # Capture the path segment
