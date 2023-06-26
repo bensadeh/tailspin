@@ -15,8 +15,22 @@ pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
 }
 
 fn highlight_ip_addresses(segment_color: &str, separator_color: &str, input: &str) -> String {
-    let ip_address_regex = Regex::new(r"(\b\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3}\b)")
-        .expect("Invalid regex pattern");
+    let ip_address_regex = Regex::new(
+        r"(?x)   # Enable comments and whitespace insensitivity
+    \b           # Word boundary, ensures we are at the start of an IP address
+    (            # Start capturing group for the entire IP address
+        \d{1,3}  # Matches one to three digits
+        \.       # Matches a dot character (.)  
+        \d{1,3}  # Matches one to three digits
+        \.       # Matches a dot character (.)  
+        \d{1,3}  # Matches one to three digits
+        \.       # Matches a dot character (.)  
+        \d{1,3}  # Matches one to three digits
+    )            # End capturing group for the entire IP address
+    \b           # Word boundary, ensures we are at the end of an IP address
+    ",
+    )
+    .expect("Invalid regex pattern");
 
     let highlight_groups = [
         (segment_color, 1),
