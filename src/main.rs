@@ -4,6 +4,7 @@ mod config_util;
 mod highlight_processor;
 mod highlight_utils;
 mod highlighters;
+mod line_info;
 
 use crate::highlight_processor::HighlightProcessor;
 use crate::highlighters::Highlighters;

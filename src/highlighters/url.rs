@@ -2,6 +2,7 @@ use crate::color;
 use crate::color::to_ansi;
 use crate::config_parser::UrlGroup;
 use crate::highlighters::HighlightFn;
+use crate::line_info::LineInfo;
 use regex::Regex;
 
 pub fn highlight(url_group: &UrlGroup) -> HighlightFn {
@@ -13,7 +14,7 @@ pub fn highlight(url_group: &UrlGroup) -> HighlightFn {
     let query_params_value_color = to_ansi(&url_group.query_params_value);
     let symbols_color = to_ansi(&url_group.symbols);
 
-    Box::new(move |input: &str| -> String {
+    Box::new(move |input: &str, line_info: &LineInfo| -> String {
         highlight_urls(
             &http_color,
             &https_color,
@@ -23,6 +24,7 @@ pub fn highlight(url_group: &UrlGroup) -> HighlightFn {
             &query_params_value_color,
             &symbols_color,
             input,
+            line_info,
         )
     })
 }
@@ -36,6 +38,7 @@ fn highlight_urls(
     query_params_value_color: &str,
     symbols_color: &str,
     input: &str,
+    _line_info: &LineInfo,
 ) -> String {
     let url_regex = Regex::new(r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?")
         .expect("Invalid regex pattern");
@@ -108,6 +111,11 @@ mod tests {
 
     #[test]
     fn test_highlight_urls() {
+        let line_info = &LineInfo {
+            dashes: 0,
+            dots: 0,
+            slashes: 0,
+        };
         let http_color = "\x1b[31m"; // Red color
         let https_color = "\x1b[32m"; // Green color
         let host_color = "\x1b[33m"; // Yellow color
@@ -131,7 +139,8 @@ mod tests {
                 query_params_key_color,
                 query_params_value_color,
                 symbols_color,
-                input
+                input,
+                line_info,
             ),
             expected_output
         );

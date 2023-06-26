@@ -2,15 +2,18 @@ use crate::color;
 use crate::color::to_ansi;
 use crate::config_parser::Style;
 use crate::highlighters::HighlightFn;
+use crate::line_info::LineInfo;
 use regex::Regex;
 
 pub fn highlight(style: &Style) -> HighlightFn {
     let color = to_ansi(style);
 
-    Box::new(move |input: &str| -> String { highlight_dates(&color, input) })
+    Box::new(move |input: &str, line_info: &LineInfo| -> String {
+        highlight_dates(&color, input, line_info)
+    })
 }
 
-fn highlight_dates(color: &str, input: &str) -> String {
+fn highlight_dates(color: &str, input: &str, _line_info: &LineInfo) -> String {
     let date_regex = Regex::new(
         r"(?x)                 # Enable comments and whitespace insensitivity
     \b                         # Word boundary, ensures we are at the start of a date/time string
@@ -54,6 +57,12 @@ mod tests {
             faint: false,
         });
 
+        let line_info = &LineInfo {
+            dashes: 0,
+            dots: 0,
+            slashes: 0,
+        };
+
         let input1 = "The time is 10:51:19.251.";
         let expected_output1 = format!("The time is {}10:51:19.251{}.", red, color::RESET);
         let input2 = "The time is 08:23:55.927.";
@@ -77,12 +86,12 @@ mod tests {
             color::RESET
         );
 
-        assert_eq!(highlight_dates(&red, input1), expected_output1);
-        assert_eq!(highlight_dates(&red, input2), expected_output2);
-        assert_eq!(highlight_dates(&red, input3), expected_output3);
-        assert_eq!(highlight_dates(&red, input4), expected_output4);
-        assert_eq!(highlight_dates(&red, input5), expected_output5);
-        assert_eq!(highlight_dates(&red, input6), expected_output6);
-        assert_eq!(highlight_dates(&red, input7), expected_output7);
+        assert_eq!(highlight_dates(&red, input1, line_info), expected_output1);
+        assert_eq!(highlight_dates(&red, input2, line_info), expected_output2);
+        assert_eq!(highlight_dates(&red, input3, line_info), expected_output3);
+        assert_eq!(highlight_dates(&red, input4, line_info), expected_output4);
+        assert_eq!(highlight_dates(&red, input5, line_info), expected_output5);
+        assert_eq!(highlight_dates(&red, input6, line_info), expected_output6);
+        assert_eq!(highlight_dates(&red, input7, line_info), expected_output7);
     }
 }

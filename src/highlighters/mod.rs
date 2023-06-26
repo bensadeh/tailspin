@@ -10,8 +10,9 @@ mod uuid;
 use crate::config_parser::Config;
 use crate::config_util;
 use crate::config_util::FlattenKeyword;
+use crate::line_info::LineInfo;
 
-type HighlightFn = Box<dyn Fn(&str) -> String + Send>;
+type HighlightFn = Box<dyn Fn(&str, &LineInfo) -> String + Send>;
 type HighlightFnVec = Vec<HighlightFn>;
 
 pub struct Highlighters {

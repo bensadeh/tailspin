@@ -3,18 +3,24 @@ use crate::color::to_ansi;
 use crate::config_parser::Style;
 use crate::highlight_utils::highlight_with_awareness;
 use crate::highlighters::HighlightFn;
+use crate::line_info::LineInfo;
 use regex::{Captures, Regex};
 
 pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
     let segment_color = to_ansi(segment);
     let separator_color = to_ansi(separator);
 
-    Box::new(move |input: &str| -> String {
-        highlight_uuids(&segment_color, &separator_color, input)
+    Box::new(move |input: &str, line_info: &LineInfo| -> String {
+        highlight_uuids(&segment_color, &separator_color, input, line_info)
     })
 }
 
-fn highlight_uuids(segment_color: &str, separator_color: &str, input: &str) -> String {
+fn highlight_uuids(
+    segment_color: &str,
+    separator_color: &str,
+    input: &str,
+    _line_info: &LineInfo,
+) -> String {
     let uuid_regex = Regex::new(
         r"(\b[0-9a-fA-F]{8}\b)(-)(\b[0-9a-fA-F]{4}\b)(-)(\b[0-9a-fA-F]{4}\b)(-)(\b[0-9a-fA-F]{4}\b)(-)(\b[0-9a-fA-F]{12}\b)"
     ).expect("Invalid regex pattern");
@@ -38,11 +44,17 @@ mod tests {
 
     #[test]
     fn test_highlight_uuids() {
+        let line_info = &LineInfo {
+            dashes: 0,
+            dots: 0,
+            slashes: 0,
+        };
+
         let uuid = "550e8400-e29b-41d4-a716-446655440000";
         let segment_color = "\x1b[31m"; // ANSI color code for red
         let separator_color = "\x1b[32m"; // ANSI color code for green
 
-        let highlighted = highlight_uuids(segment_color, separator_color, uuid);
+        let highlighted = highlight_uuids(segment_color, separator_color, uuid, line_info);
 
         let expected = format!(
             "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
@@ -79,11 +91,17 @@ mod tests {
 
     #[test]
     fn test_highlight_uuids_no_uuid() {
+        let line_info = &LineInfo {
+            dashes: 0,
+            dots: 0,
+            slashes: 0,
+        };
+
         let text = "this is a test string with no uuid";
         let segment_color = "\x1b[31m";
         let separator_color = "\x1b[32m";
 
-        let highlighted = highlight_uuids(segment_color, separator_color, text);
+        let highlighted = highlight_uuids(segment_color, separator_color, text, line_info);
 
         // The input string does not contain a UUID, so it should be returned as-is
         assert_eq!(highlighted, text);

@@ -3,11 +3,14 @@ use crate::color::to_ansi;
 use crate::config_parser::Style;
 use crate::highlighters::quotes::State::{InsideQuote, OutsideQuote};
 use crate::highlighters::HighlightFn;
+use crate::line_info::LineInfo;
 
 pub fn highlight(style: &Style, quotes_token: char) -> HighlightFn {
     let color = to_ansi(style);
 
-    Box::new(move |input: &str| -> String { highlight_inside_quotes(&color, input, quotes_token) })
+    Box::new(move |input: &str, line_info: &LineInfo| -> String {
+        highlight_inside_quotes(&color, input, quotes_token, line_info)
+    })
 }
 
 enum State {
@@ -18,7 +21,12 @@ enum State {
     OutsideQuote,
 }
 
-fn highlight_inside_quotes(color: &str, input: &str, quotes_token: char) -> String {
+fn highlight_inside_quotes(
+    color: &str,
+    input: &str,
+    quotes_token: char,
+    _line_info: &LineInfo,
+) -> String {
     let has_unmatched_quotes = input.chars().filter(|&ch| ch == quotes_token).count() % 2 != 0;
     if has_unmatched_quotes {
         return input.to_string();
@@ -85,8 +93,17 @@ mod tests {
             faint: false,
         };
 
+        let line_info = &LineInfo {
+            dashes: 0,
+            dots: 0,
+            slashes: 0,
+        };
+
         let highlighter = highlight(&style, '"');
-        let result = highlighter("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
+        let result = highlighter(
+            "outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside",
+            line_info,
+        );
         let expected =
             "outside \x1b[33m\"hello \x1b[34;42;3m42\x1b[0m\x1b[33m world\"\x1b[0m outside";
 
@@ -95,9 +112,14 @@ mod tests {
 
     #[test]
     fn highlight_quotes_without_ansi() {
+        let line_info = &LineInfo {
+            dashes: 0,
+            dots: 0,
+            slashes: 0,
+        };
         let color = "[color]";
         let input = "outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
-        let result = highlight_inside_quotes(color, input, '"');
+        let result = highlight_inside_quotes(color, input, '"', line_info);
         let expected =
             "outside [color]\"hello \x1b[34;42;3m42\x1b[0m[color] world\"\x1b[0m outside";
 
@@ -115,8 +137,17 @@ mod tests {
             faint: false,
         };
 
+        let line_info = &LineInfo {
+            dashes: 0,
+            dots: 0,
+            slashes: 0,
+        };
+
         let highlighter = highlight(&style, '"');
-        let result = highlighter("outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
+        let result = highlighter(
+            "outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside",
+            line_info,
+        );
         let expected = "outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
 
         assert_eq!(result, expected);

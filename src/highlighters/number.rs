@@ -2,15 +2,18 @@ use crate::color::to_ansi;
 use crate::config_parser::Style;
 use crate::highlight_utils;
 use crate::highlighters::HighlightFn;
+use crate::line_info::LineInfo;
 use regex::Regex;
 
 pub fn highlight(style: &Style) -> HighlightFn {
     let color = to_ansi(style);
 
-    Box::new(move |input: &str| -> String { highlight_numbers(&color, input) })
+    Box::new(move |input: &str, line_info: &LineInfo| -> String {
+        highlight_numbers(&color, input, line_info)
+    })
 }
 
-fn highlight_numbers(color: &str, input: &str) -> String {
+fn highlight_numbers(color: &str, input: &str, _line_info: &LineInfo) -> String {
     let number_regex = Regex::new(
         r"(?x)   # Enable comments and whitespace insensitivity
     \b           # Word boundary, ensures we are at the start of a number
