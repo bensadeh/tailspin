@@ -11,8 +11,19 @@ pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
     let separator_color = to_ansi(separator);
 
     Box::new(move |input: &str, line_info: &LineInfo| -> String {
-        highlight_ip_addresses(&segment_color, &separator_color, input, line_info)
+        highlight_ip_addresses(
+            &segment_color,
+            &separator_color,
+            input,
+            line_info,
+            &ip_address_regex(),
+        )
     })
+}
+
+fn ip_address_regex() -> Regex {
+    Regex::new(r"(\b\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3}\b)")
+        .expect("Invalid IP address regex pattern")
 }
 
 fn highlight_ip_addresses(
@@ -20,10 +31,8 @@ fn highlight_ip_addresses(
     separator_color: &str,
     input: &str,
     _line_info: &LineInfo,
+    ip_address_regex: &Regex,
 ) -> String {
-    let ip_address_regex = Regex::new(r"(\b\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3}\b)")
-        .expect("Invalid regex pattern");
-
     let highlight_groups = [
         (segment_color, 1),
         (separator_color, 2),
@@ -60,8 +69,13 @@ mod tests {
         let segment_color = "\x1b[31m"; // ANSI color code for red
         let separator_color = "\x1b[32m"; // ANSI color code for green
 
-        let highlighted =
-            highlight_ip_addresses(segment_color, separator_color, ip_address, line_info);
+        let highlighted = highlight_ip_addresses(
+            segment_color,
+            separator_color,
+            ip_address,
+            line_info,
+            &ip_address_regex(),
+        );
 
         let expected = format!(
             "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
@@ -103,7 +117,13 @@ mod tests {
         let segment_color = "\x1b[31m";
         let separator_color = "\x1b[32m";
 
-        let highlighted = highlight_ip_addresses(segment_color, separator_color, text, line_info);
+        let highlighted = highlight_ip_addresses(
+            segment_color,
+            separator_color,
+            text,
+            line_info,
+            &ip_address_regex(),
+        );
 
         // The input string does not contain an IP address, so it should be returned as-is
         assert_eq!(highlighted, text);
