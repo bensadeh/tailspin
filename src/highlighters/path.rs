@@ -67,7 +67,8 @@ mod tests {
         let line_info = &LineInfo {
             dashes: 0,
             dots: 0,
-            slashes: 0,
+            slashes: 1,
+            double_quotes: 0,
         };
 
         let path = "~/Documents/../user/.";
@@ -95,6 +96,7 @@ mod tests {
             dashes: 0,
             dots: 0,
             slashes: 0,
+            double_quotes: 0,
         };
 
         let text = "this is a test string with no path";
