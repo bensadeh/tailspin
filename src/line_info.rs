@@ -6,14 +6,18 @@ pub struct LineInfo {
 
 impl LineInfo {
     pub fn process(line: &str) -> LineInfo {
-        let (slashes, dots, dashes) =
-            line.chars()
-                .fold((0, 0, 0), |(slashes, dots, dashes), c| match c {
-                    '/' => (slashes + 1, dots, dashes),
-                    '.' => (slashes, dots + 1, dashes),
-                    '-' => (slashes, dots, dashes + 1),
-                    _ => (slashes, dots, dashes),
-                });
+        let mut slashes = 0;
+        let mut dots = 0;
+        let mut dashes = 0;
+
+        for c in line.chars() {
+            match c {
+                '/' => slashes += 1,
+                '.' => dots += 1,
+                '-' => dashes += 1,
+                _ => {}
+            }
+        }
 
         LineInfo {
             slashes,
