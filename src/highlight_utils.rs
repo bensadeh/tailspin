@@ -7,6 +7,8 @@ lazy_static! {
         Regex::new(r"\x1b\[[0-9;]*m").expect("Invalid regex pattern");
 }
 
+const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
+
 pub(crate) fn highlight_with_awareness_replace_all(
     color: &str,
     input: &str,
@@ -37,8 +39,8 @@ where
     F: Fn(&Captures) -> String,
 {
     let chunks = split_into_chunks(input);
+    let mut output = calculate_and_allocate_capacity(input);
 
-    let mut output = String::new();
     for chunk in chunks {
         match chunk {
             Chunk::Normal(text) => {
@@ -52,6 +54,13 @@ where
     }
 
     output
+}
+
+fn calculate_and_allocate_capacity(input: &str) -> String {
+    let allocation_size = input.len().saturating_mul(3);
+    let allocation_size = std::cmp::min(allocation_size, MAX_ALLOCATION_SIZE);
+
+    String::with_capacity(allocation_size)
 }
 
 enum Chunk<'a> {
