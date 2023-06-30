@@ -24,31 +24,52 @@ pub struct Style {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct KeywordGroup {
-    pub highlight: Style,
-    pub tokens: Vec<String>,
+pub struct Keyword {
+    pub style: Style,
+    pub words: Vec<String>,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct UuidGroup {
+pub struct UUID {
     pub segment: Style,
     pub separator: Style,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct IpGroup {
+pub struct IP {
     pub segment: Style,
     pub separator: Style,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct PathGroup {
+pub struct FilePath {
     pub segment: Style,
     pub separator: Style,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct UrlGroup {
+pub struct Date {
+    pub style: Style,
+}
+
+#[derive(Debug, Deserialize, Default, Clone)]
+pub struct Number {
+    pub style: Style,
+}
+
+#[derive(Debug, Deserialize, Default, Clone)]
+pub struct Quotes {
+    pub style: Style,
+    #[serde(default = "default_quotes_token")]
+    pub(crate) token: char,
+}
+
+fn default_quotes_token() -> char {
+    '"'
+}
+
+#[derive(Debug, Deserialize, Default, Clone)]
+pub struct URL {
     pub http: Style,
     pub https: Style,
     pub host: Style,
@@ -59,30 +80,19 @@ pub struct UrlGroup {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct Settings {
-    #[serde(default = "default_quotes_token")]
-    pub(crate) quotes_token: char,
-}
-
-fn default_quotes_token() -> char {
-    '"'
-}
-
-#[derive(Debug, Deserialize, Default, Clone)]
 pub struct Groups {
-    pub date: Option<Style>,
-    pub number: Option<Style>,
-    pub quotes: Option<Style>,
-    pub uuid: Option<UuidGroup>,
-    pub url: Option<UrlGroup>,
-    pub ip: Option<IpGroup>,
-    pub path: Option<PathGroup>,
-    pub keywords: Option<Vec<KeywordGroup>>,
+    pub date: Option<Date>,
+    pub number: Option<Number>,
+    pub quotes: Option<Quotes>,
+    pub uuid: Option<UUID>,
+    pub url: Option<URL>,
+    pub ip: Option<IP>,
+    pub path: Option<FilePath>,
+    pub keywords: Option<Vec<Keyword>>,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Config {
-    pub settings: Settings,
     pub groups: Groups,
 }
 

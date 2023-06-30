@@ -1,4 +1,4 @@
-use crate::config_parser::{KeywordGroup, Style};
+use crate::config_parser::{Keyword, Style};
 
 #[derive(Debug, Clone)]
 pub struct FlattenKeyword {
@@ -6,14 +6,14 @@ pub struct FlattenKeyword {
     pub style: Style,
 }
 
-pub fn flatten_keywords(keywords: Vec<KeywordGroup>) -> Vec<FlattenKeyword> {
+pub fn flatten_keywords(keywords: Vec<Keyword>) -> Vec<FlattenKeyword> {
     let mut flatten_keywords = Vec::new();
 
     for keyword in keywords {
-        for string in keyword.tokens {
+        for string in keyword.words {
             flatten_keywords.push(FlattenKeyword {
                 keyword: string,
-                style: keyword.highlight.clone(),
+                style: keyword.style.clone(),
             });
         }
     }

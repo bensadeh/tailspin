@@ -28,33 +28,33 @@ impl Highlighters {
         let mut after_fns: HighlightFnVec = Vec::new();
 
         // Dates
-        if let Some(dates_style) = &config.groups.date {
-            before_fns.push(date::highlight(dates_style));
+        if let Some(dates) = &config.groups.date {
+            before_fns.push(date::highlight(&dates.style));
         }
 
         // URLs
-        if let Some(url_group) = &config.groups.url {
-            before_fns.push(url::highlight(url_group));
+        if let Some(url) = &config.groups.url {
+            before_fns.push(url::highlight(url));
         }
 
         // Paths
-        if let Some(path_group) = &config.groups.path {
-            before_fns.push(path::highlight(&path_group.segment, &path_group.separator));
+        if let Some(path) = &config.groups.path {
+            before_fns.push(path::highlight(&path.segment, &path.separator));
         }
 
         // IPs
-        if let Some(ip_group) = &config.groups.ip {
-            before_fns.push(ip::highlight(&ip_group.segment, &ip_group.separator));
+        if let Some(ip) = &config.groups.ip {
+            before_fns.push(ip::highlight(&ip.segment, &ip.separator));
         }
 
         // UUIDs
-        if let Some(uuids) = &config.groups.uuid {
-            before_fns.push(uuid::highlight(&uuids.segment, &uuids.separator));
+        if let Some(uuid) = &config.groups.uuid {
+            before_fns.push(uuid::highlight(&uuid.segment, &uuid.separator));
         }
 
         // Numbers
-        if let Some(numbers_style) = &config.groups.number {
-            main_fns.push(number::highlight(numbers_style));
+        if let Some(numbers) = &config.groups.number {
+            main_fns.push(number::highlight(&numbers.style));
         }
 
         // Keywords
@@ -64,11 +64,8 @@ impl Highlighters {
         }
 
         // Quotes
-        if let Some(quotes_style) = &config.groups.quotes {
-            after_fns.push(quotes::highlight(
-                quotes_style,
-                config.settings.quotes_token,
-            ));
+        if let Some(quotes_group) = &config.groups.quotes {
+            after_fns.push(quotes::highlight(&quotes_group.style, quotes_group.token));
         }
 
         Highlighters {
