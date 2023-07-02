@@ -76,7 +76,7 @@ async fn main() {
     // Wait for the signal from the other task before continuing
     rx.await.expect("Failed receiving from oneshot channel");
 
-    open_file_with_less(output_path.to_str().unwrap());
+    open_file_with_less(output_path.to_str().unwrap(), args.follow);
 
     cleanup(output_path);
 }
@@ -118,8 +118,12 @@ where
     Ok(())
 }
 
-fn open_file_with_less(path: &str) {
-    let output = Command::new("less").arg(path).status();
+fn open_file_with_less(path: &str, follow: bool) {
+    let output = if follow {
+        Command::new("less").arg("+F").arg(path).status()
+    } else {
+        Command::new("less").arg(path).status()
+    };
 
     match output {
         Ok(status) => {
