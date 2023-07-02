@@ -78,7 +78,7 @@ mod tests {
             dots: 0,
             slashes: 1,
             double_quotes: 0,
-            colon: 0,
+            colons: 0,
         };
 
         let path = "~/Documents/../user/.";
@@ -113,7 +113,7 @@ mod tests {
             dots: 0,
             slashes: 0,
             double_quotes: 0,
-            colon: 0,
+            colons: 0,
         };
 
         let text = "this is a test string with no path";

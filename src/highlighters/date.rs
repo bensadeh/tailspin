@@ -35,7 +35,12 @@ fn date_regex() -> Regex {
     .expect("Invalid regex pattern")
 }
 
-fn highlight_dates(color: &str, input: &str, _line_info: &LineInfo, date_regex: &Regex) -> String {
+fn highlight_dates(color: &str, input: &str, line_info: &LineInfo, date_regex: &Regex) -> String {
+    // if line does not have at least two dashes or two colons, it is not a date
+    if line_info.dashes < 2 && line_info.colons < 2 {
+        return input.to_string();
+    }
+
     let highlighted = date_regex.replace_all(input, |caps: &regex::Captures<'_>| {
         format!("{}{}{}", color, &caps[0], color::RESET)
     });
@@ -60,11 +65,11 @@ mod tests {
         });
 
         let line_info = &LineInfo {
-            dashes: 0,
+            dashes: 2,
             dots: 0,
             slashes: 0,
             double_quotes: 0,
-            colon: 0,
+            colons: 2,
         };
 
         let input1 = "The time is 10:51:19.251.";

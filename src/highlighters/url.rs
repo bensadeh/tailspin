@@ -55,7 +55,7 @@ fn highlight_urls(
     url_regex: &Regex,
     query_params_regex: &Regex,
 ) -> String {
-    if line_info.slashes < 1 || line_info.colon == 0 {
+    if line_info.slashes < 1 || line_info.colons == 0 {
         return input.to_string();
     }
 
@@ -128,7 +128,7 @@ mod tests {
             dots: 0,
             slashes: 2,
             double_quotes: 0,
-            colon: 1,
+            colons: 1,
         };
         let http_color = "\x1b[31m"; // Red color
         let https_color = "\x1b[32m"; // Green color
@@ -169,7 +169,7 @@ mod tests {
             dots: 0,
             slashes: 1,
             double_quotes: 0,
-            colon: 0,
+            colons: 0,
         };
 
         let http_color = "\x1b[31m"; // Red color
@@ -208,7 +208,7 @@ mod tests {
             dots: 0,
             slashes: 2,
             double_quotes: 0,
-            colon: 0,
+            colons: 0,
         };
 
         let http_color = "\x1b[31m"; // Red color

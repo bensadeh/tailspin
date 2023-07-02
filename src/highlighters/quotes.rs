@@ -97,7 +97,7 @@ mod tests {
             dots: 0,
             slashes: 0,
             double_quotes: 2,
-            colon: 0,
+            colons: 0,
         };
 
         let highlighter = highlight(&style, '"');
@@ -118,7 +118,7 @@ mod tests {
             dots: 0,
             slashes: 0,
             double_quotes: 2,
-            colon: 0,
+            colons: 0,
         };
         let color = "[color]";
         let input = "outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
@@ -145,7 +145,7 @@ mod tests {
             dots: 0,
             slashes: 0,
             double_quotes: 1,
-            colon: 0,
+            colons: 0,
         };
 
         let highlighter = highlight(&style, '"');

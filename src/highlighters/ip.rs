@@ -71,7 +71,7 @@ mod tests {
             dots: 3,
             slashes: 0,
             double_quotes: 0,
-            colon: 0,
+            colons: 0,
         };
 
         let ip_address = "192.168.0.1";
@@ -120,7 +120,7 @@ mod tests {
             dots: 3,
             slashes: 0,
             double_quotes: 0,
-            colon: 0,
+            colons: 0,
         };
 
         let text = "this is a test string with no IP address";
