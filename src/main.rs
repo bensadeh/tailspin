@@ -14,17 +14,41 @@ use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufWriter, Write};
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{exit, Command};
 use tokio::sync::oneshot;
+
+use clap::Parser;
+
+#[derive(Parser)]
+struct Args {
+    #[clap(name = "FILE")]
+    input: String,
+
+    /// Follow (tail) the contents of the file
+    #[clap(short = 'f', long = "follow")]
+    follow: bool,
+}
 
 #[tokio::main]
 async fn main() {
+    let args: Args = Args::parse();
+
+    let input = args.input.clone();
+    let input_path = Path::new(&input);
+
+    if !input_path.exists() {
+        eprintln!(
+            "Error: File '{}' does not exist",
+            input_path.to_str().unwrap()
+        );
+        exit(1);
+    }
+
     let config = config_parser::load_config(None);
 
     // dbg!(&config);
 
-    let input = "example-logs/1.log";
-    let line_count = count_lines(input).expect("Failed to count lines");
+    let line_count = count_lines(input_path).expect("Failed to count lines");
     let highlighter = Highlighters::new(config);
     let highlight_processor = HighlightProcessor::new(highlighter);
 
@@ -39,7 +63,7 @@ async fn main() {
 
     tokio::spawn(async move {
         tail_file(
-            input,
+            &input,
             output_writer,
             highlight_processor,
             line_count,
