@@ -33,6 +33,13 @@ spin -f [file]
 ```
 ## Highlight Groups
 
+### Overview
+`tailspin` uses a TOML file to define highlight groups. It will look for a config file at `~/.config/tailspin/config.toml`.
+If no config file is present, the default config will be used.
+
+All groups are optional. If a group is not defined, it will be disabled.
+
+
 ### Dates
 ```toml
 [groups.date]
@@ -87,6 +94,17 @@ Highlights the different segments of a URL.
 style = { fg = "cyan" }
 ```
 Highlights any number (integer or float).
+
+### IP
+```toml
+[groups.ip]
+segment = { fg = "blue", italic = true }
+separator = { fg = "red" }
+```
+Highlights IPv4 addresses in the following format:
+- `10.0.0.1`
+- `192.168.0.1`
+
 
 ### Quotes
 ```toml
