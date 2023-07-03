@@ -34,7 +34,7 @@ spin -f [file]
 ## Highlight Groups
 
 ### Dates
-#### Format
+#### Config
 ```toml
 [groups.date]
 style = { fg = "magenta" }
@@ -48,7 +48,7 @@ Matches any date in the following formats:
 
 
 ### Keywords
-#### Format
+#### Config
 ```toml
 [[groups.keywords]]
 words = ['DEBUG']
@@ -59,13 +59,21 @@ words = ['null', 'true', 'false']
 style = { fg = "red", italic = true }
 ```
 #### Description
-The `keywords` is used to highlight any keywords. It is defined as an array of strings 
-and can be defined multiple times.
+The `keywords` group is used to highlight strings. Keywords are highlighted if they are within a `\b` regexp word 
+boundary. For example: 
+
+- It would match "cat" in the sentence "The cat is cute." because there are word boundaries 
+(spaces in this case) around "cat".
+- It would match "cat" in the sentence "Is that a cat?" because there are word boundaries
+(space and question mark) around "cat".
+- It wouldn't match "cat" in the word "concatenate" because "cat" is bounded by other word 
+characters (letters in this case) and not by word boundaries.
 
 
 ### URLs
-#### Format
+#### Config
 ```toml
+[groups.url]
 http = { faint = true }
 https = { bold = true }
 host = { fg = "blue", faint = true }
@@ -76,27 +84,52 @@ symbols = { fg = "red" }
 ```
 
 #### Description
-Individual highlighting for each part of a URL
+Highlights the different segments of a URL.
 
-| Component        | Example        |
-|------------------|----------------|
-| scheme           | `http`/`https` |
-| host             | `google.com`   |
-| path             | `/search`      |
-| query parameters | `/?key=value`  |
-
-
-### Severity and Log levels
-- `TRACE`
-- `INFO`
-- `WARN`
-- `ERROR`
 
 ### Numbers
-- `100`
-- `200`
+#### Config
+```toml
+[groups.number]
+style = { fg = "cyan" }
+```
+#### Description
+Highlights any number (integer or float).
 
-### UUIDs and GUIDs
+### Quotes
+#### Config
+```toml
+[groups.quotes]
+style = { fg = "yellow" }
+token = '"'
+```
+
+#### Description
+Highlights any string that is wrapped in quotes.
+
+
+### Unix file paths
+#### Config
+```toml
+[groups.path]
+segment = { fg = "green", italic = true }
+separator = { fg = "yellow" }
+```
+
+#### Description
+Highlights Unix file paths in the following format:
+- `/etc/var/`
+- `/path/to/file.txt`
+
+### UUIDs
+#### Config
+```toml
+[groups.uuid]
+segment = { fg = "blue", italic = true }
+separator = { fg = "red" }
+```
+#### Description
+Highlights UUIDs in the following format:
 - `123e4567-e89b-12d3-a456-426614174000`
 
 ## See also
