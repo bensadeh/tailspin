@@ -76,9 +76,16 @@ async fn main() {
     // Wait for the signal from the other task before continuing
     rx.await.expect("Failed receiving from oneshot channel");
 
+    pass_ctrl_c_events_gracefully_to_child_process();
     open_file_with_less(output_path.to_str().unwrap(), args.follow);
 
     cleanup(output_path);
+}
+
+fn pass_ctrl_c_events_gracefully_to_child_process() {
+    // Without this handling, pressing Ctrl + C causes the program to exit immediately
+    // instead of passing the signal to the child process (less)
+    ctrlc::set_handler(|| {}).expect("Error setting Ctrl-C handler");
 }
 
 fn cleanup(output_path: PathBuf) {
