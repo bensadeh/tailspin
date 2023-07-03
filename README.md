@@ -34,13 +34,11 @@ spin -f [file]
 ## Highlight Groups
 
 ### Dates
-#### Config
 ```toml
 [groups.date]
 style = { fg = "magenta" }
 ```
 
-#### Description
 Matches any date in the following formats:
 - `YYYY-MM-DD`
 - `YYYY-MM-DD HH:MM:SS`
@@ -48,7 +46,6 @@ Matches any date in the following formats:
 
 
 ### Keywords
-#### Config
 ```toml
 [[groups.keywords]]
 words = ['DEBUG']
@@ -58,7 +55,6 @@ style = { fg = "green" }
 words = ['null', 'true', 'false']
 style = { fg = "red", italic = true }
 ```
-#### Description
 The `keywords` group is used to highlight strings. Keywords are highlighted if they are within a `\b` regexp word 
 boundary. For example: 
 
@@ -71,7 +67,6 @@ characters (letters in this case) and not by word boundaries.
 
 
 ### URLs
-#### Config
 ```toml
 [groups.url]
 http = { faint = true }
@@ -83,52 +78,43 @@ query_params_value = { fg = "magenta" }
 symbols = { fg = "red" }
 ```
 
-#### Description
 Highlights the different segments of a URL.
 
 
 ### Numbers
-#### Config
 ```toml
 [groups.number]
 style = { fg = "cyan" }
 ```
-#### Description
 Highlights any number (integer or float).
 
 ### Quotes
-#### Config
 ```toml
 [groups.quotes]
 style = { fg = "yellow" }
 token = '"'
 ```
 
-#### Description
 Highlights any string that is wrapped in quotes.
 
 
 ### Unix file paths
-#### Config
 ```toml
 [groups.path]
 segment = { fg = "green", italic = true }
 separator = { fg = "yellow" }
 ```
 
-#### Description
 Highlights Unix file paths in the following format:
 - `/etc/var/`
 - `/path/to/file.txt`
 
 ### UUIDs
-#### Config
 ```toml
 [groups.uuid]
 segment = { fg = "blue", italic = true }
 separator = { fg = "red" }
 ```
-#### Description
 Highlights UUIDs in the following format:
 - `123e4567-e89b-12d3-a456-426614174000`
 
