@@ -58,11 +58,11 @@ style = { fg = "red", italic = true }
 The `keywords` group is used to highlight strings. Keywords are highlighted if they are within a `\b` regexp word 
 boundary. For example: 
 
-- It would match "cat" in the sentence "The cat is cute." because there are word boundaries 
-(spaces in this case) around "cat".
-- It would match "cat" in the sentence "Is that a cat?" because there are word boundaries
-(space and question mark) around "cat".
-- It wouldn't match "cat" in the word "concatenate" because "cat" is bounded by other word 
+- It would match `cat` in the sentence "The **cat** is cute." because there are word boundaries 
+(spaces in this case) around `cat`.
+- It would match `cat` in the sentence "Is that a **cat**?" because there are word boundaries
+(space and question mark) around `cat`.
+- It wouldn't match "cat" in the word "concatenate" because `cat` is bounded by other word 
 characters (letters in this case) and not by word boundaries.
 
 
