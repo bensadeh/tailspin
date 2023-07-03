@@ -34,24 +34,56 @@ spin -f [file]
 ## Highlight Groups
 
 ### Dates
-- `2022-08-29 08:11:36`
-- `2022-09-09 11:48:34,534`
+#### Format
+```toml
+[groups.date]
+style = { fg = "magenta" }
+```
 
-### Special Keywords
-- `true`
-- `false`
-- `null`
+#### Description
+Matches any date in the following formats:
+- `YYYY-MM-DD`
+- `YYYY-MM-DD HH:MM:SS`
+- `YYYY-MM-DD HH:MM:SS,SSS`
+
+
+### Keywords
+#### Format
+```toml
+[[groups.keywords]]
+words = ['DEBUG']
+style = { fg = "green" }
+
+[[groups.keywords]]
+words = ['null', 'true', 'false']
+style = { fg = "red", italic = true }
+```
+#### Description
+The `keywords` is used to highlight any keywords. It is defined as an array of strings 
+and can be defined multiple times.
+
 
 ### URLs
+#### Format
+```toml
+http = { faint = true }
+https = { bold = true }
+host = { fg = "blue", faint = true }
+path = { fg = "blue" }
+query_params_key = { fg = "cyan" }
+query_params_value = { fg = "magenta" }
+symbols = { fg = "red" }
+```
 
+#### Description
 Individual highlighting for each part of a URL
 
-| Component         | Example        |
-|-------------------|----------------|
-| scheme            | `http`/`https` |
-| domain            | `google.com`   |
-| subdomain         | `/search`      |
-| search parameters | `/?key=value`  |
+| Component        | Example        |
+|------------------|----------------|
+| scheme           | `http`/`https` |
+| host             | `google.com`   |
+| path             | `/search`      |
+| query parameters | `/?key=value`  |
 
 
 ### Severity and Log levels
