@@ -48,7 +48,12 @@ async fn main() {
 
     // dbg!(&config);
 
-    let line_count = count_lines(input_path).expect("Failed to count lines");
+    let line_count = if args.follow {
+        1
+    } else {
+        count_lines(input_path).expect("Failed to count lines")
+    };
+
     let highlighter = Highlighters::new(config);
     let highlight_processor = HighlightProcessor::new(highlighter);
 
