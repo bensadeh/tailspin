@@ -59,6 +59,13 @@ impl Highlighters {
 
         // Keywords
         let flattened_keywords = Self::flatten(&config);
+        let keyword_strings: Vec<String> = flattened_keywords
+            .iter()
+            .map(|kw| kw.keyword.clone())
+            .collect();
+
+        keyword::init_keywords(keyword_strings);
+
         for keyword in flattened_keywords {
             main_fns.push(keyword::highlight(keyword.keyword, &keyword.style));
         }
