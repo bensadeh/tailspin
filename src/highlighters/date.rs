@@ -3,36 +3,37 @@ use crate::color::to_ansi;
 use crate::config_parser::Style;
 use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
+use lazy_static::lazy_static;
 use regex::Regex;
 
 pub fn highlight(style: &Style) -> HighlightFn {
     let color = to_ansi(style);
 
     Box::new(move |input: &str, line_info: &LineInfo| -> String {
-        highlight_dates(&color, input, line_info, &date_regex())
+        highlight_dates(&color, input, line_info, &DATE_REGEX)
     })
 }
 
-fn date_regex() -> Regex {
-    Regex::new(
-        r"(?x)                 # Enable comments and whitespace insensitivity
-    \b                         # Word boundary, ensures we are at the start of a date/time string
-    (                          # Begin capturing group for the entire date/time string
-        \d{4}-\d{2}-\d{2}      # Matches date in the format: yyyy-mm-dd
-        (?:                    # Begin non-capturing group for the time and timezone
-            (?:\s|T)           # Matches either a whitespace or T (separator between date and time)
-            \d{2}:\d{2}:\d{2}  # Matches time in the format: hh:mm:ss
-            ([.,]\d+)?         # Optionally matches fractional seconds
-            (Z|[+-]\d{2})?     # Optionally matches Z or timezone offset in the format: +hh or -hh
-        )?                     # End non-capturing group for the time and timezone
-        |                      # Alternation, matches either the pattern above or  below
-        \d{2}:\d{2}:\d{2}      # Matches time in the format: hh:mm:ss
-        ([.,]\d+)?             # Optionally matches fractional seconds
-    )                          # End capturing group for the entire date/time string
-    \b                         # Word boundary, ensures we are at the end of a date/time string
-    ",
-    )
-    .expect("Invalid regex pattern")
+lazy_static! {
+    static ref DATE_REGEX: Regex = {
+        Regex::new(
+            r"(?x)                 # Enable comments and whitespace insensitivity
+            \b                     # Word boundary, ensures we are at the start of a date/time string
+            (                      # Begin capturing group for the entire date/time string
+                \d{4}-\d{2}-\d{2}  # Matches date in the format: yyyy-mm-dd
+                (?:                # Begin non-capturing group for the time and timezone
+                    (?:\s|T)       # Matches either a whitespace or T (separator between date and time)
+                    \d{2}:\d{2}:\d{2}  # Matches time in the format: hh:mm:ss
+                    ([.,]\d+)?     # Optionally matches fractional seconds
+                    (Z|[+-]\d{2})? # Optionally matches Z or timezone offset in the format: +hh or -hh
+                )?                 # End non-capturing group for the time and timezone
+                |                  # Alternation, matches either the pattern above or  below
+                \d{2}:\d{2}:\d{2}  # Matches time in the format: hh:mm:ss
+                ([.,]\d+)?         # Optionally matches fractional seconds
+            )                      # End capturing group for the entire date/time string
+            \b                     # Word boundary, ensures we are at the end of a date/time string
+            ").expect("Invalid regex pattern")
+    };
 }
 
 fn highlight_dates(color: &str, input: &str, line_info: &LineInfo, date_regex: &Regex) -> String {
@@ -96,31 +97,31 @@ mod tests {
         );
 
         assert_eq!(
-            highlight_dates(&red, input1, line_info, &date_regex()),
+            highlight_dates(&red, input1, line_info, &DATE_REGEX),
             expected_output1
         );
         assert_eq!(
-            highlight_dates(&red, input2, line_info, &date_regex()),
+            highlight_dates(&red, input2, line_info, &DATE_REGEX),
             expected_output2
         );
         assert_eq!(
-            highlight_dates(&red, input3, line_info, &date_regex()),
+            highlight_dates(&red, input3, line_info, &DATE_REGEX),
             expected_output3
         );
         assert_eq!(
-            highlight_dates(&red, input4, line_info, &date_regex()),
+            highlight_dates(&red, input4, line_info, &DATE_REGEX),
             expected_output4
         );
         assert_eq!(
-            highlight_dates(&red, input5, line_info, &date_regex()),
+            highlight_dates(&red, input5, line_info, &DATE_REGEX),
             expected_output5
         );
         assert_eq!(
-            highlight_dates(&red, input6, line_info, &date_regex()),
+            highlight_dates(&red, input6, line_info, &DATE_REGEX),
             expected_output6
         );
         assert_eq!(
-            highlight_dates(&red, input7, line_info, &date_regex()),
+            highlight_dates(&red, input7, line_info, &DATE_REGEX),
             expected_output7
         );
     }
