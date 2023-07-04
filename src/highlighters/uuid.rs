@@ -4,6 +4,7 @@ use crate::config_parser::Style;
 use crate::highlight_utils::highlight_with_awareness;
 use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
+use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 
 pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
@@ -16,15 +17,28 @@ pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
             &separator_color,
             input,
             line_info,
-            &uuid_regex(),
+            &UUID_REGEX,
         )
     })
 }
 
-fn uuid_regex() -> Regex {
-    Regex::new(
-        r"(\b[0-9a-fA-F]{8}\b)(-)(\b[0-9a-fA-F]{4}\b)(-)(\b[0-9a-fA-F]{4}\b)(-)(\b[0-9a-fA-F]{4}\b)(-)(\b[0-9a-fA-F]{12}\b)"
-    ).expect("Invalid regex pattern")
+lazy_static! {
+    static ref UUID_REGEX: Regex = {
+        Regex::new(
+            r"(?x)
+            (\b[0-9a-fA-F]{8}\b)    # Match first segment of UUID
+            (-)                     # Match separator
+            (\b[0-9a-fA-F]{4}\b)    # Match second segment of UUID
+            (-)                     # Match separator
+            (\b[0-9a-fA-F]{4}\b)    # Match third segment of UUID
+            (-)                     # Match separator
+            (\b[0-9a-fA-F]{4}\b)    # Match fourth segment of UUID
+            (-)                     # Match separator
+            (\b[0-9a-fA-F]{12}\b)   # Match last segment of UUID
+        ",
+        )
+        .expect("Invalid UUID regex pattern")
+    };
 }
 
 fn highlight_uuids(
@@ -69,13 +83,8 @@ mod tests {
         let segment_color = "\x1b[31m"; // ANSI color code for red
         let separator_color = "\x1b[32m"; // ANSI color code for green
 
-        let highlighted = highlight_uuids(
-            segment_color,
-            separator_color,
-            uuid,
-            line_info,
-            &uuid_regex(),
-        );
+        let highlighted =
+            highlight_uuids(segment_color, separator_color, uuid, line_info, &UUID_REGEX);
 
         let expected = format!(
             "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
@@ -124,13 +133,8 @@ mod tests {
         let segment_color = "\x1b[31m";
         let separator_color = "\x1b[32m";
 
-        let highlighted = highlight_uuids(
-            segment_color,
-            separator_color,
-            text,
-            line_info,
-            &uuid_regex(),
-        );
+        let highlighted =
+            highlight_uuids(segment_color, separator_color, text, line_info, &UUID_REGEX);
 
         // The input string does not contain a UUID, so it should be returned as-is
         assert_eq!(highlighted, text);

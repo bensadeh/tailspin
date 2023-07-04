@@ -4,6 +4,7 @@ use crate::config_parser::Style;
 use crate::highlight_utils::highlight_with_awareness;
 use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
+use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 
 pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
@@ -16,19 +17,21 @@ pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
             &separator_color,
             input,
             line_info,
-            &path_regex(),
+            &PATH_REGEX,
         )
     })
 }
 
-fn path_regex() -> Regex {
-    Regex::new(
-        r"(?x)                        # Enable extended mode for readability
-        (?P<path>                     # Capture the path segment
-            [~/.][\w./-]*             # Match zero or more word characters, dots, slashes, or hyphens
-            /[\w.-]*                  # Match a path segment separated by a slash
-        )"
-    ).expect("Invalid regex pattern")
+lazy_static! {
+    static ref PATH_REGEX: Regex = {
+        Regex::new(
+            r"(?x)                        # Enable extended mode for readability
+            (?P<path>                     # Capture the path segment
+                [~/.][\w./-]*             # Match zero or more word characters, dots, slashes, or hyphens
+                /[\w.-]*                  # Match a path segment separated by a slash
+            )"
+        ).expect("Invalid regex pattern")
+    };
 }
 
 fn highlight_paths(
@@ -85,13 +88,8 @@ mod tests {
         let segment_color = "\x1b[31m"; // ANSI color code for red
         let separator_color = "\x1b[32m"; // ANSI color code for green
 
-        let highlighted = highlight_paths(
-            segment_color,
-            separator_color,
-            path,
-            line_info,
-            &path_regex(),
-        );
+        let highlighted =
+            highlight_paths(segment_color, separator_color, path, line_info, &PATH_REGEX);
 
         let expected = path
             .chars()
@@ -120,13 +118,8 @@ mod tests {
         let segment_color = "\x1b[31m"; // ANSI color code for red
         let separator_color = "\x1b[32m"; // ANSI color code for green
 
-        let highlighted = highlight_paths(
-            segment_color,
-            separator_color,
-            text,
-            line_info,
-            &path_regex(),
-        );
+        let highlighted =
+            highlight_paths(segment_color, separator_color, text, line_info, &PATH_REGEX);
 
         // The input string does not contain a path, so it should be returned as-is
         assert_eq!(highlighted, text);

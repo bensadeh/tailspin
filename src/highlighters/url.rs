@@ -3,6 +3,7 @@ use crate::color::to_ansi;
 use crate::config_parser::URL;
 use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
+use lazy_static::lazy_static;
 use regex::Regex;
 
 pub fn highlight(url_group: &URL) -> HighlightFn {
@@ -25,21 +26,22 @@ pub fn highlight(url_group: &URL) -> HighlightFn {
             &symbols_color,
             input,
             line_info,
-            &url_regex(),
-            &query_params_regex(),
+            &URL_REGEX,
+            &QUERY_PARAMS_REGEX,
         )
     })
 }
 
-fn url_regex() -> Regex {
-    Regex::new(
+lazy_static! {
+    static ref URL_REGEX: Regex = {
+        Regex::new(
         r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?")
         .expect("Invalid regex pattern")
-}
-
-fn query_params_regex() -> Regex {
-    Regex::new(r"(?P<delimiter>[?&])(?P<key>[^=]*)(?P<equal>=)(?P<value>[^&]*)")
-        .expect("Invalid query params regex pattern")
+    };
+    static ref QUERY_PARAMS_REGEX: Regex = {
+        Regex::new(r"(?P<delimiter>[?&])(?P<key>[^=]*)(?P<equal>=)(?P<value>[^&]*)")
+            .expect("Invalid query params regex pattern")
+    };
 }
 
 fn highlight_urls(
@@ -155,8 +157,8 @@ mod tests {
                 symbols_color,
                 input,
                 line_info,
-                &url_regex(),
-                &query_params_regex(),
+                &URL_REGEX,
+                &QUERY_PARAMS_REGEX,
             ),
             expected_output
         );
@@ -194,8 +196,8 @@ mod tests {
                 symbols_color,
                 input,
                 line_info,
-                &url_regex(),
-                &query_params_regex(),
+                &URL_REGEX,
+                &QUERY_PARAMS_REGEX,
             ),
             expected_output
         );
@@ -233,8 +235,8 @@ mod tests {
                 symbols_color,
                 input,
                 line_info,
-                &url_regex(),
-                &query_params_regex(),
+                &URL_REGEX,
+                &QUERY_PARAMS_REGEX,
             ),
             expected_output
         );
