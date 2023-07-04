@@ -4,6 +4,7 @@ use crate::config_parser::Style;
 use crate::highlight_utils::highlight_with_awareness;
 use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
+use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 
 pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
@@ -16,14 +17,16 @@ pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
             &separator_color,
             input,
             line_info,
-            &ip_address_regex(),
+            &IP_ADDRESS_REGEX,
         )
     })
 }
 
-fn ip_address_regex() -> Regex {
-    Regex::new(r"(\b\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3}\b)")
-        .expect("Invalid IP address regex pattern")
+lazy_static! {
+    static ref IP_ADDRESS_REGEX: Regex = {
+        Regex::new(r"(\b\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3}\b)")
+            .expect("Invalid IP address regex pattern")
+    };
 }
 
 fn highlight_ip_addresses(
@@ -83,7 +86,7 @@ mod tests {
             separator_color,
             ip_address,
             line_info,
-            &ip_address_regex(),
+            &IP_ADDRESS_REGEX,
         );
 
         let expected = format!(
@@ -132,7 +135,7 @@ mod tests {
             separator_color,
             text,
             line_info,
-            &ip_address_regex(),
+            &IP_ADDRESS_REGEX,
         );
 
         // The input string does not contain an IP address, so it should be returned as-is
