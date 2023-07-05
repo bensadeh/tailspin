@@ -16,7 +16,7 @@ pub(crate) fn highlight_with_awareness_replace_all(
 ) -> String {
     let chunks = split_into_chunks(input);
 
-    let mut output = String::new();
+    let mut output = calculate_and_allocate_capacity(input);
     for chunk in chunks {
         match chunk {
             Chunk::Normal(text) => {
@@ -70,31 +70,36 @@ enum Chunk<'a> {
 
 fn split_into_chunks(input: &str) -> Vec<Chunk> {
     let reset_code = "\x1b[0m";
+    let escape_code = "\x1b[";
 
-    let mut rest = input;
-    let mut inside_escape = false;
     let mut chunks = Vec::new();
+    let mut start = 0;
+    let mut inside_escape = false;
 
-    while !rest.is_empty() {
-        if !inside_escape {
-            if let Some(mat) = ESCAPE_CODE_REGEX.find(rest) {
-                let (before_escape, from_escape) = rest.split_at(mat.start());
-                chunks.push(Chunk::Normal(before_escape));
-                rest = from_escape;
-                inside_escape = true;
-            } else {
-                chunks.push(Chunk::Normal(rest));
-                rest = "";
-            }
-        } else if let Some(reset_position) = rest.find(reset_code) {
-            let (escape_code, remaining) = rest.split_at(reset_position + reset_code.len());
-            chunks.push(Chunk::Highlighted(escape_code));
-            rest = remaining;
-            inside_escape = false;
+    while let Some(i) = if inside_escape {
+        input[start..].find(reset_code)
+    } else {
+        input[start..].find(escape_code)
+    } {
+        let i = i + start;
+        if inside_escape {
+            chunks.push(Chunk::Highlighted(&input[start..=i + reset_code.len() - 1]));
+            start = i + reset_code.len();
         } else {
-            chunks.push(Chunk::Highlighted(rest));
-            rest = "";
+            if i != start {
+                chunks.push(Chunk::Normal(&input[start..i]));
+            }
+            start = i;
         }
+        inside_escape = !inside_escape;
+    }
+
+    if start != input.len() {
+        chunks.push(if inside_escape {
+            Chunk::Highlighted(&input[start..])
+        } else {
+            Chunk::Normal(&input[start..])
+        });
     }
 
     chunks
