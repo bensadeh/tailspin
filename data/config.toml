@@ -27,8 +27,8 @@ http = { faint = true }
 https = { bold = true }
 host = { fg = "blue", faint = true }
 path = { fg = "blue" }
-query_params_key = { fg = "cyan" }
-query_params_value = { fg = "magenta" }
+query_params_key = { fg = "magenta" }
+query_params_value = { fg = "cyan" }
 symbols = { fg = "red" }
 
 [[groups.keywords]]
