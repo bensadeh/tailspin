@@ -6,12 +6,12 @@ mod highlight_utils;
 mod highlighters;
 mod less;
 mod line_info;
+mod tail;
 
-use linemux::MuxedLines;
 use rand::random;
 use std::fs::File;
 use std::io;
-use std::io::{BufRead, BufWriter, Write};
+use std::io::{BufRead, BufWriter};
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use tokio::sync::oneshot;
@@ -64,7 +64,7 @@ async fn main() {
     let (tx, rx) = oneshot::channel::<()>();
 
     tokio::spawn(async move {
-        tail_file(
+        tail::tail_file(
             &input,
             output_writer,
             highlight_processor,
@@ -87,37 +87,6 @@ fn cleanup(output_path: PathBuf) {
     if let Err(err) = std::fs::remove_file(output_path) {
         eprintln!("Failed to remove the temporary file: {}", err);
     }
-}
-
-async fn tail_file<R>(
-    path: &str,
-    mut output_writer: BufWriter<R>,
-    highlighter: highlight_processor::HighlightProcessor,
-    line_count: usize,
-    mut tx: Option<oneshot::Sender<()>>,
-) -> io::Result<()>
-where
-    R: Write + Send + 'static,
-{
-    let mut lines = MuxedLines::new()?;
-    let mut current_line = 1;
-    lines.add_file_from_start(path).await?;
-
-    while let Ok(Some(line)) = lines.next_line().await {
-        if current_line == line_count {
-            if let Some(tx) = tx.take() {
-                tx.send(()).expect("Failed sending to oneshot channel");
-            }
-        }
-
-        let highlighted_string = highlighter.apply(line.line());
-
-        writeln!(output_writer, "{}", highlighted_string)?;
-        output_writer.flush()?;
-        current_line += 1;
-    }
-
-    Ok(())
 }
 
 fn count_lines<P: AsRef<Path>>(file_path: P) -> io::Result<usize> {
