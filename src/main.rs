@@ -4,9 +4,8 @@ mod config_util;
 mod highlight_processor;
 mod highlight_utils;
 mod highlighters;
-mod line_info;
 mod less;
-
+mod line_info;
 
 use linemux::MuxedLines;
 use rand::random;
@@ -14,7 +13,7 @@ use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufWriter, Write};
 use std::path::{Path, PathBuf};
-use std::process::{exit};
+use std::process::exit;
 use tokio::sync::oneshot;
 
 use clap::Parser;
@@ -45,7 +44,6 @@ async fn main() {
     }
 
     let config = config_parser::load_config(None);
-
 
     let line_count = if args.follow {
         1
@@ -85,8 +83,6 @@ async fn main() {
     cleanup(output_path);
 }
 
-
-
 fn cleanup(output_path: PathBuf) {
     if let Err(err) = std::fs::remove_file(output_path) {
         eprintln!("Failed to remove the temporary file: {}", err);
@@ -123,8 +119,6 @@ where
 
     Ok(())
 }
-
-
 
 fn count_lines<P: AsRef<Path>>(file_path: P) -> io::Result<usize> {
     let file = File::open(file_path)?;
