@@ -61,7 +61,7 @@ async fn main() {
     let output_file = File::create(&output_path).unwrap();
     let output_writer = BufWriter::new(output_file);
 
-    let (tx, rx) = oneshot::channel::<()>();
+    let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
 
     tokio::spawn(async move {
         tail::tail_file(
@@ -69,14 +69,16 @@ async fn main() {
             output_writer,
             highlight_processor,
             line_count,
-            Some(tx),
+            Some(reached_eof_tx),
         )
         .await
         .expect("Failed to tail file");
     });
 
     // Wait for the signal from the other task before continuing
-    rx.await.expect("Failed receiving from oneshot channel");
+    reached_eof_rx
+        .await
+        .expect("Failed receiving from oneshot channel");
 
     less::open_file_with_less(output_path.to_str().unwrap(), args.follow);
 

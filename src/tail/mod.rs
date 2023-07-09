@@ -10,7 +10,7 @@ pub(crate) async fn tail_file<R>(
     mut output_writer: BufWriter<R>,
     highlighter: highlight_processor::HighlightProcessor,
     line_count: usize,
-    mut tx: Option<oneshot::Sender<()>>,
+    mut reached_eof_tx: Option<oneshot::Sender<()>>,
 ) -> io::Result<()>
 where
     R: Write + Send + 'static,
@@ -21,7 +21,7 @@ where
 
     while let Ok(Some(line)) = lines.next_line().await {
         if current_line == line_count {
-            if let Some(tx) = tx.take() {
+            if let Some(tx) = reached_eof_tx.take() {
                 tx.send(()).expect("Failed sending to oneshot channel");
             }
         }
