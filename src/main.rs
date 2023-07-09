@@ -5,16 +5,16 @@ mod highlight_processor;
 mod highlight_utils;
 mod highlighters;
 mod line_info;
+mod less;
 
-use crate::highlight_processor::HighlightProcessor;
-use crate::highlighters::Highlighters;
+
 use linemux::MuxedLines;
 use rand::random;
 use std::fs::File;
 use std::io;
 use std::io::{BufRead, BufWriter, Write};
 use std::path::{Path, PathBuf};
-use std::process::{exit, Command};
+use std::process::{exit};
 use tokio::sync::oneshot;
 
 use clap::Parser;
@@ -46,7 +46,6 @@ async fn main() {
 
     let config = config_parser::load_config(None);
 
-    // dbg!(&config);
 
     let line_count = if args.follow {
         1
@@ -54,8 +53,8 @@ async fn main() {
         count_lines(input_path).expect("Failed to count lines")
     };
 
-    let highlighter = Highlighters::new(config);
-    let highlight_processor = HighlightProcessor::new(highlighter);
+    let highlighter = highlighters::Highlighters::new(config);
+    let highlight_processor = highlight_processor::HighlightProcessor::new(highlighter);
 
     let unique_id: u32 = random();
     let filename = format!("tailspin.temp.{}", unique_id);
@@ -75,23 +74,18 @@ async fn main() {
             Some(tx),
         )
         .await
-        .expect("TODO: panic message");
+        .expect("Failed to tail file");
     });
 
     // Wait for the signal from the other task before continuing
     rx.await.expect("Failed receiving from oneshot channel");
 
-    pass_ctrl_c_events_gracefully_to_child_process();
-    open_file_with_less(output_path.to_str().unwrap(), args.follow);
+    less::open_file_with_less(output_path.to_str().unwrap(), args.follow);
 
     cleanup(output_path);
 }
 
-fn pass_ctrl_c_events_gracefully_to_child_process() {
-    // Without this handling, pressing Ctrl + C causes the program to exit immediately
-    // instead of passing the signal to the child process (less)
-    ctrlc::set_handler(|| {}).expect("Error setting Ctrl-C handler");
-}
+
 
 fn cleanup(output_path: PathBuf) {
     if let Err(err) = std::fs::remove_file(output_path) {
@@ -102,7 +96,7 @@ fn cleanup(output_path: PathBuf) {
 async fn tail_file<R>(
     path: &str,
     mut output_writer: BufWriter<R>,
-    highlighter: HighlightProcessor,
+    highlighter: highlight_processor::HighlightProcessor,
     line_count: usize,
     mut tx: Option<oneshot::Sender<()>>,
 ) -> io::Result<()>
@@ -130,24 +124,7 @@ where
     Ok(())
 }
 
-fn open_file_with_less(path: &str, follow: bool) {
-    let output = if follow {
-        Command::new("less").arg("+F").arg(path).status()
-    } else {
-        Command::new("less").arg(path).status()
-    };
 
-    match output {
-        Ok(status) => {
-            if !status.success() {
-                eprintln!("Failed to open file with less");
-            }
-        }
-        Err(err) => {
-            eprintln!("Failed to execute pager command: {}", err);
-        }
-    }
-}
 
 fn count_lines<P: AsRef<Path>>(file_path: P) -> io::Result<usize> {
     let file = File::open(file_path)?;
