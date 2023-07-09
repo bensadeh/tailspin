@@ -75,7 +75,6 @@ async fn main() {
         .expect("Failed to tail file");
     });
 
-    // Wait for the signal from the other task before continuing
     reached_eof_rx
         .await
         .expect("Failed receiving from oneshot channel");
