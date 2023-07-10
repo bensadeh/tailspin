@@ -34,13 +34,7 @@ async fn main() {
     let highlighter = highlighters::Highlighters::new(config);
     let highlight_processor = highlight_processor::HighlightProcessor::new(highlighter);
 
-    let unique_id: u32 = random();
-    let filename = format!("tailspin.temp.{}", unique_id);
-    let temp_dir = tempfile::tempdir().unwrap();
-    let output_path = temp_dir.path().join(filename);
-    let output_file = File::create(&output_path).unwrap();
-    let output_writer = BufWriter::new(output_file);
-
+    let (_temp_dir, output_path, output_writer) = create_temp_file();
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
 
     tokio::spawn(async move {
@@ -62,6 +56,19 @@ async fn main() {
     less::open_file_with_less(output_path.to_str().unwrap(), args.follow);
 
     cleanup(output_path);
+}
+
+fn create_temp_file() -> (tempfile::TempDir, PathBuf, BufWriter<File>) {
+    let unique_id: u32 = random();
+    let filename = format!("tailspin.temp.{}", unique_id);
+
+    let temp_dir = tempfile::tempdir().unwrap();
+
+    let output_path = temp_dir.path().join(filename);
+    let output_file = File::create(&output_path).unwrap();
+    let output_writer = BufWriter::new(output_file);
+
+    (temp_dir, output_path, output_writer)
 }
 
 fn cleanup(output_path: PathBuf) {
