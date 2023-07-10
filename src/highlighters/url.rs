@@ -1,12 +1,12 @@
 use crate::color;
 use crate::color::to_ansi;
-use crate::config_parser::URL;
+use crate::config_parser::Url;
 use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-pub fn highlight(url_group: &URL) -> HighlightFn {
+pub fn highlight(url_group: &Url) -> HighlightFn {
     let http_color = to_ansi(&url_group.http);
     let https_color = to_ansi(&url_group.https);
     let host_color = to_ansi(&url_group.host);

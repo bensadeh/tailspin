@@ -30,13 +30,13 @@ pub struct Keyword {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct UUID {
+pub struct Uuid {
     pub segment: Style,
     pub separator: Style,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct IP {
+pub struct Ip {
     pub segment: Style,
     pub separator: Style,
 }
@@ -69,7 +69,7 @@ fn default_quotes_token() -> char {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct URL {
+pub struct Url {
     pub http: Style,
     pub https: Style,
     pub host: Style,
@@ -84,9 +84,9 @@ pub struct Groups {
     pub date: Option<Date>,
     pub number: Option<Number>,
     pub quotes: Option<Quotes>,
-    pub uuid: Option<UUID>,
-    pub url: Option<URL>,
-    pub ip: Option<IP>,
+    pub uuid: Option<Uuid>,
+    pub url: Option<Url>,
+    pub ip: Option<Ip>,
     pub path: Option<FilePath>,
     pub keywords: Option<Vec<Keyword>>,
 }
