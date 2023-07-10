@@ -8,15 +8,12 @@ mod less;
 mod line_info;
 mod tail;
 
+use clap::Parser;
 use rand::random;
 use std::fs::File;
-use std::io;
-use std::io::{BufRead, BufWriter};
-use std::path::{Path, PathBuf};
-use std::process::exit;
+use std::io::BufWriter;
+use std::path::PathBuf;
 use tokio::sync::oneshot;
-
-use clap::Parser;
 
 #[derive(Parser)]
 struct Args {
@@ -31,25 +28,8 @@ struct Args {
 #[tokio::main]
 async fn main() {
     let args: Args = Args::parse();
-
     let input = args.input.clone();
-    let input_path = Path::new(&input);
-
-    if !input_path.exists() {
-        eprintln!(
-            "Error: File '{}' does not exist",
-            input_path.to_str().unwrap()
-        );
-        exit(1);
-    }
-
     let config = config_parser::load_config(None);
-
-    let line_count = if args.follow {
-        1
-    } else {
-        count_lines(input_path).expect("Failed to count lines")
-    };
 
     let highlighter = highlighters::Highlighters::new(config);
     let highlight_processor = highlight_processor::HighlightProcessor::new(highlighter);
@@ -66,9 +46,9 @@ async fn main() {
     tokio::spawn(async move {
         tail::tail_file(
             &input,
+            args.follow,
             output_writer,
             highlight_processor,
-            line_count,
             Some(reached_eof_tx),
         )
         .await
@@ -77,7 +57,7 @@ async fn main() {
 
     reached_eof_rx
         .await
-        .expect("Failed receiving from oneshot channel");
+        .expect("Could not receive EOF signal from oneshot channel");
 
     less::open_file_with_less(output_path.to_str().unwrap(), args.follow);
 
@@ -88,11 +68,4 @@ fn cleanup(output_path: PathBuf) {
     if let Err(err) = std::fs::remove_file(output_path) {
         eprintln!("Failed to remove the temporary file: {}", err);
     }
-}
-
-fn count_lines<P: AsRef<Path>>(file_path: P) -> io::Result<usize> {
-    let file = File::open(file_path)?;
-    let reader = io::BufReader::new(file);
-
-    Ok(reader.lines().count())
 }
