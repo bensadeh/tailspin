@@ -36,7 +36,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "none"  # No artifacts
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
           tag: ${{ github.ref }}
           name: Release ${{ github.ref }}
           body: "Release for ${{ github.ref }}"
