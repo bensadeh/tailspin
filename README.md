@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-# 
+#       
 
 <p align="center">
 A log file highlighter
@@ -23,36 +23,41 @@ navigating log files easier.
 
 ```console
 # Install
-brew install bensadeh/tailspin/tailspin
+cargo install --path . 
 
 # View log file
 spin [file]
 
 # Tail log file
-spin -f [file]
+spin [file] -f
 ```
+
 ## Highlight Groups
 
 ### Overview
-`tailspin` uses a TOML file to define highlight groups. It will look for a config file at `~/.config/tailspin/config.toml`.
-If no config file is present, the default config will be used.
 
-All groups are optional. If a group is not defined, it will be disabled.
+`tailspin` uses a TOML file to configure highlight groups.
 
+It will look for a config file at `~/.config/tailspin/config.toml`. You can specify a custom location with
+the `--config` flag. If no config file is present, the default config will be used.
+
+To disable a highlight group, either comment it out or delete it from the TOML file.
 
 ### Dates
+
 ```toml
 [groups.date]
 style = { fg = "magenta" }
 ```
 
 Matches any date in the following formats:
+
 - `YYYY-MM-DD`
 - `YYYY-MM-DD HH:MM:SS`
 - `YYYY-MM-DD HH:MM:SS,SSS`
 
-
 ### Keywords
+
 ```toml
 [[groups.keywords]]
 words = ['DEBUG']
@@ -62,18 +67,19 @@ style = { fg = "green" }
 words = ['null', 'true', 'false']
 style = { fg = "red", italic = true }
 ```
-The `keywords` group is used to highlight strings. Keywords are highlighted if they are within a `\b` regexp word 
-boundary. For example: 
 
-- It would match `cat` in the sentence "The **cat** is cute." because there are word boundaries 
-(spaces in this case) around `cat`.
+The `keywords` group is used to highlight strings. Keywords are highlighted if they are within a `\b` regexp word
+boundary. For example:
+
+- It would match `cat` in the sentence "The **cat** is cute." because there are word boundaries
+  (spaces in this case) around `cat`.
 - It would match `cat` in the sentence "Is that a **cat**?" because there are word boundaries
-(space and question mark) around `cat`.
-- It wouldn't match "cat" in the word "concatenate" because `cat` is bounded by other word 
-characters (letters in this case) and not by word boundaries.
-
+  (space and question mark) around `cat`.
+- It wouldn't match "cat" in the word "concatenate" because `cat` is bounded by other word
+  characters (letters in this case) and not by word boundaries.
 
 ### URLs
+
 ```toml
 [groups.url]
 http = { faint = true }
@@ -87,26 +93,30 @@ symbols = { fg = "red" }
 
 Highlights the different segments of a URL.
 
-
 ### Numbers
+
 ```toml
 [groups.number]
 style = { fg = "cyan" }
 ```
+
 Highlights any number (integer or float).
 
 ### IP
+
 ```toml
 [groups.ip]
 segment = { fg = "blue", italic = true }
 separator = { fg = "red" }
 ```
+
 Highlights IPv4 addresses in the following format:
+
 - `10.0.0.1`
 - `192.168.0.1`
 
-
 ### Quotes
+
 ```toml
 [groups.quotes]
 style = { fg = "yellow" }
@@ -115,8 +125,8 @@ token = '"'
 
 Highlights any string that is wrapped in quotes.
 
-
 ### Unix file paths
+
 ```toml
 [groups.path]
 segment = { fg = "green", italic = true }
@@ -124,27 +134,20 @@ separator = { fg = "yellow" }
 ```
 
 Highlights Unix file paths in the following format:
+
 - `/etc/var/`
 - `/path/to/file.txt`
 
 ### UUIDs
+
 ```toml
 [groups.uuid]
 segment = { fg = "blue", italic = true }
 separator = { fg = "red" }
 ```
+
 Highlights UUIDs in the following format:
+
 - `123e4567-e89b-12d3-a456-426614174000`
 
-## See also
 
-* [lnav](https://github.com/tstack/lnav)
-* [grc](https://github.com/garabik/grc)
-
-## Under the hood
-
-`tailspin` uses:
-
-* [`less`](http://greenwoodsoftware.com/less/)
-* [Bubble Tea](https://github.com/charmbracelet/bubbletea) for handling control over to `less`
-* [cobra](https://github.com/spf13/cobra) for the CLI
