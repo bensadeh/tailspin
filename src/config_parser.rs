@@ -1,9 +1,9 @@
 use crate::color::{Bg, Fg};
 
 use serde::Deserialize;
-use std::fs;
-use std::path::Path;
+use std::path::PathBuf;
 use std::process::exit;
+use std::{env, fs};
 
 const DEFAULT_CONFIG: &str = include_str!("../data/config.toml");
 
@@ -97,9 +97,31 @@ pub struct Config {
 }
 
 pub fn load_config(path: Option<String>) -> Config {
+    // Obtain the home directory
+    let home_dir = env::var("HOME").expect("HOME directory not set");
+    let home_path = PathBuf::from(home_dir);
+
+    // Construct the path to the default configuration file
+    let default_config_path = home_path.join(".config/tailspin/config.toml");
+
+    let path = path.or_else(|| {
+        // If no path is provided, and if a config exists at the default path, use it
+        if default_config_path.exists() {
+            Some(
+                default_config_path
+                    .to_str()
+                    .expect("Invalid path")
+                    .to_owned(),
+            )
+        } else {
+            // If no path is provided and no config exists at the default path, use default
+            None
+        }
+    });
+
     match path {
         Some(path) => {
-            let p = &Path::new(&path);
+            let p = &PathBuf::from(path);
             let contents = fs::read_to_string(p).expect("Could not read file");
 
             match toml::from_str::<Config>(&contents) {
@@ -110,6 +132,7 @@ pub fn load_config(path: Option<String>) -> Config {
                 }
             }
         }
+        // If no file was found, use the default configuration
         None => match toml::from_str(DEFAULT_CONFIG) {
             Ok(config) => config,
             Err(err) => {

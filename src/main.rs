@@ -23,13 +23,18 @@ struct Args {
     /// Follow (tail) the contents of the file
     #[clap(short = 'f', long = "follow")]
     follow: bool,
+
+    /// Path to configuration file
+    #[clap(long = "config")]
+    config_path: Option<String>,
 }
 
 #[tokio::main]
 async fn main() {
     let args: Args = Args::parse();
     let file_path = args.file_path.clone();
-    let config = config_parser::load_config(None);
+    let config_path = args.config_path.clone();
+    let config = config_parser::load_config(config_path);
 
     let highlighter = highlighters::Highlighters::new(config);
     let highlight_processor = highlight_processor::HighlightProcessor::new(highlighter);
