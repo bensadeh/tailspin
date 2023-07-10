@@ -18,7 +18,7 @@ use tokio::sync::oneshot;
 #[derive(Parser)]
 struct Args {
     #[clap(name = "FILE")]
-    input: String,
+    file_path: String,
 
     /// Follow (tail) the contents of the file
     #[clap(short = 'f', long = "follow")]
@@ -28,7 +28,7 @@ struct Args {
 #[tokio::main]
 async fn main() {
     let args: Args = Args::parse();
-    let input = args.input.clone();
+    let file_path = args.file_path.clone();
     let config = config_parser::load_config(None);
 
     let highlighter = highlighters::Highlighters::new(config);
@@ -39,7 +39,7 @@ async fn main() {
 
     tokio::spawn(async move {
         tail::tail_file(
-            &input,
+            &file_path,
             args.follow,
             output_writer,
             highlight_processor,

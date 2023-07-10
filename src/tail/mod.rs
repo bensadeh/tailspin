@@ -8,7 +8,7 @@ use crate::highlight_processor;
 use tokio::sync::oneshot;
 
 pub(crate) async fn tail_file<R>(
-    path: &str,
+    file_path: &str,
     follow: bool,
     mut output_writer: BufWriter<R>,
     highlighter: highlight_processor::HighlightProcessor,
@@ -17,14 +17,14 @@ pub(crate) async fn tail_file<R>(
 where
     R: Write + Send + 'static,
 {
-    let input_path = Path::new(&path);
+    let input_path = Path::new(&file_path);
     check_file_exists(input_path);
 
     let line_count = count_lines(input_path, follow);
 
     let mut lines = MuxedLines::new()?;
     let mut current_line = 1;
-    lines.add_file_from_start(path).await?;
+    lines.add_file_from_start(file_path).await?;
 
     while let Ok(Some(line)) = lines.next_line().await {
         if current_line == line_count {
