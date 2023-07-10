@@ -18,13 +18,7 @@ where
     R: Write + Send + 'static,
 {
     let input_path = Path::new(&path);
-    if !input_path.exists() {
-        eprintln!(
-            "Error: File '{}' does not exist",
-            input_path.to_str().unwrap()
-        );
-        process::exit(1);
-    }
+    check_file_exists(input_path);
 
     let line_count = count_lines(input_path, follow);
 
@@ -49,6 +43,24 @@ where
     }
 
     Ok(())
+}
+
+fn check_file_exists(path: &Path) {
+    match path.try_exists() {
+        Ok(true) => (),
+        Ok(false) => {
+            eprintln!("Error: File '{}' does not exist", path.to_str().unwrap());
+            process::exit(1);
+        }
+        Err(err) => {
+            eprintln!(
+                "Error: Could not check if file '{}' exists: {}",
+                path.to_str().unwrap(),
+                err
+            );
+            process::exit(1);
+        }
+    }
 }
 
 fn count_lines<P: AsRef<Path>>(file_path: P, follow: bool) -> usize {
