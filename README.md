@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                 
+#                                            
 
 <p align="center">
 A log file highlighter
@@ -34,20 +34,6 @@ spin [file] -f
 
 ## Highlight Groups
 
-### Overview
-
-`tailspin` uses a single `config.toml` file to configure all highlight groups. When customizing highlights it is advised
-to start with the `tailspin generate-config` command to place a `config.toml` with default options
-in `~/.config/tailspin`.
-
-To disable a highlight group, either comment it out or delete it.
-
-Highlights have the following shape:
-
-```toml
-style = { fg = "color", bg = "color", italic = false, bold = false, underline = false }
-```
-
 ### Dates
 
 <p align="center">
@@ -72,7 +58,6 @@ style = { fg = "color", bg = "color", italic = false, bold = false, underline = 
   <img src="assets/examples/numbers.png" width="600"/>
 </p>
 
-
 ### IP
 
 <p align="center">
@@ -96,6 +81,36 @@ style = { fg = "color", bg = "color", italic = false, bold = false, underline = 
 <p align="center">
   <img src="assets/examples/uuids.png" width="600"/>
 </p>
+
+## Customizing highlight groups
+
+### Overview
+
+`tailspin` uses a single `config.toml` file to configure all highlight groups. When customizing highlights it is advised
+to start with the `tailspin generate-config` command to place a `config.toml` with default options
+in `~/.config/tailspin`.
+
+To disable a highlight group, either comment it out or delete it.
+
+Highlights have the following shape:
+
+```toml
+style = { fg = "color", bg = "color", italic = false, bold = false, underline = false }
+```
+
+### Adding keywords
+
+To add custom keywords, either include them in the list of keywords or add new entries:
+
+```toml
+[[groups.keywords]]
+words = ['MyCustomKeyword']
+style = { fg = "green" }
+
+[[groups.keywords]]
+words = ['null', 'true', 'false']
+style = { fg = "red", italic = true }
+```
 
 ## Settings
 
