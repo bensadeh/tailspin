@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                            
+#                                                
 
 <p align="center">
 A log file highlighter
@@ -16,6 +16,8 @@ A log file highlighter
 
 `tailspin` is a command line tool for viewing (and `tail`-ing) log files. It highlights important keywords to make
 navigating log files easier.
+
+`tailspin` is fast and easy to customize. It uses `less` under the hood to provide scrollback, search and filtering.
 
 ## Installing
 
