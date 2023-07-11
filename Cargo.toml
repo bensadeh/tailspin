@@ -13,7 +13,7 @@ path = "src/main.rs"
 name = "spin"
 
 [dependencies]
-clap = { version = "4.3.10", features = ["derive"] }
+clap = { version = "4.3.11", features = ["derive"] }
 ctrlc = "3.4.0"
 lazy_static = "1.4.0"
 linemux = "0.3"
