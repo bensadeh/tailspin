@@ -18,6 +18,7 @@ use tokio::sync::oneshot;
 
 #[derive(Parser)]
 struct Args {
+    /// Filepath
     #[clap(name = "FILE")]
     file_path: Option<String>,
 
