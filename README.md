@@ -50,133 +50,52 @@ style = { fg = "color", bg = "color", italic = false, bold = false, underline = 
 
 ### Dates
 
-```toml
-[groups.date]
-style = { fg = "magenta" }
-```
-
 <p align="center">
   <img src="assets/examples/dates.png" width="600"/>
 </p>
 
-Matches any date in the following formats:
-
-- `YYYY-MM-DD`
-- `YYYY-MM-DD HH:MM:SS`
-- `YYYY-MM-DD HH:MM:SS,SSS`
-
 ### Keywords
-
-```toml
-[[groups.keywords]]
-words = ['DEBUG']
-style = { fg = "green" }
-
-[[groups.keywords]]
-words = ['null', 'true', 'false']
-style = { fg = "red", italic = true }
-```
 
 <p align="center">
   <img src="assets/examples/keywords.png" width="600"/>
 </p>
 
-The `keywords` group is used to highlight strings. Keywords are highlighted if they are within a `\b` regexp word
-boundary. For example:
-
-- It would match `cat` in the sentence "The **cat** is cute." because there are word boundaries
-  (spaces in this case) around `cat`.
-- It would match `cat` in the sentence "Is that a **cat**?" because there are word boundaries
-  (space and question mark) around `cat`.
-- It wouldn't match "cat" in the word "concatenate" because `cat` is bounded by other word
-  characters (letters in this case) and not by word boundaries.
-
 ### URLs
-
-```toml
-[groups.url]
-http = { faint = true }
-https = { bold = true }
-host = { fg = "blue", faint = true }
-path = { fg = "blue" }
-query_params_key = { fg = "cyan" }
-query_params_value = { fg = "magenta" }
-symbols = { fg = "red" }
-```
 
 <p align="center">
   <img src="assets/examples/urls.png" width="600"/>
 </p>
 
-Highlights the different segments of a URL.
-
 ### Numbers
-
-```toml
-[groups.number]
-style = { fg = "cyan" }
-```
 
 <p align="center">
   <img src="assets/examples/numbers.png" width="600"/>
 </p>
 
-Highlights any number (integer or float).
 
 ### IP
-
-```toml
-[groups.ip]
-segment = { fg = "blue", italic = true }
-separator = { fg = "red" }
-```
 
 <p align="center">
   <img src="assets/examples/ip.png" width="600"/>
 </p>
 
-Highlights IPv4 addresses in the following format:
-
-- `10.0.0.1`
-- `192.168.0.1`
-
 ### Quotes
-
-```toml
-[groups.quotes]
-style = { fg = "yellow" }
-token = '"'
-```
 
 <p align="center">
   <img src="assets/examples/quotes.png" width="600"/>
 </p>
-Highlights any string that is wrapped in quotes.
 
 ### Unix file paths
 
-```toml
-[groups.path]
-segment = { fg = "green", italic = true }
-separator = { fg = "yellow" }
-```
-
-Highlights Unix file paths in the following format:
-
-- `/etc/var/`
-- `/path/to/file.txt`
+<p align="center">
+  <img src="assets/examples/paths.png" width="600"/>
+</p>
 
 ### UUIDs
 
-```toml
-[groups.uuid]
-segment = { fg = "blue", italic = true }
-separator = { fg = "red" }
-```
-
-Highlights UUIDs in the following format:
-
-- `123e4567-e89b-12d3-a456-426614174000`
+<p align="center">
+  <img src="assets/examples/uuids.png" width="600"/>
+</p>
 
 ## Settings
 
