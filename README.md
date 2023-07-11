@@ -21,11 +21,9 @@ navigating log files easier.
 
 ## Installing
 
-### Homebrew
-
 ```console
 # Install
-cargo install --path . 
+cargo install tailspin
 
 # View log file
 spin [file]
@@ -33,6 +31,9 @@ spin [file]
 # Tail log file
 spin [file] -f
 ```
+
+> **Note** 
+> When installing via cargo, make sure that `$HOME/.cargo/bin` is in your `PATH` environment variable
 
 ## Highlight Groups
 
