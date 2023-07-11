@@ -13,12 +13,13 @@ use rand::random;
 use std::fs::File;
 use std::io::BufWriter;
 use std::path::PathBuf;
+use std::process::exit;
 use tokio::sync::oneshot;
 
 #[derive(Parser)]
 struct Args {
     #[clap(name = "FILE")]
-    file_path: String,
+    file_path: Option<String>,
 
     /// Follow (tail) the contents of the file
     #[clap(short = 'f', long = "follow")]
@@ -27,12 +28,42 @@ struct Args {
     /// Provide a custom path configuration file
     #[clap(long = "config")]
     config_path: Option<String>,
+
+    /// Subcommand
+    #[clap(subcommand)]
+    command: Option<SubCommand>,
+}
+
+#[derive(Parser)]
+enum SubCommand {
+    /// Generate a new configuration file
+    GenerateConfig,
 }
 
 #[tokio::main]
 async fn main() {
     let args: Args = Args::parse();
-    let file_path = args.file_path.clone();
+
+    // if a subcommand is specified, run it
+    if let Some(command) = args.command {
+        match command {
+            SubCommand::GenerateConfig => {
+                config_parser::generate_default_config();
+
+                exit(0);
+            }
+        }
+    }
+
+    let file_path = match args.file_path {
+        Some(path) => path,
+        None => {
+            println!("Missing filename (`spin --help` for help) ");
+
+            exit(0);
+        }
+    };
+
     let config_path = args.config_path.clone();
     let config = config_parser::load_config(config_path);
 

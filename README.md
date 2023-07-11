@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                     
+#                         
 
 <p align="center">
 A log file highlighter
@@ -37,7 +37,7 @@ spin [file] -f
 ### Overview
 
 `tailspin` uses a single `config.toml` file to configure all highlight groups. When customizing highlights it is advised
-to start with the tailspin generate_config command to place a `config.toml` with default options
+to start with the `tailspin generate-config` command to place a `config.toml` with default options
 in `~/.config/tailspin`.
 
 To disable a highlight group, either comment it out or delete it.
@@ -158,6 +158,10 @@ Highlights UUIDs in the following format:
 ## Settings
 
 ```console
+# Commands
+generate-config    Create a custom config file at ~/.config/tailspin
+
+# Options
 -f, --follow       Follow (tail) the contents of the file
     --config       Provide a custom path configuration file
 ```

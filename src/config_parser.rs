@@ -1,7 +1,9 @@
 use crate::color::{Bg, Fg};
 
 use serde::Deserialize;
-use std::path::PathBuf;
+use std::fs::File;
+use std::io::Write;
+use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::{env, fs};
 
@@ -140,5 +142,57 @@ pub fn load_config(path: Option<String>) -> Config {
                 exit(1);
             }
         },
+    }
+}
+
+pub fn generate_default_config() {
+    const TARGET_CONFIG_PATH: &str = "~/.config/tailspin/config.toml";
+
+    let home_dir = env::var("HOME").expect("Failed to get HOME environment variable");
+    let expanded_path = shellexpand::tilde(TARGET_CONFIG_PATH).into_owned();
+    let tilde_path = expanded_path.replace(&home_dir, "~");
+    let path = Path::new(&expanded_path);
+
+    match path.try_exists() {
+        Ok(true) => {
+            eprintln!("Config file already exists at {}", tilde_path);
+            exit(1);
+        }
+        Err(err) => {
+            eprintln!("Failed to check if file {} exists: {}", tilde_path, err);
+            exit(1);
+        }
+        _ => {}
+    }
+
+    if let Some(parent_path) = path.parent() {
+        match fs::create_dir_all(parent_path) {
+            Ok(_) => {}
+            Err(err) => {
+                eprintln!("Failed to create the directory for {}: {}", tilde_path, err);
+                exit(1);
+            }
+        }
+    }
+
+    match File::create(path) {
+        Ok(mut file) => {
+            if let Err(err) = file.write_all(DEFAULT_CONFIG.as_bytes()) {
+                eprintln!(
+                    "Failed to write to the config file at {}: {}",
+                    tilde_path, err
+                );
+                exit(1);
+            }
+
+            println!("Config file generated successfully at {}", tilde_path);
+        }
+        Err(err) => {
+            eprintln!(
+                "Failed to create the config file at {}: {}",
+                tilde_path, err
+            );
+            exit(1);
+        }
     }
 }
