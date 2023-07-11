@@ -7,49 +7,59 @@ Sun Aug 14 10:51:19.272 INFO  _handleLinkEvent: WiFi is not powered. Resetting s
 Sun Aug 14 10:51:19.316 DEBUG Usb Host Notification Error Apple80211Set: Device power is off seqNum 17 Total 4 chg 1 en0
 Sun Aug 14 10:51:22.602 DEBUG sharingd (542) is not entitled for com.apple.wifi.join_history, will not allow request
 
-# Java Exceptions
-java.lang.NullPointerException: Sample Java Logback Exception
-   at Sample.errorLevel3(Sample.java:35)
-   at Sample.errorLevel2(Sample.java:31)
-   at Sample.errorLevel2(Native Method)
-   at Sample.errorLevel1(Sample.java:27)
-   at Sample.errorLevel1(Unknown Source)
-   at Sample.main(Sample.java:15)
-
 # Date and Time
-Aug 14 00:30:00
-Sun Aug 14 08:23:55.927
-2022-08-29 08:11:36
-2022-09-09 11:48:34,534
-2022-09-22T07:46:34.171800155Z
-2022-09-22T07:46:34.172389889Z
-date "date 09:50:18.749 date" 09:50:18.749
+2022-08-29 08:11:36            Task completed.
+2022-09-09 11:48:34,534        Last login attempt failed
+2022-09-22T07:46:34.171800155Z Server encountered an error
+2022-09-22T07:46:34.172389889Z Data backup created
+2022-09-22T07:46:34.171800155Z Event logged for debugging purposes
 
 # Numbers
-'42' 42 [42] "42" " 42 " (42) 42.42 test:42 42
- :42/ // Do not highlight because this can appear inside a URL
-
-# Keywords
-wordnullword [null] =null  null,  null. (null)
-" null " "null" "null " " null"
+Duration: 42 seconds
+High CPU usage detected: 95%
+Value must be between 1 and 10, received: 15
+Records created: 1000
+Calculation result: 3.14159
 
 # URL
-http://www.xyz.com/search
-[http://www.xyz.com/search]
-(http://www.xyz.com/search)
-{http://www.xyz.com/search}
-http://www.facebook.com/groupcall/ROOM:329684500843/?call_id=8701892&users_to_ring[0]=27702&users_to_ring[1]=17313
-http://www.abc.com/search?q=cannot+find+package asdf asdf asdasdf  asdf asdf
-https://www.null.com/null?null=null+find+package    // Do not highlight keywords in urls
-https://developer.ibm.com/42882f64-e51f-4b5f-8f3e-2d10d0e0ad87/path //Do not highlight UUIDs in Urls
-https://www.google.com/search?q=cannot+find+package+%22context%22&oq=cannot+find+package+
-https://myaccount.google.com/name?utm_source=google-account&utm_medium=web&pli=1&rapt=AEjHL4PXc8zLqgF
+http://example.com/path/to/resource?param1=value1&param2=value2
+http://api.example.com/v2/resources?search=keyword&page=1
+https://api.example.org/api/v1/users?name=JohnDoe
+https://www.openai.com/docs/api?apikey=abc123
+https://api.example.org/v1/users/123/edit?param=true&flag=false
 
 # UUID
-fcfff715-82cc-400d-88b4-56f25b5a5239
-:376641ff-b918-453b-888e-787572b25757:
-[376641ff-b918-453b-888e-787572b25757]
-(4a7e6867-77fc-4fc9-805e-5cb601c592bb)
-{d57d68c7-f8f9-4c2e-be7c-8a0087f02f17}
-/2e93409e-f202-4350-b695-bed376304d18/ // Do not highlight because this can appear inside a URL
-:2e93409e-f202-4350-b695-bed376304d18/ // Do not highlight because this can appear inside a URL
+User logged in, user ID:     5f7d1bce-81ab-4a87-af78-9a37f26c58b1
+Invalid request:             9f5f25be-6b08-4aeb-a10a-023b86581b1f
+Database connection failed:  3e169d8f-c971-4e6b-8ff3-90ac2c912e6c
+Task completed successfully: d8f40210-7ef4-4d2a-b482-25e8b3a9eae8
+Processing request:          2a54e369-12f7-4ec2-9dc1-685e05b9017a
+
+# Unix file paths
+Failed to open directory:   /usr/local/bin/
+File successfully created:  /var/log/application.log
+Reading configuration file: /etc/nginx/nginx.conf
+File not found:             ~/project/user/documents/report.pdf
+Processing file:            ~/discovery/alfa/project/src/main.js
+
+# IP
+[INFO]  Connected to server at IP address:    192.168.0.1
+[WARN]  Suspicious activity detected from IP: 10.0.0.123
+[ERROR] No connection with remote host:       172.16.0.254
+[INFO]  Request received from client IP:      192.168.1.100
+[DEBUG] Multiple failed login attempts:       192.168.0.55
+
+# Keywords
+Task completed successfully. Status: true (result: null)
+Invalid input received. Field name: username (isValid: false)
+Connection failed. Error message: null (isConnected: false)
+Configuration loaded. Debug mode: true (version: N/A, env: null)
+Request received. Data: {name: John Doe, active: true, age: null}
+
+# Quotes
+Config loaded: "production (version: 1.2.3, debugMode: false)"
+Received: {"data": "Sample data", "success": true, "count": 42}
+DB error: "errorCode: null, timestamp: 2022-09-01 08:15:27"
+Invalid input: "username (isRegistered: false, attempts: 3)"
+Task completed: "Completed (status: true, duration: 42 seconds)"
+

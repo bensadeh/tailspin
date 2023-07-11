@@ -2,14 +2,14 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                         
+#                                 
 
 <p align="center">
 A log file highlighter
 </p>
 
 <p align="center">
-  <img src="assets/example.png" width="700"/>
+  <img src="assets/main.png" width="700"/>
 </p>
 
 ## Overview
@@ -55,6 +55,10 @@ style = { fg = "color", bg = "color", italic = false, bold = false, underline = 
 style = { fg = "magenta" }
 ```
 
+<p align="center">
+  <img src="assets/examples/dates.png" width="600"/>
+</p>
+
 Matches any date in the following formats:
 
 - `YYYY-MM-DD`
@@ -72,6 +76,10 @@ style = { fg = "green" }
 words = ['null', 'true', 'false']
 style = { fg = "red", italic = true }
 ```
+
+<p align="center">
+  <img src="assets/examples/keywords.png" width="600"/>
+</p>
 
 The `keywords` group is used to highlight strings. Keywords are highlighted if they are within a `\b` regexp word
 boundary. For example:
@@ -96,6 +104,10 @@ query_params_value = { fg = "magenta" }
 symbols = { fg = "red" }
 ```
 
+<p align="center">
+  <img src="assets/examples/urls.png" width="600"/>
+</p>
+
 Highlights the different segments of a URL.
 
 ### Numbers
@@ -104,6 +116,10 @@ Highlights the different segments of a URL.
 [groups.number]
 style = { fg = "cyan" }
 ```
+
+<p align="center">
+  <img src="assets/examples/numbers.png" width="600"/>
+</p>
 
 Highlights any number (integer or float).
 
@@ -114,6 +130,10 @@ Highlights any number (integer or float).
 segment = { fg = "blue", italic = true }
 separator = { fg = "red" }
 ```
+
+<p align="center">
+  <img src="assets/examples/ip.png" width="600"/>
+</p>
 
 Highlights IPv4 addresses in the following format:
 
@@ -128,6 +148,9 @@ style = { fg = "yellow" }
 token = '"'
 ```
 
+<p align="center">
+  <img src="assets/examples/quotes.png" width="600"/>
+</p>
 Highlights any string that is wrapped in quotes.
 
 ### Unix file paths
