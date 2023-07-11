@@ -1,0 +1,56 @@
+# format options: { fg = "", bg = "", bold = false, faint = false, italic = false, underline = false }
+
+[groups.date]
+style = { fg = "magenta" }
+
+[groups.number]
+style = { fg = "cyan" }
+
+[groups.quotes]
+style = { fg = "yellow" }
+token = '"'
+
+[groups.uuid]
+segment = { fg = "blue", italic = true }
+separator = { fg = "red" }
+
+[groups.ip]
+segment = { fg = "blue", italic = true }
+separator = { fg = "red" }
+
+[groups.path]
+segment = { fg = "green", italic = true }
+separator = { fg = "yellow" }
+
+[groups.url]
+http = { faint = true }
+https = { bold = true }
+host = { fg = "blue", faint = true }
+path = { fg = "blue" }
+query_params_key = { fg = "magenta" }
+query_params_value = { fg = "cyan" }
+symbols = { fg = "red" }
+
+[[groups.keywords]]
+words = ['ERROR']
+style = { fg = "red" }
+
+[[groups.keywords]]
+words = ['WARN']
+style = { fg = "yellow" }
+
+[[groups.keywords]]
+words = ['INFO']
+style = { fg = "white" }
+
+[[groups.keywords]]
+words = ['DEBUG']
+style = { fg = "green" }
+
+[[groups.keywords]]
+words = ['TRACE']
+style = { faint = true }
+
+[[groups.keywords]]
+words = ['null', 'true', 'false']
+style = { fg = "red", italic = true }

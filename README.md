@@ -2,14 +2,14 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-# 
+#                                                 
 
 <p align="center">
 A log file highlighter
 </p>
 
 <p align="center">
-  <img src="assets/example.png" width="700"/>
+  <img src="assets/main.png" width="700"/>
 </p>
 
 ## Overview
@@ -17,65 +17,113 @@ A log file highlighter
 `tailspin` is a command line tool for viewing (and `tail`-ing) log files. It highlights important keywords to make
 navigating log files easier.
 
+`tailspin` is fast and easy to customize. It uses `less` under the hood to provide scrollback, search and filtering.
+
 ## Installing
 
 ### Homebrew
 
 ```console
 # Install
-brew install bensadeh/tailspin/tailspin
+cargo install --path . 
 
 # View log file
 spin [file]
 
 # Tail log file
-spin -f [file]
+spin [file] -f
 ```
+
 ## Highlight Groups
 
 ### Dates
-- `2022-08-29 08:11:36`
-- `2022-09-09 11:48:34,534`
 
-### Special Keywords
-- `true`
-- `false`
-- `null`
+<p align="center">
+  <img src="assets/examples/dates.png" width="600"/>
+</p>
+
+### Keywords
+
+<p align="center">
+  <img src="assets/examples/keywords.png" width="600"/>
+</p>
 
 ### URLs
 
-Individual highlighting for each part of a URL
-
-| Component         | Example        |
-|-------------------|----------------|
-| scheme            | `http`/`https` |
-| domain            | `google.com`   |
-| subdomain         | `/search`      |
-| search parameters | `/?key=value`  |
-
-
-### Severity and Log levels
-- `TRACE`
-- `INFO`
-- `WARN`
-- `ERROR`
+<p align="center">
+  <img src="assets/examples/urls.png" width="600"/>
+</p>
 
 ### Numbers
-- `100`
-- `200`
 
-### UUIDs and GUIDs
-- `123e4567-e89b-12d3-a456-426614174000`
+<p align="center">
+  <img src="assets/examples/numbers.png" width="600"/>
+</p>
 
-## See also
+### IP Addresses
 
-* [lnav](https://github.com/tstack/lnav)
-* [grc](https://github.com/garabik/grc)
+<p align="center">
+  <img src="assets/examples/ip.png" width="600"/>
+</p>
 
-## Under the hood
+### Quotes
 
-`tailspin` uses:
+<p align="center">
+  <img src="assets/examples/quotes.png" width="600"/>
+</p>
 
-* [`less`](http://greenwoodsoftware.com/less/)
-* [Bubble Tea](https://github.com/charmbracelet/bubbletea) for handling control over to `less`
-* [cobra](https://github.com/spf13/cobra) for the CLI
+### Unix file paths
+
+<p align="center">
+  <img src="assets/examples/paths.png" width="600"/>
+</p>
+
+### UUIDs
+
+<p align="center">
+  <img src="assets/examples/uuids.png" width="600"/>
+</p>
+
+## Customizing highlight groups
+
+### Overview
+
+`tailspin` uses a single `config.toml` file to configure all highlight groups. When customizing highlights it is advised
+to start with the `tailspin generate-config` command to place a `config.toml` with default options
+in `~/.config/tailspin`.
+
+To disable a highlight group, either comment it out or delete it.
+
+Highlights have the following shape:
+
+```toml
+style = { fg = "color", bg = "color", italic = false, bold = false, underline = false }
+```
+
+### Adding keywords
+
+To add custom keywords, either include them in the list of keywords or add new entries:
+
+```toml
+[[groups.keywords]]
+words = ['MyCustomKeyword']
+style = { fg = "green" }
+
+[[groups.keywords]]
+words = ['null', 'true', 'false']
+style = { fg = "red", italic = true }
+```
+
+## Settings
+
+```console
+# Commands
+generate-config    Create a custom config file at ~/.config/tailspin
+
+# Options
+-f, --follow       Follow (tail) the contents of the file
+    --config       Provide a custom path configuration file
+```
+
+
+
