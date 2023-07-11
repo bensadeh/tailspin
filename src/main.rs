@@ -24,7 +24,7 @@ struct Args {
     #[clap(short = 'f', long = "follow")]
     follow: bool,
 
-    /// Path to configuration file
+    /// Provide a custom path configuration file
     #[clap(long = "config")]
     config_path: Option<String>,
 }
