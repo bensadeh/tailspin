@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                
+#                                                 
 
 <p align="center">
 A log file highlighter
@@ -60,7 +60,7 @@ spin [file] -f
   <img src="assets/examples/numbers.png" width="600"/>
 </p>
 
-### IP
+### IP Addresses
 
 <p align="center">
   <img src="assets/examples/ip.png" width="600"/>

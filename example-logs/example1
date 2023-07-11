@@ -43,18 +43,18 @@ File not found:             ~/project/user/documents/report.pdf
 Processing file:            ~/discovery/alfa/project/src/main.js
 
 # IP
-[INFO]  Connected to server at IP address:    192.168.0.1
-[WARN]  Suspicious activity detected from IP: 10.0.0.123
-[ERROR] No connection with remote host:       172.16.0.254
-[INFO]  Request received from client IP:      192.168.1.100
-[DEBUG] Multiple failed login attempts:       192.168.0.55
+Connected to server at IP address:               192.168.0.1
+Suspicious activity detected from IP:            10.0.0.123
+No connection with remote host:                  172.16.0.254
+Request received from client IP:                 192.168.1.100
+Multiple failed login attempts:                  192.168.0.55
 
 # Keywords
-Task completed successfully. Status: true (result: null)
-Invalid input received. Field name: username (isValid: false)
-Connection failed. Error message: null (isConnected: false)
-Configuration loaded. Debug mode: true (version: N/A, env: null)
-Request received. Data: {name: John Doe, active: true, age: null}
+[INFO]  Task completed. Status: true (result: null)
+[WARN]  Invalid input received (isValid: false)
+[ERROR] Connection failed: null (isConnected: false)
+[TRACE] Configuration loaded: true (version: N/A, env: null)
+[DEBUG] Invalid request: {active: true, age: null}
 
 # Quotes
 Config loaded: "production (version: 1.2.3, debugMode: false)"
