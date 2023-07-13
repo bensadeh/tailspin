@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                 
+#                                                                      
 
 <p align="center">
 A log file highlighter
@@ -114,6 +114,20 @@ style = { fg = "green" }
 words = ['null', 'true', 'false']
 style = { fg = "red", italic = true }
 ```
+
+## Search and Filtering
+
+`tailspin` uses `less` as its pager to view the highlighted log files.
+
+In `less`, use <kbd>/</kbd> followed by your search query. For example, `/ERROR` finds the first occurrence of
+**ERROR**. After the search, <kbd>n</kbd> finds the next instance, and <kbd>N</kbd> finds the previous instance.
+
+`less` allows filtering lines by a keyword, using <kbd>&</kbd> followed by the pattern. For instance, `&ERROR` shows
+only lines with **ERROR**.
+
+To only show lines containing either `ERROR` or `WARN`, use a regular expression: `&\(ERROR\|WARN\)`.
+
+To clear the filter, use <kbd>&</kbd> with no pattern.
 
 ## Settings
 
