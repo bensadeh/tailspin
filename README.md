@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                      
+#                                                                                       
 
 <p align="center">
 A log file highlighter
@@ -19,6 +19,16 @@ navigating log files easier.
 
 `tailspin` is fast and easy to customize. It uses `less` under the hood to provide scrollback, search and filtering.
 
+### Table of Contents
+
+* [Installing](#installing)
+* [Highlight Groups](#highlight-groups)
+* [Customizing Highlight Groups](#customizing-highlight-groups)
+* [Search and Filtering](#search-and-filtering)
+* [Settings](#settings)
+
+***
+
 ## Installing
 
 ```console
@@ -32,7 +42,7 @@ spin [file]
 spin [file] -f
 ```
 
-> **Note** 
+> **Note**
 > When installing via cargo, make sure that `$HOME/.cargo/bin` is in your `PATH` environment variable
 
 ## Highlight Groups
@@ -85,7 +95,7 @@ spin [file] -f
   <img src="assets/examples/uuids.png" width="600"/>
 </p>
 
-## Customizing highlight groups
+## Customizing Highlight Groups
 
 ### Overview
 
@@ -101,7 +111,7 @@ Highlights have the following shape:
 style = { fg = "color", bg = "color", italic = false, bold = false, underline = false }
 ```
 
-### Adding keywords
+### Adding Keywords
 
 To add custom keywords, either include them in the list of keywords or add new entries:
 
