@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                           
+#                                                                                                            
 
 <p align="center">
 A log file highlighter
@@ -14,10 +14,10 @@ A log file highlighter
 
 ## Features
 
-- 🪵View (or `tail`) any log file of any format
-- 🌈Highlight numbers, dates, IP-addresses, UUIDs, URLs and more
-- ⚙️All highlight groups are customizable
-- 🔍Uses `less` under the hood to provide **scrollback**, **search** and **filtering**
+- 🪵 View (or `tail`) any log file of any format
+- 🌈 Highlight numbers, dates, IP-addresses, UUIDs, URLs and more
+- ⚙️ All highlight groups are customizable
+- 🔍 Uses `less` under the hood to provide **scrollback**, **search** and **filtering**
 
 ### Table of Contents
 
