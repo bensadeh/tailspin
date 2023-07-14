@@ -12,7 +12,7 @@ A log file highlighter
   <img src="assets/main.png" width="700"/>
 </p>
 
-## Features
+### Features
 
 - 🪵 View (or `tail`) any log file of any format
 - 🌈 Highlight numbers, dates, IP-addresses, UUIDs, URLs and more
