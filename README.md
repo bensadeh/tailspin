@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                       
+#                                                                                                           
 
 <p align="center">
 A log file highlighter
@@ -12,12 +12,12 @@ A log file highlighter
   <img src="assets/main.png" width="700"/>
 </p>
 
-## Overview
+## Features
 
-`tailspin` is a command line tool for viewing (and `tail`-ing) log files. It highlights important keywords to make
-navigating log files easier.
-
-`tailspin` is fast and easy to customize. It uses `less` under the hood to provide scrollback, search and filtering.
+- 🪵View (or `tail`) any log file of any format
+- 🌈Highlight numbers, dates, IP-addresses, UUIDs, URLs and more
+- ⚙️All highlight groups are customizable
+- 🔍Uses `less` under the hood to provide **scrollback**, **search** and **filtering**
 
 ### Table of Contents
 
@@ -145,7 +145,7 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 # Commands
 generate-config    Create a custom config file at ~/.config/tailspin
 
-# Options
+# Flags
 -f, --follow       Follow (tail) the contents of the file
     --config       Provide a custom path configuration file
 ```
