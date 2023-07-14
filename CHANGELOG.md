@@ -7,6 +7,7 @@ _WIP_
 **Core**
 
 - `less` now starts with the `--ignore-case` flag
+- Added a `--version` flag
 
 ## 1.0
 

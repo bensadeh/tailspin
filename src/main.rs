@@ -17,6 +17,7 @@ use std::process::exit;
 use tokio::sync::oneshot;
 
 #[derive(Parser)]
+#[clap(version = env!("CARGO_PKG_VERSION"))]
 struct Args {
     /// Filepath
     #[clap(name = "FILE")]
