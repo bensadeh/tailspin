@@ -18,8 +18,15 @@ jobs:
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Build
-        run: cargo build --verbose
+      - name: Build and test
+        run: |
+          cargo build --verbose
+          cargo test --verbose
 
-      - name: Run tests
-        run: cargo test --verbose
+      - name: Check Cargo.lock
+        run: |
+          git diff --exit-code -- Cargo.lock
+          if [ $? -ne 0 ]; then
+            echo "Cargo.lock was modified. Please commit the changes."
+            exit 1
+          fi
