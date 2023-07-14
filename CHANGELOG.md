@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1
+
+_WIP_
+
+**Core**
+
+- `less` now starts with the `--ignore-case` flag
+
 ## 1.0
 
 _11.07.23_
