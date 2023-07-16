@@ -1,6 +1,9 @@
-name: Continuous Integration
+name: Run Tests
 
 on: [ push, pull_request ]
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
   build_and_test:
@@ -12,11 +15,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
-
-      - name: Setup Rust
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Build and test
         run: |

@@ -1,0 +1,94 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - '*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{secrets.GH_PAT}}
+          fetch-depth: 0
+
+      - name: Build and Test
+        run: |
+          cargo build --verbose
+          cargo test --verbose
+
+      - name: Check Cargo.lock
+        run: |
+          git diff --exit-code -- Cargo.lock
+          if [ $? -ne 0 ]; then
+            echo "Cargo.lock was modified. Please commit the changes."
+            exit 1
+          fi
+
+      - name: Publish to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+        run: |
+          cargo login $CARGO_REGISTRY_TOKEN
+          cargo publish
+
+      - name: Get release notes
+        id: release_notes
+        run: |
+          TAG_NAME=${{ github.ref_name }}
+          RELEASE_NOTES=$(awk '/'"^## $TAG_NAME"'/{flag=1;next}/##/{flag=0}flag' CHANGELOG.md)
+          RELEASE_NOTES="${RELEASE_NOTES//'%'/'%25'}"
+          RELEASE_NOTES="${RELEASE_NOTES//$'\n'/'%0A'}"
+          RELEASE_NOTES="${RELEASE_NOTES//$'\r'/'%0D'}"
+          echo "::set-output name=notes::$RELEASE_NOTES"
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "none"
+          token: ${{ secrets.GH_PAT }}
+          tag: ${{ github.ref }}
+          name: ${{ github.ref_name }}
+          body: ${{ steps.release_notes.outputs.notes }}
+
+      - name: Bump minor version and update CHANGELOG
+        run: |
+          BRANCH_NAME="main" 
+          
+          # Fetch the branch
+          git fetch origin $BRANCH_NAME
+          
+          # Switch to the branch that triggered the workflow
+          git checkout "$BRANCH_NAME"
+          
+          # Bump minor version in Cargo.toml
+          VERSION_LINE=$(grep "^version" ./Cargo.toml | head -1)
+          VERSION=$(echo $VERSION_LINE | grep -oP '\d+\.\d+\.\d+')
+          MINOR_VERSION=$(echo $VERSION | awk -F'.' '{print $2}')
+          BUMPED_MINOR_VERSION=$((MINOR_VERSION + 1))
+          BUMPED_VERSION=$(echo $VERSION | sed "s/\.$MINOR_VERSION\./\.$BUMPED_MINOR_VERSION\./")
+          BUMPED_VERSION_LINE=$(echo $VERSION_LINE | sed "s/$VERSION/$BUMPED_VERSION/")
+          sed -i "s/$VERSION_LINE/$BUMPED_VERSION_LINE/" ./Cargo.toml
+          
+          # Update cargo.lock
+          cargo build
+          
+          # Add new entry to CHANGELOG.md
+          NEW_CHANGELOG_ENTRY="## $BUMPED_VERSION\n\n"
+          sed -i "/^# Changelog/a\\
+          $NEW_CHANGELOG_ENTRY\\
+          " CHANGELOG.md
+          
+          # Commit and push changes
+          git config user.name '${{ github.actor }}'
+          git config user.email '${{ github.actor }}@users.noreply.github.com'
+          git add .
+          git commit -m "Bump version and update CHANGELOG"
+          git push
