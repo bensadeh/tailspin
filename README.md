@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                       
+#                                                                                                                                         
 
 <p align="center">
 A log file highlighter
@@ -26,7 +26,7 @@ A log file highlighter
 * [Installing](#installing)
 * [Highlight Groups](#highlight-groups)
 * [Customizing Highlight Groups](#customizing-highlight-groups)
-* [Search and Filtering](#search-and-filtering)
+* [Using the pager `less`](#using-the-pager-less)
 * [Settings](#settings)
 
 ***
