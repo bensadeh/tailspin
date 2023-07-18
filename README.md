@@ -35,13 +35,8 @@ A log file highlighter
 
 ## Overview
 
-A conventional approach to log file highlighting might be to apply highlighting based on specific knowledge of the
-log file structure. For example: the date might be the very first entry, followed by a severity keyword inside square
-brackets, and so on. This approach require the user or the program to understand the format upfront to effectively
-highlight the logs.
-
-`tailspin` takes a different approach. It works by reading through a log file line by line, running a series of regexes
-against each line. The regexes recognize patterns we inherently understand as useful, like dates, numbers, severity
+`tailspin` works by reading through a log file line by line, running a series of regexes
+against each line. The regexes recognize useful patterns, like dates, numbers, severity
 keywords and more.
 
 Since `tailspin` does not make any assumptions on the format or position of the items it wants to highlight, it requires
