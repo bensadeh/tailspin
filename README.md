@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                         
+#                                                                                                                                                                                                                        
 
 <p align="center">
 A log file highlighter
@@ -15,6 +15,7 @@ A log file highlighter
 ### Features
 
 - 🪵 View (or `tail`) any log file of any format
+- 🍰 No setup or config required
 - 🌈 Highlight numbers, dates, IP-addresses, UUIDs, URLs and more
 - ⚙️ All highlight groups are customizable
 - 🔍 Uses `less` under the hood to provide **scrollback**, **search** and **filtering**
@@ -23,6 +24,7 @@ A log file highlighter
 
 ### Table of Contents
 
+* [Overview](#overview)
 * [Installing](#installing)
 * [Highlight Groups](#highlight-groups)
 * [Customizing Highlight Groups](#customizing-highlight-groups)
@@ -30,6 +32,20 @@ A log file highlighter
 * [Settings](#settings)
 
 ***
+
+## Overview
+
+A conventional approach to log file highlighting might be to apply highlighting based on specific knowledge of the
+log file structure. For example: the date might be the very first entry, followed by a severity keyword inside square
+brackets, and so on. This approach require the user or the program to understand the format upfront to effectively
+highlight the logs.
+
+`tailspin` takes a different approach. It works by reading through a log file line by line, running a series of regexes
+against each line. The regexes recognize patterns we inherently understand as useful, like dates, numbers, severity
+keywords and more.
+
+Since `tailspin` does not make any assumptions on the format or position of the items it wants to highlight, it requires
+no configuration or setup and will work reliably across different log formats.
 
 ## Installing
 
