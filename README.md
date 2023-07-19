@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                        
+#                                                                                                                                                                                                                              
 
 <p align="center">
 A log file highlighter
@@ -150,15 +150,19 @@ command (`man less`) or by hitting the <kbd>h</kbd> button to access the help sc
 When you run `tailspin` with the `-f` or `--follow` flag, it will scroll to the bottom and print new lines to the screen
 as they're added to the file.
 
-To stop following the file, press <kbd>Ctrl</kbd> + <kbd>C</kbd> to interrupt. This will stop the tailing, but keep the
+To stop following the file, interrupt with <kbd>Ctrl + C</kbd>. This will stop the tailing, but keep the
 file open, allowing you to review the existing content.
 
 To resume following the file from within `less`, press <kbd>F</kbd>.
 
-### Search and Filtering
+### Search
 
 Use <kbd>/</kbd> followed by your search query. For example, `/ERROR` finds the first occurrence of
-**ERROR**. After the search, <kbd>n</kbd> finds the next instance, and <kbd>N</kbd> finds the previous instance.
+**ERROR**.
+
+After the search, <kbd>n</kbd> finds the next instance, and <kbd>N</kbd> finds the previous instance.
+
+### Filtering
 
 `less` allows filtering lines by a keyword, using <kbd>&</kbd> followed by the pattern. For instance, `&ERROR` shows
 only lines with **ERROR**.
