@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                              
+#                                                                                                                                                                                                                                       
 
 <p align="center">
 A log file highlighter
@@ -144,6 +144,21 @@ style = { fg = "red", italic = true }
 
 `tailspin` uses `less` as its pager to view the highlighted log files. You can get more info on `less` via the **man**
 command (`man less`) or by hitting the <kbd>h</kbd> button to access the help screen.
+
+### Navigating
+
+Navigating within `less` uses a set of keybindings that may be familiar to users of `vim` or other `vi`-like
+editors. Here's a brief overview of the most useful navigation commands:
+
+#### Scrolling
+
+- <kbd>j</kbd>/<kbd>k</kbd>: Scroll one line up/down.
+- <kbd>d</kbd>/<kbd>u</kbd>: Scroll one half-page up/down.
+
+#### Start and end of file:
+
+- <kbd>g</kbd>: Go to the start (top) of the file.
+- <kbd>G</kbd>: Go to the end (bottom) of the file.
 
 ### Follow mode
 
