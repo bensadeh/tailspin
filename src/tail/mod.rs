@@ -1,18 +1,66 @@
+use crate::highlight_processor;
+
 use linemux::MuxedLines;
 use std::fs::File;
 use std::io::{BufRead, BufWriter, Write};
 use std::path::Path;
-use std::{io, process};
+use std::process;
+use tokio::io::{self, AsyncBufReadExt, BufReader};
+use tokio::sync::oneshot::Sender;
 
-use crate::highlight_processor;
-use tokio::sync::oneshot;
+pub async fn tail_stdin<R>(
+    mut output_writer: BufWriter<R>,
+    highlighter: highlight_processor::HighlightProcessor,
+    follow: bool,
+    mut reached_eof_tx: Option<Sender<()>>,
+) -> io::Result<()>
+where
+    R: Write + Send + 'static,
+{
+    if follow {
+        send_eof_message(&mut reached_eof_tx);
+    }
+
+    let stdin = io::stdin();
+    let mut reader = BufReader::new(stdin).lines();
+
+    loop {
+        match reader.next_line().await {
+            Ok(Some(line)) => {
+                let highlighted_string = highlighter.apply(&line);
+                writeln!(output_writer, "{}", highlighted_string)?;
+                output_writer.flush()?;
+            }
+            Ok(None) => {
+                if !follow {
+                    send_eof_message(&mut reached_eof_tx);
+                    break;
+                }
+            }
+            Err(err) => {
+                eprintln!("Error reading from stdin: {}", err);
+                break;
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn send_eof_message(reached_eof_tx: &mut Option<Sender<()>>) {
+    if let Some(reached_eof) = reached_eof_tx.take() {
+        reached_eof
+            .send(())
+            .expect("Failed sending EOF signal to oneshot channel");
+    }
+}
 
 pub(crate) async fn tail_file<R>(
     file_path: &str,
     follow: bool,
     mut output_writer: BufWriter<R>,
     highlighter: highlight_processor::HighlightProcessor,
-    mut reached_eof_tx: Option<oneshot::Sender<()>>,
+    mut reached_eof_tx: Option<Sender<()>>,
 ) -> io::Result<()>
 where
     R: Write + Send + 'static,
@@ -69,7 +117,7 @@ fn count_lines<P: AsRef<Path>>(file_path: P, follow: bool) -> usize {
     }
 
     let file = File::open(file_path).expect("Could not open file");
-    let reader = io::BufReader::new(file);
+    let reader = std::io::BufReader::new(file);
 
     reader.lines().count()
 }

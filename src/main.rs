@@ -11,7 +11,7 @@ mod tail;
 use clap::Parser;
 use rand::random;
 use std::fs::File;
-use std::io::BufWriter;
+use std::io::{BufWriter, IsTerminal};
 use std::path::PathBuf;
 use std::process::exit;
 use tokio::sync::oneshot;
@@ -45,6 +45,7 @@ enum SubCommand {
 #[tokio::main]
 async fn main() {
     let args: Args = Args::parse();
+    let is_stdin = !std::io::stdin().is_terminal();
 
     // if a subcommand is specified, run it
     if let Some(command) = args.command {
@@ -60,9 +61,13 @@ async fn main() {
     let file_path = match args.file_path {
         Some(path) => path,
         None => {
-            println!("Missing filename (`spin --help` for help) ");
+            if !is_stdin {
+                println!("Missing filename (`spin --help` for help) ");
 
-            exit(0);
+                exit(0);
+            }
+
+            "".to_string()
         }
     };
 
@@ -75,17 +80,30 @@ async fn main() {
     let (_temp_dir, output_path, output_writer) = create_temp_file();
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
 
-    tokio::spawn(async move {
-        tail::tail_file(
-            &file_path,
-            args.follow,
-            output_writer,
-            highlight_processor,
-            Some(reached_eof_tx),
-        )
-        .await
-        .expect("Failed to tail file");
-    });
+    if is_stdin {
+        tokio::spawn(async move {
+            tail::tail_stdin(
+                output_writer,
+                highlight_processor,
+                args.follow,
+                Some(reached_eof_tx),
+            )
+            .await
+            .expect("Failed to tail file");
+        });
+    } else {
+        tokio::spawn(async move {
+            tail::tail_file(
+                &file_path,
+                args.follow,
+                output_writer,
+                highlight_processor,
+                Some(reached_eof_tx),
+            )
+            .await
+            .expect("Failed to tail file");
+        });
+    }
 
     reached_eof_rx
         .await

@@ -5,6 +5,7 @@
 **Core**
 
 - `less` now starts with the `--ignore-case` and `--RAW-CONTROL-CHARS` flags
+- Added support for reading from `stdin`
 - Added a `--version` flag
 
 ## 1.0.0 - 11.07.23
