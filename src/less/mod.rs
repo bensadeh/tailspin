@@ -28,10 +28,14 @@ fn pass_ctrl_c_events_gracefully_to_child_process() {
 }
 
 fn get_args(follow: bool) -> Vec<String> {
-    let mut args = vec!["--ignore-case".to_string()];
+    let mut args = vec![
+        "--ignore-case".to_string(),
+        "--RAW-CONTROL-CHARS".to_string(),
+        "--".to_string(), // End of option arguments
+    ];
 
     if follow {
-        args.push("+F".to_string());
+        args.insert(0, "+F".to_string());
     }
 
     args

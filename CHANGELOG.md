@@ -1,17 +1,13 @@
 # Changelog
 
-## 1.1
-
-_WIP_
+## 1.1.0
 
 **Core**
 
-- `less` now starts with the `--ignore-case` flag
+- `less` now starts with the `--ignore-case` and `--RAW-CONTROL-CHARS` flags
 - Added a `--version` flag
 
-## 1.0
-
-_11.07.23_
+## 1.0.0 - 11.07.23
 
 **Core**
 
@@ -21,9 +17,7 @@ _11.07.23_
 
 - All highlight groups are now customizable
 
-## 0.1.1
-
-_27.02.23_
+## 0.1.1 - 27.02.23
 
 **Bugfixes**
 
@@ -36,9 +30,7 @@ _27.02.23_
 - Bump golang.org/x/text from 0.3.7 to 0.3.8
 - Bump github.com/spf13/cobra from 1.5.0 to 1.6.1
 
-## 0.1
-
-_25.09.22_
+## 0.1.0 - 25.09.22
 
 **Initial release**
 
