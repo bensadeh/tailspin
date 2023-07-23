@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                         
+#                                                                                                                                                                                                                                          
 
 <p align="center">
 A log file highlighter
@@ -52,7 +52,7 @@ cargo install tailspin
 spin [file]
 
 # Tail log file
-spin [file] -f
+spin -f [file] 
 ```
 
 > **Note**
