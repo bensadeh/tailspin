@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                       
+#                                                                                                                                                                                                                                         
 
 <p align="center">
 A log file highlighter
@@ -190,11 +190,11 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 
 ```console
 # Commands
-generate-config    Create a custom config file at ~/.config/tailspin
+generate-config    Create a config file with default settings at ~/.config/tailspin
 
 # Flags
 -f, --follow       Follow (tail) the contents of the file
-    --config       Provide a custom path configuration file
+    --config       Provide a path to a custom configuration file
 ```
 
 
