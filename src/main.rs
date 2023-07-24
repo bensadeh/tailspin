@@ -49,6 +49,7 @@ enum SubCommand {
 #[tokio::main]
 async fn main() {
     let args: Args = Args::parse();
+    let follow = should_follow(args.follow, args.tail_command.is_some());
     let is_stdin = !std::io::stdin().is_terminal();
 
     // if a subcommand is specified, run it
@@ -89,7 +90,7 @@ async fn main() {
             tail::tail_stdin(
                 output_writer,
                 highlight_processor,
-                args.follow,
+                follow,
                 Some(reached_eof_tx),
             )
             .await
@@ -110,7 +111,7 @@ async fn main() {
         tokio::spawn(async move {
             tail::tail_file(
                 &file_path,
-                args.follow,
+                follow,
                 output_writer,
                 highlight_processor,
                 Some(reached_eof_tx),
@@ -124,9 +125,17 @@ async fn main() {
         .await
         .expect("Could not receive EOF signal from oneshot channel");
 
-    less::open_file_with_less(output_path.to_str().unwrap(), args.follow);
+    less::open_file_with_less(output_path.to_str().unwrap(), follow);
 
     cleanup(output_path);
+}
+
+fn should_follow(follow: bool, has_follow_command: bool) -> bool {
+    if has_follow_command {
+        return true;
+    }
+
+    follow
 }
 
 fn create_temp_file() -> (tempfile::TempDir, PathBuf, BufWriter<File>) {
