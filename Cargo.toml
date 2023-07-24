@@ -13,7 +13,7 @@ path = "src/main.rs"
 name = "spin"
 
 [dependencies]
-clap = { version = "4.3.12", features = ["derive"] }
+clap = { version = "4.3.19", features = ["derive"] }
 ctrlc = "3.4.0"
 lazy_static = "1.4.0"
 linemux = "0.3"
@@ -22,6 +22,6 @@ rand = "0.8.5"
 regex = "1.9.1"
 serde = { version = "1.0", features = ["derive"] }
 shellexpand = "3.1.0"
-tempfile = "3.2.0"
+tempfile = "3.7.0"
 tokio = { version = "1", features = ["full"] }
 toml = "0.7.6"
