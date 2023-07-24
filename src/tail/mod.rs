@@ -5,8 +5,51 @@ use std::fs::File;
 use std::io::{BufRead, BufWriter, Write};
 use std::path::Path;
 use std::process;
+use std::process::Stdio;
 use tokio::io::{self, AsyncBufReadExt, BufReader};
+use tokio::process::Command;
 use tokio::sync::oneshot::Sender;
+
+pub async fn tail_command_output<R>(
+    mut output_writer: BufWriter<R>,
+    highlighter: highlight_processor::HighlightProcessor,
+    mut reached_eof_tx: Option<Sender<()>>,
+    command: &str,
+) -> io::Result<()>
+where
+    R: Write + Send + 'static,
+{
+    send_eof_message(&mut reached_eof_tx);
+
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg(command)
+        .stdout(Stdio::piped())
+        .spawn()?
+        .stdout
+        .ok_or_else(|| {
+            io::Error::new(io::ErrorKind::Other, "Could not capture standard output.")
+        })?;
+
+    let mut reader = BufReader::new(output).lines();
+
+    loop {
+        match reader.next_line().await {
+            Ok(Some(line)) => {
+                let highlighted_string = highlighter.apply(&line);
+                writeln!(output_writer, "{}", highlighted_string)?;
+                output_writer.flush()?;
+            }
+            Ok(None) => {}
+            Err(err) => {
+                eprintln!("Error reading from command output: {}", err);
+                break;
+            }
+        }
+    }
+
+    Ok(())
+}
 
 pub async fn tail_stdin<R>(
     mut output_writer: BufWriter<R>,

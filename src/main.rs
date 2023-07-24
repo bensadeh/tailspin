@@ -27,9 +27,13 @@ struct Args {
     #[clap(short = 'f', long = "follow")]
     follow: bool,
 
-    /// Provide a path to a custom configuration file
-    #[clap(long = "config")]
+    /// Path to a custom configuration file
+    #[clap(long = "config-path")]
     config_path: Option<String>,
+
+    /// Command to execute and tail output from
+    #[clap(long = "tail-command")]
+    tail_command: Option<String>,
 
     /// Subcommand
     #[clap(subcommand)]
@@ -61,7 +65,7 @@ async fn main() {
     let file_path = match args.file_path {
         Some(path) => path,
         None => {
-            if !is_stdin {
+            if !is_stdin && args.tail_command.is_none() {
                 println!("Missing filename (`spin --help` for help) ");
 
                 exit(0);
@@ -87,6 +91,17 @@ async fn main() {
                 highlight_processor,
                 args.follow,
                 Some(reached_eof_tx),
+            )
+            .await
+            .expect("Failed to tail file");
+        });
+    } else if args.tail_command.is_some() {
+        tokio::spawn(async move {
+            tail::tail_command_output(
+                output_writer,
+                highlight_processor,
+                Some(reached_eof_tx),
+                args.tail_command.unwrap().as_str(),
             )
             .await
             .expect("Failed to tail file");
