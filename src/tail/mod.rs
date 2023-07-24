@@ -21,6 +21,8 @@ where
 {
     send_eof_message(&mut reached_eof_tx);
 
+    let command = format!("trap '' INT; {}", command);
+
     let output = Command::new("sh")
         .arg("-c")
         .arg(command)
