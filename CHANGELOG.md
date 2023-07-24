@@ -1,10 +1,10 @@
 # Changelog
+
 ## 1.2.0
 
+- Added a `--tail-command` flag to allow for continuous tailing the output of a specified command
 
-
-
-## 1.1.0
+## 1.1.0 - 24.07.23
 
 **Core**
 
