@@ -12,16 +12,18 @@ mod tail;
 use rand::random;
 use std::fs;
 use std::fs::File;
-use std::io::{BufWriter, IsTerminal};
+use std::io::{stdin, BufWriter, IsTerminal};
 use std::path::PathBuf;
 use std::process::exit;
 use tokio::sync::oneshot;
 
+use crate::cli::Args;
+
 #[tokio::main]
 async fn main() {
-    let args: cli::Args = cli::Args::parse_args();
+    let args = Args::parse_args();
     let follow = should_follow(args.follow, args.tail_command.is_some());
-    let is_stdin = !std::io::stdin().is_terminal();
+    let is_stdin = !stdin().is_terminal();
 
     if args.generate_config {
         config_io::generate_default_config();

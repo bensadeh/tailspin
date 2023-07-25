@@ -35,7 +35,7 @@ pub struct Args {
 }
 
 impl Args {
-    pub fn parse_args() -> Self {
+    pub fn parse_args() -> Args {
         Args::parse()
     }
 }
