@@ -7,9 +7,9 @@ mod quotes;
 mod url;
 mod uuid;
 
-use crate::config_parser::Config;
-use crate::config_util;
-use crate::config_util::FlattenKeyword;
+use crate::config::Config;
+use crate::config::Keyword;
+use crate::config::Style;
 use crate::line_info::LineInfo;
 
 type HighlightFn = Box<dyn Fn(&str, &LineInfo) -> String + Send>;
@@ -19,6 +19,11 @@ pub struct Highlighters {
     pub before: HighlightFnVec,
     pub main: HighlightFnVec,
     pub after: HighlightFnVec,
+}
+
+struct FlattenKeyword {
+    pub keyword: String,
+    pub style: Style,
 }
 
 impl Highlighters {
@@ -85,6 +90,21 @@ impl Highlighters {
     fn flatten(config: &Config) -> Vec<FlattenKeyword> {
         let keywords_or_empty = config.groups.keywords.clone().unwrap_or_default();
 
-        config_util::flatten_keywords(keywords_or_empty)
+        Self::flatten_keywords(keywords_or_empty)
+    }
+
+    fn flatten_keywords(keywords: Vec<Keyword>) -> Vec<FlattenKeyword> {
+        let mut flatten_keywords = Vec::new();
+
+        for keyword in keywords {
+            for string in keyword.words {
+                flatten_keywords.push(FlattenKeyword {
+                    keyword: string,
+                    style: keyword.style.clone(),
+                });
+            }
+        }
+
+        flatten_keywords
     }
 }

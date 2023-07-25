@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::{env, fs};
 
-const DEFAULT_CONFIG: &str = include_str!("../data/config.toml");
+const DEFAULT_CONFIG: &str = include_str!("../../data/config.toml");
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Style {

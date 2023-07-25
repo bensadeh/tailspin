@@ -1,6 +1,6 @@
 use crate::color;
 use crate::color::to_ansi;
-use crate::config_parser::Url;
+use crate::config::Url;
 use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
 use lazy_static::lazy_static;
