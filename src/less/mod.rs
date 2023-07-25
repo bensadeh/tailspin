@@ -1,6 +1,6 @@
 use std::process::Command;
 
-pub(crate) fn open_file_with_less(path: &str, follow: bool) {
+pub(crate) fn open_file(path: &str, follow: bool) {
     pass_ctrl_c_events_gracefully_to_child_process();
 
     let args = get_args(follow);

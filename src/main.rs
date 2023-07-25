@@ -10,6 +10,7 @@ mod tail;
 
 use clap::Parser;
 use rand::random;
+use std::fs;
 use std::fs::File;
 use std::io::{BufWriter, IsTerminal};
 use std::path::PathBuf;
@@ -29,7 +30,7 @@ struct Args {
     #[clap(short = 'f', long = "follow")]
     follow: bool,
 
-    /// Print the output to stdout instead of going through the pager `less`
+    /// Print the output to stdout
     #[clap(short = 'p', long = "print", conflicts_with = "follow")]
     to_stdout: bool,
 
@@ -132,7 +133,12 @@ async fn main() {
         .await
         .expect("Could not receive EOF signal from oneshot channel");
 
-    less::open_file_with_less(output_path.to_str().unwrap(), follow);
+    if args.to_stdout {
+        let contents = fs::read_to_string(&output_path).unwrap();
+        println!("{}", contents);
+    } else {
+        less::open_file(output_path.to_str().unwrap(), follow);
+    }
 
     cleanup(output_path);
 }
