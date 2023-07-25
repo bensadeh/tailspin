@@ -59,8 +59,9 @@ async fn main() {
     }
 
     if args.print_default_config {
-        // call the function to print default config
-        println!("print default config");
+        let default_config = config_io::default_config();
+
+        println!("{}", default_config);
 
         exit(0);
     }

@@ -2,7 +2,7 @@ use crate::config::Config;
 
 use std::fs::File;
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::exit;
 use std::{env, fs};
 
@@ -119,4 +119,8 @@ pub fn generate_default_config() {
             exit(1);
         }
     }
+}
+
+pub fn default_config() -> &'static str {
+    DEFAULT_CONFIG
 }
