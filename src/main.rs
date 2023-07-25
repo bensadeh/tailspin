@@ -18,6 +18,8 @@ use tokio::sync::oneshot;
 
 #[derive(Parser)]
 #[clap(version = env!("CARGO_PKG_VERSION"))]
+#[command(name = "spin")]
+#[command(about = "A log file highlighter")]
 struct Args {
     /// Filepath
     #[clap(name = "FILE")]
@@ -28,22 +30,20 @@ struct Args {
     follow: bool,
 
     /// Path to a custom configuration file
-    #[clap(long = "config-path")]
+    #[clap(short = 'c', long = "config-path")]
     config_path: Option<String>,
 
-    /// Command to execute and tail output from
-    #[clap(long = "tail-command")]
+    /// Tails the output of the provided command
+    #[clap(short = 't', long = "tail-command")]
     tail_command: Option<String>,
 
-    /// Subcommand
-    #[clap(subcommand)]
-    command: Option<SubCommand>,
-}
-
-#[derive(Parser)]
-enum SubCommand {
     /// Generate a new configuration file
-    GenerateConfig,
+    #[clap(long = "generate-config")]
+    generate_config: bool,
+
+    /// Print the default configuration
+    #[clap(long = "print-default-config", conflicts_with = "generate_config")]
+    print_default_config: bool,
 }
 
 #[tokio::main]
@@ -52,15 +52,15 @@ async fn main() {
     let follow = should_follow(args.follow, args.tail_command.is_some());
     let is_stdin = !std::io::stdin().is_terminal();
 
-    // if a subcommand is specified, run it
-    if let Some(command) = args.command {
-        match command {
-            SubCommand::GenerateConfig => {
-                config_parser::generate_default_config();
+    if args.generate_config {
+        config_parser::generate_default_config();
+        exit(0);
+    }
 
-                exit(0);
-            }
-        }
+    if args.print_default_config {
+        // call the function to print default config
+        println!("print default config");
+        exit(0);
     }
 
     let file_path = match args.file_path {

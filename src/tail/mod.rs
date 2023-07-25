@@ -111,7 +111,7 @@ where
     R: Write + Send + 'static,
 {
     let input_path = Path::new(&file_path);
-    check_file_exists(input_path);
+    verify_file_exists(input_path);
 
     let line_count = count_lines(input_path, follow);
 
@@ -138,7 +138,7 @@ where
     Ok(())
 }
 
-fn check_file_exists(path: &Path) {
+fn verify_file_exists(path: &Path) {
     match path.try_exists() {
         Ok(true) => (),
         Ok(false) => {
