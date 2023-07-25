@@ -1,3 +1,4 @@
+mod cli;
 mod color;
 mod config;
 mod config_io;
@@ -17,43 +18,9 @@ use std::path::PathBuf;
 use std::process::exit;
 use tokio::sync::oneshot;
 
-#[derive(Parser)]
-#[clap(version = env!("CARGO_PKG_VERSION"))]
-#[command(name = "spin")]
-#[command(about = "A log file highlighter")]
-struct Args {
-    /// Filepath
-    #[clap(name = "FILE")]
-    file_path: Option<String>,
-
-    /// Follow (tail) the contents of the file
-    #[clap(short = 'f', long = "follow")]
-    follow: bool,
-
-    /// Print the output to stdout
-    #[clap(short = 'p', long = "print", conflicts_with = "follow")]
-    to_stdout: bool,
-
-    /// Path to a custom configuration file
-    #[clap(short = 'c', long = "config-path")]
-    config_path: Option<String>,
-
-    /// Tails the output of the provided command
-    #[clap(short = 't', long = "tail-command")]
-    tail_command: Option<String>,
-
-    /// Generate a new configuration file
-    #[clap(long = "generate-config")]
-    generate_config: bool,
-
-    /// Print the default configuration
-    #[clap(long = "show-default-config", conflicts_with = "generate_config")]
-    show_default_config: bool,
-}
-
 #[tokio::main]
 async fn main() {
-    let args: Args = Args::parse();
+    let args: cli::Args = cli::Args::parse_args();
     let follow = should_follow(args.follow, args.tail_command.is_some());
     let is_stdin = !std::io::stdin().is_terminal();
 
@@ -165,7 +132,7 @@ fn create_temp_file() -> (tempfile::TempDir, PathBuf, BufWriter<File>) {
 }
 
 fn cleanup(output_path: PathBuf) {
-    if let Err(err) = std::fs::remove_file(output_path) {
+    if let Err(err) = fs::remove_file(output_path) {
         eprintln!("Failed to remove the temporary file: {}", err);
     }
 }
