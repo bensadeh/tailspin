@@ -29,6 +29,10 @@ struct Args {
     #[clap(short = 'f', long = "follow")]
     follow: bool,
 
+    /// Print the output to stdout instead of going through the pager `less`
+    #[clap(short = 'p', long = "print", conflicts_with = "follow")]
+    to_stdout: bool,
+
     /// Path to a custom configuration file
     #[clap(short = 'c', long = "config-path")]
     config_path: Option<String>,
@@ -42,8 +46,8 @@ struct Args {
     generate_config: bool,
 
     /// Print the default configuration
-    #[clap(long = "print-default-config", conflicts_with = "generate_config")]
-    print_default_config: bool,
+    #[clap(long = "show-default-config", conflicts_with = "generate_config")]
+    show_default_config: bool,
 }
 
 #[tokio::main]
@@ -58,7 +62,7 @@ async fn main() {
         exit(0);
     }
 
-    if args.print_default_config {
+    if args.show_default_config {
         let default_config = config_io::default_config();
 
         println!("{}", default_config);
