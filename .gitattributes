@@ -1,0 +1,3 @@
+*.1 linguist-vendored
+*.sh linguist-vendored
+*.adoc linguist-vendored
