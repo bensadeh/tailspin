@@ -1,5 +1,6 @@
 mod color;
 mod config;
+mod config_io;
 mod highlight_processor;
 mod highlight_utils;
 mod highlighters;
@@ -52,7 +53,7 @@ async fn main() {
     let is_stdin = !std::io::stdin().is_terminal();
 
     if args.generate_config {
-        config::generate_default_config();
+        config_io::generate_default_config();
 
         exit(0);
     }
@@ -78,7 +79,7 @@ async fn main() {
     };
 
     let config_path = args.config_path.clone();
-    let config = config::load_config(config_path);
+    let config = config_io::load_config(config_path);
 
     let highlighter = highlighters::Highlighters::new(config);
     let highlight_processor = highlight_processor::HighlightProcessor::new(highlighter);
