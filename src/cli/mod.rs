@@ -30,7 +30,7 @@ pub struct Args {
     pub generate_config: bool,
 
     /// Print the default configuration
-    #[clap(long = "show-default-config", conflicts_with = "generate-config")]
+    #[clap(long = "show-default-config", conflicts_with = "generate_config")]
     pub show_default_config: bool,
 }
 
