@@ -9,7 +9,6 @@ mod less;
 mod line_info;
 mod tail;
 
-use clap::Parser;
 use rand::random;
 use std::fs;
 use std::fs::File;
