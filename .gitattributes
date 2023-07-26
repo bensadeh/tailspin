@@ -1,3 +1,6 @@
-**/*.1 linguist-vendored
-**/*.sh linguist-vendored
-**/*.adoc linguist-vendored
+*.1 linguist-vendored
+*.sh linguist-vendored
+*.zsh linguist-vendored
+*.bash linguist-vendored
+*.fish linguist-vendored
+*.adoc linguist-vendored
