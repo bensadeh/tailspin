@@ -1,8 +1,8 @@
 # Changelog
-## 1.3.0
 
+## 1.2.1
 
-
+- Run `less` with environment variable `LESSSECURE=1`
 
 ## 1.2.0 - 26.07.23
 

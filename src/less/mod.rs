@@ -5,6 +5,7 @@ pub(crate) fn open_file(path: &str, follow: bool) {
 
     let args = get_args(follow);
     let status = Command::new("less")
+        .env("LESSSECURE", "1")
         .args(args.as_slice())
         .arg(path)
         .status();
