@@ -1,41 +1,81 @@
+'\" t
+.\"     Title: spin
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.20
+.\"      Date: 2023-07-26
+.\"    Manual: tailspin
+.\"    Source: tailspin 1.2.0
+.\"  Language: English
+.\"
+.TH "SPIN" "1" "2023-07-26" "tailspin 1.2.0" "tailspin"
 .ie \n(.g .ds Aq \(aq
-.el .ds Aq '
-.TH spin 1  "spin 1.2.0" 
-.SH NAME
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
 spin \- A log file highlighter
-.SH SYNOPSIS
-\fBspin\fR [\fB\-f\fR|\fB\-\-follow\fR] [\fB\-p\fR|\fB\-\-print\fR] [\fB\-c\fR|\fB\-\-config\-path\fR] [\fB\-t\fR|\fB\-\-tail\-command\fR] [\fB\-\-create\-default\-config\fR] [\fB\-\-show\-default\-config\fR] [\fB\-h\fR|\fB\-\-help\fR] [\fB\-V\fR|\fB\-\-version\fR] [\fIFILE\fR] 
-.SH DESCRIPTION
-A log file highlighter
-.SH OPTIONS
-.TP
-\fB\-f\fR, \fB\-\-follow\fR
-Follow (tail) the contents of the file
-.TP
-\fB\-p\fR, \fB\-\-print\fR
-Print the output to stdout
-.TP
-\fB\-c\fR, \fB\-\-config\-path\fR=\fICONFIG_PATH\fR
-Path to a custom configuration file
-.TP
-\fB\-t\fR, \fB\-\-tail\-command\fR=\fITAIL_COMMAND\fR
-Tails the output of the provided command
-.TP
-\fB\-\-create\-default\-config\fR
-Generate a new configuration file
-.TP
-\fB\-\-show\-default\-config\fR
-Print the default configuration
-.TP
-\fB\-h\fR, \fB\-\-help\fR
-Print help
-.TP
-\fB\-V\fR, \fB\-\-version\fR
-Print version
-.TP
-[\fIFILE\fR]
-Filepath
-.SH VERSION
-v1.2.0
-.SH AUTHORS
-Ben Sadeh
+.SH "SYNOPSIS"
+.sp
+\fBspin\fP [\fIOPTION\fP]... [\fIFILE\fP]...
+.SH "DESCRIPTION"
+.sp
+spin is a command line tool that highlights log files.
+.SH "OPTIONS"
+.sp
+\fB\-f, \-\-follow\fP
+.RS 4
+Follow (tail) the contents of the file.
+.RE
+.sp
+\fB\-p, \-\-print\fP
+.RS 4
+Print the output to stdout instead of viewing the contents in the pager \fIless\fP.
+.RE
+.sp
+\fB\-c, \-\-config\-path\fP \fICONFIG_PATH\fP
+.RS 4
+Specify the path to a custom configuration file.
+.RE
+.sp
+\fB\-t, \-\-tail\-command\fP \fICOMMAND\fP
+.RS 4
+Tail the output of the provided command.
+Useful for when you have a command which continuously prints to stdout.
+The command traps the interrupt signal to allow for cancelling and resuming tailing while inside \fIless\fP.
+.RE
+.sp
+\fB\-\-generate\-config\fP
+.RS 4
+Generate a new configuration file.
+Uses XDG_CONFIG_HOME as the location if set.
+Otherwise, uses ~/.config/tailspin/config.toml as the default path.
+Will not overwrite current config file if one is already present.
+.RE
+.sp
+\fB\-\-show\-default\-config\fP
+.RS 4
+Print the default configuration.
+.RE
+.SH "SEE ALSO"
+.sp
+\fBless\fP(1), \fBtail\fP(1)
+.SH "ABOUT"
+.sp
+Ben Sadeh (github.com/bensadeh/tailspin)
+.sp
+Released under the MIT License

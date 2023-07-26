@@ -19,7 +19,7 @@ _spin() {
 
     case "${cmd}" in
         spin)
-            opts="-f -p -c -t -h -V --follow --print --config-path --tail-command --create-default-config --show-default-config --z-generate --help --version [FILE]"
+            opts="-f -p -c -t -h -V --follow --print --config-path --tail-command --create-default-config --show-default-config --z-generate-shell-completions --help --version [FILE]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -41,7 +41,7 @@ _spin() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                --z-generate)
+                --z-generate-shell-completions)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;

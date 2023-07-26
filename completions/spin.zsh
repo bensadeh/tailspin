@@ -19,7 +19,7 @@ _spin() {
 '--config-path=[Path to a custom configuration file]:CONFIG_PATH: ' \
 '-t+[Tails the output of the provided command]:TAIL_COMMAND: ' \
 '--tail-command=[Tails the output of the provided command]:TAIL_COMMAND: ' \
-'--z-generate=[Print zsh completions to stdout]:GENERATE_COMPLETIONS_OR_MAN_PAGES: ' \
+'--z-generate-shell-completions=[Print completions to stdout]:GENERATE_SHELL_COMPLETIONS: ' \
 '-f[Follow (tail) the contents of the file]' \
 '--follow[Follow (tail) the contents of the file]' \
 '(-f --follow)-p[Print the output to stdout]' \

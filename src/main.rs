@@ -21,8 +21,8 @@ use tokio::sync::oneshot;
 async fn main() {
     let args = cli::get_args();
 
-    if args.generate_completions_or_man_pages.is_some() {
-        cli::print_completions_or_man_pages_to_stdout();
+    if args.generate_shell_completions.is_some() {
+        cli::print_completions_to_stdout();
 
         exit(0);
     }

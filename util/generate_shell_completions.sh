@@ -12,6 +12,6 @@ cargo build
 spin_path=./target/debug/spin
 
 # Generate shell completions
-$spin_path --z-generate zsh > completions/spin.zsh
-$spin_path --z-generate bash > completions/spin.bash
-$spin_path --z-generate fish > completions/spin.fish
+$spin_path --z-generate-shell-completions zsh > completions/spin.zsh
+$spin_path --z-generate-shell-completions bash > completions/spin.bash
+$spin_path --z-generate-shell-completions fish > completions/spin.fish
