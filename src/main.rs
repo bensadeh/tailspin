@@ -17,11 +17,16 @@ use std::path::PathBuf;
 use std::process::exit;
 use tokio::sync::oneshot;
 
-use crate::cli::Args;
-
 #[tokio::main]
 async fn main() {
-    let args = Args::parse_args();
+    let args = cli::get_args();
+
+    if args.generate_completions.is_some() {
+        cli::generate_completions();
+
+        exit(0);
+    }
+
     let follow = should_follow(args.follow, args.tail_command.is_some());
     let is_stdin = !stdin().is_terminal();
 

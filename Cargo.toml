@@ -3,10 +3,11 @@ name = "tailspin"
 version = "1.2.0"
 edition = "2021"
 authors = ["Ben Sadeh"]
-description = "tailspin is a log file highlighter"
+description = "A log file highlighter"
 repository = "https://github.com/bensadeh/tailspin"
 keywords = ["log", "syntax-highlighting", "tail", "less"]
 license = "MIT"
+rust-version = "1.70"
 
 [[bin]]
 path = "src/main.rs"
@@ -14,6 +15,7 @@ name = "spin"
 
 [dependencies]
 clap = { version = "4.3.19", features = ["derive"] }
+clap_complete = "4.3.2"
 ctrlc = "3.4.0"
 lazy_static = "1.4.0"
 linemux = "0.3"
