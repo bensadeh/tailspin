@@ -21,7 +21,7 @@ spin - A log file highlighter
 
 == DESCRIPTION
 
-spin is a command line tool that highlights log files.
+tailspin is a command line tool that highlights log files.
 
 == OPTIONS
 
@@ -39,7 +39,7 @@ Tail the output of the provided command.
 Useful for when you have a command which continuously prints to stdout.
 The command traps the interrupt signal to allow for cancelling and resuming tailing while inside _less_.
 
-*--generate-config*::
+*--create-default-config*::
 Generate a new configuration file.
 Uses XDG_CONFIG_HOME as the location if set.
 Otherwise, uses ~/.config/tailspin/config.toml as the default path.
