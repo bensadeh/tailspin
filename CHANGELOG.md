@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.0
+## 1.2.0 - 26.07.23
 
 - Added a `--tail-command` flag to allow for continuous tailing the output of a specified command
 - Added a `-p` / `--print` flag to print the output directly to `stdout`
