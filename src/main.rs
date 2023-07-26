@@ -21,8 +21,8 @@ use tokio::sync::oneshot;
 async fn main() {
     let args = cli::get_args();
 
-    if args.generate_completions.is_some() {
-        cli::generate_completions();
+    if args.generate_completions_or_man_pages.is_some() {
+        cli::print_completions_or_man_pages_to_stdout();
 
         exit(0);
     }
@@ -30,8 +30,8 @@ async fn main() {
     let follow = should_follow(args.follow, args.tail_command.is_some());
     let is_stdin = !stdin().is_terminal();
 
-    if args.generate_config {
-        config_io::generate_default_config();
+    if args.create_default_config {
+        config_io::create_default_config();
 
         exit(0);
     }

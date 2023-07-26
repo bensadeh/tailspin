@@ -16,6 +16,7 @@ name = "spin"
 [dependencies]
 clap = { version = "4.3.19", features = ["derive"] }
 clap_complete = "4.3.2"
+clap_mangen = "0.2.12"
 ctrlc = "3.4.0"
 lazy_static = "1.4.0"
 linemux = "0.3"

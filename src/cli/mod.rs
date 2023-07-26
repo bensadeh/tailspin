@@ -27,35 +27,34 @@ pub struct Cli {
     pub tail_command: Option<String>,
 
     /// Generate a new configuration file
-    #[clap(long = "generate-config")]
-    pub generate_config: bool,
+    #[clap(long = "create-default-config")]
+    pub create_default_config: bool,
 
     /// Print the default configuration
-    #[clap(long = "show-default-config", conflicts_with = "generate_config")]
+    #[clap(long = "show-default-config", conflicts_with = "create_default_config")]
     pub show_default_config: bool,
 
     /// Print zsh completions to stdout
-    #[clap(long = "generate-completions", hide = true)]
-    pub generate_completions: Option<String>,
-
-    /// Print man page to stdout
-    #[clap(long = "generate-man-page", hide = true)]
-    pub generate_man_page: bool,
+    #[clap(long = "z-generate", hide = true)]
+    pub generate_completions_or_man_pages: Option<String>,
 }
 
 pub fn get_args() -> Cli {
-    Cli::parse()
+    let a = Cli::parse();
+
+    a
 }
 
-pub fn generate_completions() {
+pub fn print_completions_or_man_pages_to_stdout() {
     let args = Cli::parse();
     let mut cmd = Cli::command();
 
-    if let Some(shell) = args.generate_completions {
+    if let Some(shell) = args.generate_completions_or_man_pages {
         match shell.as_str() {
             "bash" => print_completions(Shell::Bash, &mut cmd),
             "zsh" => print_completions(Shell::Zsh, &mut cmd),
             "fish" => print_completions(Shell::Fish, &mut cmd),
+            "man" => print_man_pages(cmd),
             _ => (),
         }
     }
@@ -63,6 +62,12 @@ pub fn generate_completions() {
 
 fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
     generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
+}
+
+fn print_man_pages(cmd: Command) {
+    let man = clap_mangen::Man::new(cmd);
+    man.render(&mut io::stdout())
+        .expect("Could not print man pages to stdout");
 }
 
 #[test]

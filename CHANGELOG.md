@@ -5,6 +5,7 @@
 - Added a `--tail-command` flag to allow for continuous tailing the output of a specified command
 - Added a `-p` / `--print` flag to print the output directly to `stdout`
 - Added `man` pages
+- Added shell completions for `bash`, `zsh` and `fish`
 
 ## 1.1.0 - 24.07.23
 

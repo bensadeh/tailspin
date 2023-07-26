@@ -58,7 +58,7 @@ pub fn load_config(path: Option<String>) -> Config {
     }
 }
 
-pub fn generate_default_config() {
+pub fn create_default_config() {
     let target_config_path = match env::var("XDG_CONFIG_HOME") {
         Ok(xdg_config_dir) => {
             let expanded_path = shellexpand::tilde(&xdg_config_dir).into_owned();
