@@ -9,6 +9,7 @@ mod less;
 mod line_info;
 mod tail;
 
+use crate::cli::Cli;
 use rand::random;
 use std::fs;
 use std::fs::File;
@@ -21,28 +22,12 @@ use tokio::sync::oneshot;
 async fn main() {
     let args = cli::get_args();
 
-    if args.generate_shell_completions.is_some() {
-        cli::print_completions_to_stdout();
-
+    if should_exit_early(&args) {
         exit(0);
     }
 
     let follow = should_follow(args.follow, args.tail_command.is_some());
     let is_stdin = !stdin().is_terminal();
-
-    if args.create_default_config {
-        config_io::create_default_config();
-
-        exit(0);
-    }
-
-    if args.show_default_config {
-        let default_config = config_io::default_config();
-
-        println!("{}", default_config);
-
-        exit(0);
-    }
 
     let file_path = match args.file_path {
         Some(path) => path,
@@ -114,6 +99,26 @@ async fn main() {
     }
 
     cleanup(output_path);
+}
+
+fn should_exit_early(args: &Cli) -> bool {
+    if args.generate_shell_completions.is_some() {
+        cli::print_completions_to_stdout();
+        return true;
+    }
+
+    if args.create_default_config {
+        config_io::create_default_config();
+        return true;
+    }
+
+    if args.show_default_config {
+        let default_config = config_io::default_config();
+        println!("{}", default_config);
+        return true;
+    }
+
+    false
 }
 
 fn should_follow(follow: bool, has_follow_command: bool) -> bool {
