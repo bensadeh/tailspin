@@ -68,7 +68,6 @@ impl<W: AsyncLineWriter> TailFileIoStream<W> {
 
     pub async fn next_line(&mut self) -> io::Result<Option<String>> {
         let line = self.io_stream.next_line().await?;
-        dbg!(line.clone());
 
         if self.current_line == self.line_count {
             if let Some(reached_eof) = self.reached_eof_tx.take() {

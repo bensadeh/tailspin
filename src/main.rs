@@ -68,11 +68,17 @@ async fn main() {
     .await
     .unwrap();
 
-    while let Ok(Some(line)) = io_stream.next_line().await {
-        dbg!(&line);
-        let highlighted_line = highlight_processor.apply(&line);
-        io_stream.write_line(&highlighted_line).await.unwrap();
-    }
+    tokio::spawn(async move {
+        while let Ok(Some(line)) = io_stream.next_line().await {
+            dbg!(&line);
+            let highlighted_line = highlight_processor.apply(&line);
+            io_stream.write_line(&highlighted_line).await.unwrap();
+        }
+    });
+
+    // if let Err(err) = task.await {
+    //     eprintln!("Error processing lines: {}", err);
+    // }
 
     reached_eof_rx
         .await
