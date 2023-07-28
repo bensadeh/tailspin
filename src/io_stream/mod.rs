@@ -1,7 +1,8 @@
 use async_trait::async_trait;
 use linemux::MuxedLines;
-use tokio::io;
+use tokio::io::AsyncWriteExt;
 use tokio::sync::oneshot::Sender;
+use tokio::{fs, io};
 
 pub struct IoStream<R, W> {
     reader: R,
@@ -53,7 +54,8 @@ impl<W: AsyncLineWriter> TailFileIoStream<W> {
         reached_eof_tx: Option<Sender<()>>,
     ) -> io::Result<Self> {
         let mut lines = MuxedLines::new()?;
-        lines.add_file(file_path).await?;
+        dbg!(file_path.clone());
+        lines.add_file_from_start(file_path).await?;
         let reader = MuxedLinesWrapper(lines);
 
         Ok(Self {
@@ -66,6 +68,8 @@ impl<W: AsyncLineWriter> TailFileIoStream<W> {
 
     pub async fn next_line(&mut self) -> io::Result<Option<String>> {
         let line = self.io_stream.next_line().await?;
+        dbg!(line.clone());
+
         if self.current_line == self.line_count {
             if let Some(reached_eof) = self.reached_eof_tx.take() {
                 reached_eof
@@ -74,6 +78,7 @@ impl<W: AsyncLineWriter> TailFileIoStream<W> {
             }
         }
         self.current_line += 1;
+
         Ok(line)
     }
 
@@ -91,5 +96,14 @@ impl AsyncLineReader for MuxedLinesWrapper {
             .next_line()
             .await
             .map(|opt| opt.map(|line| line.line().to_string()))
+    }
+}
+
+#[async_trait]
+impl AsyncLineWriter for io::BufWriter<fs::File> {
+    async fn write_line(&mut self, line: &str) -> io::Result<()> {
+        self.write_all(line.as_bytes()).await?;
+        self.write_all(b"\n").await?;
+        self.flush().await
     }
 }
