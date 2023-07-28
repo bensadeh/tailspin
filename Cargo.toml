@@ -14,6 +14,7 @@ path = "src/main.rs"
 name = "spin"
 
 [dependencies]
+async-trait = "0.1.72"
 clap = { version = "4.3.19", features = ["derive"] }
 clap_complete = "4.3.2"
 ctrlc = "3.4.0"
@@ -25,5 +26,5 @@ regex = "1.9.1"
 serde = { version = "1.0", features = ["derive"] }
 shellexpand = "3.1.0"
 tempfile = "3.7.0"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1.29.1", features = ["full"] }
 toml = "0.7.6"

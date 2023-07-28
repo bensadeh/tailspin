@@ -5,6 +5,7 @@ mod config_io;
 mod highlight_processor;
 mod highlight_utils;
 mod highlighters;
+mod io_stream;
 mod less;
 mod line_info;
 mod tail;
