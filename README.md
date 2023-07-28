@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                             
+#                                                                                                                                                                                                                                                
 
 <p align="center">
 A log file highlighter
@@ -44,19 +44,31 @@ no configuration or setup and will work reliably across different log formats.
 
 ## Installing
 
+### Cargo
+
 ```console
 # Install
 cargo install tailspin
 
 # View log file
 spin [file]
-
-# Tail log file
-spin -f [file] 
 ```
 
 > **Note**
 > When installing via cargo, make sure that `$HOME/.cargo/bin` is in your `PATH` environment variable
+
+### Debian
+
+```console
+# Install
+apt install tailspin
+
+# View log file
+tailspin [file]
+```
+
+> **Note**
+> Because of a name collision with another `apt` package, the binary name on Debian is `tailspin`
 
 ## Highlight Groups
 
