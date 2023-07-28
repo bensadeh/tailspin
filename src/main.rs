@@ -110,7 +110,6 @@ async fn process_lines<T: LineIOStream + Unpin + Send>(
     highlight_processor: HighlightProcessor,
 ) {
     while let Ok(Some(line)) = tail_file_io_stream.next_line().await {
-        dbg!(&line);
         let highlighted_line = highlight_processor.apply(&line);
         tail_file_io_stream
             .write_line(&highlighted_line)
