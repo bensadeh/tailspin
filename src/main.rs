@@ -11,7 +11,8 @@ mod line_info;
 mod tail;
 
 use crate::cli::Cli;
-use crate::io_stream::TailFileIoStream;
+use crate::highlight_processor::HighlightProcessor;
+use crate::io_stream::{AsyncLineReader, AsyncLineWriter, LineIOStream, TailFileIoStream};
 use rand::random;
 use std::fs;
 use std::fs::File as StdFile;
@@ -68,17 +69,7 @@ async fn main() {
     .await
     .unwrap();
 
-    tokio::spawn(async move {
-        while let Ok(Some(line)) = io_stream.next_line().await {
-            dbg!(&line);
-            let highlighted_line = highlight_processor.apply(&line);
-            io_stream.write_line(&highlighted_line).await.unwrap();
-        }
-    });
-
-    // if let Err(err) = task.await {
-    //     eprintln!("Error processing lines: {}", err);
-    // }
+    tokio::spawn(process_lines(io_stream, highlight_processor));
 
     reached_eof_rx
         .await
@@ -112,6 +103,20 @@ fn should_exit_early(args: &Cli) -> bool {
     }
 
     false
+}
+
+async fn process_lines<T: LineIOStream + Unpin + Send>(
+    mut tail_file_io_stream: T,
+    highlight_processor: HighlightProcessor,
+) {
+    while let Ok(Some(line)) = tail_file_io_stream.next_line().await {
+        dbg!(&line);
+        let highlighted_line = highlight_processor.apply(&line);
+        tail_file_io_stream
+            .write_line(&highlighted_line)
+            .await
+            .unwrap();
+    }
 }
 
 fn should_follow(follow: bool, has_follow_command: bool) -> bool {
