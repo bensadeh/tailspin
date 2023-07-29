@@ -9,10 +9,13 @@ mod io_stream;
 mod less;
 mod line_info;
 mod tail;
+mod types;
 
 use crate::cli::Cli;
 use crate::highlight_processor::HighlightProcessor;
-use crate::io_stream::{AsyncLineReader, AsyncLineWriter, LineIOStream, TailFileIoStream};
+use crate::io_stream::{LineIOStream, TailFileIoStream, TemplateIOStream};
+use crate::types::Input;
+use crate::types::Output;
 use rand::random;
 use std::fs;
 use std::fs::File as StdFile;
@@ -34,7 +37,7 @@ async fn main() {
     let follow = should_follow(args.follow, args.tail_command.is_some());
     let is_stdin = !stdin().is_terminal();
 
-    let file_path = match args.file_path {
+    let file_path = match args.file_path.clone() {
         Some(path) => path,
         None => {
             if !is_stdin && args.tail_command.is_none() {
@@ -53,21 +56,25 @@ async fn main() {
     let number_of_lines = count_lines(file_path.clone(), follow);
 
     let highlighter = highlighters::Highlighters::new(config);
-    let highlight_processor = highlight_processor::HighlightProcessor::new(highlighter);
+    let highlight_processor = HighlightProcessor::new(highlighter);
 
     let (_temp_dir, output_path, output_writer) = create_temp_file().await;
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
 
     dbg!("starting tailing with TailFileIoStream");
 
-    let mut io_stream = TailFileIoStream::new(
-        &file_path,
-        output_writer,
-        number_of_lines,
-        Some(reached_eof_tx),
-    )
-    .await
-    .unwrap();
+    // let input = Input::FilePath(file_path);
+    // let output = Output::TempFile;
+    let io_stream = TemplateIOStream::new(file_path, number_of_lines, Some(reached_eof_tx));
+
+    // let io_stream = TailFileIoStream::new(
+    //     &file_path,
+    //     output_writer,
+    //     number_of_lines,
+    //     Some(reached_eof_tx),
+    // )
+    // .await
+    // .unwrap();
 
     tokio::spawn(process_lines(io_stream, highlight_processor));
 

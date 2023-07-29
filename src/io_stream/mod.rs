@@ -1,24 +1,17 @@
+mod linemux_reader;
+mod template_io;
+mod traits;
+
+use crate::io_stream::traits::{AsyncLineReader, AsyncLineWriter};
+
 use async_trait::async_trait;
 use linemux::MuxedLines;
 use tokio::io::AsyncWriteExt;
 use tokio::sync::oneshot::Sender;
 use tokio::{fs, io};
 
-#[async_trait]
-pub trait AsyncLineReader {
-    async fn next_line(&mut self) -> io::Result<Option<String>>;
-}
-
-#[async_trait]
-pub trait AsyncLineWriter {
-    async fn write_line(&mut self, line: &str) -> io::Result<()>;
-}
-
-#[async_trait]
-pub trait LineIOStream: Send {
-    async fn next_line(&mut self) -> io::Result<Option<String>>;
-    async fn write_line(&mut self, line: &str) -> io::Result<()>;
-}
+pub use template_io::TemplateIOStream;
+pub use traits::LineIOStream;
 
 pub struct TailFileIoStream<W: AsyncLineWriter> {
     reader: MuxedLinesWrapper,
