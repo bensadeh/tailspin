@@ -32,8 +32,7 @@ impl TemplateIOStream {
 #[async_trait]
 impl LineIOStream for TemplateIOStream {
     async fn next_line(&mut self) -> io::Result<Option<&str>> {
-        // self.reader.next_line().await
-        unimplemented!()
+        self.reader.next_line().await
     }
 
     async fn write_line(&mut self, line: &str) -> io::Result<()> {
