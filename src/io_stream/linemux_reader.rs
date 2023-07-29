@@ -51,7 +51,7 @@ async fn count_lines(file_path: &str) -> io::Result<usize> {
 
 #[async_trait]
 impl AsyncLineReader for LinemuxReader {
-    async fn next_line(&mut self) -> io::Result<Option<&str>> {
+    async fn next_line(&mut self) -> io::Result<Option<String>> {
         if let Ok(Some(line)) = self.lines.next_line().await {
             if self.current_line == self.number_of_lines {
                 if let Some(reached_eof) = self.reached_eof_tx.take() {
@@ -61,7 +61,7 @@ impl AsyncLineReader for LinemuxReader {
                 }
             }
             self.current_line += 1;
-            return Ok(Some(line.line()));
+            return Ok(Some(line.line().to_owned()));
         }
 
         Ok(None)

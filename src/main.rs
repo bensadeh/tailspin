@@ -13,9 +13,7 @@ mod types;
 
 use crate::cli::Cli;
 use crate::highlight_processor::HighlightProcessor;
-use crate::io_stream::{LineIOStream, TailFileIoStream, TemplateIOStream};
-use crate::types::Input;
-use crate::types::Output;
+use crate::io_stream::{LineIOStream, TemplateIOStream};
 use rand::random;
 use std::fs;
 use std::fs::File as StdFile;
@@ -65,7 +63,7 @@ async fn main() {
 
     // let input = Input::FilePath(file_path);
     // let output = Output::TempFile;
-    let io_stream = TemplateIOStream::new(file_path, number_of_lines, Some(reached_eof_tx));
+    let io_stream = TemplateIOStream::new(file_path, number_of_lines, Some(reached_eof_tx)).await;
 
     // let io_stream = TailFileIoStream::new(
     //     &file_path,
