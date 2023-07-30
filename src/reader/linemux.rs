@@ -4,15 +4,15 @@ use linemux::MuxedLines;
 use std::io;
 use tokio::sync::oneshot::Sender;
 
-pub struct LinemuxReader {
+pub struct Linemux {
     number_of_lines: usize,
     current_line: usize,
     reached_eof_tx: Option<Sender<()>>,
     lines: MuxedLines,
 }
 
-impl LinemuxReader {
-    pub async fn create(
+impl Linemux {
+    pub async fn get_reader(
         file_path: String,
         number_of_lines: usize,
         reached_eof_tx: Option<Sender<()>>,
@@ -34,7 +34,7 @@ impl LinemuxReader {
 }
 
 #[async_trait]
-impl AsyncLineReader for LinemuxReader {
+impl AsyncLineReader for Linemux {
     async fn next_line(&mut self) -> io::Result<Option<String>> {
         if let Ok(Some(line)) = self.lines.next_line().await {
             if self.current_line == self.number_of_lines {

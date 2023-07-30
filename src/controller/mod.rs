@@ -2,9 +2,9 @@ pub mod config;
 
 use crate::presenter::less::LessPresenter;
 use crate::presenter::Present;
-use crate::reader::linemux_reader::LinemuxReader;
+use crate::reader::linemux::Linemux;
 use crate::reader::AsyncLineReader;
-use crate::writer::temp_file::{TempFileWriter, TempFileWriterResult};
+use crate::writer::temp_file::TempFileWriter;
 use crate::writer::AsyncLineWriter;
 use async_trait::async_trait;
 use tokio::io;
@@ -27,7 +27,7 @@ pub async fn get_io_and_presenter(
 ) -> (Io, Presenter) {
     let reader = match config.input {
         Input::File(file_info) => {
-            LinemuxReader::create(file_info.path, file_info.line_count, reached_eof_tx).await
+            Linemux::get_reader(file_info.path, file_info.line_count, reached_eof_tx).await
         }
         _ => {
             unimplemented!()
