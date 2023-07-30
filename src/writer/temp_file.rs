@@ -18,7 +18,7 @@ pub struct TempFileWriterResult {
 }
 
 impl TempFileWriter {
-    pub async fn create_with_path() -> TempFileWriterResult {
+    pub async fn create() -> TempFileWriterResult {
         let (temp_dir, temp_file_path, temp_file_writer) = create_temp_file().await;
 
         let temp_file_path_string = temp_file_path

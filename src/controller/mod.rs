@@ -2,7 +2,7 @@ use crate::presenter::less::LessPresenter;
 use crate::presenter::Present;
 use crate::reader::linemux_reader::LinemuxReader;
 use crate::reader::AsyncLineReader;
-use crate::writer::temp_file::TempFileWriter;
+use crate::writer::temp_file::{TempFileWriter, TempFileWriterResult};
 use crate::writer::AsyncLineWriter;
 use async_trait::async_trait;
 use tokio::io;
@@ -25,16 +25,14 @@ pub async fn create_io_and_presenter(
 ) -> (Io, Presenter) {
     let reader = LinemuxReader::create(file_path, number_of_lines, reached_eof_tx).await;
 
-    let result = TempFileWriter::create_with_path().await;
-    let writer = result.writer;
-    let temp_file_path = result.temp_file_path;
-
-    let io = Io { reader, writer };
+    let TempFileWriterResult {
+        writer,
+        temp_file_path,
+    } = TempFileWriter::create().await;
 
     let presenter = LessPresenter::create(temp_file_path, false);
-    let presenter = Presenter { presenter };
 
-    (io, presenter)
+    (Io { reader, writer }, Presenter { presenter })
 }
 
 #[async_trait]
