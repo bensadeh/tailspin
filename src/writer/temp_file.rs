@@ -7,7 +7,7 @@ use tokio::fs::File;
 use tokio::io;
 use tokio::io::{AsyncWriteExt, BufWriter};
 
-pub struct TempFileWriter {
+pub struct TempFile {
     _temp_dir: TempDir,
     temp_file_writer: BufWriter<File>,
 }
@@ -17,8 +17,8 @@ pub struct TempFileWriterResult {
     pub temp_file_path: String,
 }
 
-impl TempFileWriter {
-    pub async fn create() -> TempFileWriterResult {
+impl TempFile {
+    pub async fn get_writer_result() -> TempFileWriterResult {
         let (temp_dir, temp_file_path, temp_file_writer) = create_temp_file().await;
 
         let temp_file_path_string = temp_file_path
@@ -27,7 +27,7 @@ impl TempFileWriter {
             .to_owned();
 
         TempFileWriterResult {
-            writer: Box::new(TempFileWriter {
+            writer: Box::new(TempFile {
                 _temp_dir: temp_dir,
                 temp_file_writer,
             }),
@@ -37,7 +37,7 @@ impl TempFileWriter {
 }
 
 #[async_trait]
-impl AsyncLineWriter for TempFileWriter {
+impl AsyncLineWriter for TempFile {
     async fn write_line(&mut self, line: &str) -> io::Result<()> {
         let line_with_newline = format!("{}\n", line);
         self.temp_file_writer

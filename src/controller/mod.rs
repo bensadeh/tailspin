@@ -1,10 +1,10 @@
 pub mod config;
 
-use crate::presenter::less::LessPresenter;
+use crate::presenter::less::Less;
 use crate::presenter::Present;
 use crate::reader::linemux::Linemux;
 use crate::reader::AsyncLineReader;
-use crate::writer::temp_file::TempFileWriter;
+use crate::writer::temp_file::TempFile;
 use crate::writer::AsyncLineWriter;
 use async_trait::async_trait;
 use tokio::io;
@@ -36,11 +36,11 @@ pub async fn get_io_and_presenter(
 
     let (writer, presenter) = match config.output {
         Output::TempFile => {
-            let result = TempFileWriter::create().await;
+            let result = TempFile::get_writer_result().await;
             let writer = result.writer;
             let temp_file_path = result.temp_file_path;
 
-            let presenter = LessPresenter::create(temp_file_path, false);
+            let presenter = Less::get_presenter(temp_file_path, false);
 
             (writer, presenter)
         }

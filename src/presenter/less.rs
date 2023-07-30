@@ -1,18 +1,18 @@
 use crate::presenter::Present;
 use std::process::Command;
 
-pub struct LessPresenter {
+pub struct Less {
     file_path: String,
     follow: bool,
 }
 
-impl LessPresenter {
-    pub fn create(file_path: String, follow: bool) -> Box<dyn Present + Send> {
+impl Less {
+    pub fn get_presenter(file_path: String, follow: bool) -> Box<dyn Present + Send> {
         Box::new(Self { file_path, follow })
     }
 }
 
-impl Present for LessPresenter {
+impl Present for Less {
     fn present(&self) {
         pass_ctrl_c_events_to_child_process();
 
