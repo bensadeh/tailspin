@@ -4,6 +4,9 @@ use std::fs::File;
 use std::io::{stdin, BufRead, IsTerminal};
 use std::path::Path;
 
+const GENERAL_ERROR: usize = 1;
+const MISUSE_SHELL_BUILTIN: usize = 2;
+
 pub struct Error {
     exit_code: usize,
     message: String,
@@ -43,7 +46,9 @@ enum PathType {
 
 pub fn create_config(args: Cli) -> Result<Config, Error> {
     let follow = should_follow(args.follow, args.listen_command.is_some());
-    let input = get_input(args, follow)?;
+    let is_stdin = !stdin().is_terminal();
+
+    let input = get_input(args.file_path, args.listen_command, is_stdin, follow)?;
 
     let config = Config {
         input,
@@ -54,32 +59,35 @@ pub fn create_config(args: Cli) -> Result<Config, Error> {
     Ok(config)
 }
 
-fn get_input(args: Cli, follow: bool) -> Result<Input, Error> {
-    let is_stdin = !stdin().is_terminal();
-
-    if !is_stdin && args.listen_command.is_none() {
+fn get_input(
+    file_path: Option<String>,
+    listen_command: Option<String>,
+    is_stdin: bool,
+    follow: bool,
+) -> Result<Input, Error> {
+    if !is_stdin && listen_command.is_none() {
         return Err(Error {
-            exit_code: 0,
+            exit_code: GENERAL_ERROR,
             message: "Missing filename (`spin --help` for help) ".to_string(),
         });
     }
 
-    if is_stdin && args.file_path.is_some() {
+    if is_stdin && file_path.is_some() {
         return Err(Error {
-            exit_code: 1,
-            message: "Ambigous input: both ".to_string(),
+            exit_code: MISUSE_SHELL_BUILTIN,
+            message: "Cannot read from both stdin and --listen-command ".to_string(),
         });
     }
 
-    if let Some(file_or_folder) = args.file_path {
+    if let Some(file_or_folder) = file_path {
         return determine_input(file_or_folder, follow);
     }
 
-    if is_stdin && args.file_path.is_none() && args.listen_command.is_none() {
+    if is_stdin && file_path.is_none() && listen_command.is_none() {
         return Ok(Input::Stdin);
     }
 
-    if args.listen_command.is_some() && !is_stdin && args.file_path.is_none() {
+    if listen_command.is_some() && !is_stdin && file_path.is_none() {
         return Ok(Input::ListenCommandFlag);
     }
 
@@ -104,7 +112,7 @@ fn determine_input(path: String, follow: bool) -> Result<Input, Error> {
 
 fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
     let metadata = fs::metadata(path.as_ref()).map_err(|_| Error {
-        exit_code: 1,
+        exit_code: GENERAL_ERROR,
         message: "Failed to access path metadata".into(),
     })?;
 
@@ -114,7 +122,7 @@ fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
         Ok(PathType::Folder)
     } else {
         Err(Error {
-            exit_code: 1,
+            exit_code: GENERAL_ERROR,
             message: "Path is neither a file nor a directory".into(),
         })
     }
@@ -144,11 +152,11 @@ fn list_files_in_directory(path: &Path) -> Result<Vec<String>, Error> {
 
     if path.is_dir() {
         for entry_result in fs::read_dir(path).map_err(|_| Error {
-            exit_code: 1,
+            exit_code: GENERAL_ERROR,
             message: "Unable to read directory".into(),
         })? {
             let entry = entry_result.map_err(|_| Error {
-                exit_code: 1,
+                exit_code: GENERAL_ERROR,
                 message: "Unable to read directory entry".into(),
             })?;
             let entry_path = entry.path();
@@ -158,7 +166,7 @@ fn list_files_in_directory(path: &Path) -> Result<Vec<String>, Error> {
                     entry_path
                         .to_str()
                         .ok_or(Error {
-                            exit_code: 1,
+                            exit_code: GENERAL_ERROR,
                             message: "Non-UTF8 filename".into(),
                         })?
                         .to_string(),
