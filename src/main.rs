@@ -44,7 +44,7 @@ async fn main() {
     let config = match create_config(args) {
         Ok(c) => c,
         Err(e) => {
-            println!("Error: {}", e.message);
+            println!("{}", e.message);
             exit(e.exit_code);
         }
     };
