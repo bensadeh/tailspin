@@ -12,8 +12,13 @@ pub struct TempFileWriter {
     temp_file_writer: BufWriter<File>,
 }
 
+pub struct TempFileWriterResult {
+    pub writer: TempFileWriter,
+    pub temp_file_path: String,
+}
+
 impl TempFileWriter {
-    pub async fn new() -> (Self, String) {
+    pub async fn create_with_path() -> TempFileWriterResult {
         let (temp_dir, temp_file_path, temp_file_writer) = create_temp_file().await;
 
         let temp_file_path_string = temp_file_path
@@ -21,13 +26,13 @@ impl TempFileWriter {
             .expect("Could not get path to temp file")
             .to_owned();
 
-        (
-            Self {
+        TempFileWriterResult {
+            writer: TempFileWriter {
                 _temp_dir: temp_dir,
                 temp_file_writer,
             },
-            temp_file_path_string,
-        )
+            temp_file_path: temp_file_path_string,
+        }
     }
 }
 

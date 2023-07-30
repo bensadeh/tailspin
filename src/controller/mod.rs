@@ -27,7 +27,9 @@ pub async fn create_io_and_presenter(
         .await
         .unwrap();
 
-    let (writer, temp_file_path) = TempFileWriter::new().await;
+    let result = TempFileWriter::create_with_path().await;
+    let writer = result.writer;
+    let temp_file_path = result.temp_file_path;
 
     let io = Io {
         reader: Box::new(reader),
