@@ -11,8 +11,22 @@ pub struct TemplateIOStream {
     writer: Box<dyn AsyncLineWriter + Send>,
 }
 
+pub struct Foo {
+    pub bar: i32,
+}
+
+impl Foo {
+    async fn new() -> Self {
+        Foo { bar: 42 }
+    }
+
+    pub fn bar(&self) -> i32 {
+        self.bar
+    }
+}
+
 impl TemplateIOStream {
-    pub async fn new(
+    pub(crate) async fn new(
         file_path: String,
         number_of_lines: usize,
         reached_eof_tx: Option<Sender<()>>,
@@ -27,6 +41,17 @@ impl TemplateIOStream {
             writer: Box::new(writer),
         }
     }
+}
+
+pub async fn create_stream_and_foo(
+    file_path: String,
+    number_of_lines: usize,
+    reached_eof_tx: Option<Sender<()>>,
+) -> (TemplateIOStream, Foo) {
+    let stream = TemplateIOStream::new(file_path, number_of_lines, reached_eof_tx).await;
+    let foo = Foo::new().await;
+
+    (stream, foo)
 }
 
 #[async_trait]

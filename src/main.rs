@@ -2,18 +2,25 @@ mod cli;
 mod color;
 mod config;
 mod config_io;
+mod controller;
 mod highlight_processor;
 mod highlight_utils;
 mod highlighters;
 mod io_stream;
 mod less;
 mod line_info;
+mod presenter;
+mod reader;
 mod tail;
 mod types;
+mod writer;
 
 use crate::cli::Cli;
+use crate::controller::create_io_and_presenter;
 use crate::highlight_processor::HighlightProcessor;
-use crate::io_stream::{LineIOStream, TemplateIOStream};
+use crate::presenter::Present;
+use crate::reader::AsyncLineReader;
+use crate::writer::AsyncLineWriter;
 use rand::random;
 use std::fs;
 use std::fs::File as StdFile;
@@ -63,29 +70,16 @@ async fn main() {
 
     // let input = Input::FilePath(file_path);
     // let output = Output::TempFile;
-    let io_stream = TemplateIOStream::new(file_path, number_of_lines, Some(reached_eof_tx)).await;
+    let (io, presenter) =
+        create_io_and_presenter(file_path, number_of_lines, Some(reached_eof_tx)).await;
 
-    // let io_stream = TailFileIoStream::new(
-    //     &file_path,
-    //     output_writer,
-    //     number_of_lines,
-    //     Some(reached_eof_tx),
-    // )
-    // .await
-    // .unwrap();
-
-    tokio::spawn(process_lines(io_stream, highlight_processor));
+    tokio::spawn(process_lines(io, highlight_processor));
 
     reached_eof_rx
         .await
         .expect("Could not receive EOF signal from oneshot channel");
 
-    if args.to_stdout {
-        let contents = fs::read_to_string(&output_path).unwrap();
-        println!("{}", contents);
-    } else {
-        less::open_file(output_path.to_str().unwrap(), follow);
-    }
+    presenter.present();
 
     cleanup(output_path);
 }
@@ -110,16 +104,13 @@ fn should_exit_early(args: &Cli) -> bool {
     false
 }
 
-async fn process_lines<T: LineIOStream + Unpin + Send>(
-    mut tail_file_io_stream: T,
+async fn process_lines<T: AsyncLineReader + AsyncLineWriter + Unpin + Send>(
+    mut io: T,
     highlight_processor: HighlightProcessor,
 ) {
-    while let Ok(Some(line)) = tail_file_io_stream.next_line().await {
+    while let Ok(Some(line)) = io.next_line().await {
         let highlighted_line = highlight_processor.apply(&line);
-        tail_file_io_stream
-            .write_line(&highlighted_line)
-            .await
-            .unwrap();
+        io.write_line(&highlighted_line).await.unwrap();
     }
 }
 
