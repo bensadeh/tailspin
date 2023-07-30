@@ -13,7 +13,7 @@ pub struct TempFileWriter {
 }
 
 pub struct TempFileWriterResult {
-    pub writer: TempFileWriter,
+    pub writer: Box<dyn AsyncLineWriter + Send>,
     pub temp_file_path: String,
 }
 
@@ -27,10 +27,10 @@ impl TempFileWriter {
             .to_owned();
 
         TempFileWriterResult {
-            writer: TempFileWriter {
+            writer: Box::new(TempFileWriter {
                 _temp_dir: temp_dir,
                 temp_file_writer,
-            },
+            }),
             temp_file_path: temp_file_path_string,
         }
     }

@@ -29,10 +29,7 @@ pub async fn create_io_and_presenter(
     let writer = result.writer;
     let temp_file_path = result.temp_file_path;
 
-    let io = Io {
-        reader,
-        writer: Box::new(writer),
-    };
+    let io = Io { reader, writer };
 
     let presenter = LessPresenter::create(temp_file_path, false);
     let presenter = Presenter { presenter };

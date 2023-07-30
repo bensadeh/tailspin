@@ -1,14 +1,10 @@
 use crate::reader::AsyncLineReader;
 use async_trait::async_trait;
 use linemux::MuxedLines;
-use std::fs::File;
 use std::io;
-use std::io::{BufRead, BufReader};
-use std::path::Path;
 use tokio::sync::oneshot::Sender;
 
 pub struct LinemuxReader {
-    file_path: String,
     number_of_lines: usize,
     current_line: usize,
     reached_eof_tx: Option<Sender<()>>,
@@ -29,7 +25,6 @@ impl LinemuxReader {
             .expect("Could not add file to linemux");
 
         Box::new(Self {
-            file_path,
             number_of_lines,
             current_line: 1,
             reached_eof_tx,
