@@ -1,6 +1,5 @@
 mod cli;
 mod color;
-mod config_io;
 mod controller;
 mod highlight_processor;
 mod highlight_utils;
@@ -12,6 +11,7 @@ mod presenter;
 mod reader;
 mod tail;
 mod theme;
+mod theme_io;
 mod types;
 mod writer;
 
@@ -56,7 +56,7 @@ async fn main() {
     };
 
     let config_path = args.config_path.clone();
-    let config = config_io::load_config(config_path);
+    let config = theme_io::load_config(config_path);
 
     let number_of_lines = count_lines(file_path.clone(), follow);
 
@@ -91,12 +91,12 @@ fn should_exit_early(args: &Cli) -> bool {
     }
 
     if args.create_default_config {
-        config_io::create_default_config();
+        theme_io::create_default_config();
         return true;
     }
 
     if args.show_default_config {
-        let default_config = config_io::default_config();
+        let default_config = theme_io::default_config();
         println!("{}", default_config);
         return true;
     }
