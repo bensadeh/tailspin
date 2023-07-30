@@ -1,6 +1,5 @@
 use crate::writer::AsyncLineWriter;
 use async_trait::async_trait;
-use clap::builder::TypedValueParser;
 use rand::random;
 use std::path::PathBuf;
 use tempfile::TempDir;
@@ -9,7 +8,7 @@ use tokio::io;
 use tokio::io::{AsyncWriteExt, BufWriter};
 
 pub struct TempFileWriter {
-    temp_dir: TempDir,
+    _temp_dir: TempDir,
     temp_file_writer: BufWriter<File>,
 }
 
@@ -24,7 +23,7 @@ impl TempFileWriter {
 
         (
             Self {
-                temp_dir,
+                _temp_dir: temp_dir,
                 temp_file_writer,
             },
             temp_file_path_string,
