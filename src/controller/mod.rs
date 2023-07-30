@@ -52,23 +52,6 @@ pub async fn get_io_and_presenter(
     (Io { reader, writer }, Presenter { presenter })
 }
 
-pub async fn create_io_and_presenter(
-    file_path: String,
-    number_of_lines: usize,
-    reached_eof_tx: Option<Sender<()>>,
-) -> (Io, Presenter) {
-    let reader = LinemuxReader::create(file_path, number_of_lines, reached_eof_tx).await;
-
-    let TempFileWriterResult {
-        writer,
-        temp_file_path,
-    } = TempFileWriter::create().await;
-
-    let presenter = LessPresenter::create(temp_file_path, false);
-
-    (Io { reader, writer }, Presenter { presenter })
-}
-
 #[async_trait]
 impl AsyncLineReader for Io {
     async fn next_line(&mut self) -> io::Result<Option<String>> {

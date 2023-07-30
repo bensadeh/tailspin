@@ -8,7 +8,7 @@ use std::{env, fs};
 
 const DEFAULT_THEME: &str = include_str!("../../data/config.toml");
 
-pub fn load_config(path: Option<String>) -> Theme {
+pub fn load_theme(path: Option<String>) -> Theme {
     let config_dir = match env::var("XDG_CONFIG_HOME") {
         Ok(xdg_config_dir) => {
             let expanded_path = shellexpand::tilde(&xdg_config_dir).into_owned();
