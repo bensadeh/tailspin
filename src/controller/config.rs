@@ -49,10 +49,11 @@ pub fn create_config(args: Cli) -> Result<Config, Error> {
     let is_stdin = !stdin().is_terminal();
 
     let input = get_input(args.file_path, args.listen_command, is_stdin, follow)?;
+    let output = get_output(is_stdin, args.to_stdout);
 
     let config = Config {
         input,
-        output: Output::Stdout,
+        output,
         follow,
     };
 
@@ -95,6 +96,14 @@ fn get_input(
         exit_code: 1,
         message: "Could not determine input".to_string(),
     })
+}
+
+fn get_output(is_stdin: bool, to_stdout: bool) -> Output {
+    if is_stdin || to_stdout {
+        return Output::Stdout;
+    }
+
+    Output::TempFile
 }
 
 fn determine_input(path: String, follow: bool) -> Result<Input, Error> {
