@@ -25,16 +25,28 @@ pub async fn get_io_and_presenter(
     config: Config,
     reached_eof_tx: Option<Sender<()>>,
 ) -> (Io, Presenter) {
-    let reader = match config.input {
+    let reader = get_reader_from_input(config.input, reached_eof_tx).await;
+    let (writer, presenter) = get_writer_and_presenter_from_output(config.output).await;
+
+    (Io { reader, writer }, Presenter { presenter })
+}
+
+async fn get_reader_from_input(
+    input: Input,
+    reached_eof_tx: Option<Sender<()>>,
+) -> Box<dyn AsyncLineReader + Send> {
+    match input {
         Input::File(file_info) => {
             Linemux::get_reader(file_info.path, file_info.line_count, reached_eof_tx).await
         }
-        _ => {
-            unimplemented!()
-        }
-    };
+        _ => unimplemented!(),
+    }
+}
 
-    let (writer, presenter) = match config.output {
+async fn get_writer_and_presenter_from_output(
+    output: Output,
+) -> (Box<dyn AsyncLineWriter + Send>, Box<dyn Present + Send>) {
+    match output {
         Output::TempFile => {
             let result = TempFile::get_writer_result().await;
             let writer = result.writer;
@@ -44,12 +56,8 @@ pub async fn get_io_and_presenter(
 
             (writer, presenter)
         }
-        _ => {
-            unimplemented!()
-        }
-    };
-
-    (Io { reader, writer }, Presenter { presenter })
+        _ => unimplemented!(),
+    }
 }
 
 #[async_trait]
