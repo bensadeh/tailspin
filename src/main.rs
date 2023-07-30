@@ -15,7 +15,8 @@ mod theme_io;
 mod writer;
 
 use crate::cli::Cli;
-use crate::controller::create_io_and_presenter;
+use crate::controller::config::create_config;
+use crate::controller::{create_io_and_presenter, get_io_and_presenter};
 use crate::highlight_processor::HighlightProcessor;
 use crate::presenter::Present;
 use crate::reader::AsyncLineReader;
@@ -65,12 +66,18 @@ async fn main() {
     let (_temp_dir, output_path, output_writer) = create_temp_file().await;
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
 
-    dbg!("starting tailing with TailFileIoStream");
+    let config = match create_config(args) {
+        Ok(c) => c,
+        Err(e) => {
+            println!("Error: {}", e.message);
+            exit(e.exit_code);
+        }
+    };
 
-    // let input = Input::FilePath(file_path);
-    // let output = Output::TempFile;
-    let (io, presenter) =
-        create_io_and_presenter(file_path, number_of_lines, Some(reached_eof_tx)).await;
+    let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;
+
+    // let (io, presenter) =
+    //     create_io_and_presenter(file_path, number_of_lines, Some(reached_eof_tx)).await;
 
     tokio::spawn(process_lines(io, highlight_processor));
 

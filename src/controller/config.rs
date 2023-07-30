@@ -4,12 +4,12 @@ use std::fs::File;
 use std::io::{stdin, BufRead, IsTerminal};
 use std::path::Path;
 
-const GENERAL_ERROR: usize = 1;
-const MISUSE_SHELL_BUILTIN: usize = 2;
+const GENERAL_ERROR: i32 = 1;
+const MISUSE_SHELL_BUILTIN: i32 = 2;
 
 pub struct Error {
-    exit_code: usize,
-    message: String,
+    pub exit_code: i32,
+    pub message: String,
 }
 
 pub struct Config {
@@ -66,7 +66,7 @@ fn get_input(
     is_stdin: bool,
     follow: bool,
 ) -> Result<Input, Error> {
-    if !is_stdin && listen_command.is_none() {
+    if !is_stdin && file_path.is_none() {
         return Err(Error {
             exit_code: GENERAL_ERROR,
             message: "Missing filename (`spin --help` for help) ".to_string(),
