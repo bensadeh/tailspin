@@ -1,4 +1,5 @@
 pub mod linemux;
+pub mod stdin;
 
 use async_trait::async_trait;
 use tokio::io;

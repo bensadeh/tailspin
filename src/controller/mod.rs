@@ -11,6 +11,7 @@ use tokio::io;
 
 use crate::controller::config::{Config, Input, Output};
 use crate::presenter::empty::NoPresenter;
+use crate::reader::stdin::StdinReader;
 use crate::writer::stdout::StdoutWriter;
 use tokio::sync::oneshot::Sender;
 
@@ -41,6 +42,7 @@ async fn get_reader(
         Input::File(file_info) => {
             Linemux::get_reader(file_info.path, file_info.line_count, reached_eof_tx).await
         }
+        Input::Stdin => StdinReader::get_reader(reached_eof_tx),
         _ => unimplemented!(),
     }
 }
