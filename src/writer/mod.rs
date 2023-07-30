@@ -1,3 +1,4 @@
+pub mod stdout;
 pub mod temp_file;
 
 use async_trait::async_trait;

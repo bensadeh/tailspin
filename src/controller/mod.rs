@@ -10,6 +10,8 @@ use async_trait::async_trait;
 use tokio::io;
 
 use crate::controller::config::{Config, Input, Output};
+use crate::presenter::empty::NoPresenter;
+use crate::writer::stdout::StdoutWriter;
 use tokio::sync::oneshot::Sender;
 
 pub struct Io {
@@ -25,13 +27,13 @@ pub async fn get_io_and_presenter(
     config: Config,
     reached_eof_tx: Option<Sender<()>>,
 ) -> (Io, Presenter) {
-    let reader = get_reader_from_input(config.input, reached_eof_tx).await;
-    let (writer, presenter) = get_writer_and_presenter_from_output(config.output).await;
+    let reader = get_reader(config.input, reached_eof_tx).await;
+    let (writer, presenter) = get_writer(config.output).await;
 
     (Io { reader, writer }, Presenter { presenter })
 }
 
-async fn get_reader_from_input(
+async fn get_reader(
     input: Input,
     reached_eof_tx: Option<Sender<()>>,
 ) -> Box<dyn AsyncLineReader + Send> {
@@ -43,9 +45,7 @@ async fn get_reader_from_input(
     }
 }
 
-async fn get_writer_and_presenter_from_output(
-    output: Output,
-) -> (Box<dyn AsyncLineWriter + Send>, Box<dyn Present + Send>) {
+async fn get_writer(output: Output) -> (Box<dyn AsyncLineWriter + Send>, Box<dyn Present + Send>) {
     match output {
         Output::TempFile => {
             let result = TempFile::get_writer_result().await;
@@ -56,7 +56,12 @@ async fn get_writer_and_presenter_from_output(
 
             (writer, presenter)
         }
-        _ => unimplemented!(),
+        Output::Stdout => {
+            let writer = StdoutWriter::new();
+            let presenter = NoPresenter::get_presenter();
+
+            (writer, presenter)
+        }
     }
 }
 
