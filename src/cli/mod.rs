@@ -24,7 +24,7 @@ pub struct Cli {
 
     /// Listens to stdout of the provided command and traps interrupt events from reaching the command
     #[clap(short = 'l', long = "listen-command")]
-    pub tail_command: Option<String>,
+    pub listen_command: Option<String>,
 
     /// Generate a new configuration file
     #[clap(long = "create-default-config")]

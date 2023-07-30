@@ -38,13 +38,13 @@ async fn main() {
         exit(0);
     }
 
-    let follow = should_follow(args.follow, args.tail_command.is_some());
+    let follow = should_follow(args.follow, args.listen_command.is_some());
     let is_stdin = !stdin().is_terminal();
 
     let file_path = match args.file_path.clone() {
         Some(path) => path,
         None => {
-            if !is_stdin && args.tail_command.is_none() {
+            if !is_stdin && args.listen_command.is_none() {
                 println!("Missing filename (`spin --help` for help) ");
 
                 exit(0);
