@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                
+#                                                                                                                                                                                                                                                       
 
 <p align="center">
 A log file highlighter
@@ -36,11 +36,11 @@ A log file highlighter
 ## Overview
 
 `tailspin` works by reading through a log file line by line, running a series of regexes
-against each line. The regexes recognize useful patterns, like dates, numbers, severity
+against each line. The regexes recognize patterns like dates, numbers, severity
 keywords and more.
 
-Since `tailspin` does not make any assumptions on the format or position of the items it wants to highlight, it requires
-no configuration or setup and will work reliably across different log formats.
+`tailspin` does not make any assumptions on the format or position of the items it wants to highlight. For this reason,
+it requires no configuration or setup and will work predictably regardless of the format the log file is in.
 
 ## Installing
 
@@ -124,8 +124,8 @@ tailspin [file]
 
 ### Overview
 
-`tailspin` uses a single `config.toml` file to configure all highlight groups. When customizing highlights it is advised
-to start with the `tailspin generate-config` command to place a `config.toml` with default options
+`tailspin` uses a single `config.toml` file to configure all highlight groups. When customizing highlights, it is
+advised to start with the `--create-default-config ` flag to place a `config.toml` with default options
 in `~/.config/tailspin`.
 
 To disable a highlight group, either comment it out or delete it.
@@ -162,15 +162,9 @@ command (`man less`) or by hitting the <kbd>h</kbd> button to access the help sc
 Navigating within `less` uses a set of keybindings that may be familiar to users of `vim` or other `vi`-like
 editors. Here's a brief overview of the most useful navigation commands:
 
-#### Scrolling
-
-- <kbd>j</kbd>/<kbd>k</kbd>: Scroll one line up/down.
-- <kbd>d</kbd>/<kbd>u</kbd>: Scroll one half-page up/down.
-
-#### Start and end of file:
-
-- <kbd>g</kbd>: Go to the start (top) of the file.
-- <kbd>G</kbd>: Go to the end (bottom) of the file.
+- <kbd>j</kbd>/<kbd>k</kbd>: Scroll one line up / down
+- <kbd>d</kbd>/<kbd>u</kbd>: Scroll one half-page up / down
+- <kbd>g</kbd>/<kbd>G</kbd>: Go to the top / bottom of the file
 
 ### Follow mode
 
