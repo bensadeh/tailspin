@@ -17,8 +17,8 @@ _spin() {
     _arguments "${_arguments_options[@]}" \
 '-c+[Path to a custom configuration file]:CONFIG_PATH: ' \
 '--config-path=[Path to a custom configuration file]:CONFIG_PATH: ' \
-'-t+[Tails the output of the provided command]:TAIL_COMMAND: ' \
-'--tail-command=[Tails the output of the provided command]:TAIL_COMMAND: ' \
+'-l+[Listens to stdout of the provided command and traps interrupt events from reaching the command]:TAIL_COMMAND: ' \
+'--listen-command=[Listens to stdout of the provided command and traps interrupt events from reaching the command]:TAIL_COMMAND: ' \
 '--z-generate-shell-completions=[Print completions to stdout]:GENERATE_SHELL_COMPLETIONS: ' \
 '-f[Follow (tail) the contents of the file]' \
 '--follow[Follow (tail) the contents of the file]' \

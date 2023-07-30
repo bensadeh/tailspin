@@ -2,6 +2,8 @@
 
 ## 1.3.0
 
+- The `--tail-command` flag has been renamed to `--listen-command`
+
 ## 1.2.1 - 26.07.23
 
 - Run `less` with environment variable `LESSSECURE=1`

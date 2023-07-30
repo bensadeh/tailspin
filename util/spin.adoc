@@ -34,10 +34,9 @@ Print the output to stdout instead of viewing the contents in the pager _less_.
 *-c, --config-path* _CONFIG_PATH_::
 Specify the path to a custom configuration file.
 
-*-t, --tail-command* _COMMAND_::
-Tail the output of the provided command.
-Useful for when you have a command which continuously prints to stdout.
-The command traps the interrupt signal to allow for cancelling and resuming tailing while inside _less_.
+*-l, --listen-command* _COMMAND_::
+Continuously listens to stdout of the provided command.
+The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside _less_.
 
 *--create-default-config*::
 Generate a new configuration file.

@@ -22,8 +22,8 @@ pub struct Cli {
     #[clap(short = 'c', long = "config-path")]
     pub config_path: Option<String>,
 
-    /// Tails the output of the provided command
-    #[clap(short = 't', long = "tail-command")]
+    /// Listens to stdout of the provided command and traps interrupt events from reaching the command
+    #[clap(short = 'l', long = "listen-command")]
     pub tail_command: Option<String>,
 
     /// Generate a new configuration file
