@@ -96,7 +96,7 @@ fn should_exit_early(args: &Cli) -> bool {
     }
 
     if args.show_default_config {
-        let default_config = theme_io::default_config();
+        let default_config = theme_io::default_theme();
         println!("{}", default_config);
         return true;
     }

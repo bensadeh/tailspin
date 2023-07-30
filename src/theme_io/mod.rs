@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::process::exit;
 use std::{env, fs};
 
-const DEFAULT_CONFIG: &str = include_str!("../../data/config.toml");
+const DEFAULT_THEME: &str = include_str!("../../data/config.toml");
 
 pub fn load_config(path: Option<String>) -> Theme {
     let config_dir = match env::var("XDG_CONFIG_HOME") {
@@ -48,7 +48,7 @@ pub fn load_config(path: Option<String>) -> Theme {
                 }
             }
         }
-        None => match toml::from_str(DEFAULT_CONFIG) {
+        None => match toml::from_str(DEFAULT_THEME) {
             Ok(config) => config,
             Err(err) => {
                 println!("Could not deserialize default config:\n\n{}", err);
@@ -101,7 +101,7 @@ pub fn create_default_config() {
 
     match File::create(&target_config_path) {
         Ok(mut file) => {
-            if let Err(err) = file.write_all(DEFAULT_CONFIG.as_bytes()) {
+            if let Err(err) = file.write_all(DEFAULT_THEME.as_bytes()) {
                 eprintln!(
                     "Failed to write to the config file at {}: {}",
                     tilde_path, err
@@ -121,6 +121,6 @@ pub fn create_default_config() {
     }
 }
 
-pub fn default_config() -> &'static str {
-    DEFAULT_CONFIG
+pub fn default_theme() -> &'static str {
+    DEFAULT_THEME
 }
