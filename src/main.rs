@@ -21,7 +21,7 @@ use crate::highlight_processor::HighlightProcessor;
 use crate::presenter::Present;
 use crate::reader::AsyncLineReader;
 use crate::writer::AsyncLineWriter;
-use std::io::{BufRead, IsTerminal};
+
 use std::process::exit;
 use tokio::sync::oneshot;
 
