@@ -23,20 +23,18 @@ pub async fn create_io_and_presenter(
     number_of_lines: usize,
     reached_eof_tx: Option<Sender<()>>,
 ) -> (Io, Presenter) {
-    let reader = LinemuxReader::new(file_path, number_of_lines, reached_eof_tx)
-        .await
-        .unwrap();
+    let reader = LinemuxReader::create(file_path, number_of_lines, reached_eof_tx).await;
 
     let result = TempFileWriter::create_with_path().await;
     let writer = result.writer;
     let temp_file_path = result.temp_file_path;
 
     let io = Io {
-        reader: Box::new(reader),
+        reader,
         writer: Box::new(writer),
     };
 
-    let presenter = LessPresenter::new(temp_file_path, false);
+    let presenter = LessPresenter::create(temp_file_path, false);
     let presenter = Presenter { presenter };
 
     (io, presenter)

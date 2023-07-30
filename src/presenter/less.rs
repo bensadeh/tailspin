@@ -7,7 +7,7 @@ pub struct LessPresenter {
 }
 
 impl LessPresenter {
-    pub fn new(file_path: String, follow: bool) -> Box<dyn Present + Send> {
+    pub fn create(file_path: String, follow: bool) -> Box<dyn Present + Send> {
         Box::new(Self { file_path, follow })
     }
 }

@@ -16,15 +16,19 @@ pub struct LinemuxReader {
 }
 
 impl LinemuxReader {
-    pub async fn new(
+    pub async fn create(
         file_path: String,
         number_of_lines: usize,
         reached_eof_tx: Option<Sender<()>>,
-    ) -> io::Result<Self> {
-        let mut lines = MuxedLines::new()?;
-        lines.add_file_from_start(&file_path).await?;
+    ) -> Box<dyn AsyncLineReader + Send> {
+        let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
-        Ok(Self {
+        lines
+            .add_file_from_start(&file_path)
+            .await
+            .expect("Could not add file to linemux");
+
+        Box::new(Self {
             file_path,
             number_of_lines,
             current_line: 1,
@@ -32,21 +36,6 @@ impl LinemuxReader {
             lines,
         })
     }
-}
-
-async fn count_lines(file_path: &str) -> io::Result<usize> {
-    let file_path = file_path.to_owned();
-
-    let line_count = tokio::task::spawn_blocking(move || {
-        let path = Path::new(&file_path);
-        let file = File::open(&path).expect("Could not open file");
-        let reader = BufReader::new(file);
-        reader.lines().count()
-    })
-    .await
-    .unwrap();
-
-    Ok(line_count)
 }
 
 #[async_trait]
