@@ -9,6 +9,7 @@ use crate::writer::AsyncLineWriter;
 use async_trait::async_trait;
 use tokio::io;
 
+use crate::controller::config::{Config, Input, Output};
 use tokio::sync::oneshot::Sender;
 
 pub struct Io {
@@ -18,6 +19,37 @@ pub struct Io {
 
 pub struct Presenter {
     presenter: Box<dyn Present + Send>,
+}
+
+pub async fn get_io_and_presenter(
+    config: Config,
+    reached_eof_tx: Option<Sender<()>>,
+) -> (Io, Presenter) {
+    let reader = match config.input {
+        Input::File(file_info) => {
+            LinemuxReader::create(file_info.path, file_info.line_count, reached_eof_tx).await
+        }
+        _ => {
+            unimplemented!()
+        }
+    };
+
+    let (writer, presenter) = match config.output {
+        Output::TempFile => {
+            let result = TempFileWriter::create().await;
+            let writer = result.writer;
+            let temp_file_path = result.temp_file_path;
+
+            let presenter = LessPresenter::create(temp_file_path, false);
+
+            (writer, presenter)
+        }
+        _ => {
+            unimplemented!()
+        }
+    };
+
+    (Io { reader, writer }, Presenter { presenter })
 }
 
 pub async fn create_io_and_presenter(

@@ -13,9 +13,9 @@ pub struct Error {
 }
 
 pub struct Config {
-    input: Input,
-    output: Output,
-    follow: bool,
+    pub input: Input,
+    pub output: Output,
+    pub follow: bool,
 }
 
 pub enum Input {
@@ -26,8 +26,8 @@ pub enum Input {
 }
 
 pub struct PathAndLineCount {
-    path: String,
-    line_count: usize,
+    pub path: String,
+    pub line_count: usize,
 }
 
 pub struct Files {
