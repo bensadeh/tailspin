@@ -1,8 +1,8 @@
 use crate::color;
 use crate::color::to_ansi;
-use crate::config::Url;
 use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
+use crate::theme::Url;
 use lazy_static::lazy_static;
 use regex::Regex;
 

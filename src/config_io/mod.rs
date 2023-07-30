@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::theme::Theme;
 
 use std::fs::File;
 use std::io::Write;
@@ -8,7 +8,7 @@ use std::{env, fs};
 
 const DEFAULT_CONFIG: &str = include_str!("../../data/config.toml");
 
-pub fn load_config(path: Option<String>) -> Config {
+pub fn load_config(path: Option<String>) -> Theme {
     let config_dir = match env::var("XDG_CONFIG_HOME") {
         Ok(xdg_config_dir) => {
             let expanded_path = shellexpand::tilde(&xdg_config_dir).into_owned();
@@ -40,7 +40,7 @@ pub fn load_config(path: Option<String>) -> Config {
             let p = &PathBuf::from(path);
             let contents = fs::read_to_string(p).expect("Could not read file");
 
-            match toml::from_str::<Config>(&contents) {
+            match toml::from_str::<Theme>(&contents) {
                 Ok(config) => config,
                 Err(err) => {
                     println!("Could not deserialize file:\n\n{}", err);

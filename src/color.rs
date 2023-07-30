@@ -1,4 +1,4 @@
-use crate::config::Style;
+use crate::theme::Style;
 use serde::de::{self, Deserializer, Visitor};
 use serde::Deserialize;
 use std::fmt;

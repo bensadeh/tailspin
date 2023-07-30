@@ -1,9 +1,9 @@
 use crate::color;
 use crate::color::to_ansi;
-use crate::config::Style;
 use crate::highlight_utils::highlight_with_awareness;
 use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
+use crate::theme::Style;
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 

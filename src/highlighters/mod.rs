@@ -7,10 +7,10 @@ mod quotes;
 mod url;
 mod uuid;
 
-use crate::config::Config;
-use crate::config::Keyword;
-use crate::config::Style;
 use crate::line_info::LineInfo;
+use crate::theme::Keyword;
+use crate::theme::Style;
+use crate::theme::Theme;
 
 type HighlightFn = Box<dyn Fn(&str, &LineInfo) -> String + Send>;
 type HighlightFnVec = Vec<HighlightFn>;
@@ -27,7 +27,7 @@ struct FlattenKeyword {
 }
 
 impl Highlighters {
-    pub fn new(config: Config) -> Highlighters {
+    pub fn new(config: Theme) -> Highlighters {
         let mut before_fns: HighlightFnVec = Vec::new();
         let mut main_fns: HighlightFnVec = Vec::new();
         let mut after_fns: HighlightFnVec = Vec::new();
@@ -87,7 +87,7 @@ impl Highlighters {
         }
     }
 
-    fn flatten(config: &Config) -> Vec<FlattenKeyword> {
+    fn flatten(config: &Theme) -> Vec<FlattenKeyword> {
         let keywords_or_empty = config.groups.keywords.clone().unwrap_or_default();
 
         Self::flatten_keywords(keywords_or_empty)

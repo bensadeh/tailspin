@@ -1,6 +1,5 @@
 mod cli;
 mod color;
-mod config;
 mod config_io;
 mod controller;
 mod highlight_processor;
@@ -12,6 +11,7 @@ mod line_info;
 mod presenter;
 mod reader;
 mod tail;
+mod theme;
 mod types;
 mod writer;
 

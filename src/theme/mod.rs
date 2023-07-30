@@ -87,6 +87,6 @@ pub struct Groups {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct Config {
+pub struct Theme {
     pub groups: Groups,
 }
