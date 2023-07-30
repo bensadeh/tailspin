@@ -17,7 +17,7 @@ pub struct Config {
 
 pub enum Input {
     File(PathAndLineCount),
-    Folder(String),
+    Folder(Files),
     ListenCommandFlag,
     Stdin,
 }
@@ -25,6 +25,10 @@ pub enum Input {
 pub struct PathAndLineCount {
     path: String,
     line_count: usize,
+}
+
+pub struct Files {
+    paths: Vec<String>,
 }
 
 pub enum Output {
@@ -67,28 +71,35 @@ fn get_input(args: Cli, follow: bool) -> Result<Input, Error> {
         });
     }
 
-    if let Some(path) = args.file_path {
-        let path_type = check_path_type(path.clone())?;
-
-        return match path_type {
-            PathType::File => {
-                let line_count = count_lines(path.clone(), follow);
-                let path_and_line_count = PathAndLineCount { path, line_count };
-
-                Ok(Input::File(path_and_line_count))
-            }
-            PathType::Folder => Ok(Input::Folder(path)),
-        };
+    if let Some(file_or_folder) = args.file_path {
+        return determine_input(file_or_folder, follow);
     }
 
     if is_stdin && args.file_path.is_none() && args.listen_command.is_none() {
         return Ok(Input::Stdin);
     }
 
+    if args.listen_command.is_some() && !is_stdin && args.file_path.is_none() {
+        return Ok(Input::ListenCommandFlag);
+    }
+
     Err(Error {
         exit_code: 1,
         message: "Could not determine input".to_string(),
     })
+}
+
+fn determine_input(path: String, follow: bool) -> Result<Input, Error> {
+    match check_path_type(&path)? {
+        PathType::File => {
+            let line_count = count_lines(&path, follow);
+            Ok(Input::File(PathAndLineCount { path, line_count }))
+        }
+        PathType::Folder => {
+            let paths = list_files_in_directory(Path::new(&path))?;
+            Ok(Input::Folder(Files { paths }))
+        }
+    }
 }
 
 fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
@@ -103,7 +114,7 @@ fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
         Ok(PathType::Folder)
     } else {
         Err(Error {
-            exit_code: 2,
+            exit_code: 1,
             message: "Path is neither a file nor a directory".into(),
         })
     }
@@ -126,4 +137,35 @@ fn count_lines<P: AsRef<Path>>(file_path: P, follow: bool) -> usize {
     let reader = std::io::BufReader::new(file);
 
     reader.lines().count()
+}
+
+fn list_files_in_directory(path: &Path) -> Result<Vec<String>, Error> {
+    let mut files = Vec::new();
+
+    if path.is_dir() {
+        for entry_result in fs::read_dir(path).map_err(|_| Error {
+            exit_code: 1,
+            message: "Unable to read directory".into(),
+        })? {
+            let entry = entry_result.map_err(|_| Error {
+                exit_code: 1,
+                message: "Unable to read directory entry".into(),
+            })?;
+            let entry_path = entry.path();
+
+            if entry_path.is_file() {
+                files.push(
+                    entry_path
+                        .to_str()
+                        .ok_or(Error {
+                            exit_code: 1,
+                            message: "Non-UTF8 filename".into(),
+                        })?
+                        .to_string(),
+                );
+            }
+        }
+    }
+
+    Ok(files)
 }
