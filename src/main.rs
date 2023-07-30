@@ -12,7 +12,6 @@ mod reader;
 mod tail;
 mod theme;
 mod theme_io;
-mod types;
 mod writer;
 
 use crate::cli::Cli;
