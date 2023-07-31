@@ -3,6 +3,10 @@
 ## 1.3.0
 
 - Added support for tailing folders
+- Changed behavior: `tailspin` will now print to `stdout` by default if used in a pipe. For
+  example: `echo "hello null" | spin`
+  will output a syntax highlighted "hello null" directly to `stdout` instead of via the pager less. The change will make
+  it easier to use tailspin in scripting and piping.
 - The `--tail-command` flag has been renamed to `--follow-command`
 
 ## 1.2.1 - 26.07.23
