@@ -17,7 +17,7 @@ spin - A log file highlighter
 
 == SYNOPSIS
 
-*spin* [_OPTION_]... [_FILE_]...
+*spin* [_OPTION_]... [_FILE_|_FOLDER_]...
 
 == DESCRIPTION
 
@@ -27,9 +27,11 @@ tailspin is a command line tool that highlights log files.
 
 *-f, --follow*::
 Follow (tail) the contents of the file.
+Always true if opening a folder or using the _--follow-command_ flag.
 
 *-p, --print*::
 Print the output to stdout instead of viewing the contents in the pager _less_.
+Always true if stdin has data.
 
 *-c, --config-path* _CONFIG_PATH_::
 Specify the path to a custom configuration file.

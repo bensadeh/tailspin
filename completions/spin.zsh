@@ -30,7 +30,7 @@ _spin() {
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-'::FILE -- Filepath:' \
+'::FILE -- Path to file or folder:' \
 && ret=0
 }
 
