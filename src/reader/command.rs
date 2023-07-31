@@ -1,6 +1,6 @@
 use crate::reader::AsyncLineReader;
 use async_trait::async_trait;
-use std::process::{Command, Stdio};
+use std::process::Stdio;
 use tokio::io;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command as AsyncCommand;
