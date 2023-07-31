@@ -1,11 +1,17 @@
 use crate::cli::Cli;
 use crate::file_utils::{count_lines, list_files_in_directory};
 use crate::types::{
-    Config, Error, Files, Input, Output, PathAndLineCount, GENERAL_ERROR, MISUSE_SHELL_BUILTIN,
+    Config, Error, Files, Input, Output, PathAndLineCount, GENERAL_ERROR, MISUSE_SHELL_BUILTIN, OK,
 };
 use std::fs;
 use std::io::{stdin, IsTerminal};
 use std::path::Path;
+
+enum InputType {
+    Stdin,
+    Command(String),
+    FileOrFolder(String),
+}
 
 enum PathType {
     File,
@@ -14,10 +20,17 @@ enum PathType {
 
 pub fn create_config(args: Cli) -> Result<Config, Error> {
     let follow = should_follow(args.follow, args.listen_command.is_some());
-    let is_stdin = !stdin().is_terminal();
+    let has_data_from_stdin = !stdin().is_terminal();
 
-    let input = get_input(args.file_path, args.listen_command, is_stdin)?;
-    let output = get_output(is_stdin, args.to_stdout);
+    validate_input(
+        has_data_from_stdin,
+        args.file_path.is_some(),
+        args.listen_command.is_some(),
+    )?;
+
+    let input_type = determine_input_type(&args, has_data_from_stdin)?;
+    let input = get_input(input_type)?;
+    let output = get_output(has_data_from_stdin, args.to_stdout);
 
     let config = Config {
         input,
@@ -28,45 +41,64 @@ pub fn create_config(args: Cli) -> Result<Config, Error> {
     Ok(config)
 }
 
-fn get_input(
-    file_path: Option<String>,
-    listen_command: Option<String>,
-    is_stdin: bool,
-) -> Result<Input, Error> {
-    if !is_stdin && file_path.is_none() && listen_command.is_none() {
+fn validate_input(
+    has_data_from_stdin: bool,
+    has_file_or_folder_input: bool,
+    has_follow_command_input: bool,
+) -> Result<(), Error> {
+    if !has_data_from_stdin && !has_file_or_folder_input && !has_follow_command_input {
         return Err(Error {
-            exit_code: GENERAL_ERROR,
-            message: "Missing filename (`spin --help` for help) ".to_string(),
+            exit_code: OK,
+            message: "Missing filename (`spin --help` for help)".to_string(),
         });
     }
 
-    if is_stdin && file_path.is_some() {
+    if has_data_from_stdin && has_file_or_folder_input {
         return Err(Error {
             exit_code: MISUSE_SHELL_BUILTIN,
-            message: "Cannot read from both stdin and --listen-command ".to_string(),
+            message: "Cannot read from both stdin and --listen-command".to_string(),
         });
     }
 
-    if let Some(file_or_folder) = file_path {
-        return determine_input(file_or_folder);
+    if has_file_or_folder_input && has_follow_command_input {
+        return Err(Error {
+            exit_code: MISUSE_SHELL_BUILTIN,
+            message: "Cannot read from both file and --listen-command".to_string(),
+        });
     }
 
-    if is_stdin && file_path.is_none() && listen_command.is_none() {
-        return Ok(Input::Stdin);
+    Ok(())
+}
+
+fn determine_input_type(args: &Cli, has_data_from_stdin: bool) -> Result<InputType, Error> {
+    if has_data_from_stdin {
+        return Ok(InputType::Stdin);
     }
 
-    if let Some(command) = listen_command {
-        return Ok(Input::Command(command));
+    if let Some(command) = &args.listen_command {
+        return Ok(InputType::Command(command.clone()));
+    }
+
+    if let Some(path) = &args.file_path {
+        return Ok(InputType::FileOrFolder(path.clone()));
     }
 
     Err(Error {
-        exit_code: 1,
-        message: "Could not determine input".to_string(),
+        exit_code: GENERAL_ERROR,
+        message: "Could not determine input type".to_string(),
     })
 }
 
-fn get_output(is_stdin: bool, to_stdout: bool) -> Output {
-    if is_stdin || to_stdout {
+fn get_input(input_type: InputType) -> Result<Input, Error> {
+    match input_type {
+        InputType::Stdin => Ok(Input::Stdin),
+        InputType::Command(cmd) => Ok(Input::Command(cmd)),
+        InputType::FileOrFolder(path) => determine_input(path),
+    }
+}
+
+fn get_output(has_data_from_stdin: bool, is_print_flag: bool) -> Output {
+    if has_data_from_stdin || is_print_flag {
         return Output::Stdout;
     }
 
