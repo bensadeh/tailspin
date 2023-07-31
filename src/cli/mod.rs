@@ -6,7 +6,7 @@ use std::io;
 #[command(name = "spin")]
 #[command(author, version, about)]
 pub struct Cli {
-    /// File or folder path
+    /// Path to file or folder
     #[clap(name = "FILE")]
     pub file_path: Option<String>,
 
