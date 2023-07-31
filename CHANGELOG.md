@@ -2,7 +2,7 @@
 
 ## 1.3.0
 
-- The `--tail-command` flag has been renamed to `--listen-command`
+- The `--tail-command` flag has been renamed to `--follow-command`
 
 ## 1.2.1 - 26.07.23
 

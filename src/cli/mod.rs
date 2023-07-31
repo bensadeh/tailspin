@@ -22,8 +22,8 @@ pub struct Cli {
     #[clap(short = 'c', long = "config-path")]
     pub config_path: Option<String>,
 
-    /// Listens to stdout of the provided command and traps interrupt events from reaching the command
-    #[clap(short = 'l', long = "listen-command", conflicts_with = "follow")]
+    /// Continuously listens to the stdout of the provided command and prevents interrupt events (Ctrl + C) from reaching the command
+    #[clap(short = 'l', long = "follow-command", conflicts_with = "follow")]
     pub listen_command: Option<String>,
 
     /// Generate a new configuration file

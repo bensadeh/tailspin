@@ -34,7 +34,7 @@ Print the output to stdout instead of viewing the contents in the pager _less_.
 *-c, --config-path* _CONFIG_PATH_::
 Specify the path to a custom configuration file.
 
-*-l, --listen-command* _COMMAND_::
+*-l, --follow-command* _COMMAND_::
 Continuously listens to stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside _less_.
 
