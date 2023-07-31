@@ -3,6 +3,7 @@ use crate::file_utils::{count_lines, list_files_in_directory};
 use crate::types::{
     Config, Error, Files, Input, Output, PathAndLineCount, GENERAL_ERROR, MISUSE_SHELL_BUILTIN, OK,
 };
+use colored::*;
 use std::fs;
 use std::io::{stdin, IsTerminal};
 use std::path::Path;
@@ -49,21 +50,30 @@ fn validate_input(
     if !has_data_from_stdin && !has_file_or_folder_input && !has_follow_command_input {
         return Err(Error {
             exit_code: OK,
-            message: "Missing filename (`spin --help` for help)".to_string(),
+            message: format!(
+                "Missing filename (\"{}\" for help)",
+                "spin --help".magenta()
+            ),
         });
     }
 
     if has_data_from_stdin && has_file_or_folder_input {
         return Err(Error {
             exit_code: MISUSE_SHELL_BUILTIN,
-            message: "Cannot read from both stdin and --listen-command".to_string(),
+            message: format!(
+                "Cannot read from both stdin and `{}`",
+                "--listen-command".magenta()
+            ),
         });
     }
 
     if has_file_or_folder_input && has_follow_command_input {
         return Err(Error {
             exit_code: MISUSE_SHELL_BUILTIN,
-            message: "Cannot read from both file and --listen-command".to_string(),
+            message: format!(
+                "Cannot read from both file and `{}`",
+                "--listen-command".magenta()
+            ),
         });
     }
 

@@ -1,5 +1,6 @@
 use crate::reader::AsyncLineReader;
 use async_trait::async_trait;
+use colored::Colorize;
 use linemux::MuxedLines;
 use std::io;
 use tokio::sync::oneshot::Sender;
@@ -41,7 +42,6 @@ impl Linemux {
         })
     }
 
-    // For multiple files
     pub async fn get_reader_multiple(
         folder_name: String,
         file_paths: Vec<String>,
@@ -55,6 +55,12 @@ impl Linemux {
 
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
+        let custom_message = format!(
+            "Tailing {} files in {}",
+            file_paths.len().to_string().cyan(),
+            folder_name.green(),
+        );
+
         for file_path in file_paths {
             lines
                 .add_file(&file_path)
@@ -63,7 +69,7 @@ impl Linemux {
         }
 
         Box::new(Self {
-            custom_message: Some("tailing folders".to_string()),
+            custom_message: Some(custom_message),
             number_of_lines: None,
             current_line: 1,
             reached_eof_tx,

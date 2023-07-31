@@ -8,7 +8,6 @@ use tokio::sync::oneshot::Sender;
 
 pub struct CommandReader {
     reader: BufReader<tokio::process::ChildStdout>,
-    reached_eof_tx: Option<Sender<()>>,
 }
 
 impl CommandReader {
@@ -35,10 +34,7 @@ impl CommandReader {
 
         let reader = BufReader::new(stdout);
 
-        Box::new(CommandReader {
-            reader,
-            reached_eof_tx,
-        })
+        Box::new(CommandReader { reader })
     }
 
     async fn read_bytes_until_newline(&mut self) -> io::Result<Vec<u8>> {
