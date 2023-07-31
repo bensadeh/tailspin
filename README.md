@@ -174,7 +174,7 @@ as they're added to the file.
 To stop following the file, interrupt with <kbd>Ctrl + C</kbd>. This will stop the tailing, but keep the
 file open, allowing you to review the existing content.
 
-To resume following the file from within `less`, press <kbd>Shift</kbd>+<kbd>f</kbd>.
+To resume following the file from within `less`, press <kbd>Shift + f</kbd>.
 
 ### Search
 
