@@ -2,6 +2,7 @@
 
 ## 1.3.0
 
+- Added support for tailing folders
 - The `--tail-command` flag has been renamed to `--follow-command`
 
 ## 1.2.1 - 26.07.23
