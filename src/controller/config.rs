@@ -19,7 +19,6 @@ enum PathType {
 }
 
 pub fn create_config(args: Cli) -> Result<Config, Error> {
-    let follow = should_follow(args.follow, args.listen_command.is_some());
     let has_data_from_stdin = !stdin().is_terminal();
 
     validate_input(
@@ -31,6 +30,7 @@ pub fn create_config(args: Cli) -> Result<Config, Error> {
     let input_type = determine_input_type(&args, has_data_from_stdin)?;
     let input = get_input(input_type)?;
     let output = get_output(has_data_from_stdin, args.to_stdout);
+    let follow = should_follow(args.follow, args.listen_command.is_some(), &input);
 
     let config = Config {
         input,
@@ -136,8 +136,12 @@ fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
     }
 }
 
-fn should_follow(follow: bool, has_follow_command: bool) -> bool {
+fn should_follow(follow: bool, has_follow_command: bool, input: &Input) -> bool {
     if has_follow_command {
+        return true;
+    }
+
+    if matches!(input, Input::Folder(_)) {
         return true;
     }
 
