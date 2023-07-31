@@ -9,9 +9,9 @@ use crate::writer::AsyncLineWriter;
 use async_trait::async_trait;
 use tokio::io;
 
-use crate::controller::config::{Config, Input, Output};
 use crate::presenter::empty::NoPresenter;
 use crate::reader::stdin::StdinReader;
+use crate::types::{Config, Input, Output};
 use crate::writer::stdout::StdoutWriter;
 use tokio::sync::oneshot::Sender;
 

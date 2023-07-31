@@ -1,6 +1,7 @@
 mod cli;
 mod color;
 mod controller;
+mod file_utils;
 mod highlight_processor;
 mod highlight_utils;
 mod highlighters;
@@ -12,6 +13,7 @@ mod reader;
 mod tail;
 mod theme;
 mod theme_io;
+mod types;
 mod writer;
 
 use crate::cli::Cli;

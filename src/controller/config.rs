@@ -1,43 +1,11 @@
 use crate::cli::Cli;
+use crate::file_utils::{count_lines, list_files_in_directory};
+use crate::types::{
+    Config, Error, Files, Input, Output, PathAndLineCount, GENERAL_ERROR, MISUSE_SHELL_BUILTIN,
+};
 use std::fs;
-use std::fs::File;
-use std::io::{stdin, BufRead, IsTerminal};
+use std::io::{stdin, IsTerminal};
 use std::path::Path;
-
-const GENERAL_ERROR: i32 = 1;
-const MISUSE_SHELL_BUILTIN: i32 = 2;
-
-pub struct Error {
-    pub exit_code: i32,
-    pub message: String,
-}
-
-pub struct Config {
-    pub input: Input,
-    pub output: Output,
-    pub follow: bool,
-}
-
-pub enum Input {
-    File(PathAndLineCount),
-    Folder(Files),
-    ListenCommandFlag,
-    Stdin,
-}
-
-pub struct PathAndLineCount {
-    pub path: String,
-    pub line_count: usize,
-}
-
-pub struct Files {
-    paths: Vec<String>,
-}
-
-pub enum Output {
-    TempFile,
-    Stdout,
-}
 
 enum PathType {
     File,
@@ -143,46 +111,4 @@ fn should_follow(follow: bool, has_follow_command: bool) -> bool {
     }
 
     follow
-}
-
-fn count_lines<P: AsRef<Path>>(file_path: P, follow: bool) -> usize {
-    if follow {
-        return 1;
-    }
-
-    let file = File::open(file_path).expect("Could not open file");
-    let reader = std::io::BufReader::new(file);
-
-    reader.lines().count()
-}
-
-fn list_files_in_directory(path: &Path) -> Result<Vec<String>, Error> {
-    let mut files = Vec::new();
-
-    if path.is_dir() {
-        for entry_result in fs::read_dir(path).map_err(|_| Error {
-            exit_code: GENERAL_ERROR,
-            message: "Unable to read directory".into(),
-        })? {
-            let entry = entry_result.map_err(|_| Error {
-                exit_code: GENERAL_ERROR,
-                message: "Unable to read directory entry".into(),
-            })?;
-            let entry_path = entry.path();
-
-            if entry_path.is_file() {
-                files.push(
-                    entry_path
-                        .to_str()
-                        .ok_or(Error {
-                            exit_code: GENERAL_ERROR,
-                            message: "Non-UTF8 filename".into(),
-                        })?
-                        .to_string(),
-                );
-            }
-        }
-    }
-
-    Ok(files)
 }
