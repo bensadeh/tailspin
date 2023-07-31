@@ -10,6 +10,7 @@ use async_trait::async_trait;
 use tokio::io;
 
 use crate::presenter::empty::NoPresenter;
+use crate::reader::command::CommandReader;
 use crate::reader::stdin::StdinReader;
 use crate::types::{Config, Input, Output};
 use crate::writer::stdout::StdoutWriter;
@@ -43,6 +44,7 @@ async fn get_reader(
             Linemux::get_reader(file_info.path, file_info.line_count, reached_eof_tx).await
         }
         Input::Stdin => StdinReader::get_reader(reached_eof_tx),
+        Input::Command(cmd) => CommandReader::get_reader(cmd, reached_eof_tx).await,
         _ => unimplemented!(),
     }
 }

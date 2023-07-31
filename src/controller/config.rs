@@ -34,7 +34,7 @@ fn get_input(
     is_stdin: bool,
     follow: bool,
 ) -> Result<Input, Error> {
-    if !is_stdin && file_path.is_none() {
+    if !is_stdin && file_path.is_none() && listen_command.is_none() {
         return Err(Error {
             exit_code: GENERAL_ERROR,
             message: "Missing filename (`spin --help` for help) ".to_string(),
@@ -56,8 +56,8 @@ fn get_input(
         return Ok(Input::Stdin);
     }
 
-    if listen_command.is_some() && !is_stdin && file_path.is_none() {
-        return Ok(Input::ListenCommandFlag);
+    if let Some(command) = listen_command {
+        return Ok(Input::Command(command));
     }
 
     Err(Error {

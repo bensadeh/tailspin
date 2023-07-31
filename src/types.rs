@@ -24,7 +24,7 @@ pub struct Files {
 pub enum Input {
     File(PathAndLineCount),
     Folder(Files),
-    ListenCommandFlag,
+    Command(String),
     Stdin,
 }
 

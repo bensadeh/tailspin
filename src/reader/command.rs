@@ -13,27 +13,32 @@ pub struct CommandReader {
 
 impl CommandReader {
     pub async fn get_reader(
-        command: &str,
-        reached_eof_tx: Option<Sender<()>>,
-    ) -> io::Result<Box<dyn AsyncLineReader + Send>> {
+        command: String,
+        mut reached_eof_tx: Option<Sender<()>>,
+    ) -> Box<dyn AsyncLineReader + Send> {
+        if let Some(reached_eof) = reached_eof_tx.take() {
+            reached_eof
+                .send(())
+                .expect("Failed sending EOF signal to oneshot channel");
+        };
+
         let trap_command = format!("trap '' INT; {}", command);
 
         let child = AsyncCommand::new("sh")
             .arg("-c")
             .arg(trap_command)
             .stdout(Stdio::piped())
-            .spawn()?;
+            .spawn()
+            .expect("Could not spawn process");
 
-        let stdout = child.stdout.ok_or_else(|| {
-            io::Error::new(io::ErrorKind::Other, "Could not capture standard output.")
-        })?;
+        let stdout = child.stdout.expect("Could not spawn child process");
 
         let reader = BufReader::new(stdout);
 
-        Ok(Box::new(CommandReader {
+        Box::new(CommandReader {
             reader,
             reached_eof_tx,
-        }))
+        })
     }
 
     async fn read_bytes_until_newline(&mut self) -> io::Result<Vec<u8>> {
@@ -55,14 +60,6 @@ impl CommandReader {
 
         buf
     }
-
-    fn send_eof_signal(&mut self) {
-        if let Some(reached_eof) = self.reached_eof_tx.take() {
-            reached_eof
-                .send(())
-                .expect("Failed sending EOF signal to oneshot channel");
-        }
-    }
 }
 
 #[async_trait]
@@ -71,7 +68,6 @@ impl AsyncLineReader for CommandReader {
         let buffer = self.read_bytes_until_newline().await?;
 
         if buffer.is_empty() {
-            self.send_eof_signal();
             return Ok(None);
         }
 
