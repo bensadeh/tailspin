@@ -16,7 +16,7 @@ pub fn create_config(args: Cli) -> Result<Config, Error> {
     let follow = should_follow(args.follow, args.listen_command.is_some());
     let is_stdin = !stdin().is_terminal();
 
-    let input = get_input(args.file_path, args.listen_command, is_stdin, follow)?;
+    let input = get_input(args.file_path, args.listen_command, is_stdin)?;
     let output = get_output(is_stdin, args.to_stdout);
 
     let config = Config {
@@ -32,7 +32,6 @@ fn get_input(
     file_path: Option<String>,
     listen_command: Option<String>,
     is_stdin: bool,
-    follow: bool,
 ) -> Result<Input, Error> {
     if !is_stdin && file_path.is_none() && listen_command.is_none() {
         return Err(Error {
@@ -49,7 +48,7 @@ fn get_input(
     }
 
     if let Some(file_or_folder) = file_path {
-        return determine_input(file_or_folder, follow);
+        return determine_input(file_or_folder);
     }
 
     if is_stdin && file_path.is_none() && listen_command.is_none() {
@@ -74,10 +73,10 @@ fn get_output(is_stdin: bool, to_stdout: bool) -> Output {
     Output::TempFile
 }
 
-fn determine_input(path: String, follow: bool) -> Result<Input, Error> {
+fn determine_input(path: String) -> Result<Input, Error> {
     match check_path_type(&path)? {
         PathType::File => {
-            let line_count = count_lines(&path, follow);
+            let line_count = count_lines(&path);
             Ok(Input::File(PathAndLineCount { path, line_count }))
         }
         PathType::Folder => {

@@ -35,11 +35,7 @@ pub fn list_files_in_directory(path: &Path) -> Result<Vec<String>, Error> {
     Ok(files)
 }
 
-pub fn count_lines<P: AsRef<Path>>(file_path: P, follow: bool) -> usize {
-    if follow {
-        return 1;
-    }
-
+pub fn count_lines<P: AsRef<Path>>(file_path: P) -> usize {
     let file = File::open(file_path).expect("Could not open file");
     let reader = std::io::BufReader::new(file);
 

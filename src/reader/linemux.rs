@@ -16,6 +16,7 @@ impl Linemux {
     pub async fn get_reader_single(
         file_path: String,
         number_of_lines: usize,
+        follow: bool,
         reached_eof_tx: Option<Sender<()>>,
     ) -> Box<dyn AsyncLineReader + Send> {
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
@@ -25,9 +26,15 @@ impl Linemux {
             .await
             .expect("Could not add file to linemux");
 
+        let number_of_lines = if follow {
+            Some(1)
+        } else {
+            Some(number_of_lines)
+        };
+
         Box::new(Self {
             custom_message: None,
-            number_of_lines: Some(number_of_lines),
+            number_of_lines,
             current_line: 1,
             reached_eof_tx,
             lines,
