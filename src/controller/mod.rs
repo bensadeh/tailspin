@@ -41,11 +41,13 @@ async fn get_reader(
 ) -> Box<dyn AsyncLineReader + Send> {
     match input {
         Input::File(file_info) => {
-            Linemux::get_reader(file_info.path, file_info.line_count, reached_eof_tx).await
+            Linemux::get_reader_single(file_info.path, file_info.line_count, reached_eof_tx).await
+        }
+        Input::Folder(files) => {
+            Linemux::get_reader_multiple("".to_string(), files.paths, reached_eof_tx).await
         }
         Input::Stdin => StdinReader::get_reader(reached_eof_tx),
         Input::Command(cmd) => CommandReader::get_reader(cmd, reached_eof_tx).await,
-        _ => unimplemented!(),
     }
 }
 
