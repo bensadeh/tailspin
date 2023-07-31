@@ -1,3 +1,4 @@
+pub mod command;
 pub mod linemux;
 pub mod stdin;
 
