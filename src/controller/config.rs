@@ -1,7 +1,8 @@
 use crate::cli::Cli;
 use crate::file_utils::{count_lines, list_files_in_directory};
 use crate::types::{
-    Config, Error, Files, Input, Output, PathAndLineCount, GENERAL_ERROR, MISUSE_SHELL_BUILTIN, OK,
+    Config, Error, FolderInfo, Input, Output, PathAndLineCount, GENERAL_ERROR,
+    MISUSE_SHELL_BUILTIN, OK,
 };
 use colored::*;
 use std::fs;
@@ -123,7 +124,10 @@ fn determine_input(path: String) -> Result<Input, Error> {
         }
         PathType::Folder => {
             let paths = list_files_in_directory(Path::new(&path))?;
-            Ok(Input::Folder(Files { paths }))
+            Ok(Input::Folder(FolderInfo {
+                folder_name: path,
+                file_paths: paths,
+            }))
         }
     }
 }

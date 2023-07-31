@@ -18,13 +18,14 @@ pub struct PathAndLineCount {
     pub line_count: usize,
 }
 
-pub struct Files {
-    pub paths: Vec<String>,
+pub struct FolderInfo {
+    pub folder_name: String,
+    pub file_paths: Vec<String>,
 }
 
 pub enum Input {
     File(PathAndLineCount),
-    Folder(Files),
+    Folder(FolderInfo),
     Command(String),
     Stdin,
 }
