@@ -23,6 +23,6 @@ impl Highlight for NumberHighlighter {
     }
 }
 
-fn highlight_numbers(color: &str, input: &str, line_info: &LineInfo) -> String {
+fn highlight_numbers(color: &str, input: &str, _line_info: &LineInfo) -> String {
     highlight_utils::highlight_with_awareness_replace_all(color, input, &NUMBER_REGEX)
 }

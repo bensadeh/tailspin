@@ -14,6 +14,7 @@ use crate::highlighters::number::NumberHighlighter;
 use crate::highlighters::path::PathHighlighter;
 use crate::highlighters::quotes::QuoteHighlighter;
 use crate::highlighters::url::UrlHighlighter;
+use crate::highlighters::uuid::UuidHighlighter;
 use crate::theme::Keyword;
 use crate::theme::Style;
 use crate::theme::Theme;
@@ -58,14 +59,14 @@ impl Highlighters {
         if let Some(ip) = &config.groups.ip {
             before_fns.push(Box::new(IpHighlighter::new(&ip.segment, &ip.separator)));
         }
-        //
-        // // UUIDs
-        // if let Some(uuid) = &config.groups.uuid {
-        //     before_fns.push(Box::new(uuid::UUIDHighlighter::new(
-        //         &uuid.segment,
-        //         &uuid.separator,
-        //     )));
-        // }
+
+        // UUIDs
+        if let Some(uuid) = &config.groups.uuid {
+            before_fns.push(Box::new(UuidHighlighter::new(
+                &uuid.segment,
+                &uuid.separator,
+            )));
+        }
 
         // Numbers
         if let Some(numbers) = &config.groups.number {

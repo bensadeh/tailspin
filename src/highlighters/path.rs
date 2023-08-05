@@ -5,7 +5,7 @@ use crate::line_info::LineInfo;
 use crate::regexes::PATH_REGEX;
 use crate::theme::Style;
 use crate::types::Highlight;
-use regex::{Captures, Regex};
+use regex::Captures;
 
 pub struct PathHighlighter {
     segment_color: String,
