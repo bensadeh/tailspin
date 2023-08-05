@@ -85,11 +85,7 @@ mod tests {
     fn highlight_quotes_with_ansi() {
         let style = Style {
             fg: Fg::Yellow,
-            bg: Bg::None,
-            italic: false,
-            bold: false,
-            underline: false,
-            faint: false,
+            ..Default::default()
         };
 
         let line_info = &LineInfo {
@@ -133,11 +129,7 @@ mod tests {
     fn do_nothing_on_uneven_number_of_quotes() {
         let style = Style {
             fg: Fg::Red,
-            bg: Bg::None,
-            italic: false,
-            bold: false,
-            underline: false,
-            faint: false,
+            ..Default::default()
         };
 
         let line_info = &LineInfo {
