@@ -2,16 +2,39 @@ use crate::color;
 use crate::color::to_ansi;
 use crate::line_info::LineInfo;
 use crate::theme::Style;
-use crate::types::HighlightFn;
+use crate::types::{Highlight, HighlightFn};
 use lazy_static::lazy_static;
 use regex::Regex;
 
-pub fn highlight(style: &Style) -> HighlightFn {
-    let color = to_ansi(style);
+pub struct DateHighlighter {
+    color: String,
+}
 
-    Box::new(move |input: &str, line_info: &LineInfo| -> String {
-        highlight_dates(&color, input, line_info, &DATE_REGEX)
-    })
+impl DateHighlighter {
+    pub fn new(style: &Style) -> Self {
+        Self {
+            color: to_ansi(style),
+        }
+    }
+}
+
+impl Highlight for DateHighlighter {
+    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
+        highlight_dates(&self.color, input, line_info)
+    }
+}
+
+fn highlight_dates(color: &str, input: &str, line_info: &LineInfo) -> String {
+    // if line does not have at least two dashes or two colons, it is not a date
+    if line_info.dashes < 2 && line_info.colons < 2 {
+        return input.to_string();
+    }
+
+    let highlighted = DATE_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
+        format!("{}{}{}", color, &caps[0], color::RESET)
+    });
+
+    highlighted.into_owned()
 }
 
 lazy_static! {
@@ -34,19 +57,6 @@ lazy_static! {
             \b                     # Word boundary, ensures we are at the end of a date/time string
             ").expect("Invalid regex pattern")
     };
-}
-
-fn highlight_dates(color: &str, input: &str, line_info: &LineInfo, date_regex: &Regex) -> String {
-    // if line does not have at least two dashes or two colons, it is not a date
-    if line_info.dashes < 2 && line_info.colons < 2 {
-        return input.to_string();
-    }
-
-    let highlighted = date_regex.replace_all(input, |caps: &regex::Captures<'_>| {
-        format!("{}{}{}", color, &caps[0], color::RESET)
-    });
-
-    highlighted.into_owned()
 }
 
 #[cfg(test)]

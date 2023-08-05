@@ -10,72 +10,84 @@ mod uuid;
 use crate::theme::Keyword;
 use crate::theme::Style;
 use crate::theme::Theme;
-use crate::types::HighlightFnVec;
-
-pub struct Highlighters {
-    pub before: HighlightFnVec,
-    pub main: HighlightFnVec,
-    pub after: HighlightFnVec,
-}
+use crate::types::Highlight;
 
 struct FlattenKeyword {
     pub keyword: String,
     pub style: Style,
 }
 
+pub struct Highlighters {
+    pub before: Vec<Box<dyn Highlight + Send>>,
+    pub main: Vec<Box<dyn Highlight + Send>>,
+    pub after: Vec<Box<dyn Highlight + Send>>,
+}
+
 impl Highlighters {
     pub fn new(config: Theme) -> Highlighters {
-        let mut before_fns: HighlightFnVec = Vec::new();
-        let mut main_fns: HighlightFnVec = Vec::new();
-        let mut after_fns: HighlightFnVec = Vec::new();
+        let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
+        let mut main_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
+        let mut after_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
         // Dates
         if let Some(dates) = &config.groups.date {
-            before_fns.push(date::highlight(&dates.style));
+            before_fns.push(Box::new(date::DateHighlighter::new(&dates.style)));
         }
 
-        // URLs
-        if let Some(url) = &config.groups.url {
-            before_fns.push(url::highlight(url));
-        }
-
-        // Paths
-        if let Some(path) = &config.groups.path {
-            before_fns.push(path::highlight(&path.segment, &path.separator));
-        }
-
-        // IPs
-        if let Some(ip) = &config.groups.ip {
-            before_fns.push(ip::highlight(&ip.segment, &ip.separator));
-        }
-
-        // UUIDs
-        if let Some(uuid) = &config.groups.uuid {
-            before_fns.push(uuid::highlight(&uuid.segment, &uuid.separator));
-        }
-
-        // Numbers
-        if let Some(numbers) = &config.groups.number {
-            main_fns.push(number::highlight(&numbers.style));
-        }
-
-        // Keywords
-        let flattened_keywords = Self::flatten(&config);
-        let keyword_strings: Vec<String> = flattened_keywords
-            .iter()
-            .map(|kw| kw.keyword.clone())
-            .collect();
-
-        keyword::init_keywords(keyword_strings);
-
-        for keyword in flattened_keywords {
-            main_fns.push(keyword::highlight(keyword.keyword, &keyword.style));
-        }
-
-        // Quotes
-        if let Some(quotes_group) = &config.groups.quotes {
-            after_fns.push(quotes::highlight(&quotes_group.style, quotes_group.token));
-        }
+        // // URLs
+        // if let Some(url) = &config.groups.url {
+        //     before_fns.push(Box::new(url::URLHighlighter::new(url)));
+        // }
+        //
+        // // Paths
+        // if let Some(path) = &config.groups.path {
+        //     before_fns.push(Box::new(path::PathHighlighter::new(
+        //         &path.segment,
+        //         &path.separator,
+        //     )));
+        // }
+        //
+        // // IPs
+        // if let Some(ip) = &config.groups.ip {
+        //     before_fns.push(Box::new(ip::IPHighlighter::new(&ip.segment, &ip.separator)));
+        // }
+        //
+        // // UUIDs
+        // if let Some(uuid) = &config.groups.uuid {
+        //     before_fns.push(Box::new(uuid::UUIDHighlighter::new(
+        //         &uuid.segment,
+        //         &uuid.separator,
+        //     )));
+        // }
+        //
+        // // Numbers
+        // if let Some(numbers) = &config.groups.number {
+        //     main_fns.push(Box::new(number::NumberHighlighter::new(&numbers.style)));
+        // }
+        //
+        // // Keywords
+        // let flattened_keywords = Self::flatten(&config);
+        // let keyword_strings: Vec<String> = flattened_keywords
+        //     .iter()
+        //     .map(|kw| kw.keyword.clone())
+        //     .collect();
+        //
+        // keyword::init_keywords(keyword_strings);
+        //
+        // for keyword in flattened_keywords {
+        //     main_fns.push(Box::new(keyword::KeywordHighlighter::new(
+        //         keyword.keyword,
+        //         &keyword.style,
+        //     )));
+        // }
+        //
+        // // Quotes
+        // if let Some(quotes_group) = &config.groups.quotes {
+        //     after_fns.push(Box::new(quotes::QuotesHighlighter::new(
+        //         &quotes_group.style,
+        //         quotes_group.token,
+        //     )));
+        // }
 
         Highlighters {
             before: before_fns,

@@ -7,6 +7,10 @@ pub const MISUSE_SHELL_BUILTIN: i32 = 2;
 pub type HighlightFn = Box<dyn Fn(&str, &LineInfo) -> String + Send>;
 pub type HighlightFnVec = Vec<HighlightFn>;
 
+pub trait Highlight {
+    fn apply(&self, input: &str, line_info: &LineInfo) -> String;
+}
+
 pub struct Error {
     pub exit_code: i32,
     pub message: String,
