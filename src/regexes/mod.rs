@@ -38,4 +38,13 @@ lazy_static! {
         )
         .expect("Invalid regex pattern")
     };
+    pub static ref PATH_REGEX: Regex = {
+        Regex::new(
+            r"(?x)                        # Enable extended mode for readability
+            (?P<path>                     # Capture the path segment
+                [~/.][\w./-]*             # Match zero or more word characters, dots, slashes, or hyphens
+                /[\w.-]*                  # Match a path segment separated by a slash
+            )"
+        ).expect("Invalid regex pattern")
+    };
 }

@@ -9,6 +9,7 @@ mod uuid;
 
 use crate::highlighters::ip::IpHighlighter;
 use crate::highlighters::number::NumberHighlighter;
+use crate::highlighters::path::PathHighlighter;
 use crate::theme::Keyword;
 use crate::theme::Style;
 use crate::theme::Theme;
@@ -41,14 +42,14 @@ impl Highlighters {
         //     before_fns.push(Box::new(url::UrlHighlighter::new(url)));
         // }
 
-        // // Paths
-        // if let Some(path) = &config.groups.path {
-        //     before_fns.push(Box::new(path::PathHighlighter::new(
-        //         &path.segment,
-        //         &path.separator,
-        //     )));
-        // }
-        //
+        // Paths
+        if let Some(path) = &config.groups.path {
+            before_fns.push(Box::new(PathHighlighter::new(
+                &path.segment,
+                &path.separator,
+            )));
+        }
+
         // IPs
         if let Some(ip) = &config.groups.ip {
             before_fns.push(Box::new(IpHighlighter::new(&ip.segment, &ip.separator)));
