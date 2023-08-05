@@ -47,4 +47,13 @@ lazy_static! {
             )"
         ).expect("Invalid regex pattern")
     };
+    pub static ref URL_REGEX: Regex = {
+        Regex::new(
+        r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?")
+        .expect("Invalid regex pattern")
+    };
+    pub static ref QUERY_PARAMS_REGEX: Regex = {
+        Regex::new(r"(?P<delimiter>[?&])(?P<key>[^=]*)(?P<equal>=)(?P<value>[^&]*)")
+            .expect("Invalid query params regex pattern")
+    };
 }
