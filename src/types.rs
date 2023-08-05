@@ -1,6 +1,11 @@
+use crate::line_info::LineInfo;
+
 pub const OK: i32 = 0;
 pub const GENERAL_ERROR: i32 = 1;
 pub const MISUSE_SHELL_BUILTIN: i32 = 2;
+
+pub type HighlightFn = Box<dyn Fn(&str, &LineInfo) -> String + Send>;
+pub type HighlightFnVec = Vec<HighlightFn>;
 
 pub struct Error {
     pub exit_code: i32,

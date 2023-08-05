@@ -1,8 +1,8 @@
 use crate::color::to_ansi;
 use crate::highlight_utils;
-use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
 use crate::theme::Style;
+use crate::types::HighlightFn;
 use once_cell::sync::OnceCell;
 use regex::Regex;
 use std::collections::HashMap;

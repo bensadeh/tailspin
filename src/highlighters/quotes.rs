@@ -1,9 +1,9 @@
 use crate::color;
 use crate::color::to_ansi;
 use crate::highlighters::quotes::State::{InsideQuote, OutsideQuote};
-use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
 use crate::theme::Style;
+use crate::types::HighlightFn;
 
 pub fn highlight(style: &Style, quotes_token: char) -> HighlightFn {
     let color = to_ansi(style);

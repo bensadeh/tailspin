@@ -7,13 +7,10 @@ mod quotes;
 mod url;
 mod uuid;
 
-use crate::line_info::LineInfo;
 use crate::theme::Keyword;
 use crate::theme::Style;
 use crate::theme::Theme;
-
-type HighlightFn = Box<dyn Fn(&str, &LineInfo) -> String + Send>;
-type HighlightFnVec = Vec<HighlightFn>;
+use crate::types::HighlightFnVec;
 
 pub struct Highlighters {
     pub before: HighlightFnVec,
