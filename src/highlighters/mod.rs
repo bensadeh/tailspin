@@ -7,6 +7,7 @@ mod quotes;
 mod url;
 mod uuid;
 
+use crate::highlighters::ip::IpHighlighter;
 use crate::theme::Keyword;
 use crate::theme::Style;
 use crate::theme::Theme;
@@ -36,9 +37,9 @@ impl Highlighters {
 
         // // URLs
         // if let Some(url) = &config.groups.url {
-        //     before_fns.push(Box::new(url::URLHighlighter::new(url)));
+        //     before_fns.push(Box::new(url::UrlHighlighter::new(url)));
         // }
-        //
+
         // // Paths
         // if let Some(path) = &config.groups.path {
         //     before_fns.push(Box::new(path::PathHighlighter::new(
@@ -47,10 +48,10 @@ impl Highlighters {
         //     )));
         // }
         //
-        // // IPs
-        // if let Some(ip) = &config.groups.ip {
-        //     before_fns.push(Box::new(ip::IPHighlighter::new(&ip.segment, &ip.separator)));
-        // }
+        // IPs
+        if let Some(ip) = &config.groups.ip {
+            before_fns.push(Box::new(IpHighlighter::new(&ip.segment, &ip.separator)));
+        }
         //
         // // UUIDs
         // if let Some(uuid) = &config.groups.uuid {

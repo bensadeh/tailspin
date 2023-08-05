@@ -2,31 +2,37 @@ use crate::color;
 use crate::color::to_ansi;
 use crate::highlight_utils::highlight_with_awareness;
 use crate::line_info::LineInfo;
+use crate::regexes::IP_ADDRESS_REGEX;
 use crate::theme::Style;
-use crate::types::HighlightFn;
-use lazy_static::lazy_static;
+use crate::types::Highlight;
 use regex::{Captures, Regex};
 
-pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
-    let segment_color = to_ansi(segment);
-    let separator_color = to_ansi(separator);
+pub struct IpHighlighter {
+    segment_color: String,
+    separator_color: String,
+}
 
-    Box::new(move |input: &str, line_info: &LineInfo| -> String {
+impl IpHighlighter {
+    pub fn new(segment: &Style, separator: &Style) -> Self {
+        let segment_color = to_ansi(segment);
+        let separator_color = to_ansi(separator);
+        IpHighlighter {
+            segment_color,
+            separator_color,
+        }
+    }
+}
+
+impl Highlight for IpHighlighter {
+    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
         highlight_ip_addresses(
-            &segment_color,
-            &separator_color,
+            &self.segment_color,
+            &self.separator_color,
             input,
             line_info,
             &IP_ADDRESS_REGEX,
         )
-    })
-}
-
-lazy_static! {
-    static ref IP_ADDRESS_REGEX: Regex = {
-        Regex::new(r"(\b\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3}\b)")
-            .expect("Invalid IP address regex pattern")
-    };
+    }
 }
 
 fn highlight_ip_addresses(
@@ -49,10 +55,6 @@ fn highlight_ip_addresses(
         (separator_color, 6),
         (segment_color, 7),
     ];
-
-    if line_info.dots < 3 {
-        return input.to_string();
-    }
 
     highlight_with_awareness(input, ip_address_regex, |caps: &Captures<'_>| {
         let mut output = String::new();
