@@ -10,6 +10,7 @@ mod uuid;
 use crate::highlighters::ip::IpHighlighter;
 use crate::highlighters::number::NumberHighlighter;
 use crate::highlighters::path::PathHighlighter;
+use crate::highlighters::quotes::QuoteHighlighter;
 use crate::theme::Keyword;
 use crate::theme::Style;
 use crate::theme::Theme;
@@ -84,13 +85,13 @@ impl Highlighters {
             )));
         }
 
-        // // Quotes
-        // if let Some(quotes_group) = &config.groups.quotes {
-        //     after_fns.push(Box::new(quotes::QuotesHighlighter::new(
-        //         &quotes_group.style,
-        //         quotes_group.token,
-        //     )));
-        // }
+        // Quotes
+        if let Some(quotes_group) = &config.groups.quotes {
+            after_fns.push(Box::new(QuoteHighlighter::new(
+                &quotes_group.style,
+                quotes_group.token,
+            )));
+        }
 
         Highlighters {
             before: before_fns,
