@@ -8,6 +8,7 @@ mod url;
 mod uuid;
 
 use crate::highlighters::ip::IpHighlighter;
+use crate::highlighters::number::NumberHighlighter;
 use crate::theme::Keyword;
 use crate::theme::Style;
 use crate::theme::Theme;
@@ -60,11 +61,11 @@ impl Highlighters {
         //         &uuid.separator,
         //     )));
         // }
-        //
-        // // Numbers
-        // if let Some(numbers) = &config.groups.number {
-        //     main_fns.push(Box::new(number::NumberHighlighter::new(&numbers.style)));
-        // }
+
+        // Numbers
+        if let Some(numbers) = &config.groups.number {
+            main_fns.push(Box::new(NumberHighlighter::new(&numbers.style)));
+        }
 
         // Keywords
         let flattened_keywords = Self::flatten(&config);

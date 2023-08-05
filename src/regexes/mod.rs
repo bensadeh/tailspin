@@ -25,4 +25,17 @@ lazy_static! {
         Regex::new(r"(\b\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3}\b)")
             .expect("Invalid IP address regex pattern")
     };
+    pub static ref NUMBER_REGEX: Regex = {
+        Regex::new(
+            r"(?x)       # Enable comments and whitespace insensitivity
+            \b           # Word boundary, ensures we are at the start of a number
+            \d+          # Matches one or more digits
+            (\.          # Start a group to match a decimal part
+            \d+          # Matches one or more digits after the dot
+            )?           # The decimal part is optional
+            \b           # Word boundary, ensures we are at the end of a number
+            ",
+        )
+        .expect("Invalid regex pattern")
+    };
 }
