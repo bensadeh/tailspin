@@ -7,10 +7,13 @@ mod quotes;
 mod url;
 mod uuid;
 
+use crate::highlighters::date::DateHighlighter;
 use crate::highlighters::ip::IpHighlighter;
+use crate::highlighters::keyword::KeywordHighlighter;
 use crate::highlighters::number::NumberHighlighter;
 use crate::highlighters::path::PathHighlighter;
 use crate::highlighters::quotes::QuoteHighlighter;
+use crate::highlighters::url::UrlHighlighter;
 use crate::theme::Keyword;
 use crate::theme::Style;
 use crate::theme::Theme;
@@ -35,12 +38,12 @@ impl Highlighters {
 
         // Dates
         if let Some(dates) = &config.groups.date {
-            before_fns.push(Box::new(date::DateHighlighter::new(&dates.style)));
+            before_fns.push(Box::new(DateHighlighter::new(&dates.style)));
         }
 
         // URLs
         if let Some(url) = &config.groups.url {
-            before_fns.push(Box::new(url::UrlHighlighter::new(url)));
+            before_fns.push(Box::new(UrlHighlighter::new(url)));
         }
 
         // Paths
@@ -79,7 +82,7 @@ impl Highlighters {
         keyword::init_keywords(keyword_strings);
 
         for keyword in flattened_keywords {
-            main_fns.push(Box::new(keyword::KeywordHighlighter::new(
+            main_fns.push(Box::new(KeywordHighlighter::new(
                 keyword.keyword,
                 &keyword.style,
             )));
