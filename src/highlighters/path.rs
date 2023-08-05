@@ -39,23 +39,20 @@ impl PathHighlighter {
                 return path.to_string();
             }
 
-            for i in 0..chars.len() {
-                if chars[i] == '/' {
-                    output.push_str(&format!(
+            for &char in &chars {
+                match char {
+                    '/' => output.push_str(&format!(
                         "{}{}{}",
                         &self.separator_color,
-                        chars[i],
+                        char,
                         color::RESET
-                    ));
-                } else {
-                    output.push_str(&format!(
-                        "{}{}{}",
-                        &self.segment_color,
-                        chars[i],
-                        color::RESET
-                    ));
+                    )),
+                    _ => {
+                        output.push_str(&format!("{}{}{}", &self.segment_color, char, color::RESET))
+                    }
                 }
             }
+
             output
         })
     }
