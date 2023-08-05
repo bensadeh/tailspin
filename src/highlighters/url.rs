@@ -7,6 +7,12 @@ use crate::types::Highlight;
 use regex::Regex;
 
 pub struct UrlHighlighter {
+    url_components: UrlComponents,
+    url_regex: Regex,
+    query_params_regex: Regex,
+}
+
+struct UrlComponents {
     http_color: String,
     https_color: String,
     host_color: String,
@@ -14,28 +20,22 @@ pub struct UrlHighlighter {
     query_params_key_color: String,
     query_params_value_color: String,
     symbols_color: String,
-    url_regex: Regex,
-    query_params_regex: Regex,
 }
 
 impl UrlHighlighter {
     pub fn new(url_group: &Url) -> Self {
-        let http_color = to_ansi(&url_group.http);
-        let https_color = to_ansi(&url_group.https);
-        let host_color = to_ansi(&url_group.host);
-        let path_color = to_ansi(&url_group.path);
-        let query_params_key_color = to_ansi(&url_group.query_params_key);
-        let query_params_value_color = to_ansi(&url_group.query_params_value);
-        let symbols_color = to_ansi(&url_group.symbols);
+        let url_components = UrlComponents {
+            http_color: to_ansi(&url_group.http),
+            https_color: to_ansi(&url_group.https),
+            host_color: to_ansi(&url_group.host),
+            path_color: to_ansi(&url_group.path),
+            query_params_key_color: to_ansi(&url_group.query_params_key),
+            query_params_value_color: to_ansi(&url_group.query_params_value),
+            symbols_color: to_ansi(&url_group.symbols),
+        };
 
         Self {
-            http_color,
-            https_color,
-            host_color,
-            path_color,
-            query_params_key_color,
-            query_params_value_color,
-            symbols_color,
+            url_components,
             url_regex: URL_REGEX.clone(),
             query_params_regex: QUERY_PARAMS_REGEX.clone(),
         }
@@ -45,13 +45,7 @@ impl UrlHighlighter {
 impl Highlight for UrlHighlighter {
     fn apply(&self, input: &str, line_info: &LineInfo) -> String {
         highlight_urls(
-            &self.http_color,
-            &self.https_color,
-            &self.host_color,
-            &self.path_color,
-            &self.query_params_key_color,
-            &self.query_params_value_color,
-            &self.symbols_color,
+            &self.url_components,
             input,
             line_info,
             &self.url_regex,
@@ -61,13 +55,7 @@ impl Highlight for UrlHighlighter {
 }
 
 fn highlight_urls(
-    http_color: &str,
-    https_color: &str,
-    host_color: &str,
-    path_color: &str,
-    query_params_key_color: &str,
-    query_params_value_color: &str,
-    symbols_color: &str,
+    url_components: &UrlComponents,
     input: &str,
     line_info: &LineInfo,
     url_regex: &Regex,
@@ -82,8 +70,8 @@ fn highlight_urls(
 
         if let Some(protocol) = caps.name("protocol") {
             let color = match protocol.as_str() {
-                "http" => http_color,
-                "https" => https_color,
+                "http" => &url_components.http_color,
+                "https" => &url_components.https_color,
                 _ => color::RESET,
             };
             output.push_str(&format!(
@@ -96,11 +84,21 @@ fn highlight_urls(
         }
 
         if let Some(host) = caps.name("host") {
-            output.push_str(&format!("{}{}{}", host_color, host.as_str(), color::RESET));
+            output.push_str(&format!(
+                "{}{}{}",
+                &url_components.host_color,
+                host.as_str(),
+                color::RESET
+            ));
         }
 
         if let Some(path) = caps.name("path") {
-            output.push_str(&format!("{}{}{}", path_color, path.as_str(), color::RESET));
+            output.push_str(&format!(
+                "{}{}{}",
+                &url_components.path_color,
+                path.as_str(),
+                color::RESET
+            ));
         }
 
         if let Some(query) = caps.name("query") {
@@ -113,13 +111,13 @@ fn highlight_urls(
                     let value = query_caps.name("value").map_or("", |m| m.as_str());
                     format!(
                         "{}{}{}{}{}{}{}{}",
-                        symbols_color,
+                        &url_components.symbols_color,
                         delimiter,
-                        query_params_key_color,
+                        &url_components.query_params_key_color,
                         key,
-                        symbols_color,
+                        &url_components.symbols_color,
                         equal,
-                        query_params_value_color,
+                        &url_components.query_params_value_color,
                         value
                     )
                 },
@@ -140,7 +138,6 @@ mod tests {
     use super::*;
     use crate::color::Fg;
     use crate::theme::{Style, Url};
-    use colored::Color;
 
     #[test]
     fn test_highlight_urls() {
@@ -156,9 +153,9 @@ mod tests {
 
         let highlighter = UrlHighlighter::new(&url_group);
 
-        let input = "Visit http://www.example.com/path?param1=value1&param2=value2";
+        let input = "Visit https://www.example.com/path?param1=value1&param2=value2";
         let expected_output =
-            "Visit \u{1b}[31mhttp:\u{1b}[0m//\u{1b}[0m\u{1b}[33mwww.example.com\u{1b}[0m\u{1b}[34m/path\u{1b}[0m\u{1b}[37m?\u{1b}[35mparam1\u{1b}[37m=\u{1b}[36mvalue1\u{1b}[37m&\u{1b}[35mparam2\u{1b}[37m=\u{1b}[36mvalue2\u{1b}[0m\u{1b}[0m";
+            "Visit \u{1b}[31mhttps:\u{1b}[0m//\u{1b}[0m\u{1b}[33mwww.example.com\u{1b}[0m\u{1b}[34m/path\u{1b}[0m\u{1b}[37m?\u{1b}[35mparam1\u{1b}[37m=\u{1b}[36mvalue1\u{1b}[37m&\u{1b}[35mparam2\u{1b}[37m=\u{1b}[36mvalue2\u{1b}[0m\u{1b}[0m";
 
         assert_eq!(highlighter.apply(input, &line_info), expected_output);
     }
@@ -177,8 +174,8 @@ mod tests {
 
         let highlighter = UrlHighlighter::new(&url_group);
 
-        let input = "Visit http://www.example.com/path?param1=value1&param2=value2";
-        let expected_output = "Visit http://www.example.com/path?param1=value1&param2=value2";
+        let input = "Visit https://www.example.com/path?param1=value1&param2=value2";
+        let expected_output = "Visit https://www.example.com/path?param1=value1&param2=value2";
 
         assert_eq!(highlighter.apply(input, &line_info), expected_output);
     }
@@ -197,8 +194,8 @@ mod tests {
 
         let highlighter = UrlHighlighter::new(&url_group);
 
-        let input = "Visit http://www.example.com/path?param1=value1&param2=value2";
-        let expected_output = "Visit http://www.example.com/path?param1=value1&param2=value2";
+        let input = "Visit https://www.example.com/path?param1=value1&param2=value2";
+        let expected_output = "Visit https://www.example.com/path?param1=value1&param2=value2";
 
         assert_eq!(highlighter.apply(input, &line_info), expected_output);
     }
@@ -210,7 +207,7 @@ mod tests {
                 ..Default::default()
             },
             https: Style {
-                fg: Fg::Green,
+                fg: Fg::Red,
                 ..Default::default()
             },
             host: Style {
