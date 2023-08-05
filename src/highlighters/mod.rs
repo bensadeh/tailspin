@@ -38,10 +38,10 @@ impl Highlighters {
             before_fns.push(Box::new(date::DateHighlighter::new(&dates.style)));
         }
 
-        // // URLs
-        // if let Some(url) = &config.groups.url {
-        //     before_fns.push(Box::new(url::UrlHighlighter::new(url)));
-        // }
+        // URLs
+        if let Some(url) = &config.groups.url {
+            before_fns.push(Box::new(url::UrlHighlighter::new(url)));
+        }
 
         // Paths
         if let Some(path) = &config.groups.path {
