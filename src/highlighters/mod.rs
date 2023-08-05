@@ -65,23 +65,23 @@ impl Highlighters {
         // if let Some(numbers) = &config.groups.number {
         //     main_fns.push(Box::new(number::NumberHighlighter::new(&numbers.style)));
         // }
-        //
-        // // Keywords
-        // let flattened_keywords = Self::flatten(&config);
-        // let keyword_strings: Vec<String> = flattened_keywords
-        //     .iter()
-        //     .map(|kw| kw.keyword.clone())
-        //     .collect();
-        //
-        // keyword::init_keywords(keyword_strings);
-        //
-        // for keyword in flattened_keywords {
-        //     main_fns.push(Box::new(keyword::KeywordHighlighter::new(
-        //         keyword.keyword,
-        //         &keyword.style,
-        //     )));
-        // }
-        //
+
+        // Keywords
+        let flattened_keywords = Self::flatten(&config);
+        let keyword_strings: Vec<String> = flattened_keywords
+            .iter()
+            .map(|kw| kw.keyword.clone())
+            .collect();
+
+        keyword::init_keywords(keyword_strings);
+
+        for keyword in flattened_keywords {
+            main_fns.push(Box::new(keyword::KeywordHighlighter::new(
+                keyword.keyword,
+                &keyword.style,
+            )));
+        }
+
         // // Quotes
         // if let Some(quotes_group) = &config.groups.quotes {
         //     after_fns.push(Box::new(quotes::QuotesHighlighter::new(

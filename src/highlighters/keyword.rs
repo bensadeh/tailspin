@@ -2,10 +2,37 @@ use crate::color::to_ansi;
 use crate::highlight_utils;
 use crate::line_info::LineInfo;
 use crate::theme::Style;
-use crate::types::HighlightFn;
+use crate::types::Highlight;
 use once_cell::sync::OnceCell;
 use regex::Regex;
 use std::collections::HashMap;
+
+pub struct KeywordHighlighter {
+    keyword: String,
+    color: String,
+}
+
+impl KeywordHighlighter {
+    pub fn new(keyword: String, style: &Style) -> Self {
+        Self {
+            keyword,
+            color: to_ansi(style),
+        }
+    }
+}
+
+impl Highlight for KeywordHighlighter {
+    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
+        let keywords = KEYWORDS
+            .get()
+            .expect("KEYWORDS should have been initialized");
+        let keyword_regex = keywords
+            .get(&self.keyword)
+            .expect("Keyword regex not found");
+
+        highlight_keywords(&self.keyword, &self.color, input, line_info, keyword_regex)
+    }
+}
 
 static KEYWORDS: OnceCell<HashMap<String, Regex>> = OnceCell::new();
 
@@ -19,19 +46,6 @@ pub fn init_keywords(keywords: Vec<String>) {
     KEYWORDS
         .set(map)
         .expect("KEYWORDS should not have been initialized before");
-}
-
-pub fn highlight(keyword: String, style: &Style) -> HighlightFn {
-    let color = to_ansi(style);
-
-    Box::new(move |input: &str, line_info: &LineInfo| -> String {
-        let keywords = KEYWORDS
-            .get()
-            .expect("KEYWORDS should have been initialized");
-        let keyword_regex = keywords.get(&keyword).expect("Keyword regex not found");
-
-        highlight_keywords(&keyword, &color, input, line_info, keyword_regex)
-    })
 }
 
 fn highlight_keywords(
