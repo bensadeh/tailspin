@@ -198,7 +198,7 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 -f, --follow                 Follow (tail) the contents of the file
 -p, --print                  Print the output to stdout
 -c, --config-path PATH       Path to a custom configuration file
--t, --tail-command 'CMD'     Tails the output of the provided command
+-t, --follow-command 'CMD'   Follows the output of the provided command
     --create-default-config  Generate a new configuration file
     --show-default-config    Print the default configuration
 ```
