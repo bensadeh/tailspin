@@ -9,6 +9,7 @@ mod io_stream;
 mod line_info;
 mod presenter;
 mod reader;
+mod regexes;
 mod theme;
 mod theme_io;
 mod types;

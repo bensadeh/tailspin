@@ -1,40 +1,28 @@
 use crate::color::to_ansi;
 use crate::highlight_utils;
-use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
+use crate::regexes::NUMBER_REGEX;
 use crate::theme::Style;
-use lazy_static::lazy_static;
-use regex::Regex;
+use crate::types::Highlight;
 
-pub fn highlight(style: &Style) -> HighlightFn {
-    let color = to_ansi(style);
-
-    Box::new(move |input: &str, line_info: &LineInfo| -> String {
-        highlight_numbers(&color, input, line_info, &NUMBER_REGEX)
-    })
+pub struct NumberHighlighter {
+    color: String,
 }
 
-lazy_static! {
-    static ref NUMBER_REGEX: Regex = {
-        Regex::new(
-            r"(?x)       # Enable comments and whitespace insensitivity
-            \b           # Word boundary, ensures we are at the start of a number
-            \d+          # Matches one or more digits
-            (\.          # Start a group to match a decimal part
-            \d+          # Matches one or more digits after the dot
-            )?           # The decimal part is optional
-            \b           # Word boundary, ensures we are at the end of a number
-            ",
-        )
-        .expect("Invalid regex pattern")
-    };
+impl NumberHighlighter {
+    pub fn new(style: &Style) -> Self {
+        Self {
+            color: to_ansi(style),
+        }
+    }
 }
 
-fn highlight_numbers(
-    color: &str,
-    input: &str,
-    _line_info: &LineInfo,
-    number_regex: &Regex,
-) -> String {
-    highlight_utils::highlight_with_awareness_replace_all(color, input, number_regex)
+impl Highlight for NumberHighlighter {
+    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
+        highlight_numbers(&self.color, input, line_info)
+    }
+}
+
+fn highlight_numbers(color: &str, input: &str, _line_info: &LineInfo) -> String {
+    highlight_utils::highlight_with_awareness_replace_all(color, input, &NUMBER_REGEX)
 }

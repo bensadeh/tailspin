@@ -1,44 +1,36 @@
 use crate::color;
 use crate::color::to_ansi;
 use crate::highlight_utils::highlight_with_awareness;
-use crate::highlighters::HighlightFn;
 use crate::line_info::LineInfo;
+use crate::regexes::UUID_REGEX;
 use crate::theme::Style;
-use lazy_static::lazy_static;
+use crate::types::Highlight;
 use regex::{Captures, Regex};
 
-pub fn highlight(segment: &Style, separator: &Style) -> HighlightFn {
-    let segment_color = to_ansi(segment);
-    let separator_color = to_ansi(separator);
+pub struct UuidHighlighter {
+    segment_color: String,
+    separator_color: String,
+}
 
-    Box::new(move |input: &str, line_info: &LineInfo| -> String {
+impl UuidHighlighter {
+    pub fn new(segment: &Style, separator: &Style) -> Self {
+        Self {
+            segment_color: to_ansi(segment),
+            separator_color: to_ansi(separator),
+        }
+    }
+}
+
+impl Highlight for UuidHighlighter {
+    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
         highlight_uuids(
-            &segment_color,
-            &separator_color,
+            &self.segment_color,
+            &self.separator_color,
             input,
             line_info,
             &UUID_REGEX,
         )
-    })
-}
-
-lazy_static! {
-    static ref UUID_REGEX: Regex = {
-        Regex::new(
-            r"(?x)
-            (\b[0-9a-fA-F]{8}\b)    # Match first segment of UUID
-            (-)                     # Match separator
-            (\b[0-9a-fA-F]{4}\b)    # Match second segment of UUID
-            (-)                     # Match separator
-            (\b[0-9a-fA-F]{4}\b)    # Match third segment of UUID
-            (-)                     # Match separator
-            (\b[0-9a-fA-F]{4}\b)    # Match fourth segment of UUID
-            (-)                     # Match separator
-            (\b[0-9a-fA-F]{12}\b)   # Match last segment of UUID
-        ",
-        )
-        .expect("Invalid UUID regex pattern")
-    };
+    }
 }
 
 fn highlight_uuids(
@@ -68,10 +60,12 @@ fn highlight_uuids(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::color::Fg;
+    use crate::theme::Style;
 
     #[test]
     fn test_highlight_uuids() {
-        let line_info = &LineInfo {
+        let line_info = LineInfo {
             dashes: 4,
             dots: 0,
             slashes: 0,
@@ -80,12 +74,20 @@ mod tests {
         };
 
         let uuid = "550e8400-e29b-41d4-a716-446655440000";
+        let segment = Style {
+            fg: Fg::Red,
+            ..Default::default()
+        };
+        let separator = Style {
+            fg: Fg::Green,
+            ..Default::default()
+        };
+
+        let highlighter = UuidHighlighter::new(&segment, &separator);
+        let highlighted = highlighter.apply(uuid, &line_info);
+
         let segment_color = "\x1b[31m"; // ANSI color code for red
         let separator_color = "\x1b[32m"; // ANSI color code for green
-
-        let highlighted =
-            highlight_uuids(segment_color, separator_color, uuid, line_info, &UUID_REGEX);
-
         let expected = format!(
             "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
             segment_color,
@@ -121,7 +123,7 @@ mod tests {
 
     #[test]
     fn test_highlight_uuids_no_uuid() {
-        let line_info = &LineInfo {
+        let line_info = LineInfo {
             dashes: 4,
             dots: 0,
             slashes: 0,
@@ -130,11 +132,17 @@ mod tests {
         };
 
         let text = "this is a test string with no uuid";
-        let segment_color = "\x1b[31m";
-        let separator_color = "\x1b[32m";
+        let segment = Style {
+            fg: Fg::Red,
+            ..Default::default()
+        };
+        let separator = Style {
+            fg: Fg::Green,
+            ..Default::default()
+        };
 
-        let highlighted =
-            highlight_uuids(segment_color, separator_color, text, line_info, &UUID_REGEX);
+        let highlighter = UuidHighlighter::new(&segment, &separator);
+        let highlighted = highlighter.apply(text, &line_info);
 
         // The input string does not contain a UUID, so it should be returned as-is
         assert_eq!(highlighted, text);

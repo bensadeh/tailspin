@@ -7,59 +7,70 @@ mod quotes;
 mod url;
 mod uuid;
 
-use crate::line_info::LineInfo;
+use crate::highlighters::date::DateHighlighter;
+use crate::highlighters::ip::IpHighlighter;
+use crate::highlighters::keyword::KeywordHighlighter;
+use crate::highlighters::number::NumberHighlighter;
+use crate::highlighters::path::PathHighlighter;
+use crate::highlighters::quotes::QuoteHighlighter;
+use crate::highlighters::url::UrlHighlighter;
+use crate::highlighters::uuid::UuidHighlighter;
 use crate::theme::Keyword;
 use crate::theme::Style;
 use crate::theme::Theme;
-
-type HighlightFn = Box<dyn Fn(&str, &LineInfo) -> String + Send>;
-type HighlightFnVec = Vec<HighlightFn>;
-
-pub struct Highlighters {
-    pub before: HighlightFnVec,
-    pub main: HighlightFnVec,
-    pub after: HighlightFnVec,
-}
+use crate::types::Highlight;
 
 struct FlattenKeyword {
     pub keyword: String,
     pub style: Style,
 }
 
+pub struct Highlighters {
+    pub before: Vec<Box<dyn Highlight + Send>>,
+    pub main: Vec<Box<dyn Highlight + Send>>,
+    pub after: Vec<Box<dyn Highlight + Send>>,
+}
+
 impl Highlighters {
     pub fn new(config: Theme) -> Highlighters {
-        let mut before_fns: HighlightFnVec = Vec::new();
-        let mut main_fns: HighlightFnVec = Vec::new();
-        let mut after_fns: HighlightFnVec = Vec::new();
+        let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
+        let mut main_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
+        let mut after_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
         // Dates
         if let Some(dates) = &config.groups.date {
-            before_fns.push(date::highlight(&dates.style));
+            before_fns.push(Box::new(DateHighlighter::new(&dates.style)));
         }
 
         // URLs
         if let Some(url) = &config.groups.url {
-            before_fns.push(url::highlight(url));
+            before_fns.push(Box::new(UrlHighlighter::new(url)));
         }
 
         // Paths
         if let Some(path) = &config.groups.path {
-            before_fns.push(path::highlight(&path.segment, &path.separator));
+            before_fns.push(Box::new(PathHighlighter::new(
+                &path.segment,
+                &path.separator,
+            )));
         }
 
         // IPs
         if let Some(ip) = &config.groups.ip {
-            before_fns.push(ip::highlight(&ip.segment, &ip.separator));
+            before_fns.push(Box::new(IpHighlighter::new(&ip.segment, &ip.separator)));
         }
 
         // UUIDs
         if let Some(uuid) = &config.groups.uuid {
-            before_fns.push(uuid::highlight(&uuid.segment, &uuid.separator));
+            before_fns.push(Box::new(UuidHighlighter::new(
+                &uuid.segment,
+                &uuid.separator,
+            )));
         }
 
         // Numbers
         if let Some(numbers) = &config.groups.number {
-            main_fns.push(number::highlight(&numbers.style));
+            main_fns.push(Box::new(NumberHighlighter::new(&numbers.style)));
         }
 
         // Keywords
@@ -72,12 +83,18 @@ impl Highlighters {
         keyword::init_keywords(keyword_strings);
 
         for keyword in flattened_keywords {
-            main_fns.push(keyword::highlight(keyword.keyword, &keyword.style));
+            main_fns.push(Box::new(KeywordHighlighter::new(
+                keyword.keyword,
+                &keyword.style,
+            )));
         }
 
         // Quotes
         if let Some(quotes_group) = &config.groups.quotes {
-            after_fns.push(quotes::highlight(&quotes_group.style, quotes_group.token));
+            after_fns.push(Box::new(QuoteHighlighter::new(
+                &quotes_group.style,
+                quotes_group.token,
+            )));
         }
 
         Highlighters {
