@@ -23,11 +23,14 @@ use crate::presenter::Present;
 use crate::reader::AsyncLineReader;
 use crate::writer::AsyncLineWriter;
 
+use color_eyre::eyre::Result;
 use std::process::exit;
 use tokio::sync::oneshot;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
+    color_eyre::install()?;
+
     let args = cli::get_args();
 
     if should_exit_early(&args) {
@@ -59,6 +62,8 @@ async fn main() {
         .expect("Could not receive EOF signal from oneshot channel");
 
     presenter.present();
+
+    Ok(())
 }
 
 fn should_exit_early(args: &Cli) -> bool {

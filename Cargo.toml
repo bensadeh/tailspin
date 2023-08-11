@@ -17,6 +17,7 @@ name = "spin"
 async-trait = "0.1.72"
 clap = { version = "4.3.19", features = ["derive"] }
 clap_complete = "4.3.2"
+color-eyre = "0.6.2"
 colored = "2"
 ctrlc = "3.4.0"
 lazy_static = "1.4.0"
