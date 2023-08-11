@@ -4,7 +4,6 @@ use crate::types::{
     Config, Error, FolderInfo, Input, Output, PathAndLineCount, GENERAL_ERROR,
     MISUSE_SHELL_BUILTIN, OK,
 };
-use color_eyre::owo_colors::colors::{BrightBlack, Magenta};
 use color_eyre::owo_colors::OwoColorize;
 use std::fs;
 use std::io::{stdin, IsTerminal};
@@ -52,10 +51,7 @@ fn validate_input(
     if !has_data_from_stdin && !has_file_or_folder_input && !has_follow_command_input {
         return Err(Error {
             exit_code: OK,
-            message: format!(
-                "Missing filename ({} for help)",
-                " spin --help ".fg::<Magenta>().bg::<BrightBlack>()
-            ),
+            message: format!("Missing filename ({} for help)", "spin --help".magenta()),
         });
     }
 
@@ -64,7 +60,7 @@ fn validate_input(
             exit_code: MISUSE_SHELL_BUILTIN,
             message: format!(
                 "Cannot read from both stdin and {}",
-                " --listen-command ".fg::<Magenta>().bg::<BrightBlack>()
+                "--listen-command".magenta()
             ),
         });
     }
@@ -74,7 +70,7 @@ fn validate_input(
             exit_code: MISUSE_SHELL_BUILTIN,
             message: format!(
                 "Cannot read from both file and {}",
-                " --listen-command ".fg::<Magenta>().bg::<BrightBlack>()
+                "--listen-command".magenta()
             ),
         });
     }
