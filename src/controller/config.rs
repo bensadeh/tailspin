@@ -25,7 +25,7 @@ pub fn create_config(args: Cli) -> Result<Config, Error> {
 
     validate_input(
         has_data_from_stdin,
-        args.file_path.is_some(),
+        args.file_or_folder_path.is_some(),
         args.listen_command.is_some(),
     )?;
 
@@ -38,6 +38,7 @@ pub fn create_config(args: Cli) -> Result<Config, Error> {
         input,
         output,
         follow,
+        tail: args.tail,
     };
 
     Ok(config)
@@ -87,7 +88,7 @@ fn determine_input_type(args: &Cli, has_data_from_stdin: bool) -> Result<InputTy
         return Ok(InputType::Command(command.clone()));
     }
 
-    if let Some(path) = &args.file_path {
+    if let Some(path) = &args.file_or_folder_path {
         return Ok(InputType::FileOrFolder(path.clone()));
     }
 

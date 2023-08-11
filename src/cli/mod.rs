@@ -8,11 +8,15 @@ use std::io;
 pub struct Cli {
     /// Path to file or folder
     #[clap(name = "FILE")]
-    pub file_path: Option<String>,
+    pub file_or_folder_path: Option<String>,
 
     /// Follow (tail) the contents of the file
     #[clap(short = 'f', long = "follow")]
     pub follow: bool,
+
+    /// Start at the end of the file
+    #[clap(short = 't', long = "tail")]
+    pub tail: bool,
 
     /// Print the output to stdout
     #[clap(short = 'p', long = "print", conflicts_with = "follow")]

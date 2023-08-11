@@ -2,12 +2,12 @@
 .\"     Title: spin
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.20
-.\"      Date: 2023-07-31
+.\"      Date: 2023-08-11
 .\"    Manual: tailspin
-.\"    Source: tailspin 1.3.0
+.\"    Source: tailspin 1.4.0
 .\"  Language: English
 .\"
-.TH "SPIN" "1" "2023-07-31" "tailspin 1.3.0" "tailspin"
+.TH "SPIN" "1" "2023-08-11" "tailspin 1.4.0" "tailspin"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -43,28 +43,35 @@ Follow (tail) the contents of the file.
 Always true if opening a folder or using the \fI\-\-follow\-command\fP flag.
 .RE
 .sp
+\fB\-t, \-\-tail\fP
+.RS 4
+Start at the end of the file.
+Always true if opening a folder.
+.RE
+.sp
 \fB\-p, \-\-print\fP
 .RS 4
 Print the output to stdout instead of viewing the contents in the pager \fIless\fP.
-Always true if stdin has data.
+Always true if using stdin.
 .RE
 .sp
 \fB\-c, \-\-config\-path\fP \fICONFIG_PATH\fP
 .RS 4
 Specify the path to a custom configuration file.
+Defaults to \fIXDG_CONFIG_HOME/tailspin/config.toml\fP or \fI~/.config/tailspin/config.toml\fP if not set.
 .RE
 .sp
 \fB\-l, \-\-follow\-command\fP \fICOMMAND\fP
 .RS 4
-Continuously listens to stdout of the provided command.
+Continuously listen to stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside \fIless\fP.
 .RE
 .sp
 \fB\-\-create\-default\-config\fP
 .RS 4
 Generate a new configuration file.
-Uses XDG_CONFIG_HOME as the location if set.
-Otherwise, uses ~/.config/tailspin/config.toml as the default path.
+Uses \fIXDG_CONFIG_HOME/tailspin/config.toml\fP as the location if set.
+Otherwise, uses \fI~/.config/tailspin/config.toml\fP as the default path.
 Will not overwrite current config file if one is already present.
 .RE
 .sp

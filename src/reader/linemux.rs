@@ -18,14 +18,28 @@ impl Linemux {
         file_path: String,
         number_of_lines: usize,
         follow: bool,
-        reached_eof_tx: Option<Sender<()>>,
+        tail: bool,
+        mut reached_eof_tx: Option<Sender<()>>,
     ) -> Box<dyn AsyncLineReader + Send> {
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
-        lines
-            .add_file_from_start(&file_path)
-            .await
-            .expect("Could not add file to linemux");
+        if tail {
+            if let Some(reached_eof) = reached_eof_tx.take() {
+                reached_eof
+                    .send(())
+                    .expect("Failed sending EOF signal to oneshot channel");
+            }
+
+            lines
+                .add_file(&file_path)
+                .await
+                .expect("Could not add file to linemux");
+        } else {
+            lines
+                .add_file_from_start(&file_path)
+                .await
+                .expect("Could not add file to linemux");
+        }
 
         let number_of_lines = if follow {
             Some(1)

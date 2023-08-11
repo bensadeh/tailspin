@@ -29,7 +29,7 @@ pub async fn get_io_and_presenter(
     config: Config,
     reached_eof_tx: Option<Sender<()>>,
 ) -> (Io, Presenter) {
-    let reader = get_reader(config.input, config.follow, reached_eof_tx).await;
+    let reader = get_reader(config.input, config.follow, config.tail, reached_eof_tx).await;
     let (writer, presenter) = get_writer(config.output, config.follow).await;
 
     (Io { reader, writer }, Presenter { presenter })
@@ -38,12 +38,19 @@ pub async fn get_io_and_presenter(
 async fn get_reader(
     input: Input,
     follow: bool,
+    tail: bool,
     reached_eof_tx: Option<Sender<()>>,
 ) -> Box<dyn AsyncLineReader + Send> {
     match input {
         Input::File(file_info) => {
-            Linemux::get_reader_single(file_info.path, file_info.line_count, follow, reached_eof_tx)
-                .await
+            Linemux::get_reader_single(
+                file_info.path,
+                file_info.line_count,
+                follow,
+                tail,
+                reached_eof_tx,
+            )
+            .await
         }
         Input::Folder(info) => {
             Linemux::get_reader_multiple(info.folder_name, info.file_paths, reached_eof_tx).await

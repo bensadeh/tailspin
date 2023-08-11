@@ -17,6 +17,7 @@ pub struct Config {
     pub input: Input,
     pub output: Output,
     pub follow: bool,
+    pub tail: bool,
 }
 
 pub struct PathAndLineCount {

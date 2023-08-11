@@ -29,21 +29,26 @@ tailspin is a command line tool that highlights log files.
 Follow (tail) the contents of the file.
 Always true if opening a folder or using the _--follow-command_ flag.
 
+*-t, --tail*::
+Start at the end of the file.
+Always true if opening a folder.
+
 *-p, --print*::
 Print the output to stdout instead of viewing the contents in the pager _less_.
-Always true if stdin has data.
+Always true if using stdin.
 
 *-c, --config-path* _CONFIG_PATH_::
 Specify the path to a custom configuration file.
+Defaults to _XDG_CONFIG_HOME/tailspin/config.toml_ or _~/.config/tailspin/config.toml_ if not set.
 
 *-l, --follow-command* _COMMAND_::
-Continuously listens to stdout of the provided command.
+Continuously listen to stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside _less_.
 
 *--create-default-config*::
 Generate a new configuration file.
-Uses XDG_CONFIG_HOME as the location if set.
-Otherwise, uses ~/.config/tailspin/config.toml as the default path.
+Uses _XDG_CONFIG_HOME/tailspin/config.toml_ as the location if set.
+Otherwise, uses _~/.config/tailspin/config.toml_ as the default path.
 Will not overwrite current config file if one is already present.
 
 *--show-default-config*::

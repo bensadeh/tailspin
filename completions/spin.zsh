@@ -22,6 +22,8 @@ _spin() {
 '--z-generate-shell-completions=[Print completions to stdout]:GENERATE_SHELL_COMPLETIONS: ' \
 '-f[Follow (tail) the contents of the file]' \
 '--follow[Follow (tail) the contents of the file]' \
+'-t[Start at the end of the file]' \
+'--tail[Start at the end of the file]' \
 '(-f --follow)-p[Print the output to stdout]' \
 '(-f --follow)--print[Print the output to stdout]' \
 '--create-default-config[Generate a new configuration file]' \

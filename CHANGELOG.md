@@ -1,8 +1,8 @@
 # Changelog
+
 ## 1.4.0
 
-
-
+- Added `-t`/`--tail` flag to start reading from the end of a file.
 
 ## 1.3.0
 
