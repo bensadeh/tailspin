@@ -6,7 +6,6 @@ use crate::types::{
 };
 use color_eyre::owo_colors::colors::{BrightBlack, Magenta};
 use color_eyre::owo_colors::OwoColorize;
-use colored::*;
 use std::fs;
 use std::io::{stdin, IsTerminal};
 use std::path::Path;
@@ -64,8 +63,8 @@ fn validate_input(
         return Err(Error {
             exit_code: MISUSE_SHELL_BUILTIN,
             message: format!(
-                "Cannot read from both stdin and `{}`",
-                "--listen-command".magenta()
+                "Cannot read from both stdin and {}",
+                " --listen-command ".fg::<Magenta>().bg::<BrightBlack>()
             ),
         });
     }
@@ -74,8 +73,8 @@ fn validate_input(
         return Err(Error {
             exit_code: MISUSE_SHELL_BUILTIN,
             message: format!(
-                "Cannot read from both file and `{}`",
-                "--listen-command".magenta()
+                "Cannot read from both file and {}",
+                " --listen-command ".fg::<Magenta>().bg::<BrightBlack>()
             ),
         });
     }
