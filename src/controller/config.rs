@@ -4,6 +4,8 @@ use crate::types::{
     Config, Error, FolderInfo, Input, Output, PathAndLineCount, GENERAL_ERROR,
     MISUSE_SHELL_BUILTIN, OK,
 };
+use color_eyre::owo_colors::colors::{BrightBlack, Magenta};
+use color_eyre::owo_colors::OwoColorize;
 use colored::*;
 use std::fs;
 use std::io::{stdin, IsTerminal};
@@ -52,8 +54,8 @@ fn validate_input(
         return Err(Error {
             exit_code: OK,
             message: format!(
-                "Missing filename (\"{}\" for help)",
-                "spin --help".magenta()
+                "Missing filename ({} for help)",
+                " spin --help ".fg::<Magenta>().bg::<BrightBlack>()
             ),
         });
     }
