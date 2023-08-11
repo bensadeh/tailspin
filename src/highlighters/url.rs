@@ -142,11 +142,9 @@ mod tests {
     #[test]
     fn test_highlight_urls() {
         let line_info = LineInfo {
-            dashes: 0,
-            dots: 0,
             slashes: 2,
-            double_quotes: 0,
             colons: 1,
+            ..Default::default()
         };
 
         let url_group = get_default_group();
@@ -163,11 +161,8 @@ mod tests {
     #[test]
     fn test_short_circuit_on_few_slashes() {
         let line_info = LineInfo {
-            dashes: 0,
-            dots: 0,
             slashes: 1,
-            double_quotes: 0,
-            colons: 0,
+            ..Default::default()
         };
 
         let url_group = get_default_group();
@@ -183,11 +178,8 @@ mod tests {
     #[test]
     fn test_short_circuit_on_no_colons() {
         let line_info = LineInfo {
-            dashes: 0,
-            dots: 0,
             slashes: 2,
-            double_quotes: 0,
-            colons: 0,
+            ..Default::default()
         };
 
         let url_group = get_default_group();

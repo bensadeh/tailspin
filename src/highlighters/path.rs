@@ -90,7 +90,7 @@ mod tests {
         };
 
         let highlighter = PathHighlighter::new(&segment_style, &separator_style);
-        let highlighted = highlighter.apply(path, line_info);
+        let highlighted = highlighter.apply(path, &line_info);
 
         let expected = path
             .chars()
@@ -107,13 +107,7 @@ mod tests {
 
     #[test]
     fn test_highlight_paths_no_path() {
-        let line_info = &LineInfo {
-            dashes: 0,
-            dots: 0,
-            slashes: 0,
-            double_quotes: 0,
-            colons: 0,
-        };
+        let line_info = LineInfo::default();
 
         let text = "this is a test string with no path";
         let segment_style = Style {
@@ -126,7 +120,7 @@ mod tests {
         };
 
         let highlighter = PathHighlighter::new(&segment_style, &separator_style);
-        let highlighted = highlighter.apply(text, line_info);
+        let highlighted = highlighter.apply(text, &line_info);
 
         // The input string does not contain a path, so it should be returned as-is
         assert_eq!(highlighted, text);

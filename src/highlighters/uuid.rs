@@ -67,10 +67,7 @@ mod tests {
     fn test_highlight_uuids() {
         let line_info = LineInfo {
             dashes: 4,
-            dots: 0,
-            slashes: 0,
-            double_quotes: 0,
-            colons: 0,
+            ..Default::default()
         };
 
         let uuid = "550e8400-e29b-41d4-a716-446655440000";
@@ -125,10 +122,7 @@ mod tests {
     fn test_highlight_uuids_no_uuid() {
         let line_info = LineInfo {
             dashes: 4,
-            dots: 0,
-            slashes: 0,
-            double_quotes: 0,
-            colons: 0,
+            ..Default::default()
         };
 
         let text = "this is a test string with no uuid";

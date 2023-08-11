@@ -88,7 +88,7 @@ impl QuoteHighlighter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::color::{Bg, Fg};
+    use crate::color::Fg;
 
     #[test]
     fn highlight_quotes_with_ansi() {
@@ -98,11 +98,8 @@ mod tests {
         };
 
         let line_info = LineInfo {
-            dashes: 0,
-            dots: 0,
-            slashes: 0,
             double_quotes: 2,
-            colons: 0,
+            ..Default::default()
         };
 
         let highlighter = QuoteHighlighter::new(&style, '"');
@@ -124,11 +121,8 @@ mod tests {
         };
 
         let line_info = LineInfo {
-            dashes: 0,
-            dots: 0,
-            slashes: 0,
             double_quotes: 2,
-            colons: 0,
+            ..Default::default()
         };
 
         let highlighter = QuoteHighlighter::new(&style, '"');
@@ -148,11 +142,8 @@ mod tests {
         };
 
         let line_info = LineInfo {
-            dashes: 0,
-            dots: 0,
-            slashes: 0,
             double_quotes: 1,
-            colons: 0,
+            ..Default::default()
         };
 
         let highlighter = QuoteHighlighter::new(&style, '"');

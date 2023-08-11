@@ -72,11 +72,8 @@ mod tests {
     #[test]
     fn test_highlight_ip_addresses() {
         let line_info = &LineInfo {
-            dashes: 0,
             dots: 3,
-            slashes: 0,
-            double_quotes: 0,
-            colons: 0,
+            ..Default::default()
         };
 
         let ip_address = "192.168.0.1";
@@ -121,11 +118,8 @@ mod tests {
     #[test]
     fn test_highlight_ip_addresses_no_ip() {
         let line_info = &LineInfo {
-            dashes: 0,
             dots: 3,
-            slashes: 0,
-            double_quotes: 0,
-            colons: 0,
+            ..Default::default()
         };
 
         let text = "this is a test string with no IP address";

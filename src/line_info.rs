@@ -1,3 +1,4 @@
+#[derive(Default)]
 pub struct LineInfo {
     pub slashes: usize,
     pub dots: usize,
