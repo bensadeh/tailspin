@@ -43,11 +43,18 @@ impl UrlHighlighter {
 }
 
 impl Highlight for UrlHighlighter {
-    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
+    fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
+        if line_info.slashes < 1 || line_info.colons == 0 {
+            return true;
+        }
+
+        false
+    }
+
+    fn apply(&self, input: &str) -> String {
         highlight_urls(
             &self.url_components,
             input,
-            line_info,
             &self.url_regex,
             &self.query_params_regex,
         )
@@ -57,14 +64,9 @@ impl Highlight for UrlHighlighter {
 fn highlight_urls(
     url_components: &UrlComponents,
     input: &str,
-    line_info: &LineInfo,
     url_regex: &Regex,
     query_params_regex: &Regex,
 ) -> String {
-    if line_info.slashes < 1 || line_info.colons == 0 {
-        return input.to_string();
-    }
-
     let highlighted = url_regex.replace_all(input, |caps: &regex::Captures<'_>| {
         let mut output = String::new();
 
@@ -141,12 +143,6 @@ mod tests {
 
     #[test]
     fn test_highlight_urls() {
-        let line_info = LineInfo {
-            slashes: 2,
-            colons: 1,
-            ..Default::default()
-        };
-
         let url_group = get_default_group();
 
         let highlighter = UrlHighlighter::new(&url_group);
@@ -155,16 +151,11 @@ mod tests {
         let expected_output =
             "Visit \u{1b}[31mhttps:\u{1b}[0m//\u{1b}[0m\u{1b}[33mwww.example.com\u{1b}[0m\u{1b}[34m/path\u{1b}[0m\u{1b}[37m?\u{1b}[35mparam1\u{1b}[37m=\u{1b}[36mvalue1\u{1b}[37m&\u{1b}[35mparam2\u{1b}[37m=\u{1b}[36mvalue2\u{1b}[0m\u{1b}[0m";
 
-        assert_eq!(highlighter.apply(input, &line_info), expected_output);
+        assert_eq!(highlighter.apply(input), expected_output);
     }
 
     #[test]
     fn test_short_circuit_on_few_slashes() {
-        let line_info = LineInfo {
-            slashes: 1,
-            ..Default::default()
-        };
-
         let url_group = get_default_group();
 
         let highlighter = UrlHighlighter::new(&url_group);
@@ -172,16 +163,11 @@ mod tests {
         let input = "Visit https://www.example.com/path?param1=value1&param2=value2";
         let expected_output = "Visit https://www.example.com/path?param1=value1&param2=value2";
 
-        assert_eq!(highlighter.apply(input, &line_info), expected_output);
+        assert_eq!(highlighter.apply(input), expected_output);
     }
 
     #[test]
     fn test_short_circuit_on_no_colons() {
-        let line_info = LineInfo {
-            slashes: 2,
-            ..Default::default()
-        };
-
         let url_group = get_default_group();
 
         let highlighter = UrlHighlighter::new(&url_group);
@@ -189,7 +175,7 @@ mod tests {
         let input = "Visit https://www.example.com/path?param1=value1&param2=value2";
         let expected_output = "Visit https://www.example.com/path?param1=value1&param2=value2";
 
-        assert_eq!(highlighter.apply(input, &line_info), expected_output);
+        assert_eq!(highlighter.apply(input), expected_output);
     }
 
     fn get_default_group() -> Url {

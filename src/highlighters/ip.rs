@@ -24,12 +24,19 @@ impl IpHighlighter {
 }
 
 impl Highlight for IpHighlighter {
-    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
+    fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
+        if line_info.dots < 3 {
+            return true;
+        }
+
+        false
+    }
+
+    fn apply(&self, input: &str) -> String {
         highlight_ip_addresses(
             &self.segment_color,
             &self.separator_color,
             input,
-            line_info,
             &IP_ADDRESS_REGEX,
         )
     }
@@ -39,13 +46,8 @@ fn highlight_ip_addresses(
     segment_color: &str,
     separator_color: &str,
     input: &str,
-    line_info: &LineInfo,
     ip_address_regex: &Regex,
 ) -> String {
-    if line_info.dots < 3 {
-        return input.to_string();
-    }
-
     let highlight_groups = [
         (segment_color, 1),
         (separator_color, 2),
@@ -71,11 +73,6 @@ mod tests {
 
     #[test]
     fn test_highlight_ip_addresses() {
-        let line_info = &LineInfo {
-            dots: 3,
-            ..Default::default()
-        };
-
         let ip_address = "192.168.0.1";
         let segment_color = "\x1b[31m"; // ANSI color code for red
         let separator_color = "\x1b[32m"; // ANSI color code for green
@@ -84,7 +81,6 @@ mod tests {
             segment_color,
             separator_color,
             ip_address,
-            line_info,
             &IP_ADDRESS_REGEX,
         );
 
@@ -117,22 +113,12 @@ mod tests {
 
     #[test]
     fn test_highlight_ip_addresses_no_ip() {
-        let line_info = &LineInfo {
-            dots: 3,
-            ..Default::default()
-        };
-
         let text = "this is a test string with no IP address";
         let segment_color = "\x1b[31m";
         let separator_color = "\x1b[32m";
 
-        let highlighted = highlight_ip_addresses(
-            segment_color,
-            separator_color,
-            text,
-            line_info,
-            &IP_ADDRESS_REGEX,
-        );
+        let highlighted =
+            highlight_ip_addresses(segment_color, separator_color, text, &IP_ADDRESS_REGEX);
 
         // The input string does not contain an IP address, so it should be returned as-is
         assert_eq!(highlighted, text);

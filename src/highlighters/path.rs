@@ -12,6 +12,20 @@ pub struct PathHighlighter {
     separator_color: String,
 }
 
+impl Highlight for PathHighlighter {
+    fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
+        if line_info.slashes == 0 {
+            return true;
+        }
+
+        false
+    }
+
+    fn apply(&self, input: &str) -> String {
+        self.highlight_paths(input)
+    }
+}
+
 impl PathHighlighter {
     pub fn new(segment: &Style, separator: &Style) -> Self {
         Self {
@@ -20,11 +34,7 @@ impl PathHighlighter {
         }
     }
 
-    fn highlight_paths(&self, input: &str, line_info: &LineInfo) -> String {
-        if line_info.slashes == 0 {
-            return input.to_string();
-        }
-
+    fn highlight_paths(&self, input: &str) -> String {
         highlight_with_awareness(input, &PATH_REGEX, |caps: &Captures<'_>| {
             let mut output = String::new();
             let path = &caps[0];
@@ -58,12 +68,6 @@ impl PathHighlighter {
     }
 }
 
-impl Highlight for PathHighlighter {
-    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
-        self.highlight_paths(input, line_info)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -71,14 +75,6 @@ mod tests {
 
     #[test]
     fn test_highlight_paths() {
-        let line_info = &LineInfo {
-            dashes: 0,
-            dots: 0,
-            slashes: 1,
-            double_quotes: 0,
-            colons: 0,
-        };
-
         let path = "~/Documents/../user/.";
         let segment_style = Style {
             fg: Fg::Red,
@@ -90,7 +86,7 @@ mod tests {
         };
 
         let highlighter = PathHighlighter::new(&segment_style, &separator_style);
-        let highlighted = highlighter.apply(path, &line_info);
+        let highlighted = highlighter.apply(path);
 
         let expected = path
             .chars()
@@ -107,8 +103,6 @@ mod tests {
 
     #[test]
     fn test_highlight_paths_no_path() {
-        let line_info = LineInfo::default();
-
         let text = "this is a test string with no path";
         let segment_style = Style {
             fg: Fg::Red,
@@ -120,9 +114,8 @@ mod tests {
         };
 
         let highlighter = PathHighlighter::new(&segment_style, &separator_style);
-        let highlighted = highlighter.apply(text, &line_info);
+        let highlighted = highlighter.apply(text);
 
-        // The input string does not contain a path, so it should be returned as-is
         assert_eq!(highlighted, text);
     }
 }

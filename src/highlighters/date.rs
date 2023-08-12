@@ -18,22 +18,23 @@ impl DateHighlighter {
 }
 
 impl Highlight for DateHighlighter {
-    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
-        highlight_dates(&self.color, input, line_info)
-    }
-}
+    fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
+        if line_info.dashes < 2 && line_info.colons < 2 {
+            return true;
+        }
 
-fn highlight_dates(color: &str, input: &str, line_info: &LineInfo) -> String {
-    // if line does not have at least two dashes or two colons, it is not a date
-    if line_info.dashes < 2 && line_info.colons < 2 {
-        return input.to_string();
+        false
     }
 
-    let highlighted = DATE_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
-        format!("{}{}{}", color, &caps[0], color::RESET)
-    });
+    fn apply(&self, input: &str) -> String {
+        let color = &self.color;
 
-    highlighted.into_owned()
+        let highlighted = DATE_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
+            format!("{}{}{}", color, &caps[0], color::RESET)
+        });
+
+        highlighted.into_owned()
+    }
 }
 
 #[cfg(test)]
@@ -45,22 +46,10 @@ mod tests {
     fn test_highlight_dates() {
         let style = Style {
             fg: Fg::Red,
-            bg: Bg::None,
-            italic: false,
-            bold: false,
-            underline: false,
-            faint: false,
+            ..Default::default()
         };
+
         let highlighter = DateHighlighter::new(&style);
-
-        let line_info = LineInfo {
-            dashes: 2,
-            dots: 0,
-            slashes: 0,
-            double_quotes: 0,
-            colons: 2,
-        };
-
         let red = to_ansi(&style);
 
         let test_cases = [
@@ -103,7 +92,7 @@ mod tests {
         ];
 
         for (input, expected_output) in test_cases.iter() {
-            assert_eq!(highlighter.apply(input, &line_info), *expected_output);
+            assert_eq!(highlighter.apply(input), *expected_output);
         }
     }
 }

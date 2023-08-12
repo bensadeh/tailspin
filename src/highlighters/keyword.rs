@@ -22,7 +22,11 @@ impl KeywordHighlighter {
 }
 
 impl Highlight for KeywordHighlighter {
-    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
+    fn should_short_circuit(&self, _line_info: &LineInfo) -> bool {
+        false
+    }
+
+    fn apply(&self, input: &str) -> String {
         let keywords = KEYWORDS
             .get()
             .expect("KEYWORDS should have been initialized");
@@ -30,7 +34,7 @@ impl Highlight for KeywordHighlighter {
             .get(&self.keyword)
             .expect("Keyword regex not found");
 
-        highlight_keywords(&self.keyword, &self.color, input, line_info, keyword_regex)
+        highlight_keywords(&self.keyword, &self.color, input, keyword_regex)
     }
 }
 
@@ -48,12 +52,6 @@ pub fn init_keywords(keywords: Vec<String>) {
         .expect("KEYWORDS should not have been initialized before");
 }
 
-fn highlight_keywords(
-    _keyword: &str,
-    color: &str,
-    input: &str,
-    _line_info: &LineInfo,
-    keyword_regex: &Regex,
-) -> String {
+fn highlight_keywords(_keyword: &str, color: &str, input: &str, keyword_regex: &Regex) -> String {
     highlight_utils::highlight_with_awareness_replace_all(color, input, keyword_regex)
 }

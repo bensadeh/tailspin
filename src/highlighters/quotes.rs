@@ -20,8 +20,16 @@ impl QuoteHighlighter {
 }
 
 impl Highlight for QuoteHighlighter {
-    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
-        self.highlight_inside_quotes(input, line_info)
+    fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
+        if line_info.double_quotes == 0 || line_info.double_quotes % 2 != 0 {
+            return true;
+        }
+
+        false
+    }
+
+    fn apply(&self, input: &str) -> String {
+        self.highlight_inside_quotes(input)
     }
 }
 
@@ -34,11 +42,7 @@ enum State {
 }
 
 impl QuoteHighlighter {
-    fn highlight_inside_quotes(&self, input: &str, line_info: &LineInfo) -> String {
-        if line_info.double_quotes == 0 || line_info.double_quotes % 2 != 0 {
-            return input.to_string();
-        }
-
+    fn highlight_inside_quotes(&self, input: &str) -> String {
         let mut state = OutsideQuote;
         let mut output = String::new();
 
@@ -97,16 +101,8 @@ mod tests {
             ..Default::default()
         };
 
-        let line_info = LineInfo {
-            double_quotes: 2,
-            ..Default::default()
-        };
-
         let highlighter = QuoteHighlighter::new(&style, '"');
-        let result = highlighter.apply(
-            "outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside",
-            &line_info,
-        );
+        let result = highlighter.apply("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected =
             "outside \x1b[33m\"hello \x1b[34;42;3m42\x1b[0m\x1b[33m world\"\x1b[0m outside";
 
@@ -127,7 +123,7 @@ mod tests {
 
         let highlighter = QuoteHighlighter::new(&style, '"');
         let input = "outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
-        let result = highlighter.apply(input, &line_info);
+        let result = highlighter.apply(input);
         let expected =
             "outside \x1b[31m\"hello \x1b[34;42;3m42\x1b[0m\x1b[31m world\"\x1b[0m outside";
 
@@ -141,16 +137,8 @@ mod tests {
             ..Default::default()
         };
 
-        let line_info = LineInfo {
-            double_quotes: 1,
-            ..Default::default()
-        };
-
         let highlighter = QuoteHighlighter::new(&style, '"');
-        let result = highlighter.apply(
-            "outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside",
-            &line_info,
-        );
+        let result = highlighter.apply("outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
         let expected = "outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
 
         assert_eq!(result, expected);

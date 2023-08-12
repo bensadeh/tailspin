@@ -22,12 +22,19 @@ impl UuidHighlighter {
 }
 
 impl Highlight for UuidHighlighter {
-    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
+    fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
+        if line_info.dashes < 4 {
+            return true;
+        }
+
+        false
+    }
+
+    fn apply(&self, input: &str) -> String {
         highlight_uuids(
             &self.segment_color,
             &self.separator_color,
             input,
-            line_info,
             &UUID_REGEX,
         )
     }
@@ -37,13 +44,8 @@ fn highlight_uuids(
     segment_color: &str,
     separator_color: &str,
     input: &str,
-    line_info: &LineInfo,
     uuid_regex: &Regex,
 ) -> String {
-    if line_info.dashes < 4 {
-        return input.to_string();
-    }
-
     highlight_with_awareness(input, uuid_regex, |caps: &Captures<'_>| {
         let mut output = String::new();
         for i in 1..caps.len() {
@@ -65,11 +67,6 @@ mod tests {
 
     #[test]
     fn test_highlight_uuids() {
-        let line_info = LineInfo {
-            dashes: 4,
-            ..Default::default()
-        };
-
         let uuid = "550e8400-e29b-41d4-a716-446655440000";
         let segment = Style {
             fg: Fg::Red,
@@ -81,7 +78,7 @@ mod tests {
         };
 
         let highlighter = UuidHighlighter::new(&segment, &separator);
-        let highlighted = highlighter.apply(uuid, &line_info);
+        let highlighted = highlighter.apply(uuid);
 
         let segment_color = "\x1b[31m"; // ANSI color code for red
         let separator_color = "\x1b[32m"; // ANSI color code for green
@@ -120,11 +117,6 @@ mod tests {
 
     #[test]
     fn test_highlight_uuids_no_uuid() {
-        let line_info = LineInfo {
-            dashes: 4,
-            ..Default::default()
-        };
-
         let text = "this is a test string with no uuid";
         let segment = Style {
             fg: Fg::Red,
@@ -136,9 +128,8 @@ mod tests {
         };
 
         let highlighter = UuidHighlighter::new(&segment, &separator);
-        let highlighted = highlighter.apply(text, &line_info);
+        let highlighted = highlighter.apply(text);
 
-        // The input string does not contain a UUID, so it should be returned as-is
         assert_eq!(highlighted, text);
     }
 }

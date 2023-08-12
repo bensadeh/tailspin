@@ -5,7 +5,8 @@ pub const GENERAL_ERROR: i32 = 1;
 pub const MISUSE_SHELL_BUILTIN: i32 = 2;
 
 pub trait Highlight {
-    fn apply(&self, input: &str, line_info: &LineInfo) -> String;
+    fn should_short_circuit(&self, line_info: &LineInfo) -> bool;
+    fn apply(&self, input: &str) -> String;
 }
 
 pub struct Error {

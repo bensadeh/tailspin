@@ -18,11 +18,15 @@ impl NumberHighlighter {
 }
 
 impl Highlight for NumberHighlighter {
-    fn apply(&self, input: &str, line_info: &LineInfo) -> String {
-        highlight_numbers(&self.color, input, line_info)
+    fn should_short_circuit(&self, _line_info: &LineInfo) -> bool {
+        false
+    }
+
+    fn apply(&self, input: &str) -> String {
+        highlight_numbers(&self.color, input)
     }
 }
 
-fn highlight_numbers(color: &str, input: &str, _line_info: &LineInfo) -> String {
+fn highlight_numbers(color: &str, input: &str) -> String {
     highlight_utils::highlight_with_awareness_replace_all(color, input, &NUMBER_REGEX)
 }

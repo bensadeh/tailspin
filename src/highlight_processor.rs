@@ -30,8 +30,12 @@ impl HighlightProcessor {
     ) -> String {
         let mut result = String::from(text);
 
-        for highlight in highlighters {
-            result = highlight.apply(&result, line_info);
+        for highlighter in highlighters {
+            if highlighter.should_short_circuit(line_info) {
+                continue;
+            }
+
+            result = highlighter.apply(&result);
         }
 
         result
