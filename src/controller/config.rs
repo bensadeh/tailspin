@@ -135,7 +135,7 @@ fn determine_input(path: String) -> Result<Input, Error> {
 fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
     let metadata = fs::metadata(path.as_ref()).map_err(|_| Error {
         exit_code: GENERAL_ERROR,
-        message: "Failed to access path metadata".into(),
+        message: format!("{}: No such file or directory", path.as_ref().display()),
     })?;
 
     if metadata.is_file() {
