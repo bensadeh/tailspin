@@ -69,11 +69,20 @@ impl Linemux {
 
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
+        let file_list = file_paths
+            .iter()
+            .map(|path| path.to_string())
+            .collect::<Vec<_>>()
+            .join("\n");
+
         let custom_message = format!(
-            "Tailing {} files in {}",
+            "Tailing {} files in {}: \n{}",
             file_paths.len().to_string().cyan(),
             folder_name.green(),
+            file_list,
         );
+
+        println!("{}", custom_message); // Print the custom message to the console
 
         for file_path in file_paths {
             lines
