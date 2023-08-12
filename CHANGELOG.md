@@ -4,6 +4,7 @@
 
 - Added `-t`/`--tail` flag to start reading from the end of a file.
 - Fixed a bug where opening a folder would include hidden files
+- Improved inital output when watching folders
 
 ## 1.3.0
 

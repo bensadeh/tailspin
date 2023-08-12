@@ -1,8 +1,9 @@
 use crate::reader::AsyncLineReader;
 use async_trait::async_trait;
-use colored::Colorize;
+use color_eyre::owo_colors::OwoColorize;
 use linemux::MuxedLines;
 use std::io;
+use terminal_size::{terminal_size, Height, Width};
 use tokio::sync::oneshot::Sender;
 
 pub struct Linemux {
@@ -61,6 +62,8 @@ impl Linemux {
         file_paths: Vec<String>,
         mut reached_eof_tx: Option<Sender<()>>,
     ) -> Box<dyn AsyncLineReader + Send> {
+        use std::path::Path;
+
         if let Some(reached_eof) = reached_eof_tx.take() {
             reached_eof
                 .send(())
@@ -71,18 +74,30 @@ impl Linemux {
 
         let file_list = file_paths
             .iter()
-            .map(|path| path.to_string())
+            .enumerate()
+            .map(|(index, path)| {
+                let file_name = Path::new(path)
+                    .file_name()
+                    .and_then(|name| name.to_str())
+                    .unwrap_or(path);
+
+                if index == file_paths.len() - 1 {
+                    format!("         └─ {}", file_name.bold())
+                } else {
+                    format!("         ├─ {}", file_name.bold())
+                }
+            })
             .collect::<Vec<_>>()
             .join("\n");
 
+        let separator = get_separator();
+        let dimmed_separator = separator.dimmed();
         let custom_message = format!(
-            "Tailing {} files in {}: \n{}",
-            file_paths.len().to_string().cyan(),
+            "Watching {} \n{}\n{}\n",
             folder_name.green(),
             file_list,
+            dimmed_separator
         );
-
-        println!("{}", custom_message); // Print the custom message to the console
 
         for file_path in file_paths {
             lines
@@ -106,6 +121,15 @@ impl Linemux {
                 .send(())
                 .expect("Failed sending EOF signal to oneshot channel");
         }
+    }
+}
+
+fn get_separator() -> String {
+    let size = terminal_size();
+    if let Some((Width(w), Height(_h))) = size {
+        "▁".repeat(w as usize)
+    } else {
+        "".to_string()
     }
 }
 

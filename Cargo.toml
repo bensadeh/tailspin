@@ -28,5 +28,6 @@ regex = "1.9.3"
 serde = { version = "1.0", features = ["derive"] }
 shellexpand = "3.1.0"
 tempfile = "3.7.1"
+terminal_size = "0.2.6"
 tokio = { version = "1.29.1", features = ["full"] }
 toml = "0.7.6"

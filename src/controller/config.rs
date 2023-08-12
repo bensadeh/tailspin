@@ -121,7 +121,9 @@ fn determine_input(path: String) -> Result<Input, Error> {
             Ok(Input::File(PathAndLineCount { path, line_count }))
         }
         PathType::Folder => {
-            let paths = list_files_in_directory(Path::new(&path))?;
+            let mut paths = list_files_in_directory(Path::new(&path))?;
+            paths.sort();
+
             Ok(Input::Folder(FolderInfo {
                 folder_name: path,
                 file_paths: paths,
