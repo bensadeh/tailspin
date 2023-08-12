@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                          
+#                                                                                                                                                                                                                                                           
 
 <p align="center">
 A log file highlighter
@@ -148,6 +148,20 @@ style = { fg = "green" }
 [[groups.keywords]]
 words = ['null', 'true', 'false']
 style = { fg = "red", italic = true }
+```
+
+## Working with `stdin` and `stdout`
+
+By default, `tailspin` will open a file in the pager `less`. However, if you pipe something into `tailspin`, it will
+print the highlighted output directly to `stdout`. This is similar to running `spin [file] --print`.
+
+To let `tailspin` highlight the logs of different commands, you can pipe the output of those commands into `tailspin`
+like so:
+
+```console
+journalctl -f | spin
+cat /var/log/syslog | spin
+kubectl logs -f pod_name | spin
 ```
 
 ## Using the pager `less`
