@@ -1,13 +1,13 @@
 # Changelog
 
-## 1.4.0
+## 1.4.0 - 12.08.23
 
 - Added `-t`/`--tail` flag to start reading from the end of a file.
 - Fixed a bug where opening a folder would include hidden files
 - Improved inital output when watching folders
 - Improved output when trying to open a file or folder which doesn't exist
 
-## 1.3.0
+## 1.3.0 - 31.07.23
 
 - Added support for tailing folders
 - Changed behavior: `tailspin` will now print to `stdout` by default if used in a pipe. For
