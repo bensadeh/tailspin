@@ -156,26 +156,32 @@ mod tests {
 
     #[test]
     fn test_short_circuit_on_few_slashes() {
+        let line_info = LineInfo {
+            slashes: 1,
+            ..Default::default()
+        };
+
         let url_group = get_default_group();
 
         let highlighter = UrlHighlighter::new(&url_group);
+        let should_short_circuit_actual = highlighter.should_short_circuit(&line_info);
 
-        let input = "Visit https://www.example.com/path?param1=value1&param2=value2";
-        let expected_output = "Visit https://www.example.com/path?param1=value1&param2=value2";
-
-        assert_eq!(highlighter.apply(input), expected_output);
+        assert!(should_short_circuit_actual);
     }
 
     #[test]
     fn test_short_circuit_on_no_colons() {
-        let url_group = get_default_group();
+        let line_info = LineInfo {
+            slashes: 2,
+            ..Default::default()
+        };
 
+        let url_group = get_default_group();
         let highlighter = UrlHighlighter::new(&url_group);
 
-        let input = "Visit https://www.example.com/path?param1=value1&param2=value2";
-        let expected_output = "Visit https://www.example.com/path?param1=value1&param2=value2";
+        let should_short_circuit_actual = highlighter.should_short_circuit(&line_info);
 
-        assert_eq!(highlighter.apply(input), expected_output);
+        assert!(should_short_circuit_actual);
     }
 
     fn get_default_group() -> Url {

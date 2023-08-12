@@ -40,7 +40,7 @@ impl Highlight for DateHighlighter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::color::{Bg, Fg};
+    use crate::color::Fg;
 
     #[test]
     fn test_highlight_dates() {

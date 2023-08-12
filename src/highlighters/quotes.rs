@@ -116,11 +116,6 @@ mod tests {
             ..Default::default()
         };
 
-        let line_info = LineInfo {
-            double_quotes: 2,
-            ..Default::default()
-        };
-
         let highlighter = QuoteHighlighter::new(&style, '"');
         let input = "outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
         let result = highlighter.apply(input);
@@ -132,15 +127,14 @@ mod tests {
 
     #[test]
     fn do_nothing_on_uneven_number_of_quotes() {
-        let style = Style {
-            fg: Fg::Red,
+        let line_info = LineInfo {
+            double_quotes: 1,
             ..Default::default()
         };
 
-        let highlighter = QuoteHighlighter::new(&style, '"');
-        let result = highlighter.apply("outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
-        let expected = "outside \" \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
+        let highlighter = QuoteHighlighter::new(&Style::default(), '"');
+        let should_short_circuit_actual = highlighter.should_short_circuit(&line_info);
 
-        assert_eq!(result, expected);
+        assert!(should_short_circuit_actual);
     }
 }
