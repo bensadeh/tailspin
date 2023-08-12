@@ -28,6 +28,7 @@ A log file highlighter
 * [Installing](#installing)
 * [Highlight Groups](#highlight-groups)
 * [Customizing Highlight Groups](#customizing-highlight-groups)
+* [Working with `stdin` and `stdout`](#working-with-stdin-and-stdout)
 * [Using the pager `less`](#using-the-pager-less)
 * [Settings](#settings)
 
