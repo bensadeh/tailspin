@@ -15,7 +15,6 @@ mod theme_io;
 mod types;
 mod writer;
 
-use crate::cli::Cli;
 use crate::controller::config::create_config;
 use crate::controller::get_io_and_presenter;
 use crate::highlight_processor::HighlightProcessor;
@@ -31,11 +30,7 @@ use tokio::sync::oneshot;
 async fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let args = cli::get_args();
-
-    if should_exit_early(&args) {
-        exit(0);
-    }
+    let args = cli::get_args_or_exit_early();
 
     let config_path = args.config_path.clone();
     let theme = theme_io::load_theme(config_path);
@@ -64,26 +59,6 @@ async fn main() -> Result<()> {
     presenter.present();
 
     Ok(())
-}
-
-fn should_exit_early(args: &Cli) -> bool {
-    if args.generate_shell_completions.is_some() {
-        cli::print_completions_to_stdout();
-        return true;
-    }
-
-    if args.create_default_config {
-        theme_io::create_default_config();
-        return true;
-    }
-
-    if args.show_default_config {
-        let default_config = theme_io::default_theme();
-        println!("{}", default_config);
-        return true;
-    }
-
-    false
 }
 
 async fn process_lines<T: AsyncLineReader + AsyncLineWriter + Unpin + Send>(

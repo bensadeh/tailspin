@@ -1,6 +1,8 @@
+use crate::theme_io;
 use clap::{Command, CommandFactory, Parser};
 use clap_complete::{generate, Generator, Shell};
 use std::io;
+use std::process::exit;
 
 #[derive(Parser)]
 #[command(name = "spin")]
@@ -43,8 +45,34 @@ pub struct Cli {
     pub generate_shell_completions: Option<String>,
 }
 
-pub fn get_args() -> Cli {
-    Cli::parse()
+pub fn get_args_or_exit_early() -> Cli {
+    let args = Cli::parse();
+
+    if should_exit_early(&args) {
+        exit(0);
+    }
+
+    args
+}
+
+fn should_exit_early(args: &Cli) -> bool {
+    if args.generate_shell_completions.is_some() {
+        print_completions_to_stdout();
+        return true;
+    }
+
+    if args.create_default_config {
+        theme_io::create_default_config();
+        return true;
+    }
+
+    if args.show_default_config {
+        let default_config = theme_io::default_theme();
+        println!("{}", default_config);
+        return true;
+    }
+
+    false
 }
 
 pub fn print_completions_to_stdout() {
