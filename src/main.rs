@@ -6,7 +6,6 @@ mod file_utils;
 mod highlight_processor;
 mod highlight_utils;
 mod highlighters;
-mod io_stream;
 mod line_info;
 mod presenter;
 mod reader;
