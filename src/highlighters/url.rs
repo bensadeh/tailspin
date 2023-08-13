@@ -1,7 +1,7 @@
 use crate::color;
 use crate::color::to_ansi;
 use crate::line_info::LineInfo;
-use crate::regexes::{QUERY_PARAMS_REGEX, URL_REGEX};
+use crate::regex::{QUERY_PARAMS_REGEX, URL_REGEX};
 use crate::theme::Url;
 use crate::types::Highlight;
 use regex::Regex;

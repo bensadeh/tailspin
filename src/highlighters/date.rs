@@ -1,7 +1,7 @@
 use crate::color;
 use crate::color::to_ansi;
 use crate::line_info::LineInfo;
-use crate::regexes::DATE_REGEX;
+use crate::regex::DATE_REGEX;
 use crate::theme::Style;
 use crate::types::Highlight;
 

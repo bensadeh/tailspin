@@ -2,7 +2,7 @@ use crate::color;
 use crate::color::to_ansi;
 use crate::highlight_utils::highlight_with_awareness;
 use crate::line_info::LineInfo;
-use crate::regexes::IP_ADDRESS_REGEX;
+use crate::regex::IP_ADDRESS_REGEX;
 use crate::theme::Style;
 use crate::types::Highlight;
 use regex::{Captures, Regex};
