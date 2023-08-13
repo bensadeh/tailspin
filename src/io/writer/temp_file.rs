@@ -1,4 +1,4 @@
-use crate::writer::AsyncLineWriter;
+use crate::io::writer::AsyncLineWriter;
 use async_trait::async_trait;
 use rand::random;
 use std::path::PathBuf;

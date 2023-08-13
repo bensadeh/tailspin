@@ -1,4 +1,4 @@
-use crate::reader::AsyncLineReader;
+use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use tokio::io;
 use tokio::io::{AsyncBufReadExt, BufReader, Stdin};

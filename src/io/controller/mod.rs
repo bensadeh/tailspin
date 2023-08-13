@@ -1,17 +1,17 @@
 use crate::presenter::less::Less;
 use crate::presenter::Present;
-use crate::reader::linemux::Linemux;
-use crate::reader::AsyncLineReader;
-use crate::writer::temp_file::TempFile;
-use crate::writer::AsyncLineWriter;
 use async_trait::async_trait;
 use tokio::io;
 
+use crate::io::reader::command::CommandReader;
+use crate::io::reader::linemux::Linemux;
+use crate::io::reader::stdin::StdinReader;
+use crate::io::reader::AsyncLineReader;
+use crate::io::writer::stdout::StdoutWriter;
+use crate::io::writer::temp_file::TempFile;
+use crate::io::writer::AsyncLineWriter;
 use crate::presenter::empty::NoPresenter;
-use crate::reader::command::CommandReader;
-use crate::reader::stdin::StdinReader;
 use crate::types::{Config, Input, Output};
-use crate::writer::stdout::StdoutWriter;
 use tokio::sync::oneshot::Sender;
 
 pub struct Io {

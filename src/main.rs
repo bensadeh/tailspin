@@ -1,27 +1,25 @@
 mod cli;
 mod color;
 mod config;
-mod controller;
 mod file_utils;
 mod highlight_processor;
 mod highlight_utils;
 mod highlighters;
+mod io;
 mod line_info;
 mod presenter;
-mod reader;
 mod regex;
 mod theme;
 mod theme_io;
 mod types;
-mod writer;
 
-use crate::controller::get_io_and_presenter;
 use crate::highlight_processor::HighlightProcessor;
 use crate::presenter::Present;
-use crate::reader::AsyncLineReader;
-use crate::writer::AsyncLineWriter;
 
 use crate::config::create_config;
+use crate::io::controller::get_io_and_presenter;
+use crate::io::reader::AsyncLineReader;
+use crate::io::writer::AsyncLineWriter;
 use color_eyre::eyre::Result;
 use std::process::exit;
 use tokio::sync::oneshot;
