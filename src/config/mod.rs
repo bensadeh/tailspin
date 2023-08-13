@@ -8,6 +8,7 @@ use color_eyre::owo_colors::OwoColorize;
 use std::fs;
 use std::io::{stdin, IsTerminal};
 use std::path::Path;
+use std::process::exit;
 
 enum InputType {
     Stdin,
@@ -20,7 +21,17 @@ enum PathType {
     Folder,
 }
 
-pub fn create_config(args: Cli) -> Result<Config, Error> {
+pub fn create_config_or_exit_early(args: Cli) -> Config {
+    match create_config(args) {
+        Ok(c) => c,
+        Err(e) => {
+            println!("{}", e.message);
+            exit(e.exit_code);
+        }
+    }
+}
+
+fn create_config(args: Cli) -> Result<Config, Error> {
     let has_data_from_stdin = !stdin().is_terminal();
 
     validate_input(

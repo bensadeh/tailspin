@@ -16,12 +16,12 @@ mod types;
 use crate::highlight_processor::HighlightProcessor;
 use crate::presenter::Present;
 
-use crate::config::create_config;
 use crate::io::controller::get_io_and_presenter;
 use crate::io::reader::AsyncLineReader;
 use crate::io::writer::AsyncLineWriter;
+use crate::theme::Theme;
+use crate::types::Config;
 use color_eyre::eyre::Result;
-use std::process::exit;
 use tokio::sync::oneshot;
 
 #[tokio::main]
@@ -29,24 +29,20 @@ async fn main() -> Result<()> {
     color_eyre::install()?;
 
     let args = cli::get_args_or_exit_early();
+    let theme = theme_io::load_theme(args.config_path.clone());
+    let config = config::create_config_or_exit_early(args);
 
-    let config_path = args.config_path.clone();
-    let theme = theme_io::load_theme(config_path);
+    run(theme, config).await;
+
+    Ok(())
+}
+
+pub async fn run(theme: Theme, config: Config) {
+    let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
+    let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;
 
     let highlighter = highlighters::Highlighters::new(theme);
     let highlight_processor = HighlightProcessor::new(highlighter);
-
-    let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
-
-    let config = match create_config(args) {
-        Ok(c) => c,
-        Err(e) => {
-            println!("{}", e.message);
-            exit(e.exit_code);
-        }
-    };
-
-    let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;
 
     tokio::spawn(process_lines(io, highlight_processor));
 
@@ -55,8 +51,6 @@ async fn main() -> Result<()> {
         .expect("Could not receive EOF signal from oneshot channel");
 
     presenter.present();
-
-    Ok(())
 }
 
 async fn process_lines<T: AsyncLineReader + AsyncLineWriter + Unpin + Send>(
