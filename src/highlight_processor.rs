@@ -12,32 +12,32 @@ impl HighlightProcessor {
     }
 
     pub fn apply(&self, text: &str) -> String {
-        let mut result = String::from(text);
         let line_info = LineInfo::process(text);
 
-        result = self.apply_highlighters(&result, &line_info, &self.highlighters.before);
-        result = self.apply_highlighters(&result, &line_info, &self.highlighters.main);
-        result = self.apply_highlighters(&result, &line_info, &self.highlighters.after);
+        let stages = [
+            &self.highlighters.before,
+            &self.highlighters.main,
+            &self.highlighters.after,
+        ];
 
-        result
+        stages
+            .iter()
+            .fold(String::from(text), |result, highlighters| {
+                self.apply_highlighters(&result, &line_info, highlighters)
+            })
     }
 
     fn apply_highlighters(
         &self,
         text: &str,
         line_info: &LineInfo,
-        highlighters: &Vec<Box<dyn Highlight + Send>>,
+        highlighters: &[Box<dyn Highlight + Send>],
     ) -> String {
-        let mut result = String::from(text);
-
-        for highlighter in highlighters {
-            if highlighter.should_short_circuit(line_info) {
-                continue;
-            }
-
-            result = highlighter.apply(&result);
-        }
-
-        result
+        highlighters
+            .iter()
+            .filter(|highlighter| !highlighter.should_short_circuit(line_info))
+            .fold(String::from(text), |result, highlighter| {
+                highlighter.apply(&result)
+            })
     }
 }
