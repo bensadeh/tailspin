@@ -16,9 +16,10 @@ A log file highlighter
 
 - 🪵 View (or `tail`) any log file of any format
 - 🍰 No setup or config required
-- 🌈 Highlight numbers, dates, IP-addresses, UUIDs, URLs and more
+- 🌈 Highlights numbers, dates, IP-addresses, UUIDs, URLs and more
 - ⚙️ All highlight groups are customizable
-- 🔍 Uses `less` under the hood to provide **scrollback**, **search** and **filtering**
+- 🧬 Easy to integrate with other commands
+- 🔍 Uses `less` under the hood for scrollback, search and filtering
 
 #
 
