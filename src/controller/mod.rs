@@ -1,5 +1,3 @@
-pub mod config;
-
 use crate::presenter::less::Less;
 use crate::presenter::Present;
 use crate::reader::linemux::Linemux;
