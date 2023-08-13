@@ -1,7 +1,6 @@
 mod cli;
 mod color;
 mod config;
-mod file_utils;
 mod highlight_processor;
 mod highlight_utils;
 mod highlighters;
