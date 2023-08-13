@@ -70,16 +70,6 @@ fn validate_input(
         });
     }
 
-    if has_data_from_stdin && has_file_or_folder_input {
-        return Err(Error {
-            exit_code: MISUSE_SHELL_BUILTIN,
-            message: format!(
-                "Cannot read from both stdin and {}",
-                "--listen-command".magenta()
-            ),
-        });
-    }
-
     if has_file_or_folder_input && has_follow_command_input {
         return Err(Error {
             exit_code: MISUSE_SHELL_BUILTIN,
