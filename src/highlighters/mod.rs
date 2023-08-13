@@ -15,15 +15,8 @@ use crate::highlighters::path::PathHighlighter;
 use crate::highlighters::quotes::QuoteHighlighter;
 use crate::highlighters::url::UrlHighlighter;
 use crate::highlighters::uuid::UuidHighlighter;
-use crate::theme::Keyword;
-use crate::theme::Style;
 use crate::theme::Theme;
 use crate::types::Highlight;
-
-struct FlattenKeyword {
-    pub keyword: String,
-    pub style: Style,
-}
 
 pub struct Highlighters {
     pub before: Vec<Box<dyn Highlight + Send>>,
@@ -32,22 +25,17 @@ pub struct Highlighters {
 }
 
 impl Highlighters {
-    pub fn new(config: Theme) -> Highlighters {
+    fn set_before_fns(config: &Theme) -> Vec<Box<dyn Highlight + Send>> {
         let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
-        let mut main_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
-        let mut after_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
-        // Dates
         if let Some(dates) = &config.groups.date {
             before_fns.push(Box::new(DateHighlighter::new(&dates.style)));
         }
 
-        // URLs
         if let Some(url) = &config.groups.url {
             before_fns.push(Box::new(UrlHighlighter::new(url)));
         }
 
-        // Paths
         if let Some(path) = &config.groups.path {
             before_fns.push(Box::new(PathHighlighter::new(
                 &path.segment,
@@ -55,12 +43,10 @@ impl Highlighters {
             )));
         }
 
-        // IPs
         if let Some(ip) = &config.groups.ip {
             before_fns.push(Box::new(IpHighlighter::new(&ip.segment, &ip.separator)));
         }
 
-        // UUIDs
         if let Some(uuid) = &config.groups.uuid {
             before_fns.push(Box::new(UuidHighlighter::new(
                 &uuid.segment,
@@ -68,28 +54,31 @@ impl Highlighters {
             )));
         }
 
-        // Numbers
+        before_fns
+    }
+
+    fn set_main_fns(config: &Theme) -> Vec<Box<dyn Highlight + Send>> {
+        let mut main_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
+
         if let Some(numbers) = &config.groups.number {
             main_fns.push(Box::new(NumberHighlighter::new(&numbers.style)));
         }
 
-        // Keywords
-        let flattened_keywords = Self::flatten(&config);
-        let keyword_strings: Vec<String> = flattened_keywords
-            .iter()
-            .map(|kw| kw.keyword.clone())
-            .collect();
-
-        keyword::init_keywords(keyword_strings);
-
-        for keyword in flattened_keywords {
-            main_fns.push(Box::new(KeywordHighlighter::new(
-                keyword.keyword,
-                &keyword.style,
-            )));
+        if let Some(keywords) = &config.groups.keywords {
+            for keyword in keywords {
+                main_fns.push(Box::new(KeywordHighlighter::new(
+                    &keyword.words,
+                    &keyword.style,
+                )));
+            }
         }
 
-        // Quotes
+        main_fns
+    }
+
+    fn set_after_fns(config: &Theme) -> Vec<Box<dyn Highlight + Send>> {
+        let mut after_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
+
         if let Some(quotes_group) = &config.groups.quotes {
             after_fns.push(Box::new(QuoteHighlighter::new(
                 &quotes_group.style,
@@ -97,31 +86,14 @@ impl Highlighters {
             )));
         }
 
+        after_fns
+    }
+
+    pub fn new(config: Theme) -> Highlighters {
         Highlighters {
-            before: before_fns,
-            main: main_fns,
-            after: after_fns,
+            before: Self::set_before_fns(&config),
+            main: Self::set_main_fns(&config),
+            after: Self::set_after_fns(&config),
         }
-    }
-
-    fn flatten(config: &Theme) -> Vec<FlattenKeyword> {
-        let keywords_or_empty = config.groups.keywords.clone().unwrap_or_default();
-
-        Self::flatten_keywords(keywords_or_empty)
-    }
-
-    fn flatten_keywords(keywords: Vec<Keyword>) -> Vec<FlattenKeyword> {
-        let mut flatten_keywords = Vec::new();
-
-        for keyword in keywords {
-            for string in keyword.words {
-                flatten_keywords.push(FlattenKeyword {
-                    keyword: string,
-                    style: keyword.style.clone(),
-                });
-            }
-        }
-
-        flatten_keywords
     }
 }
