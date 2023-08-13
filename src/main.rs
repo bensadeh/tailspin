@@ -6,16 +6,14 @@ mod highlight_utils;
 mod highlighters;
 mod io;
 mod line_info;
-mod presenter;
 mod regex;
 mod theme;
 mod theme_io;
 mod types;
 
 use crate::highlight_processor::HighlightProcessor;
-use crate::presenter::Present;
-
 use crate::io::controller::get_io_and_presenter;
+use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
 use crate::io::writer::AsyncLineWriter;
 use crate::theme::Theme;
