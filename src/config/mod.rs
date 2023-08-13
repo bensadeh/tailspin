@@ -25,7 +25,10 @@ pub fn create_config_or_exit_early(args: Cli) -> Config {
     match create_config(args) {
         Ok(c) => c,
         Err(e) => {
-            println!("{}", e.message);
+            match e.exit_code {
+                0 => println!("{}", e.message),
+                _ => eprintln!("{}", e.message),
+            }
             exit(e.exit_code);
         }
     }

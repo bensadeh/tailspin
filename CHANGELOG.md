@@ -1,7 +1,8 @@
 # Changelog
+
 ## 1.5.0
 
-
+- Errors are now printed to `stderr` instead of `stdout`
 
 
 ## 1.4.0 - 12.08.23
