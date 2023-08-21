@@ -15,7 +15,7 @@ name = "spin"
 
 [dependencies]
 async-trait = "0.1.73"
-clap = { version = "4.3.21", features = ["derive"] }
+clap = { version = "4.3.23", features = ["derive"] }
 clap_complete = "4.3.2"
 color-eyre = "0.6.2"
 colored = "2"
@@ -27,7 +27,7 @@ rand = "0.8.5"
 regex = "1.9.3"
 serde = { version = "1.0", features = ["derive"] }
 shellexpand = "3.1.0"
-tempfile = "3.7.1"
+tempfile = "3.8.0"
 terminal_size = "0.2.6"
-tokio = { version = "1.31.0", features = ["full"] }
+tokio = { version = "1.32.0", features = ["full"] }
 toml = "0.7.6"
