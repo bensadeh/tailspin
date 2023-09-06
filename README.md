@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                           
+#                                                                                                                                                                                                                                                            
 
 <p align="center">
 A log file highlighter
@@ -46,41 +46,21 @@ it requires no configuration or setup and will work predictably regardless of th
 
 ## Installing
 
-### Cargo
+The binary name for `tailspin` is `spin`.
 
 ```console
-# Install
+# Cargo
 cargo install tailspin
 
-# View log file
-spin [file]
-```
-
-> **Note**
-> When installing via cargo, make sure that `$HOME/.cargo/bin` is in your `PATH` environment variable
-
-### Debian
-
-```console
-# Install
+# Debian
 apt install tailspin
 
-# View log file
-tailspin [file]
-```
-
-### Archlinux
-
-```console
-# Install
+# AUR
 paru -S tailspin
 
-# View log file
-spin [file]
+# Nix
+nix-shell -p tailspin
 ```
-
-> **Note**
-> Because of a name collision with another `apt` package, the binary name on Debian is `tailspin`
 
 ## Highlight Groups
 
@@ -221,8 +201,8 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 ## Settings
 
 ```console
--f, --follow                 Follow (tail) the contents of the file
--t, --tail                   Start at the end of the file.
+-f, --follow                 Follow the contents of the file
+-t, --tail                   Start at the end of the file
 -p, --print                  Print the output to stdout
 -c, --config-path PATH       Path to a custom configuration file
 -t, --follow-command 'CMD'   Follows the output of the provided command
