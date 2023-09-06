@@ -69,6 +69,16 @@ apt install tailspin
 tailspin [file]
 ```
 
+### Archlinux
+
+```console
+# Install
+paru -S tailspin
+
+# View log file
+spin [file]
+```
+
 > **Note**
 > Because of a name collision with another `apt` package, the binary name on Debian is `tailspin`
 
