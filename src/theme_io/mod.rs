@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::process::exit;
 use std::{env, fs};
 
-const DEFAULT_THEME: &str = include_str!("../../data/config.toml");
+const DEFAULT_THEME: &str = include_str!("../../config/config.toml");
 
 pub fn load_theme(path: Option<String>) -> Theme {
     let config_dir = match env::var("XDG_CONFIG_HOME") {
