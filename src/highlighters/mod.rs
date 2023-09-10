@@ -29,7 +29,11 @@ impl Highlighters {
         let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
         if let Some(dates) = &config.groups.date {
-            before_fns.push(Box::new(DateHighlighter::new(&dates.style)));
+            before_fns.push(Box::new(DateHighlighter::new(
+                &dates.date,
+                &dates.time,
+                &dates.zone,
+            )));
         }
 
         if let Some(url) = &config.groups.url {

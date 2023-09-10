@@ -8,11 +8,11 @@ Sun Aug 14 10:51:19.316 DEBUG Usb Host Notification Error Apple80211Set: Device 
 Sun Aug 14 10:51:22.602 DEBUG sharingd (542) is not entitled for com.apple.wifi.join_history, will not allow request
 
 # Date and Time
-2022-08-29 08:11:36            Task completed.
+07:46:34                       Data backup created
+10:51:19.251                   Event logged
+2022-08-29 08:11:36            Task completed
 2022-09-09 11:48:34,534        Last login attempt failed
 2022-09-22T07:46:34.171800155Z Server encountered an error
-2022-09-22T07:46:34.172389889Z Data backup created
-2022-09-22T07:46:34.171800155Z Event logged for debugging purposes
 
 # Numbers
 Duration: 42 seconds

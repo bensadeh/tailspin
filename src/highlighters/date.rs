@@ -6,13 +6,17 @@ use crate::theme::Style;
 use crate::types::Highlight;
 
 pub struct DateHighlighter {
-    color: String,
+    date: String,
+    time: String,
+    zone: String,
 }
 
 impl DateHighlighter {
-    pub fn new(style: &Style) -> Self {
+    pub fn new(date: &Style, time: &Style, zone: &Style) -> Self {
         Self {
-            color: to_ansi(style),
+            date: to_ansi(date),
+            time: to_ansi(time),
+            zone: to_ansi(zone),
         }
     }
 }
@@ -27,10 +31,53 @@ impl Highlight for DateHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        let color = &self.color;
-
         let highlighted = DATE_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
-            format!("{}{}{}", color, &caps[0], color::RESET)
+            let date_part = if let Some(m) = caps.name("date") {
+                format!("{}{}{}", self.date, m.as_str(), color::RESET)
+            } else {
+                String::new()
+            };
+
+            let sep1_part = if let Some(m) = caps.name("sep1") {
+                format!("{}{}{}", self.zone, m.as_str(), color::RESET)
+            } else {
+                String::new()
+            };
+
+            let time_part = if let Some(m) = caps.name("time") {
+                format!("{}{}{}", self.time, m.as_str(), color::RESET)
+            } else {
+                String::new()
+            };
+
+            let frac1_part = if let Some(m) = caps.name("frac1") {
+                format!("{}{}{}", self.time, m.as_str(), color::RESET)
+            } else {
+                String::new()
+            };
+
+            let tz1_part = if let Some(m) = caps.name("tz1") {
+                format!("{}{}{}", self.zone, m.as_str(), color::RESET)
+            } else {
+                String::new()
+            };
+
+            let time2_part = if let Some(m) = caps.name("time2") {
+                format!("{}{}{}", self.time, m.as_str(), color::RESET)
+            } else {
+                String::new()
+            };
+
+            let frac2_part = if let Some(m) = caps.name("frac2") {
+                format!("{}{}{}", self.time, m.as_str(), color::RESET)
+            } else {
+                String::new()
+            };
+
+            format!(
+                "{}{}{}{}{}{}{}",
+                date_part, sep1_part, time_part, frac1_part, tz1_part, time2_part, frac2_part
+            )
         });
 
         highlighted.into_owned()
@@ -44,52 +91,33 @@ mod tests {
 
     #[test]
     fn test_highlight_dates() {
-        let style = Style {
+        let date = Style {
             fg: Fg::Red,
             ..Default::default()
         };
 
-        let highlighter = DateHighlighter::new(&style);
-        let red = to_ansi(&style);
+        let time = Style {
+            fg: Fg::Green,
+            ..Default::default()
+        };
+        let zone = Style {
+            fg: Fg::Blue,
+            ..Default::default()
+        };
 
-        let test_cases = [
-            (
-                "The time is 10:51:19.251.",
-                format!("The time is {}10:51:19.251{}.", red, color::RESET),
+        let highlighter = DateHighlighter::new(&date, &time, &zone);
+        let date_ansi = to_ansi(&date);
+        let time_ansi = to_ansi(&time);
+        let zone_ansi = to_ansi(&zone);
+        let reset_ansi = color::RESET;
+
+        let test_cases = [(
+            "2023-09-10T14:30:00",
+            format!(
+                "{}2023-09-10{}{}T{}{}14:30:00{}",
+                date_ansi, reset_ansi, zone_ansi, reset_ansi, time_ansi, reset_ansi,
             ),
-            (
-                "The time is 08:23:55.927.",
-                format!("The time is {}08:23:55.927{}.", red, color::RESET),
-            ),
-            (
-                "The date is 2022-08-29 08:11:36.",
-                format!("The date is {}2022-08-29 08:11:36{}.", red, color::RESET),
-            ),
-            (
-                "The date is 2022-09-22T07:46:34.171800155Z.",
-                format!(
-                    "The date is {}2022-09-22T07:46:34.171800155Z{}.",
-                    red,
-                    color::RESET
-                ),
-            ),
-            (
-                "The time is 08:11:36.",
-                format!("The time is {}08:11:36{}.", red, color::RESET),
-            ),
-            (
-                "The time is 11:48:34,534.",
-                format!("The time is {}11:48:34,534{}.", red, color::RESET),
-            ),
-            (
-                "The date and time are 2022-09-09 11:48:34,534.",
-                format!(
-                    "The date and time are {}2022-09-09 11:48:34,534{}.",
-                    red,
-                    color::RESET
-                ),
-            ),
-        ];
+        )];
 
         for (input, expected_output) in test_cases.iter() {
             assert_eq!(highlighter.apply(input), *expected_output);

@@ -1,5 +1,7 @@
 [groups.date]
-style = { fg = "magenta" }
+date = { fg = "magenta" }
+time = { fg = "blue" }
+zone = { fg = "red" }
 
 [groups.number]
 style = { fg = "cyan" }

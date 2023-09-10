@@ -44,7 +44,9 @@ pub struct FilePath {
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Date {
-    pub style: Style,
+    pub date: Style,
+    pub time: Style,
+    pub zone: Style,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
