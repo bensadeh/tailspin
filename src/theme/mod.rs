@@ -37,6 +37,12 @@ pub struct Ip {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
+pub struct KeyValue {
+    pub key: Style,
+    pub separator: Style,
+}
+
+#[derive(Debug, Deserialize, Default, Clone)]
 pub struct FilePath {
     pub segment: Style,
     pub separator: Style,
@@ -84,6 +90,7 @@ pub struct Groups {
     pub uuid: Option<Uuid>,
     pub url: Option<Url>,
     pub ip: Option<Ip>,
+    pub key_value: Option<KeyValue>,
     pub path: Option<FilePath>,
     pub keywords: Option<Vec<Keyword>>,
 }

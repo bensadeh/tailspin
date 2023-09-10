@@ -1,5 +1,6 @@
 mod date;
 mod ip;
+mod key_value;
 mod keyword;
 mod number;
 mod path;
@@ -9,6 +10,7 @@ mod uuid;
 
 use crate::highlighters::date::DateHighlighter;
 use crate::highlighters::ip::IpHighlighter;
+use crate::highlighters::key_value::KeyValueHighlighter;
 use crate::highlighters::keyword::KeywordHighlighter;
 use crate::highlighters::number::NumberHighlighter;
 use crate::highlighters::path::PathHighlighter;
@@ -49,6 +51,13 @@ impl Highlighters {
 
         if let Some(ip) = &config.groups.ip {
             before_fns.push(Box::new(IpHighlighter::new(&ip.segment, &ip.separator)));
+        }
+
+        if let Some(key_value) = &config.groups.key_value {
+            before_fns.push(Box::new(KeyValueHighlighter::new(
+                &key_value.key,
+                &key_value.separator,
+            )));
         }
 
         if let Some(uuid) = &config.groups.uuid {

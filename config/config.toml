@@ -22,6 +22,10 @@ separator = { fg = "red" }
 segment = { fg = "green", italic = true }
 separator = { fg = "yellow" }
 
+[groups.key_value]
+key = { faint = true }
+separator = { fg = "white" }
+
 [groups.url]
 http = { faint = true }
 https = { bold = true }
