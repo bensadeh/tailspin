@@ -20,11 +20,9 @@ impl HighlightProcessor {
             &self.highlighters.after,
         ];
 
-        stages
-            .iter()
-            .fold(String::from(text), |result, highlighters| {
-                self.apply_highlighters(&result, &line_info, highlighters)
-            })
+        stages.iter().fold(String::from(text), |result, highlighters| {
+            self.apply_highlighters(&result, &line_info, highlighters)
+        })
     }
 
     fn apply_highlighters(
@@ -36,8 +34,6 @@ impl HighlightProcessor {
         highlighters
             .iter()
             .filter(|highlighter| !highlighter.should_short_circuit(line_info))
-            .fold(String::from(text), |result, highlighter| {
-                highlighter.apply(&result)
-            })
+            .fold(String::from(text), |result, highlighter| highlighter.apply(&result))
     }
 }

@@ -33,21 +33,11 @@ impl Highlight for IpHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        highlight_ip_addresses(
-            &self.segment_color,
-            &self.separator_color,
-            input,
-            &IP_ADDRESS_REGEX,
-        )
+        highlight_ip_addresses(&self.segment_color, &self.separator_color, input, &IP_ADDRESS_REGEX)
     }
 }
 
-fn highlight_ip_addresses(
-    segment_color: &str,
-    separator_color: &str,
-    input: &str,
-    ip_address_regex: &Regex,
-) -> String {
+fn highlight_ip_addresses(segment_color: &str, separator_color: &str, input: &str, ip_address_regex: &Regex) -> String {
     let highlight_groups = [
         (segment_color, 1),
         (separator_color, 2),
@@ -77,12 +67,7 @@ mod tests {
         let segment_color = "\x1b[31m"; // ANSI color code for red
         let separator_color = "\x1b[32m"; // ANSI color code for green
 
-        let highlighted = highlight_ip_addresses(
-            segment_color,
-            separator_color,
-            ip_address,
-            &IP_ADDRESS_REGEX,
-        );
+        let highlighted = highlight_ip_addresses(segment_color, separator_color, ip_address, &IP_ADDRESS_REGEX);
 
         let expected = format!(
             "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
@@ -117,8 +102,7 @@ mod tests {
         let segment_color = "\x1b[31m";
         let separator_color = "\x1b[32m";
 
-        let highlighted =
-            highlight_ip_addresses(segment_color, separator_color, text, &IP_ADDRESS_REGEX);
+        let highlighted = highlight_ip_addresses(segment_color, separator_color, text, &IP_ADDRESS_REGEX);
 
         // The input string does not contain an IP address, so it should be returned as-is
         assert_eq!(highlighted, text);

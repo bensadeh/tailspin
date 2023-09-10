@@ -36,10 +36,7 @@ impl Highlight for KeyValueHighlighter {
 fn highlight_key_values(key_color: &str, equals_sign_color: &str, input: &str) -> String {
     KEY_VALUE_REGEX
         .replace_all(input, |captures: &regex::Captures| {
-            let space_or_start = captures
-                .name("space_or_start")
-                .map(|s| s.as_str())
-                .unwrap_or_default();
+            let space_or_start = captures.name("space_or_start").map(|s| s.as_str()).unwrap_or_default();
             let key = captures
                 .name("key")
                 .map(|k| format!("{}{}\x1B[0m", key_color, k.as_str()))

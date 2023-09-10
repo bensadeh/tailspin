@@ -31,10 +31,7 @@ impl Linemux {
                     .expect("Failed sending EOF signal to oneshot channel");
             }
 
-            lines
-                .add_file(&file_path)
-                .await
-                .expect("Could not add file to linemux");
+            lines.add_file(&file_path).await.expect("Could not add file to linemux");
         } else {
             lines
                 .add_file_from_start(&file_path)
@@ -42,11 +39,7 @@ impl Linemux {
                 .expect("Could not add file to linemux");
         }
 
-        let number_of_lines = if follow {
-            Some(1)
-        } else {
-            Some(number_of_lines)
-        };
+        let number_of_lines = if follow { Some(1) } else { Some(number_of_lines) };
 
         Box::new(Self {
             custom_message: None,
@@ -100,10 +93,7 @@ impl Linemux {
         );
 
         for file_path in file_paths {
-            lines
-                .add_file(&file_path)
-                .await
-                .expect("Could not add file to linemux");
+            lines.add_file(&file_path).await.expect("Could not add file to linemux");
         }
 
         Box::new(Self {

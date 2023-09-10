@@ -18,8 +18,7 @@ impl KeywordHighlighter {
             .collect::<Vec<_>>()
             .join("|");
 
-        let keyword_regex =
-            Regex::new(&format!(r"\b({})\b", keyword_pattern)).expect("Invalid regex pattern");
+        let keyword_regex = Regex::new(&format!(r"\b({})\b", keyword_pattern)).expect("Invalid regex pattern");
 
         Self {
             keyword_regex,

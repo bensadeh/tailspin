@@ -52,12 +52,7 @@ impl Highlight for UrlHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        highlight_urls(
-            &self.url_components,
-            input,
-            &self.url_regex,
-            &self.query_params_regex,
-        )
+        highlight_urls(&self.url_components, input, &self.url_regex, &self.query_params_regex)
     }
 }
 
@@ -104,9 +99,8 @@ fn highlight_urls(
         }
 
         if let Some(query) = caps.name("query") {
-            let query_highlighted = query_params_regex.replace_all(
-                query.as_str(),
-                |query_caps: &regex::Captures<'_>| {
+            let query_highlighted =
+                query_params_regex.replace_all(query.as_str(), |query_caps: &regex::Captures<'_>| {
                     let delimiter = query_caps.name("delimiter").map_or("", |m| m.as_str());
                     let key = query_caps.name("key").map_or("", |m| m.as_str());
                     let equal = query_caps.name("equal").map_or("", |m| m.as_str());
@@ -122,8 +116,7 @@ fn highlight_urls(
                         &url_components.query_params_value_color,
                         value
                     )
-                },
-            );
+                });
             output.push_str(&format!("{}{}", query_highlighted, color::RESET));
         }
 

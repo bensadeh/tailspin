@@ -41,9 +41,7 @@ impl PathHighlighter {
             let chars: Vec<_> = path.chars().collect();
 
             // Check if path starts with a valid character and not a double slash
-            if !(chars[0] == '/'
-                || chars[0] == '~'
-                || (chars[0] == '.' && chars.len() > 1 && chars[1] == '/'))
+            if !(chars[0] == '/' || chars[0] == '~' || (chars[0] == '.' && chars.len() > 1 && chars[1] == '/'))
                 || (chars[0] == '/' && chars.len() > 1 && chars[1] == '/')
             {
                 return path.to_string();
@@ -51,15 +49,8 @@ impl PathHighlighter {
 
             for &char in &chars {
                 match char {
-                    '/' => output.push_str(&format!(
-                        "{}{}{}",
-                        &self.separator_color,
-                        char,
-                        color::RESET
-                    )),
-                    _ => {
-                        output.push_str(&format!("{}{}{}", &self.segment_color, char, color::RESET))
-                    }
+                    '/' => output.push_str(&format!("{}{}{}", &self.separator_color, char, color::RESET)),
+                    _ => output.push_str(&format!("{}{}{}", &self.segment_color, char, color::RESET)),
                 }
             }
 

@@ -31,11 +31,7 @@ impl Highlighters {
         let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
         if let Some(dates) = &config.groups.date {
-            before_fns.push(Box::new(DateHighlighter::new(
-                &dates.date,
-                &dates.time,
-                &dates.zone,
-            )));
+            before_fns.push(Box::new(DateHighlighter::new(&dates.date, &dates.time, &dates.zone)));
         }
 
         if let Some(url) = &config.groups.url {
@@ -43,10 +39,7 @@ impl Highlighters {
         }
 
         if let Some(path) = &config.groups.path {
-            before_fns.push(Box::new(PathHighlighter::new(
-                &path.segment,
-                &path.separator,
-            )));
+            before_fns.push(Box::new(PathHighlighter::new(&path.segment, &path.separator)));
         }
 
         if let Some(ip) = &config.groups.ip {
@@ -54,17 +47,11 @@ impl Highlighters {
         }
 
         if let Some(key_value) = &config.groups.key_value {
-            before_fns.push(Box::new(KeyValueHighlighter::new(
-                &key_value.key,
-                &key_value.separator,
-            )));
+            before_fns.push(Box::new(KeyValueHighlighter::new(&key_value.key, &key_value.separator)));
         }
 
         if let Some(uuid) = &config.groups.uuid {
-            before_fns.push(Box::new(UuidHighlighter::new(
-                &uuid.segment,
-                &uuid.separator,
-            )));
+            before_fns.push(Box::new(UuidHighlighter::new(&uuid.segment, &uuid.separator)));
         }
 
         before_fns
@@ -79,10 +66,7 @@ impl Highlighters {
 
         if let Some(keywords) = &config.groups.keywords {
             for keyword in keywords {
-                main_fns.push(Box::new(KeywordHighlighter::new(
-                    &keyword.words,
-                    &keyword.style,
-                )));
+                main_fns.push(Box::new(KeywordHighlighter::new(&keyword.words, &keyword.style)));
             }
         }
 
@@ -93,10 +77,7 @@ impl Highlighters {
         let mut after_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
         if let Some(quotes_group) = &config.groups.quotes {
-            after_fns.push(Box::new(QuoteHighlighter::new(
-                &quotes_group.style,
-                quotes_group.token,
-            )));
+            after_fns.push(Box::new(QuoteHighlighter::new(&quotes_group.style, quotes_group.token)));
         }
 
         after_fns

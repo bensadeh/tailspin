@@ -31,21 +31,11 @@ impl Highlight for UuidHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        highlight_uuids(
-            &self.segment_color,
-            &self.separator_color,
-            input,
-            &UUID_REGEX,
-        )
+        highlight_uuids(&self.segment_color, &self.separator_color, input, &UUID_REGEX)
     }
 }
 
-fn highlight_uuids(
-    segment_color: &str,
-    separator_color: &str,
-    input: &str,
-    uuid_regex: &Regex,
-) -> String {
+fn highlight_uuids(segment_color: &str, separator_color: &str, input: &str, uuid_regex: &Regex) -> String {
     highlight_with_awareness(input, uuid_regex, |caps: &Captures<'_>| {
         let mut output = String::new();
         for i in 1..caps.len() {

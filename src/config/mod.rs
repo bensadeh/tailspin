@@ -1,7 +1,6 @@
 use crate::cli::Cli;
 use crate::types::{
-    Config, Error, FolderInfo, Input, Output, PathAndLineCount, GENERAL_ERROR,
-    MISUSE_SHELL_BUILTIN, OK,
+    Config, Error, FolderInfo, Input, Output, PathAndLineCount, GENERAL_ERROR, MISUSE_SHELL_BUILTIN, OK,
 };
 use color_eyre::owo_colors::OwoColorize;
 use std::fs;
@@ -73,10 +72,7 @@ fn validate_input(
     if has_file_or_folder_input && has_follow_command_input {
         return Err(Error {
             exit_code: MISUSE_SHELL_BUILTIN,
-            message: format!(
-                "Cannot read from both file and {}",
-                "--listen-command".magenta()
-            ),
+            message: format!("Cannot read from both file and {}", "--listen-command".magenta()),
         });
     }
 
@@ -139,10 +135,7 @@ fn determine_input(path: String) -> Result<Input, Error> {
 fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
     let metadata = fs::metadata(path.as_ref()).map_err(|_| Error {
         exit_code: GENERAL_ERROR,
-        message: format!(
-            "{}: No such file or directory",
-            path.as_ref().display().red()
-        ),
+        message: format!("{}: No such file or directory", path.as_ref().display().red()),
     })?;
 
     if metadata.is_file() {

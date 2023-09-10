@@ -103,8 +103,7 @@ mod tests {
 
         let highlighter = QuoteHighlighter::new(&style, '"');
         let result = highlighter.apply("outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside");
-        let expected =
-            "outside \x1b[33m\"hello \x1b[34;42;3m42\x1b[0m\x1b[33m world\"\x1b[0m outside";
+        let expected = "outside \x1b[33m\"hello \x1b[34;42;3m42\x1b[0m\x1b[33m world\"\x1b[0m outside";
 
         assert_eq!(result, expected);
     }
@@ -119,8 +118,7 @@ mod tests {
         let highlighter = QuoteHighlighter::new(&style, '"');
         let input = "outside \"hello \x1b[34;42;3m42\x1b[0m world\" outside";
         let result = highlighter.apply(input);
-        let expected =
-            "outside \x1b[31m\"hello \x1b[34;42;3m42\x1b[0m\x1b[31m world\"\x1b[0m outside";
+        let expected = "outside \x1b[31m\"hello \x1b[34;42;3m42\x1b[0m\x1b[31m world\"\x1b[0m outside";
 
         assert_eq!(result, expected);
     }

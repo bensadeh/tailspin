@@ -24,12 +24,7 @@ pub fn load_theme(path: Option<String>) -> Theme {
 
     let path = path.or_else(|| {
         if default_config_path.exists() {
-            Some(
-                default_config_path
-                    .to_str()
-                    .expect("Invalid path")
-                    .to_owned(),
-            )
+            Some(default_config_path.to_str().expect("Invalid path").to_owned())
         } else {
             None
         }
@@ -72,10 +67,10 @@ pub fn create_default_config() {
     .join("tailspin")
     .join("config.toml");
 
-    let tilde_path = target_config_path.to_str().expect("Invalid path").replace(
-        env::var("HOME").expect("HOME directory not set").as_str(),
-        "~",
-    );
+    let tilde_path = target_config_path
+        .to_str()
+        .expect("Invalid path")
+        .replace(env::var("HOME").expect("HOME directory not set").as_str(), "~");
 
     match target_config_path.try_exists() {
         Ok(true) => {
@@ -102,20 +97,14 @@ pub fn create_default_config() {
     match File::create(&target_config_path) {
         Ok(mut file) => {
             if let Err(err) = file.write_all(DEFAULT_THEME.as_bytes()) {
-                eprintln!(
-                    "Failed to write to the config file at {}: {}",
-                    tilde_path, err
-                );
+                eprintln!("Failed to write to the config file at {}: {}", tilde_path, err);
                 exit(1);
             }
 
             println!("Config file generated successfully at {}", tilde_path);
         }
         Err(err) => {
-            eprintln!(
-                "Failed to create the config file at {}: {}",
-                tilde_path, err
-            );
+            eprintln!("Failed to create the config file at {}: {}", tilde_path, err);
             exit(1);
         }
     }

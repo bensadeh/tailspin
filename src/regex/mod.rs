@@ -22,8 +22,7 @@ lazy_static! {
         .expect("Invalid regex pattern")
     };
     pub static ref IP_ADDRESS_REGEX: Regex = {
-        Regex::new(r"(\b\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3}\b)")
-            .expect("Invalid IP address regex pattern")
+        Regex::new(r"(\b\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3}\b)").expect("Invalid IP address regex pattern")
     };
     pub static ref NUMBER_REGEX: Regex = {
         Regex::new(
@@ -44,12 +43,14 @@ lazy_static! {
             (?P<path>                     # Capture the path segment
                 [~/.][\w./-]*             # Match zero or more word characters, dots, slashes, or hyphens
                 /[\w.-]*                  # Match a path segment separated by a slash
-            )"
-        ).expect("Invalid regex pattern")
+            )",
+        )
+        .expect("Invalid regex pattern")
     };
     pub static ref URL_REGEX: Regex = {
         Regex::new(
-        r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?")
+            r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?",
+        )
         .expect("Invalid regex pattern")
     };
     pub static ref QUERY_PARAMS_REGEX: Regex = {
@@ -72,8 +73,6 @@ lazy_static! {
         )
         .expect("Invalid UUID regex pattern")
     };
-    pub static ref KEY_VALUE_REGEX: Regex = {
-        Regex::new(r"(?P<space_or_start>(^)|\s)(?P<key>\w+\b)(?P<equals>=)")
-            .expect("Invalid regex pattern")
-    };
+    pub static ref KEY_VALUE_REGEX: Regex =
+        { Regex::new(r"(?P<space_or_start>(^)|\s)(?P<key>\w+\b)(?P<equals>=)").expect("Invalid regex pattern") };
 }

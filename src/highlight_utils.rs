@@ -3,17 +3,12 @@ use lazy_static::lazy_static;
 use regex::{Captures, Regex};
 
 lazy_static! {
-    static ref ESCAPE_CODE_REGEX: Regex =
-        Regex::new(r"\x1b\[[0-9;]*m").expect("Invalid regex pattern");
+    static ref ESCAPE_CODE_REGEX: Regex = Regex::new(r"\x1b\[[0-9;]*m").expect("Invalid regex pattern");
 }
 
 const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
 
-pub(crate) fn highlight_with_awareness_replace_all(
-    color: &str,
-    input: &str,
-    regex: &Regex,
-) -> String {
+pub(crate) fn highlight_with_awareness_replace_all(color: &str, input: &str, regex: &Regex) -> String {
     let chunks = split_into_chunks(input);
 
     let mut output = calculate_and_allocate_capacity(input);

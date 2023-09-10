@@ -11,9 +11,7 @@ pub struct NumberHighlighter {
 
 impl NumberHighlighter {
     pub fn new(style: &Style) -> Self {
-        Self {
-            color: to_ansi(style),
-        }
+        Self { color: to_ansi(style) }
     }
 }
 

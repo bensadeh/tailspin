@@ -67,11 +67,7 @@ pub fn to_ansi(style: &Style) -> String {
         bg_code,
     ];
 
-    let joined_codes = codes
-        .iter()
-        .filter_map(|&code| code)
-        .collect::<Vec<&str>>()
-        .join(";");
+    let joined_codes = codes.iter().filter_map(|&code| code).collect::<Vec<&str>>().join(";");
 
     format!("\x1b[{}m", joined_codes)
 }
@@ -130,9 +126,7 @@ impl<'de> Visitor<'de> for FgVisitor {
         let fg = v.parse().map_err(|_| E::custom("Parse error"))?;
 
         match fg {
-            Fg::Red | Fg::Green | Fg::Blue | Fg::Yellow | Fg::Magenta | Fg::Cyan | Fg::White => {
-                Ok(fg)
-            }
+            Fg::Red | Fg::Green | Fg::Blue | Fg::Yellow | Fg::Magenta | Fg::Cyan | Fg::White => Ok(fg),
             _ => {
                 colored_panic("Invalid foreground color: ", v);
             }
@@ -174,9 +168,9 @@ impl<'de> Visitor<'de> for BgVisitor {
     }
 
     fn visit_str<E: de::Error>(self, v: &str) -> Result<Bg, E> {
-        let bg = v.parse().map_err(|_| {
-            colored_panic("Parse error", &format!("Invalid background color: {}", v))
-        })?;
+        let bg = v
+            .parse()
+            .map_err(|_| colored_panic("Parse error", &format!("Invalid background color: {}", v)))?;
 
         match bg {
             Bg::Red | Bg::Green | Bg::Blue | Bg::Yellow | Bg::White => Ok(bg),
@@ -191,10 +185,7 @@ fn colored_panic(message: &str, invalid_value: &str) -> ! {
     let color_yellow: &str = "\x1b[33m";
     let color_reset: &str = "\x1b[0m";
 
-    let colored_message = format!(
-        "{}{}{}{}",
-        message, color_yellow, invalid_value, color_reset,
-    );
+    let colored_message = format!("{}{}{}{}", message, color_yellow, invalid_value, color_reset,);
     eprintln!("{}", colored_message);
     std::process::exit(1);
 }
