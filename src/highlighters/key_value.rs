@@ -1,5 +1,4 @@
 use crate::color::to_ansi;
-use crate::highlight_utils;
 use crate::line_info::LineInfo;
 use crate::regex::KEY_VALUE_REGEX;
 use crate::theme::Style;

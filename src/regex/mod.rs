@@ -74,5 +74,5 @@ lazy_static! {
         .expect("Invalid UUID regex pattern")
     };
     pub static ref KEY_VALUE_REGEX: Regex =
-        { Regex::new(r"(?P<space_or_start>(^)|\s)(?P<key>\w+\b)(?P<equals>=)").expect("Invalid regex pattern") };
+        Regex::new(r"(?P<space_or_start>(^)|\s)(?P<key>\w+\b)(?P<equals>=)").expect("Invalid regex pattern");
 }
