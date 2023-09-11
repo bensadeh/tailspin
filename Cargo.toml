@@ -16,7 +16,7 @@ name = "spin"
 [dependencies]
 async-trait = "0.1.73"
 clap = { version = "4.4.2", features = ["derive"] }
-clap_complete = "4.4.0"
+clap_complete = "4.4.1"
 color-eyre = "0.6.2"
 colored = "2"
 ctrlc = "3.4.1"
@@ -30,4 +30,4 @@ shellexpand = "3.1.0"
 tempfile = "3.8.0"
 terminal_size = "0.2.6"
 tokio = { version = "1.32.0", features = ["full"] }
-toml = "0.7.6"
+toml = "0.7.8"
