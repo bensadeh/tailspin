@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.5.0
+## 1.5.0 - 16.09.23
 
 - Errors are now printed to `stderr` instead of `stdout`
 - Date higlighter now supports different highlights for date and time segment
