@@ -6,17 +6,17 @@ lazy_static! {
         Regex::new(
             r"(?x)                       
     \b                           
-    (?:                             # Non-capturing group for entire date-time
+    (?:                              # Non-capturing group for entire date-time
         (?P<equals1>=?)              # Optional equals sign
-        (?P<date>\d{4}-\d{2}-\d{2}) # Capture date
-        (?P<sep1>[T\s])?            # Capture separator (either a space or T)
-        (?P<time>\d{2}:\d{2}:\d{2}) # Capture time
-        (?P<frac1>[.,]\d+)?         # Capture fractional seconds
-        (?P<tz1>Z|[+-]\d{2})?       # Capture timezone
-        |                           # OR
+        (?P<date>\d{4}-\d{2}-\d{2})  # Capture date
+        (?P<sep1>[T\s])?             # Capture separator (either a space or T)
+        (?P<time>\d{2}:\d{2}:\d{2})? # Capture time
+        (?P<frac1>[.,]\d+)?          # Capture fractional seconds
+        (?P<tz1>Z|[+-]\d{2})?        # Capture timezone
+        |                            # OR
         (?P<equals2>=?)              # Optional equals sign for time alone
-        (?P<time2>\d{2}:\d{2}:\d{2})# Capture time alone
-        (?P<frac2>[.,]\d+)?         # Capture fractional seconds for time alone
+        (?P<time2>\d{2}:\d{2}:\d{2}) # Capture time alone
+        (?P<frac2>[.,]\d+)?          # Capture fractional seconds for time alone
     )                              
     \b                           
     ",
