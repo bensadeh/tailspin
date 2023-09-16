@@ -6,6 +6,8 @@ pub struct LineInfo {
     pub double_quotes: usize,
     pub equals: usize,
     pub slashes: usize,
+    pub left_bracket: usize,
+    pub right_bracket: usize,
 }
 
 impl LineInfo {
@@ -16,6 +18,8 @@ impl LineInfo {
         let mut double_quotes = 0;
         let mut equals = 0;
         let mut slashes = 0;
+        let mut left_bracket = 0;
+        let mut right_bracket = 0;
 
         for c in line.chars() {
             match c {
@@ -25,6 +29,8 @@ impl LineInfo {
                 '"' => double_quotes += 1,
                 '=' => equals += 1,
                 '/' => slashes += 1,
+                '[' => left_bracket += 1,
+                ']' => right_bracket += 1,
                 _ => {}
             }
         }
@@ -36,6 +42,8 @@ impl LineInfo {
             double_quotes,
             equals,
             colons,
+            left_bracket,
+            right_bracket,
         }
     }
 }

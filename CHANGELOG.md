@@ -4,7 +4,8 @@
 
 - Errors are now printed to `stderr` instead of `stdout`
 - Date higlighter now supports different highlights for date and time segment
-- Added new Key Value highlighter
+- Added Key Value highlighter
+- Added unix process highlighter
 
 
 ## 1.4.0 - 12.08.23

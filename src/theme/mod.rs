@@ -56,6 +56,13 @@ pub struct Date {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
+pub struct Process {
+    pub name: Style,
+    pub id: Style,
+    pub separator: Style,
+}
+
+#[derive(Debug, Deserialize, Default, Clone)]
 pub struct Number {
     pub style: Style,
 }
@@ -92,6 +99,7 @@ pub struct Groups {
     pub ip: Option<Ip>,
     pub key_value: Option<KeyValue>,
     pub path: Option<FilePath>,
+    pub process: Option<Process>,
     pub keywords: Option<Vec<Keyword>>,
 }
 

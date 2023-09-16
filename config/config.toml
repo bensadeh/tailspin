@@ -26,6 +26,11 @@ separator = { fg = "yellow" }
 key = { faint = true }
 separator = { fg = "white" }
 
+[groups.process]
+name = { fg = "yellow" }
+separator = { fg = "red" }
+id = { fg = "yellow" }
+
 [groups.url]
 http = { faint = true }
 https = { bold = true }
