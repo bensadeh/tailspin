@@ -63,8 +63,10 @@ User "Alice" logged out. All associated sessions cleared.
 Purchase for item "Red Bicycle" was successful. Thank you!
 Configuration file "PrimaryConfig" loaded. Starting operations.
 Processing new order for customer "JohnDoe". Stand by.
-Fetch operation for record "ID_A56789" failed. Retrying.
-Connection established with "Core Server". Commencing data xfer.
-Data sync issue detected with "InventoryDB". Initiate restore.
-File "DataLog" failed to update. Possible permission issue.
 
+# Key-value pairs
+ts=08:11:36 caller=module_service.go:59 msg=none module=table-manager
+ts=08:11:36 caller=module_service.go:59 msg=none module=ingester-querier
+ts=08:11:36 caller=lifecycler.go:530 msg="tokens file path is empty"
+ts=2022-09-22 caller=ring.go:275 msg="ring doesn't exist in KV store yet"
+ts=2022-09-21 caller=client.go:247 msg="value is nil" key=collectors/ring

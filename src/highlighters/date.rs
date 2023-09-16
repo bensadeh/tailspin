@@ -32,6 +32,18 @@ impl Highlight for DateHighlighter {
 
     fn apply(&self, input: &str) -> String {
         let highlighted = DATE_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
+            let equals_before_date = if let Some(m) = caps.name("equals1") {
+                m.as_str().to_string()
+            } else {
+                String::new()
+            };
+
+            let equals_before_time = if let Some(m) = caps.name("equals2") {
+                m.as_str().to_string()
+            } else {
+                String::new()
+            };
+
             let date_part = if let Some(m) = caps.name("date") {
                 format!("{}{}{}", self.date, m.as_str(), color::RESET)
             } else {
@@ -75,8 +87,16 @@ impl Highlight for DateHighlighter {
             };
 
             format!(
-                "{}{}{}{}{}{}{}",
-                date_part, sep1_part, time_part, frac1_part, tz1_part, time2_part, frac2_part
+                "{}{}{}{}{}{}{}{}{}",
+                equals_before_date,
+                date_part,
+                sep1_part,
+                equals_before_time,
+                time_part,
+                frac1_part,
+                tz1_part,
+                time2_part,
+                frac2_part
             )
         });
 
