@@ -27,6 +27,14 @@ pub struct Highlighters {
 }
 
 impl Highlighters {
+    pub fn new(config: Theme) -> Highlighters {
+        Highlighters {
+            before: Self::set_before_fns(&config),
+            main: Self::set_main_fns(&config),
+            after: Self::set_after_fns(&config),
+        }
+    }
+
     fn set_before_fns(config: &Theme) -> Vec<Box<dyn Highlight + Send>> {
         let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
@@ -81,13 +89,5 @@ impl Highlighters {
         }
 
         after_fns
-    }
-
-    pub fn new(config: Theme) -> Highlighters {
-        Highlighters {
-            before: Self::set_before_fns(&config),
-            main: Self::set_main_fns(&config),
-            after: Self::set_after_fns(&config),
-        }
     }
 }
