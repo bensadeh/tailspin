@@ -12,7 +12,7 @@ Sun Aug 14 10:51:22.602 DEBUG sharingd (542) is not entitled for com.apple.wifi.
 10:51:19.251                   Event logged
 2022-08-29 08:11:36            Task completed
 2022-09-09 11:48:34,534        Last login attempt failed
-2022-09-22T07:46:34.171800155Z Server encountered an error
+2022-09-22T07:46:34.171800155Z Event logged for debugging purposes
 
 # Numbers
 Duration: 42 seconds
@@ -65,11 +65,11 @@ Configuration file "PrimaryConfig" loaded. Starting operations.
 Processing new order for customer "JohnDoe". Stand by.
 
 # Key-value pairs
-ts=08:11:36 caller=module_service.go:59 msg=none module=table-manager
-ts=08:11:36 caller=module_service.go:59 msg=none module=ingester-querier
-ts=08:11:36 caller=lifecycler.go:530 msg="tokens file path is empty"
-ts=2022-09-22 caller=ring.go:275 msg="ring doesn't exist in KV store yet"
-ts=2022-09-21 caller=client.go:247 msg="value is nil" key=collectors/ring
+ts=08:11:36 caller=module_service.go:59 module=table-manager
+ts=08:11:36 caller=module_service.go:59 module=ingester-querier
+ts=08:11:36 caller=lifecycler.go:530 msg="file path is empty"
+ts=2022-09-22 caller=ring.go:275 msg="ring doesn't exist"
+ts=2022-09-21 caller=client.go:247 msg="value is nil"
 
 # Processes
 kernel[0]: Page fault at address 0xabcdef
@@ -77,3 +77,5 @@ mysqld[789]: Connected from 127.0.0.1
 docker[654]: Container abcdefgh started successfully
 sshd[222]: Accepted publickey for root from 192.168.1.20
 cron[101]: Running scheduled job ID 23456
+
+

@@ -27,7 +27,7 @@ key = { faint = true }
 separator = { fg = "white" }
 
 [groups.process]
-name = { fg = "yellow" }
+name = { fg = "green" }
 separator = { fg = "red" }
 id = { fg = "yellow" }
 

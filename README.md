@@ -112,6 +112,18 @@ nix-shell -p tailspin
   <img src="assets/examples/uuids.png" width="600"/>
 </p>
 
+### Key-value pairs
+
+<p align="center">
+  <img src="assets/examples/kv.png" width="600"/>
+</p>
+
+### Unix processes
+
+<p align="center">
+  <img src="assets/examples/processes.png" width="600"/>
+</p>
+
 ## Customizing Highlight Groups
 
 ### Overview
