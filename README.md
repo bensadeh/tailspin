@@ -28,6 +28,7 @@ A log file highlighter
 * [Overview](#overview)
 * [Installing](#installing)
 * [Highlight Groups](#highlight-groups)
+* [Watching folders](#watching-folders)
 * [Customizing Highlight Groups](#customizing-highlight-groups)
 * [Working with `stdin` and `stdout`](#working-with-stdin-and-stdout)
 * [Using the pager `less`](#using-the-pager-less)
@@ -123,6 +124,17 @@ nix-shell -p tailspin
 <p align="center">
   <img src="assets/examples/processes.png" width="600"/>
 </p>
+
+
+## Watching folders
+
+`tailspin` can listen for newline entries in a given folder. Watching folders is useful for monitoring log files that are rotated.
+
+<p align="center">
+  <img src="assets/examples/folder.png" width="600"/>
+</p>
+
+When watching folders, `tailspin` will always start at the end of each file. 
 
 ## Customizing Highlight Groups
 
