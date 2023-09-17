@@ -55,4 +55,4 @@ _spin() {
     esac
 }
 
-complete -F _spin -o bashdefault -o default spin
+complete -F _spin -o nosort -o bashdefault -o default spin

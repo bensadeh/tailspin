@@ -1,7 +1,7 @@
 # Changelog
-## 1.6.0
+## 1.5.1
 
-
+- Update man pages
 
 
 ## 1.5.0 - 16.09.23
