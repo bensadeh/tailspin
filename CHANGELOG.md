@@ -1,12 +1,10 @@
 # Changelog
-## 1.6.1
 
-
+## 1.6.0
 
 ## 1.5.1
 
 - Update man pages
-
 
 ## 1.5.0 - 16.09.23
 
@@ -14,7 +12,6 @@
 - Date higlighter now supports different highlights for date and time segment
 - Added Key Value highlighter
 - Added unix process highlighter
-
 
 ## 1.4.0 - 12.08.23
 
