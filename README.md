@@ -128,13 +128,15 @@ nix-shell -p tailspin
 
 ## Watching folders
 
-`tailspin` can listen for newline entries in a given folder. Watching folders is useful for monitoring log files that are rotated.
+`tailspin` can listen for newline entries in a given folder. Watching folders is useful for monitoring log files that 
+are rotated.
 
 <p align="center">
   <img src="assets/examples/folder.png" width="600"/>
 </p>
 
-When watching folders, `tailspin` will always start at the end of each file. 
+When watching folders, `tailspin` will start in follow mode (abort with <kbd>Ctrl + C</kbd>) and will only print 
+newline entries which arrive after the initial start.
 
 ## Customizing Highlight Groups
 
@@ -204,7 +206,7 @@ as they're added to the file.
 To stop following the file, interrupt with <kbd>Ctrl + C</kbd>. This will stop the tailing, but keep the
 file open, allowing you to review the existing content.
 
-To resume following the file from within `less`, press <kbd>Shift + f</kbd>.
+To resume following the file from within `less`, press <kbd>Shift + F</kbd>.
 
 ### Search
 
