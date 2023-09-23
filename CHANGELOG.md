@@ -2,6 +2,8 @@
 
 ## 1.6.0
 
+- Disable highlights with `disable` for all highlight groups except Keywords
+
 ## 1.5.1
 
 - Update man pages

@@ -41,31 +41,45 @@ impl Highlighters {
         let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
         if let Some(dates) = &config.groups.date {
-            before_fns.push(Box::new(DateHighlighter::new(&dates.date, &dates.time, &dates.zone)));
+            if !dates.disabled {
+                before_fns.push(Box::new(DateHighlighter::new(&dates.date, &dates.time, &dates.zone)));
+            }
         }
 
         if let Some(url) = &config.groups.url {
-            before_fns.push(Box::new(UrlHighlighter::new(url)));
+            if !url.disabled {
+                before_fns.push(Box::new(UrlHighlighter::new(url)));
+            }
         }
 
         if let Some(path) = &config.groups.path {
-            before_fns.push(Box::new(PathHighlighter::new(&path.segment, &path.separator)));
+            if !path.disabled {
+                before_fns.push(Box::new(PathHighlighter::new(&path.segment, &path.separator)));
+            }
         }
 
         if let Some(ip) = &config.groups.ip {
-            before_fns.push(Box::new(IpHighlighter::new(&ip.segment, &ip.separator)));
+            if !ip.disabled {
+                before_fns.push(Box::new(IpHighlighter::new(&ip.segment, &ip.separator)));
+            }
         }
 
         if let Some(kv) = &config.groups.key_value {
-            before_fns.push(Box::new(KeyValueHighlighter::new(&kv.key, &kv.separator)));
+            if !kv.disabled {
+                before_fns.push(Box::new(KeyValueHighlighter::new(&kv.key, &kv.separator)));
+            }
         }
 
         if let Some(uuid) = &config.groups.uuid {
-            before_fns.push(Box::new(UuidHighlighter::new(&uuid.segment, &uuid.separator)));
+            if !uuid.disabled {
+                before_fns.push(Box::new(UuidHighlighter::new(&uuid.segment, &uuid.separator)));
+            }
         }
 
         if let Some(p) = &config.groups.process {
-            before_fns.push(Box::new(ProcessHighlighter::new(&p.name, &p.separator, &p.id)));
+            if !p.disabled {
+                before_fns.push(Box::new(ProcessHighlighter::new(&p.name, &p.separator, &p.id)));
+            }
         }
 
         before_fns

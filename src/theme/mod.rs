@@ -22,30 +22,40 @@ pub struct Style {
 pub struct Keyword {
     pub style: Style,
     pub words: Vec<String>,
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Uuid {
     pub segment: Style,
     pub separator: Style,
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Ip {
     pub segment: Style,
     pub separator: Style,
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct KeyValue {
     pub key: Style,
     pub separator: Style,
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct FilePath {
     pub segment: Style,
     pub separator: Style,
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
@@ -53,6 +63,8 @@ pub struct Date {
     pub date: Style,
     pub time: Style,
     pub zone: Style,
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
@@ -60,11 +72,15 @@ pub struct Process {
     pub name: Style,
     pub id: Style,
     pub separator: Style,
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Number {
     pub style: Style,
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
@@ -72,6 +88,8 @@ pub struct Quotes {
     pub style: Style,
     #[serde(default = "default_quotes_token")]
     pub(crate) token: char,
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 fn default_quotes_token() -> char {
@@ -87,6 +105,8 @@ pub struct Url {
     pub query_params_key: Style,
     pub query_params_value: Style,
     pub symbols: Style,
+    #[serde(default)]
+    pub disabled: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
