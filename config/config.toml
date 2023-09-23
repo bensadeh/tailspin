@@ -63,3 +63,23 @@ style = { faint = true }
 [[groups.keywords]]
 words = ['null', 'true', 'false']
 style = { fg = "red", italic = true }
+
+[[groups.keywords]]
+words = ['GET']
+style = { fg = "black", bg = "green" }
+border = true
+
+[[groups.keywords]]
+words = ['POST']
+style = { fg = "black", bg = "yellow" }
+border = true
+
+[[groups.keywords]]
+words = ['PUT', 'PATCH']
+style = { fg = "black", bg = "magenta" }
+border = true
+
+[[groups.keywords]]
+words = ['DELETE']
+style = { fg = "black", bg = "red" }
+border = true

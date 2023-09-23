@@ -23,7 +23,7 @@ pub struct Keyword {
     pub style: Style,
     pub words: Vec<String>,
     #[serde(default)]
-    pub disabled: bool,
+    pub border: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]

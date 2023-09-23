@@ -2,6 +2,8 @@
 
 ## 1.6.0
 
+- Added new highlight group under Keywords highlighter: HTTP methods 
+- Added option for adding a border to keywords highlighter
 - Disable highlights with `disable` for all highlight groups except Keywords
 
 ## 1.5.1

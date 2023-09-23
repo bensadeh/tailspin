@@ -28,6 +28,13 @@ https://api.example.org/api/v1/users?name=JohnDoe
 https://www.openai.com/docs/api?apikey=abc123
 https://api.example.org/v1/users/123/edit?param=true&flag=false
 
+# HTTP Methods
+User with IP 192.168.1.105 initiated a GET request for /about/us
+A POST request by 192.168.1.106 to /api/create-account failed
+Received a PUT operation on /api/v1/users/update-profile
+During routine checks at 14:13:40, a PATCH request was detected
+Unauthorized DELETE attempt on /api/v2/data/secure by user
+
 # UUID
 User logged in, user ID:     5f7d1bce-81ab-4a87-af78-9a37f26c58b1
 Invalid request:             9f5f25be-6b08-4aeb-a10a-023b86581b1f

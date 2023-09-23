@@ -15,6 +15,7 @@ pub enum Fg {
     White,
     Magenta,
     Cyan,
+    Black,
     #[default]
     None,
 }
@@ -26,6 +27,7 @@ pub enum Bg {
     Blue,
     Yellow,
     White,
+    Magenta,
     #[default]
     None,
 }
@@ -46,14 +48,16 @@ pub fn to_ansi(style: &Style) -> String {
         Fg::White => Some("37"),
         Fg::Magenta => Some("35"),
         Fg::Cyan => Some("36"),
+        Fg::Black => Some("30"),
         Fg::None => None,
     };
 
     let bg_code = match style.bg {
         Bg::Red => Some("41"),
         Bg::Green => Some("42"),
-        Bg::Blue => Some("44"),
         Bg::Yellow => Some("43"),
+        Bg::Blue => Some("44"),
+        Bg::Magenta => Some("45"),
         Bg::White => Some("47"),
         Bg::None => None,
     };
@@ -84,6 +88,7 @@ impl FromStr for Fg {
             "magenta" => Ok(Fg::Magenta),
             "cyan" => Ok(Fg::Cyan),
             "white" => Ok(Fg::White),
+            "black" => Ok(Fg::Black),
             _ => Ok(Fg::None),
         }
     }
@@ -99,6 +104,7 @@ impl fmt::Display for Fg {
             Fg::Magenta => write!(f, "\x1b[35m"),
             Fg::Cyan => write!(f, "\x1b[36m"),
             Fg::White => write!(f, "\x1b[37m"),
+            Fg::Black => write!(f, "\x1b[30m"),
             Fg::None => write!(f, "\x1b[0m"),
         }
     }
@@ -126,7 +132,7 @@ impl<'de> Visitor<'de> for FgVisitor {
         let fg = v.parse().map_err(|_| E::custom("Parse error"))?;
 
         match fg {
-            Fg::Red | Fg::Green | Fg::Blue | Fg::Yellow | Fg::Magenta | Fg::Cyan | Fg::White => Ok(fg),
+            Fg::Red | Fg::Green | Fg::Blue | Fg::Yellow | Fg::Magenta | Fg::Cyan | Fg::White | Fg::Black => Ok(fg),
             _ => {
                 colored_panic("Invalid foreground color: ", v);
             }
@@ -144,6 +150,7 @@ impl FromStr for Bg {
             "blue" => Ok(Bg::Blue),
             "yellow" => Ok(Bg::Yellow),
             "white" => Ok(Bg::White),
+            "magenta" => Ok(Bg::Magenta),
             _ => Ok(Bg::None),
         }
     }
@@ -173,7 +180,7 @@ impl<'de> Visitor<'de> for BgVisitor {
             .map_err(|_| colored_panic("Parse error", &format!("Invalid background color: {}", v)))?;
 
         match bg {
-            Bg::Red | Bg::Green | Bg::Blue | Bg::Yellow | Bg::White => Ok(bg),
+            Bg::Red | Bg::Green | Bg::Blue | Bg::Yellow | Bg::White | Bg::Magenta => Ok(bg),
             _ => {
                 colored_panic("Invalid background color: ", v);
             }

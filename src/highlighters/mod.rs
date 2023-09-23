@@ -89,12 +89,18 @@ impl Highlighters {
         let mut main_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
         if let Some(numbers) = &config.groups.number {
-            main_fns.push(Box::new(NumberHighlighter::new(&numbers.style)));
+            if !numbers.disabled {
+                main_fns.push(Box::new(NumberHighlighter::new(&numbers.style)));
+            }
         }
 
         if let Some(keywords) = &config.groups.keywords {
             for keyword in keywords {
-                main_fns.push(Box::new(KeywordHighlighter::new(&keyword.words, &keyword.style)));
+                main_fns.push(Box::new(KeywordHighlighter::new(
+                    &keyword.words,
+                    &keyword.style,
+                    keyword.border,
+                )));
             }
         }
 
@@ -105,7 +111,9 @@ impl Highlighters {
         let mut after_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
         if let Some(quotes_group) = &config.groups.quotes {
-            after_fns.push(Box::new(QuoteHighlighter::new(&quotes_group.style, quotes_group.token)));
+            if !quotes_group.disabled {
+                after_fns.push(Box::new(QuoteHighlighter::new(&quotes_group.style, quotes_group.token)));
+            }
         }
 
         after_fns

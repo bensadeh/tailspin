@@ -107,6 +107,12 @@ nix-shell -p tailspin
   <img src="assets/examples/paths.png" width="600"/>
 </p>
 
+### HTTP methods
+
+<p align="center">
+  <img src="assets/examples/http.png" width="600"/>
+</p>
+
 ### UUIDs
 
 <p align="center">
