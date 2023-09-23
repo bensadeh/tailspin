@@ -207,6 +207,7 @@ mod tests {
                 fg: Fg::White,
                 ..Default::default()
             },
+            disabled: false,
         }
     }
 }
