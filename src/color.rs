@@ -26,8 +26,8 @@ pub enum Bg {
     Green,
     Blue,
     Yellow,
-    White,
     Magenta,
+    White,
     #[default]
     None,
 }
@@ -129,14 +129,8 @@ impl<'de> Visitor<'de> for FgVisitor {
     }
 
     fn visit_str<E: de::Error>(self, v: &str) -> Result<Fg, E> {
-        let fg = v.parse().map_err(|_| E::custom("Parse error"))?;
-
-        match fg {
-            Fg::Red | Fg::Green | Fg::Blue | Fg::Yellow | Fg::Magenta | Fg::Cyan | Fg::White | Fg::Black => Ok(fg),
-            _ => {
-                colored_panic("Invalid foreground color: ", v);
-            }
-        }
+        v.parse()
+            .map_err(|_| E::custom(format!("Invalid foreground color: {}", v)))
     }
 }
 
@@ -175,24 +169,7 @@ impl<'de> Visitor<'de> for BgVisitor {
     }
 
     fn visit_str<E: de::Error>(self, v: &str) -> Result<Bg, E> {
-        let bg = v
-            .parse()
-            .map_err(|_| colored_panic("Parse error", &format!("Invalid background color: {}", v)))?;
-
-        match bg {
-            Bg::Red | Bg::Green | Bg::Blue | Bg::Yellow | Bg::White | Bg::Magenta => Ok(bg),
-            _ => {
-                colored_panic("Invalid background color: ", v);
-            }
-        }
+        v.parse()
+            .map_err(|_| E::custom(format!("Invalid background color: {}", v)))
     }
-}
-
-fn colored_panic(message: &str, invalid_value: &str) -> ! {
-    let color_yellow: &str = "\x1b[33m";
-    let color_reset: &str = "\x1b[0m";
-
-    let colored_message = format!("{}{}{}{}", message, color_yellow, invalid_value, color_reset,);
-    eprintln!("{}", colored_message);
-    std::process::exit(1);
 }
