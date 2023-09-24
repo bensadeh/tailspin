@@ -43,7 +43,7 @@ fn highlight_keywords(color: &str, input: &str, keyword_regex: &Regex, border: b
     if border {
         keyword_regex
             .replace_all(input, |cap: &regex::Captures| {
-                format!("{} {}{}{} {}", color, &cap[0], color::RESET, color, color::RESET)
+                format!("{} {} {}", color, &cap[0], color::RESET)
             })
             .to_string()
     } else {
