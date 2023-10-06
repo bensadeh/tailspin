@@ -11,6 +11,14 @@ pub struct DateHighlighter {
     zone: String,
 }
 
+#[derive(PartialEq)]
+enum Part {
+    Date,
+    Time,
+    Zone,
+    Same, // For unmodified matches
+}
+
 impl DateHighlighter {
     pub fn new(date: &Style, time: &Style, zone: &Style) -> Self {
         Self {
@@ -31,73 +39,36 @@ impl Highlight for DateHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
+        // Note: order matters here,
+        // as this is the order the result will be formatted as to the user.
+        let known_parts = [
+            (Part::Same, "equals1"),
+            (Part::Same, "equals2"),
+            (Part::Date, "date"),
+            (Part::Zone, "sep1"),
+            (Part::Time, "time"),
+            (Part::Time, "frac1"),
+            (Part::Zone, "tz1"),
+            (Part::Time, "time2"),
+            (Part::Time, "frac2"),
+        ];
+
         let highlighted = DATE_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
-            let equals_before_date = if let Some(m) = caps.name("equals1") {
-                m.as_str().to_string()
-            } else {
-                String::new()
-            };
+            let mut result: Vec<String> = Vec::new();
+            for (part_type, part_name) in &known_parts {
+                let Some(reg_match) = caps.name(part_name) else {
+                    continue;
+                };
 
-            let equals_before_time = if let Some(m) = caps.name("equals2") {
-                m.as_str().to_string()
-            } else {
-                String::new()
-            };
+                match part_type {
+                    Part::Date => result.push(format!("{}{}{}", self.date, reg_match.as_str(), color::RESET)),
+                    Part::Time => result.push(format!("{}{}{}", self.time, reg_match.as_str(), color::RESET)),
+                    Part::Zone => result.push(format!("{}{}{}", self.zone, reg_match.as_str(), color::RESET)),
+                    Part::Same => result.push(part_name.to_string()),
+                }
+            }
 
-            let date_part = if let Some(m) = caps.name("date") {
-                format!("{}{}{}", self.date, m.as_str(), color::RESET)
-            } else {
-                String::new()
-            };
-
-            let sep1_part = if let Some(m) = caps.name("sep1") {
-                format!("{}{}{}", self.zone, m.as_str(), color::RESET)
-            } else {
-                String::new()
-            };
-
-            let time_part = if let Some(m) = caps.name("time") {
-                format!("{}{}{}", self.time, m.as_str(), color::RESET)
-            } else {
-                String::new()
-            };
-
-            let frac1_part = if let Some(m) = caps.name("frac1") {
-                format!("{}{}{}", self.time, m.as_str(), color::RESET)
-            } else {
-                String::new()
-            };
-
-            let tz1_part = if let Some(m) = caps.name("tz1") {
-                format!("{}{}{}", self.zone, m.as_str(), color::RESET)
-            } else {
-                String::new()
-            };
-
-            let time2_part = if let Some(m) = caps.name("time2") {
-                format!("{}{}{}", self.time, m.as_str(), color::RESET)
-            } else {
-                String::new()
-            };
-
-            let frac2_part = if let Some(m) = caps.name("frac2") {
-                format!("{}{}{}", self.time, m.as_str(), color::RESET)
-            } else {
-                String::new()
-            };
-
-            format!(
-                "{}{}{}{}{}{}{}{}{}",
-                equals_before_date,
-                date_part,
-                sep1_part,
-                equals_before_time,
-                time_part,
-                frac1_part,
-                tz1_part,
-                time2_part,
-                frac2_part
-            )
+            result.join("")
         });
 
         highlighted.into_owned()
