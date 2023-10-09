@@ -30,4 +30,4 @@ shellexpand = "3.1.0"
 tempfile = "3.8.0"
 terminal_size = "0.3.0"
 tokio = { version = "1.32.0", features = ["full"] }
-toml = "0.8.1"
+toml = "0.8.2"
