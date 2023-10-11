@@ -5,6 +5,8 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Style {
     #[serde(default)]
+    pub hidden: bool,
+    #[serde(default)]
     pub fg: Fg,
     #[serde(default)]
     pub bg: Bg,
