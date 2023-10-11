@@ -43,12 +43,13 @@ impl Highlight for DateHighlighter {
         // as this is the order the result will be formatted as to the user.
         let named_captures = [
             (Part::Equals, "equals1"),
-            (Part::Equals, "equals2"),
             (Part::Date, "date"),
             (Part::Zone, "sep1"),
             (Part::Time, "time"),
             (Part::Time, "frac1"),
             (Part::Zone, "tz1"),
+            // Or...
+            (Part::Equals, "equals2"),
             (Part::Time, "time2"),
             (Part::Time, "frac2"),
         ];
@@ -82,7 +83,6 @@ impl Highlight for DateHighlighter {
                 }
             }
 
-            // println!("result.join is {:#?}", result.join(""));
             result.join("")
         });
 
@@ -95,23 +95,93 @@ mod tests {
     use super::*;
     use crate::color::Fg;
 
+    /// Helper function for a default hidden style
+    fn style_hidden() -> Style {
+        Style {
+            hidden: true,
+            ..Default::default()
+        }
+    }
+
     #[test]
-    fn test_show_all_date_fields_displays_all_fields() {
-        let date = Style::default();
-        let time = Style::default();
-        let zone = Style::default();
-        let date_ansi = to_ansi(&date);
-        let time_ansi = to_ansi(&time);
-        let zone_ansi = to_ansi(&zone);
+    fn test_no_hidden_fields_shows_all_fields() {
+        let date_style = Style::default();
+        let time_style = Style::default();
+        let zone_style = Style::default();
+        let date_ansi = to_ansi(&date_style);
+        let time_ansi = to_ansi(&time_style);
+        let zone_ansi = to_ansi(&zone_style);
         let reset_ansi = color::RESET;
 
-        let hltr = DateHighlighter::new(&date, &time, &zone);
+        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
         let input = "2022-09-09 11:44:54,508 INFO test";
 
         // Note: space is the zone character
         let expected = format!(
             "{}2022-09-09{}{} {}{}11:44:54{}{},508{} INFO test",
             date_ansi, reset_ansi, zone_ansi, reset_ansi, time_ansi, reset_ansi, zone_ansi, reset_ansi
+        );
+
+        assert_eq!(hltr.apply(input), expected);
+    }
+
+    #[test]
+    fn test_hidden_date_field_hides_date_field() {
+        let date_style = style_hidden();
+        let time_style = Style::default();
+        let zone_style = Style::default();
+        let time_ansi = to_ansi(&time_style);
+        let zone_ansi = to_ansi(&zone_style);
+        let reset_ansi = color::RESET;
+
+        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
+        let input = "2022-09-09 11:44:54,508 INFO test";
+        // Note: space is the zone character
+        let expected = format!(
+            "{} {}{}11:44:54{}{},508{} INFO test",
+            zone_ansi, reset_ansi, time_ansi, reset_ansi, zone_ansi, reset_ansi
+        );
+
+        assert_eq!(hltr.apply(input), expected);
+    }
+
+    #[test]
+    fn test_hidden_time_field_hides_time_field() {
+        let date_style = Style::default();
+        let time_style = style_hidden();
+        let zone_style = Style::default();
+        let date_ansi = to_ansi(&date_style);
+        let zone_ansi = to_ansi(&zone_style);
+        let reset_ansi = color::RESET;
+
+        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
+        let input = "2022-09-09 11:44:54,508 INFO test";
+        // Note: space is the zone character
+        let expected = format!(
+            // FIXME: Is this what we want?
+            "{}2022-09-09{}{} {} INFO test",
+            date_ansi, reset_ansi, zone_ansi, reset_ansi
+        );
+        assert_eq!(hltr.apply(input), expected);
+    }
+
+    #[test]
+    fn test_hidden_zone_field_hides_zone_field() {
+        let date_style = Style::default();
+        let time_style = Style::default();
+        let zone_style = style_hidden();
+        let date_ansi = to_ansi(&date_style);
+        let time_ansi = to_ansi(&time_style);
+        let reset_ansi = color::RESET;
+
+        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
+        let input = "2022-09-09 11:44:54,508 INFO test";
+
+        let expected = format!(
+            //          Time is matched as two captures
+            //              |----^----||---^--|
+            "{}2022-09-09{}{}11:44:54{}{},508{} INFO test",
+            date_ansi, reset_ansi, time_ansi, reset_ansi, time_ansi, reset_ansi
         );
 
         assert_eq!(hltr.apply(input), expected);
