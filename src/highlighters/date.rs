@@ -94,8 +94,10 @@ impl Highlight for DateHighlighter {
 mod tests {
     use super::*;
     use crate::color::Fg;
+    use indoc::formatdoc;
 
-    /// Helper function for a default hidden style
+    // MARK: Helpers
+
     fn style_hidden() -> Style {
         Style {
             hidden: true,
@@ -103,89 +105,9 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_no_hidden_fields_shows_all_fields() {
-        let date_style = Style::default();
-        let time_style = Style::default();
-        let zone_style = Style::default();
-        let date_ansi = to_ansi(&date_style);
-        let time_ansi = to_ansi(&time_style);
-        let zone_ansi = to_ansi(&zone_style);
-        let reset_ansi = color::RESET;
+    const RESET_ANSI: &str = color::RESET;
 
-        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
-        let input = "2022-09-09 11:44:54,508 INFO test";
-
-        // Note: space is the zone character
-        let expected = format!(
-            "{}2022-09-09{}{} {}{}11:44:54{}{},508{} INFO test",
-            date_ansi, reset_ansi, zone_ansi, reset_ansi, time_ansi, reset_ansi, zone_ansi, reset_ansi
-        );
-
-        assert_eq!(hltr.apply(input), expected);
-    }
-
-    #[test]
-    fn test_hidden_date_field_hides_date_field() {
-        let date_style = style_hidden();
-        let time_style = Style::default();
-        let zone_style = Style::default();
-        let time_ansi = to_ansi(&time_style);
-        let zone_ansi = to_ansi(&zone_style);
-        let reset_ansi = color::RESET;
-
-        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
-        let input = "2022-09-09 11:44:54,508 INFO test";
-        // Note: space is the zone character
-        let expected = format!(
-            "{} {}{}11:44:54{}{},508{} INFO test",
-            zone_ansi, reset_ansi, time_ansi, reset_ansi, zone_ansi, reset_ansi
-        );
-
-        assert_eq!(hltr.apply(input), expected);
-    }
-
-    #[test]
-    fn test_hidden_time_field_hides_time_field() {
-        let date_style = Style::default();
-        let time_style = style_hidden();
-        let zone_style = Style::default();
-        let date_ansi = to_ansi(&date_style);
-        let zone_ansi = to_ansi(&zone_style);
-        let reset_ansi = color::RESET;
-
-        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
-        let input = "2022-09-09 11:44:54,508 INFO test";
-        // Note: space is the zone character
-        let expected = format!(
-            // FIXME: Is this what we want?
-            "{}2022-09-09{}{} {} INFO test",
-            date_ansi, reset_ansi, zone_ansi, reset_ansi
-        );
-        assert_eq!(hltr.apply(input), expected);
-    }
-
-    #[test]
-    fn test_hidden_zone_field_hides_zone_field() {
-        let date_style = Style::default();
-        let time_style = Style::default();
-        let zone_style = style_hidden();
-        let date_ansi = to_ansi(&date_style);
-        let time_ansi = to_ansi(&time_style);
-        let reset_ansi = color::RESET;
-
-        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
-        let input = "2022-09-09 11:44:54,508 INFO test";
-
-        let expected = format!(
-            //          Time is matched as two captures
-            //              |----^----||---^--|
-            "{}2022-09-09{}{}11:44:54{}{},508{} INFO test",
-            date_ansi, reset_ansi, time_ansi, reset_ansi, time_ansi, reset_ansi
-        );
-
-        assert_eq!(hltr.apply(input), expected);
-    }
+    // MARK: Basic functionality
 
     #[test]
     fn test_highlight_dates() {
@@ -207,18 +129,110 @@ mod tests {
         let date_ansi = to_ansi(&date);
         let time_ansi = to_ansi(&time);
         let zone_ansi = to_ansi(&zone);
-        let reset_ansi = color::RESET;
 
         let test_cases = [(
             "2023-09-10T14:30:00",
             format!(
                 "{}2023-09-10{}{}T{}{}14:30:00{}",
-                date_ansi, reset_ansi, zone_ansi, reset_ansi, time_ansi, reset_ansi,
+                date_ansi, RESET_ANSI, zone_ansi, RESET_ANSI, time_ansi, RESET_ANSI,
             ),
         )];
 
         for (input, expected_output) in test_cases.iter() {
             assert_eq!(highlighter.apply(input), *expected_output);
         }
+    }
+
+    // MARK: Hidden date tests
+
+    #[test]
+    fn test_no_hidden_fields_shows_all_fields() {
+        let date_style = Style::default();
+        let time_style = Style::default();
+        let zone_style = Style::default();
+        let date_ansi = to_ansi(&date_style);
+        let time_ansi = to_ansi(&time_style);
+        let zone_ansi = to_ansi(&zone_style);
+
+        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
+        let input = "2022-09-09 11:44:54,508 INFO test";
+
+        // Separated by section for easier reading
+        let expected: String = formatdoc!(
+            "
+            {date_ansi}2022-09-09{RESET_ANSI}
+            {zone_ansi} {RESET_ANSI}
+            {time_ansi}11:44:54{RESET_ANSI}
+            {zone_ansi},508{RESET_ANSI}
+             INFO test" // note space
+        )
+        .replace("\n", "");
+
+        assert_eq!(hltr.apply(input), expected);
+    }
+
+    #[test]
+    fn test_hidden_date_field_hides_date_field() {
+        let date_style = style_hidden();
+        let time_style = Style::default();
+        let zone_style = Style::default();
+        let time_ansi = to_ansi(&time_style);
+        let zone_ansi = to_ansi(&zone_style);
+
+        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
+        let input = "2022-09-09 11:44:54,508 INFO test";
+        let expected = formatdoc!(
+            "
+            {zone_ansi} {RESET_ANSI}
+            {time_ansi}11:44:54{RESET_ANSI}
+            {zone_ansi},508{RESET_ANSI}
+             INFO test",
+        )
+        .replace("\n", "");
+
+        assert_eq!(hltr.apply(input), expected);
+    }
+
+    #[test]
+    fn test_hidden_time_field_hides_time_field() {
+        let date_style = Style::default();
+        let time_style = style_hidden();
+        let zone_style = Style::default();
+        let date_ansi = to_ansi(&date_style);
+        let zone_ansi = to_ansi(&zone_style);
+
+        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
+        let input = "2022-09-09 11:44:54,508 INFO test";
+        // FIXME: Is this what we want?
+        let expected = formatdoc!(
+            "{date_ansi}2022-09-09{RESET_ANSI}
+            {zone_ansi} {RESET_ANSI}
+             INFO test",
+        )
+        .replace("\n", "");
+        assert_eq!(hltr.apply(input), expected);
+    }
+
+    #[test]
+    fn test_hidden_zone_field_hides_zone_field() {
+        let date_style = Style::default();
+        let time_style = Style::default();
+        let zone_style = style_hidden();
+        let date_ansi = to_ansi(&date_style);
+        let time_ansi = to_ansi(&time_style);
+
+        let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
+        let input = "2022-09-09 11:44:54,508 INFO test";
+
+        let expected = formatdoc!(
+            "
+            {date_ansi}2022-09-09{RESET_ANSI}
+            {time_ansi}11:44:54{RESET_ANSI}
+            {time_ansi},508{RESET_ANSI}
+             INFO test",
+        )
+        .replace("\n", "");
+
+        assert_eq!(hltr.apply(input), expected);
     }
 }
