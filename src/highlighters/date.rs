@@ -78,7 +78,6 @@ impl Highlight for DateHighlighter {
                             result.push(format!("{}{}{}", zone, reg_match.as_str(), color::RESET))
                         }
                     }
-                    // TODO: not sure how to handle the `same` case
                     Part::Equals => result.push(format!("{}", reg_match.as_str())),
                 }
             }
@@ -157,7 +156,6 @@ mod tests {
         let hltr = DateHighlighter::new(&date_style, &time_style, &zone_style);
         let input = "2022-09-09 11:44:54,508 INFO test";
 
-        // Separated by section for easier reading
         let expected: String = formatdoc!(
             "
             {date_ansi}2022-09-09{RESET_ANSI}
@@ -186,7 +184,7 @@ mod tests {
             {zone_ansi} {RESET_ANSI}
             {time_ansi}11:44:54{RESET_ANSI}
             {zone_ansi},508{RESET_ANSI}
-             INFO test",
+             INFO test", // note space
         )
         .replace("\n", "");
 
@@ -229,7 +227,7 @@ mod tests {
             {date_ansi}2022-09-09{RESET_ANSI}
             {time_ansi}11:44:54{RESET_ANSI}
             {time_ansi},508{RESET_ANSI}
-             INFO test",
+             INFO test", // note space
         )
         .replace("\n", "");
 
