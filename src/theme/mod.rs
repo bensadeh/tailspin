@@ -70,12 +70,12 @@ pub struct Date {
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Process {
     pub name: Style,
     pub id: Style,
     pub separator: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
@@ -127,7 +127,8 @@ pub struct Groups {
     pub key_value: KeyValue,
     #[serde(default)]
     pub path: FilePath,
-    pub process: Option<Process>,
+    #[serde(default)]
+    pub process: Process,
     pub keywords: Option<Vec<Keyword>>,
 }
 

@@ -79,10 +79,12 @@ impl Highlighters {
             )));
         }
 
-        if let Some(p) = &groups.process {
-            if !p.disabled {
-                before_fns.push(Box::new(ProcessHighlighter::new(&p.name, &p.separator, &p.id)));
-            }
+        if !groups.process.disabled {
+            before_fns.push(Box::new(ProcessHighlighter::new(
+                &groups.process.name,
+                &groups.process.separator,
+                &groups.process.id,
+            )));
         }
 
         before_fns

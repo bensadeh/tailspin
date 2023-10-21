@@ -1,5 +1,5 @@
 use crate::color::Fg;
-use crate::theme::{Date, FilePath, Ip, KeyValue, Style, Uuid};
+use crate::theme::{Date, FilePath, Ip, KeyValue, Process, Style, Uuid};
 
 impl Default for Uuid {
     fn default() -> Self {
@@ -81,6 +81,26 @@ impl Default for Date {
             },
             zone: Style {
                 fg: Fg::Red,
+                ..Default::default()
+            },
+            disabled: false,
+        }
+    }
+}
+
+impl Default for Process {
+    fn default() -> Self {
+        Process {
+            name: Style {
+                fg: Fg::Green,
+                ..Default::default()
+            },
+            id: Style {
+                fg: Fg::Red,
+                ..Default::default()
+            },
+            separator: Style {
+                fg: Fg::Yellow,
                 ..Default::default()
             },
             disabled: false,
