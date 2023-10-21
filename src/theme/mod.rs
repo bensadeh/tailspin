@@ -38,6 +38,7 @@ pub struct Uuid {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Ip {
     pub segment: Style,
     pub separator: Style,
