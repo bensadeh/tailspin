@@ -20,7 +20,7 @@ use crate::highlighters::quotes::QuoteHighlighter;
 use crate::highlighters::url::UrlHighlighter;
 use crate::highlighters::uuid::UuidHighlighter;
 use crate::theme::defaults::get_default_keywords;
-use crate::theme::{Groups, Keyword};
+use crate::theme::{Keyword, Theme};
 use crate::types::Highlight;
 
 pub struct Highlighters {
@@ -30,71 +30,71 @@ pub struct Highlighters {
 }
 
 impl Highlighters {
-    pub fn new(groups: &Groups) -> Highlighters {
+    pub fn new(theme: &Theme) -> Highlighters {
         Highlighters {
-            before: Self::set_before_fns(groups),
-            main: Self::set_main_fns(groups),
-            after: Self::set_after_fns(groups),
+            before: Self::set_before_fns(theme),
+            main: Self::set_main_fns(theme),
+            after: Self::set_after_fns(theme),
         }
     }
 
-    fn set_before_fns(groups: &Groups) -> Vec<Box<dyn Highlight + Send>> {
+    fn set_before_fns(theme: &Theme) -> Vec<Box<dyn Highlight + Send>> {
         let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
-        if !groups.date.disabled {
+        if !theme.date.disabled {
             before_fns.push(Box::new(DateHighlighter::new(
-                &groups.date.date,
-                &groups.date.time,
-                &groups.date.zone,
+                &theme.date.date,
+                &theme.date.time,
+                &theme.date.zone,
             )));
         }
 
-        if !groups.url.disabled {
-            before_fns.push(Box::new(UrlHighlighter::new(&groups.url)));
+        if !theme.url.disabled {
+            before_fns.push(Box::new(UrlHighlighter::new(&theme.url)));
         }
 
-        if !groups.path.disabled {
+        if !theme.path.disabled {
             before_fns.push(Box::new(PathHighlighter::new(
-                &groups.path.segment,
-                &groups.path.separator,
+                &theme.path.segment,
+                &theme.path.separator,
             )));
         }
 
-        if !groups.ip.disabled {
-            before_fns.push(Box::new(IpHighlighter::new(&groups.ip.segment, &groups.ip.separator)));
+        if !theme.ip.disabled {
+            before_fns.push(Box::new(IpHighlighter::new(&theme.ip.segment, &theme.ip.separator)));
         }
 
-        if !groups.key_value.disabled {
+        if !theme.key_value.disabled {
             before_fns.push(Box::new(KeyValueHighlighter::new(
-                &groups.key_value.key,
-                &groups.key_value.separator,
+                &theme.key_value.key,
+                &theme.key_value.separator,
             )));
         }
 
-        if !groups.uuid.disabled {
+        if !theme.uuid.disabled {
             before_fns.push(Box::new(UuidHighlighter::new(
-                &groups.uuid.segment,
-                &groups.uuid.separator,
+                &theme.uuid.segment,
+                &theme.uuid.separator,
             )));
         }
 
-        if !groups.process.disabled {
+        if !theme.process.disabled {
             before_fns.push(Box::new(ProcessHighlighter::new(
-                &groups.process.name,
-                &groups.process.separator,
-                &groups.process.id,
+                &theme.process.name,
+                &theme.process.separator,
+                &theme.process.id,
             )));
         }
 
         before_fns
     }
 
-    fn set_main_fns(groups: &Groups) -> Vec<Box<dyn Highlight + Send>> {
+    fn set_main_fns(theme: &Theme) -> Vec<Box<dyn Highlight + Send>> {
         let mut main_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
-        let keywords = Self::get_keywords(&groups.keywords, true);
+        let keywords = Self::get_keywords(&theme.keywords, true);
 
-        if !groups.number.disabled {
-            main_fns.push(Box::new(NumberHighlighter::new(&groups.number.style)));
+        if !theme.number.disabled {
+            main_fns.push(Box::new(NumberHighlighter::new(&theme.number.style)));
         }
 
         for keyword in keywords {
@@ -108,14 +108,11 @@ impl Highlighters {
         main_fns
     }
 
-    fn set_after_fns(groups: &Groups) -> Vec<Box<dyn Highlight + Send>> {
+    fn set_after_fns(theme: &Theme) -> Vec<Box<dyn Highlight + Send>> {
         let mut after_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
-        if !groups.quotes.disabled {
-            after_fns.push(Box::new(QuoteHighlighter::new(
-                &groups.quotes.style,
-                groups.quotes.token,
-            )));
+        if !theme.quotes.disabled {
+            after_fns.push(Box::new(QuoteHighlighter::new(&theme.quotes.style, theme.quotes.token)));
         }
 
         after_fns

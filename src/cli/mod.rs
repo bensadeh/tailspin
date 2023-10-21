@@ -1,4 +1,3 @@
-use crate::theme_io;
 use clap::{Command, CommandFactory, Parser};
 use clap_complete::{generate, Generator, Shell};
 use std::io;
@@ -32,14 +31,6 @@ pub struct Cli {
     #[clap(short = 'l', long = "follow-command", conflicts_with = "follow")]
     pub listen_command: Option<String>,
 
-    /// Generate a new configuration file
-    #[clap(long = "create-default-config")]
-    pub create_default_config: bool,
-
-    /// Print the default configuration
-    #[clap(long = "show-default-config", conflicts_with = "create_default_config")]
-    pub show_default_config: bool,
-
     /// Print completions to stdout
     #[clap(long = "z-generate-shell-completions", hide = true)]
     pub generate_shell_completions: Option<String>,
@@ -58,17 +49,6 @@ pub fn get_args_or_exit_early() -> Cli {
 fn should_exit_early(args: &Cli) -> bool {
     if args.generate_shell_completions.is_some() {
         print_completions_to_stdout();
-        return true;
-    }
-
-    if args.create_default_config {
-        theme_io::create_default_config();
-        return true;
-    }
-
-    if args.show_default_config {
-        let default_config = theme_io::default_theme();
-        println!("{}", default_config);
         return true;
     }
 

@@ -6,19 +6,18 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Style {
+    #[serde(default)]
     pub fg: Fg,
+    #[serde(default)]
     pub bg: Bg,
+    #[serde(default)]
     pub bold: bool,
+    #[serde(default)]
     pub faint: bool,
+    #[serde(default)]
     pub italic: bool,
+    #[serde(default)]
     pub underline: bool,
-}
-
-#[derive(Debug, Deserialize, Default, Clone)]
-pub struct Keyword {
-    pub style: Style,
-    pub words: Vec<String>,
-    pub border: bool,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -100,7 +99,15 @@ pub struct Url {
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct Groups {
+#[serde(default)]
+pub struct Keyword {
+    pub style: Style,
+    pub words: Vec<String>,
+    pub border: bool,
+}
+
+#[derive(Debug, Deserialize, Default, Clone)]
+pub struct Theme {
     #[serde(default)]
     pub date: Date,
     #[serde(default)]
@@ -119,10 +126,6 @@ pub struct Groups {
     pub path: FilePath,
     #[serde(default)]
     pub process: Process,
+    #[serde(default)]
     pub keywords: Option<Vec<Keyword>>,
-}
-
-#[derive(Debug, Deserialize, Default, Clone)]
-pub struct Theme {
-    pub groups: Groups,
 }
