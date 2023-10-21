@@ -56,7 +56,15 @@ pub struct FilePath {
 #[serde(default)]
 pub struct Date {
     pub style: Style,
+    pub shorten: Option<Shorten>,
     pub disabled: bool,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
+pub struct Shorten {
+    pub to: String,
+    pub style: Style,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -64,6 +72,7 @@ pub struct Date {
 pub struct Time {
     pub time: Style,
     pub zone: Style,
+    pub shorten: Option<Shorten>,
     pub disabled: bool,
 }
 

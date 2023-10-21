@@ -44,11 +44,18 @@ impl Highlighters {
         let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
         if !theme.date.disabled {
-            before_fns.push(Box::new(DateHighlighter::new(&theme.date.style)));
+            before_fns.push(Box::new(DateHighlighter::new(
+                &theme.date.style,
+                theme.date.shorten.clone(),
+            )));
         }
 
         if !theme.time.disabled {
-            before_fns.push(Box::new(TimeHighlighter::new(&theme.time.time, &theme.time.zone)));
+            before_fns.push(Box::new(TimeHighlighter::new(
+                &theme.time.time,
+                &theme.time.zone,
+                theme.time.shorten.clone(),
+            )));
         }
 
         if !theme.url.disabled {
