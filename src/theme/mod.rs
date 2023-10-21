@@ -55,7 +55,13 @@ pub struct FilePath {
 #[derive(Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct Date {
-    pub date: Style,
+    pub style: Style,
+    pub disabled: bool,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
+pub struct Time {
     pub time: Style,
     pub zone: Style,
     pub disabled: bool,
@@ -110,6 +116,8 @@ pub struct Keyword {
 pub struct Theme {
     #[serde(default)]
     pub date: Date,
+    #[serde(default)]
+    pub time: Time,
     #[serde(default)]
     pub number: Number,
     #[serde(default)]

@@ -5,16 +5,18 @@ lazy_static! {
     pub static ref DATE_REGEX: Regex = {
         Regex::new(
             r"(?x)                       
+            \d{4}-\d{2}-\d{2}
+    ",
+        )
+        .expect("Invalid regex pattern")
+    };
+    pub static ref TIME_REGEX: Regex = {
+        Regex::new(
+            r"(?x)                       
     \b                           
-    (?:                              # Non-capturing group for entire date-time
-        (?P<equals1>=?)              # Optional equals sign
-        (?P<date>\d{4}-\d{2}-\d{2})  # Capture date
-        (?P<sep1>[T\s])?             # Capture separator (either a space or T)
-        (?P<time>\d{2}:\d{2}:\d{2})? # Capture time
-        (?P<frac1>[.,]\d+)?          # Capture fractional seconds
-        (?P<tz1>Z|[+-]\d{2})?        # Capture timezone
-        |                            # OR
+    (?:                              
         (?P<equals2>=?)              # Optional equals sign for time alone
+        (?P<sep1>[T\s])?             # Capture separator (either a space or T)
         (?P<time2>\d{2}:\d{2}:\d{2}) # Capture time alone
         (?P<frac2>[.,]\d+)?          # Capture fractional seconds for time alone
     )                              

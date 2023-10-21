@@ -6,6 +6,7 @@ mod number;
 mod path;
 mod process;
 mod quotes;
+mod time;
 mod url;
 mod uuid;
 
@@ -42,11 +43,7 @@ impl Highlighters {
         let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
         if !theme.date.disabled {
-            before_fns.push(Box::new(DateHighlighter::new(
-                &theme.date.date,
-                &theme.date.time,
-                &theme.date.zone,
-            )));
+            before_fns.push(Box::new(DateHighlighter::new(&theme.date.style)));
         }
 
         if !theme.url.disabled {

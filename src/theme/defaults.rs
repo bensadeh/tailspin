@@ -1,5 +1,5 @@
 use crate::color::{Bg, Fg};
-use crate::theme::{Date, FilePath, Ip, KeyValue, Keyword, Number, Process, Quotes, Style, Url, Uuid};
+use crate::theme::{Date, FilePath, Ip, KeyValue, Keyword, Number, Process, Quotes, Style, Time, Url, Uuid};
 
 impl Default for Uuid {
     fn default() -> Self {
@@ -71,10 +71,18 @@ impl Default for FilePath {
 impl Default for Date {
     fn default() -> Self {
         Date {
-            date: Style {
+            style: Style {
                 fg: Fg::Magenta,
                 ..Default::default()
             },
+            disabled: false,
+        }
+    }
+}
+
+impl Default for Time {
+    fn default() -> Self {
+        Time {
             time: Style {
                 fg: Fg::Blue,
                 ..Default::default()
