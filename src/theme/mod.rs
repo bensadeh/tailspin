@@ -1,23 +1,16 @@
-mod defaults;
+pub mod defaults;
 
 use crate::color::{Bg, Fg};
 
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Default, Clone)]
-//remove this
 pub struct Style {
-    #[serde(default)]
     pub fg: Fg,
-    #[serde(default)]
     pub bg: Bg,
-    #[serde(default)]
     pub bold: bool,
-    #[serde(default)]
     pub faint: bool,
-    #[serde(default)]
     pub italic: bool,
-    #[serde(default)]
     pub underline: bool,
 }
 
@@ -86,6 +79,7 @@ pub struct Number {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Quotes {
     pub style: Style,
     pub token: char,
@@ -93,6 +87,7 @@ pub struct Quotes {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Url {
     pub http: Style,
     pub https: Style,

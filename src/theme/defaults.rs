@@ -170,7 +170,7 @@ impl Default for Url {
     }
 }
 
-pub fn create_keywords() -> Vec<Keyword> {
+pub fn get_default_keywords() -> Vec<Keyword> {
     vec![
         Keyword {
             words: vec!["ERROR".to_string()],

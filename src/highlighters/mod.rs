@@ -19,7 +19,8 @@ use crate::highlighters::process::ProcessHighlighter;
 use crate::highlighters::quotes::QuoteHighlighter;
 use crate::highlighters::url::UrlHighlighter;
 use crate::highlighters::uuid::UuidHighlighter;
-use crate::theme::Groups;
+use crate::theme::defaults::get_default_keywords;
+use crate::theme::{Groups, Keyword};
 use crate::types::Highlight;
 
 pub struct Highlighters {
@@ -90,19 +91,18 @@ impl Highlighters {
 
     fn set_main_fns(groups: &Groups) -> Vec<Box<dyn Highlight + Send>> {
         let mut main_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
+        let keywords = Self::get_keywords(&groups.keywords, true);
 
         if !groups.number.disabled {
             main_fns.push(Box::new(NumberHighlighter::new(&groups.number.style)));
         }
 
-        if let Some(keywords) = &groups.keywords {
-            for keyword in keywords {
-                main_fns.push(Box::new(KeywordHighlighter::new(
-                    &keyword.words,
-                    &keyword.style,
-                    keyword.border,
-                )));
-            }
+        for keyword in keywords {
+            main_fns.push(Box::new(KeywordHighlighter::new(
+                &keyword.words,
+                &keyword.style,
+                keyword.border,
+            )));
         }
 
         main_fns
@@ -119,5 +119,17 @@ impl Highlighters {
         }
 
         after_fns
+    }
+
+    fn get_keywords(custom_keywords: &Option<Vec<Keyword>>, disable_default_keywords: bool) -> Vec<Keyword> {
+        if disable_default_keywords {
+            let default_keywords = get_default_keywords();
+            match custom_keywords {
+                Some(ck) => [default_keywords, ck.clone()].concat(),
+                None => default_keywords,
+            }
+        } else {
+            custom_keywords.clone().unwrap_or_default()
+        }
     }
 }
