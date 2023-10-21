@@ -1,12 +1,8 @@
 use crate::theme::Theme;
 
-use std::fs::File;
-use std::io::Write;
 use std::path::PathBuf;
 use std::process::exit;
 use std::{env, fs};
-
-const DEFAULT_THEME: &str = include_str!("../../config/config.toml");
 
 pub fn load_theme(path: Option<String>) -> Theme {
     let config_dir = match env::var("XDG_CONFIG_HOME") {
@@ -43,73 +39,12 @@ pub fn load_theme(path: Option<String>) -> Theme {
                 }
             }
         }
-        None => match toml::from_str(DEFAULT_THEME) {
+        None => match toml::from_str("") {
             Ok(config) => config,
             Err(err) => {
-                println!("Could not deserialize default config:\n\n{}", err);
+                println!("Could instantiate empty config using default values:\n\n{}", err);
                 exit(1);
             }
         },
     }
-}
-
-pub fn create_default_config() {
-    let target_config_path = match env::var("XDG_CONFIG_HOME") {
-        Ok(xdg_config_dir) => {
-            let expanded_path = shellexpand::tilde(&xdg_config_dir).into_owned();
-            PathBuf::from(expanded_path)
-        }
-        Err(_) => {
-            let home_dir = env::var("HOME").expect("Failed to get HOME environment variable");
-            PathBuf::from(home_dir).join(".config")
-        }
-    }
-    .join("tailspin")
-    .join("config.toml");
-
-    let tilde_path = target_config_path
-        .to_str()
-        .expect("Invalid path")
-        .replace(env::var("HOME").expect("HOME directory not set").as_str(), "~");
-
-    match target_config_path.try_exists() {
-        Ok(true) => {
-            eprintln!("Config file already exists at {}", tilde_path);
-            exit(1);
-        }
-        Err(err) => {
-            eprintln!("Failed to check if file {} exists: {}", tilde_path, err);
-            exit(1);
-        }
-        _ => {}
-    }
-
-    if let Some(parent_path) = target_config_path.parent() {
-        match fs::create_dir_all(parent_path) {
-            Ok(_) => {}
-            Err(err) => {
-                eprintln!("Failed to create the directory for {}: {}", tilde_path, err);
-                exit(1);
-            }
-        }
-    }
-
-    match File::create(&target_config_path) {
-        Ok(mut file) => {
-            if let Err(err) = file.write_all(DEFAULT_THEME.as_bytes()) {
-                eprintln!("Failed to write to the config file at {}: {}", tilde_path, err);
-                exit(1);
-            }
-
-            println!("Config file generated successfully at {}", tilde_path);
-        }
-        Err(err) => {
-            eprintln!("Failed to create the config file at {}: {}", tilde_path, err);
-            exit(1);
-        }
-    }
-}
-
-pub fn default_theme() -> &'static str {
-    DEFAULT_THEME
 }

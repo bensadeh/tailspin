@@ -1,3 +1,5 @@
+pub mod defaults;
+
 use crate::color::{Bg, Fg};
 
 use serde::Deserialize;
@@ -18,85 +20,73 @@ pub struct Style {
     pub underline: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
-pub struct Keyword {
-    pub style: Style,
-    pub words: Vec<String>,
-    #[serde(default)]
-    pub border: bool,
-}
-
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Uuid {
     pub segment: Style,
     pub separator: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Ip {
     pub segment: Style,
     pub separator: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct KeyValue {
     pub key: Style,
     pub separator: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct FilePath {
     pub segment: Style,
     pub separator: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Date {
     pub date: Style,
     pub time: Style,
     pub zone: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Process {
     pub name: Style,
     pub id: Style,
     pub separator: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Number {
     pub style: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Quotes {
     pub style: Style,
-    #[serde(default = "default_quotes_token")]
-    pub(crate) token: char,
-    #[serde(default)]
+    pub token: char,
     pub disabled: bool,
 }
 
-fn default_quotes_token() -> char {
-    '"'
-}
-
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Url {
     pub http: Style,
     pub https: Style,
@@ -105,25 +95,37 @@ pub struct Url {
     pub query_params_key: Style,
     pub query_params_value: Style,
     pub symbols: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
-pub struct Groups {
-    pub date: Option<Date>,
-    pub number: Option<Number>,
-    pub quotes: Option<Quotes>,
-    pub uuid: Option<Uuid>,
-    pub url: Option<Url>,
-    pub ip: Option<Ip>,
-    pub key_value: Option<KeyValue>,
-    pub path: Option<FilePath>,
-    pub process: Option<Process>,
-    pub keywords: Option<Vec<Keyword>>,
+#[serde(default)]
+pub struct Keyword {
+    pub style: Style,
+    pub words: Vec<String>,
+    pub border: bool,
 }
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Theme {
-    pub groups: Groups,
+    #[serde(default)]
+    pub date: Date,
+    #[serde(default)]
+    pub number: Number,
+    #[serde(default)]
+    pub quotes: Quotes,
+    #[serde(default)]
+    pub uuid: Uuid,
+    #[serde(default)]
+    pub url: Url,
+    #[serde(default)]
+    pub ip: Ip,
+    #[serde(default)]
+    pub key_value: KeyValue,
+    #[serde(default)]
+    pub path: FilePath,
+    #[serde(default)]
+    pub process: Process,
+    #[serde(default)]
+    pub keywords: Option<Vec<Keyword>>,
 }

@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                            
+#                                                                                                                                                                                                                                                                  
 
 <p align="center">
 A log file highlighter
@@ -71,11 +71,41 @@ nix-shell -p tailspin
   <img src="assets/examples/dates.png" width="600"/>
 </p>
 
+<details>
+<summary>Config</summary>
+
+```toml
+[date]
+date = { fg = "magenta" }
+time = { fg = "blue" }
+zone = { fg = "red" }
+```
+
+</details>
+
 ### Keywords
 
 <p align="center">
   <img src="assets/examples/keywords.png" width="600"/>
 </p>
+
+<details>
+<summary>Config</summary>
+
+```toml
+[[keywords]]
+words = ['null', 'true', 'false']
+style = { fg = "red", italic = true }
+
+[[keywords]]
+words = ['GET']
+style = { fg = "black", bg = "green" }
+border = true
+
+# You can add as many keywords as you'd like
+```
+
+</details>
 
 ### URLs
 
@@ -83,11 +113,37 @@ nix-shell -p tailspin
   <img src="assets/examples/urls.png" width="600"/>
 </p>
 
+<details>
+<summary>Config</summary>
+
+```toml
+[url]
+http = { faint = true }
+https = { bold = true }
+host = { fg = "blue", faint = true }
+path = { fg = "blue" }
+query_params_key = { fg = "magenta" }
+query_params_value = { fg = "cyan" }
+symbols = { fg = "red" }
+```
+
+</details>
+
 ### Numbers
 
 <p align="center">
   <img src="assets/examples/numbers.png" width="600"/>
 </p>
+
+<details>
+<summary>Config</summary>
+
+```toml
+[number]
+style = { fg = "cyan" }
+```
+
+</details>
 
 ### IP Addresses
 
@@ -95,11 +151,33 @@ nix-shell -p tailspin
   <img src="assets/examples/ip.png" width="600"/>
 </p>
 
+<details>
+<summary>Config</summary>
+
+```toml
+[ip]
+segment = { fg = "blue", italic = true }
+separator = { fg = "red" }
+```
+
+</details>
+
 ### Quotes
 
 <p align="center">
   <img src="assets/examples/quotes.png" width="600"/>
 </p>
+
+<details>
+<summary>Config</summary>
+
+```toml
+[quotes]
+style = { fg = "yellow" }
+token = '"'
+```
+
+</details>
 
 ### Unix file paths
 
@@ -107,11 +185,27 @@ nix-shell -p tailspin
   <img src="assets/examples/paths.png" width="600"/>
 </p>
 
+<details>
+<summary>Config</summary>
+
+```toml
+[path]
+segment = { fg = "green", italic = true }
+separator = { fg = "yellow" }
+```
+
+</details>
+
 ### HTTP methods
 
 <p align="center">
   <img src="assets/examples/http.png" width="600"/>
 </p>
+
+<details>
+<summary>Config</summary>
+See Keywords
+</details>
 
 ### UUIDs
 
@@ -119,11 +213,33 @@ nix-shell -p tailspin
   <img src="assets/examples/uuids.png" width="600"/>
 </p>
 
+<details>
+<summary>Config</summary>
+
+```toml
+[uuid]
+segment = { fg = "blue", italic = true }
+separator = { fg = "red" }
+```
+
+</details>
+
 ### Key-value pairs
 
 <p align="center">
   <img src="assets/examples/kv.png" width="600"/>
 </p>
+
+<details>
+<summary>Config</summary>
+
+```toml
+[key_value]
+key = { faint = true }
+separator = { fg = "white" }
+```
+
+</details>
 
 ### Unix processes
 
@@ -131,33 +247,49 @@ nix-shell -p tailspin
   <img src="assets/examples/processes.png" width="600"/>
 </p>
 
+<details>
+<summary>Config</summary>
+
+```toml
+[process]
+name = { fg = "green" }
+separator = { fg = "red" }
+id = { fg = "yellow" }
+```
+
+</details>
 
 ## Watching folders
 
-`tailspin` can listen for newline entries in a given folder. Watching folders is useful for monitoring log files that 
+`tailspin` can listen for newline entries in a given folder. Watching folders is useful for monitoring log files that
 are rotated.
 
 <p align="center">
   <img src="assets/examples/folder.png" width="600"/>
 </p>
 
-When watching folders, `tailspin` will start in follow mode (abort with <kbd>Ctrl + C</kbd>) and will only print 
+When watching folders, `tailspin` will start in follow mode (abort with <kbd>Ctrl + C</kbd>) and will only print
 newline entries which arrive after the initial start.
 
 ## Customizing Highlight Groups
 
 ### Overview
 
-`tailspin` uses a single `config.toml` file to configure all highlight groups. When customizing highlights, it is
-advised to start with the `--create-default-config ` flag to place a `config.toml` with default options
-in `~/.config/tailspin`.
+Create `config.toml` in `~/.config/tailspin` to customize highlight groups.
 
-To disable a highlight group, either comment it out or delete it.
-
-Highlights have the following shape:
+Styles have the following shape:
 
 ```toml
 style = { fg = "color", bg = "color", italic = false, bold = false, underline = false }
+```
+
+### Disabling Highlight Groups
+
+To disable a highlight group, set the `disabled` field to true:
+
+```toml
+[date]
+disabled = true
 ```
 
 ### Adding Keywords
@@ -165,11 +297,11 @@ style = { fg = "color", bg = "color", italic = false, bold = false, underline = 
 To add custom keywords, either include them in the list of keywords or add new entries:
 
 ```toml
-[[groups.keywords]]
+[[keywords]]
 words = ['MyCustomKeyword']
 style = { fg = "green" }
 
-[[groups.keywords]]
+[[keywords]]
 words = ['null', 'true', 'false']
 style = { fg = "red", italic = true }
 ```
