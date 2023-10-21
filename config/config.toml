@@ -10,10 +10,6 @@ style = { fg = "cyan" }
 style = { fg = "yellow" }
 token = '"'
 
-[groups.uuid]
-segment = { fg = "blue", italic = true }
-separator = { fg = "red" }
-
 [groups.ip]
 segment = { fg = "blue", italic = true }
 separator = { fg = "red" }

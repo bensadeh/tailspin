@@ -1,8 +1,11 @@
+mod defaults;
+
 use crate::color::{Bg, Fg};
 
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Default, Clone)]
+//remove this
 pub struct Style {
     #[serde(default)]
     pub fg: Fg,
@@ -26,11 +29,11 @@ pub struct Keyword {
     pub border: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Uuid {
     pub segment: Style,
     pub separator: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
@@ -114,7 +117,8 @@ pub struct Groups {
     pub date: Option<Date>,
     pub number: Option<Number>,
     pub quotes: Option<Quotes>,
-    pub uuid: Option<Uuid>,
+    #[serde(default)]
+    pub uuid: Uuid,
     pub url: Option<Url>,
     pub ip: Option<Ip>,
     pub key_value: Option<KeyValue>,

@@ -83,6 +83,12 @@ nix-shell -p tailspin
   <img src="assets/examples/urls.png" width="600"/>
 </p>
 
+```toml
+[groups.uuid]
+segment = { fg = "blue", italic = true }
+separator = { fg = "red" }
+```
+
 ### Numbers
 
 <p align="center">

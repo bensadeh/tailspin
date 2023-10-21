@@ -70,10 +70,11 @@ impl Highlighters {
             }
         }
 
-        if let Some(uuid) = &config.groups.uuid {
-            if !uuid.disabled {
-                before_fns.push(Box::new(UuidHighlighter::new(&uuid.segment, &uuid.separator)));
-            }
+        if !config.groups.uuid.disabled {
+            before_fns.push(Box::new(UuidHighlighter::new(
+                &config.groups.uuid.segment,
+                &config.groups.uuid.separator,
+            )));
         }
 
         if let Some(p) = &config.groups.process {
