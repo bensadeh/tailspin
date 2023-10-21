@@ -53,11 +53,11 @@ pub struct KeyValue {
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct FilePath {
     pub segment: Style,
     pub separator: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
@@ -124,7 +124,8 @@ pub struct Groups {
     pub ip: Ip,
     #[serde(default)]
     pub key_value: KeyValue,
-    pub path: Option<FilePath>,
+    #[serde(default)]
+    pub path: FilePath,
     pub process: Option<Process>,
     pub keywords: Option<Vec<Keyword>>,
 }

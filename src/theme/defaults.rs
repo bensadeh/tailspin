@@ -1,5 +1,5 @@
 use crate::color::Fg;
-use crate::theme::{Ip, KeyValue, Style, Uuid};
+use crate::theme::{FilePath, Ip, KeyValue, Style, Uuid};
 
 impl Default for Uuid {
     fn default() -> Self {
@@ -44,6 +44,23 @@ impl Default for KeyValue {
             },
             separator: Style {
                 fg: Fg::White,
+                ..Default::default()
+            },
+            disabled: false,
+        }
+    }
+}
+
+impl Default for FilePath {
+    fn default() -> Self {
+        FilePath {
+            segment: Style {
+                fg: Fg::Green,
+                italic: true,
+                ..Default::default()
+            },
+            separator: Style {
+                fg: Fg::Yellow,
                 ..Default::default()
             },
             disabled: false,
