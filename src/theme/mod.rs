@@ -119,7 +119,8 @@ pub struct Groups {
     #[serde(default)]
     pub uuid: Uuid,
     pub url: Option<Url>,
-    pub ip: Option<Ip>,
+    #[serde(default)]
+    pub ip: Ip,
     pub key_value: Option<KeyValue>,
     pub path: Option<FilePath>,
     pub process: Option<Process>,

@@ -58,10 +58,11 @@ impl Highlighters {
             }
         }
 
-        if let Some(ip) = &config.groups.ip {
-            if !ip.disabled {
-                before_fns.push(Box::new(IpHighlighter::new(&ip.segment, &ip.separator)));
-            }
+        if !config.groups.ip.disabled {
+            before_fns.push(Box::new(IpHighlighter::new(
+                &config.groups.ip.segment,
+                &config.groups.ip.separator,
+            )));
         }
 
         if let Some(kv) = &config.groups.key_value {
