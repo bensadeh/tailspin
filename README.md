@@ -101,11 +101,19 @@ separator = { fg = "red" }
   <img src="assets/examples/ip.png" width="600"/>
 </p>
 
+<details>
+  <summary>toml</summary>
+
 ```toml
-[groups.ip]
+[ip]
 segment = { fg = "blue", italic = true }
 separator = { fg = "red" }
 ```
+
+More detailed content here.
+</details>
+
+
 
 ### Quotes
 
