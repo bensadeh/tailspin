@@ -61,12 +61,12 @@ pub struct FilePath {
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Date {
     pub date: Style,
     pub time: Style,
     pub zone: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
@@ -114,7 +114,8 @@ pub struct Url {
 
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Groups {
-    pub date: Option<Date>,
+    #[serde(default)]
+    pub date: Date,
     pub number: Option<Number>,
     pub quotes: Option<Quotes>,
     #[serde(default)]

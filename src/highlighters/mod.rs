@@ -19,7 +19,7 @@ use crate::highlighters::process::ProcessHighlighter;
 use crate::highlighters::quotes::QuoteHighlighter;
 use crate::highlighters::url::UrlHighlighter;
 use crate::highlighters::uuid::UuidHighlighter;
-use crate::theme::{Groups, Theme};
+use crate::theme::Groups;
 use crate::types::Highlight;
 
 pub struct Highlighters {
@@ -29,9 +29,7 @@ pub struct Highlighters {
 }
 
 impl Highlighters {
-    pub fn new(config: Theme) -> Highlighters {
-        let groups = &config.groups;
-
+    pub fn new(groups: &Groups) -> Highlighters {
         Highlighters {
             before: Self::set_before_fns(groups),
             main: Self::set_main_fns(groups),
@@ -42,10 +40,12 @@ impl Highlighters {
     fn set_before_fns(groups: &Groups) -> Vec<Box<dyn Highlight + Send>> {
         let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
-        if let Some(dates) = &groups.date {
-            if !dates.disabled {
-                before_fns.push(Box::new(DateHighlighter::new(&dates.date, &dates.time, &dates.zone)));
-            }
+        if !groups.date.disabled {
+            before_fns.push(Box::new(DateHighlighter::new(
+                &groups.date.date,
+                &groups.date.time,
+                &groups.date.zone,
+            )));
         }
 
         if let Some(url) = &groups.url {

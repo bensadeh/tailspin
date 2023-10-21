@@ -38,7 +38,7 @@ pub async fn run(theme: Theme, config: Config) {
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
     let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;
 
-    let highlighter = highlighters::Highlighters::new(theme);
+    let highlighter = highlighters::Highlighters::new(&theme.groups);
     let highlight_processor = HighlightProcessor::new(highlighter);
 
     tokio::spawn(process_lines(io, highlight_processor));
