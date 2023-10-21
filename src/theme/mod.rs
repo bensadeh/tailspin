@@ -25,7 +25,6 @@ pub struct Style {
 pub struct Keyword {
     pub style: Style,
     pub words: Vec<String>,
-    #[serde(default)]
     pub border: bool,
 }
 
@@ -79,27 +78,21 @@ pub struct Process {
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Number {
     pub style: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Quotes {
     pub style: Style,
-    #[serde(default = "default_quotes_token")]
-    pub(crate) token: char,
-    #[serde(default)]
+    pub token: char,
     pub disabled: bool,
 }
 
-fn default_quotes_token() -> char {
-    '"'
-}
-
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Url {
     pub http: Style,
     pub https: Style,
@@ -108,7 +101,6 @@ pub struct Url {
     pub query_params_key: Style,
     pub query_params_value: Style,
     pub symbols: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
@@ -116,11 +108,14 @@ pub struct Url {
 pub struct Groups {
     #[serde(default)]
     pub date: Date,
-    pub number: Option<Number>,
-    pub quotes: Option<Quotes>,
+    #[serde(default)]
+    pub number: Number,
+    #[serde(default)]
+    pub quotes: Quotes,
     #[serde(default)]
     pub uuid: Uuid,
-    pub url: Option<Url>,
+    #[serde(default)]
+    pub url: Url,
     #[serde(default)]
     pub ip: Ip,
     #[serde(default)]

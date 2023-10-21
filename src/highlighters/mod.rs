@@ -48,10 +48,8 @@ impl Highlighters {
             )));
         }
 
-        if let Some(url) = &groups.url {
-            if !url.disabled {
-                before_fns.push(Box::new(UrlHighlighter::new(url)));
-            }
+        if !groups.url.disabled {
+            before_fns.push(Box::new(UrlHighlighter::new(&groups.url)));
         }
 
         if !groups.path.disabled {
@@ -93,10 +91,8 @@ impl Highlighters {
     fn set_main_fns(groups: &Groups) -> Vec<Box<dyn Highlight + Send>> {
         let mut main_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
-        if let Some(numbers) = &groups.number {
-            if !numbers.disabled {
-                main_fns.push(Box::new(NumberHighlighter::new(&numbers.style)));
-            }
+        if !groups.number.disabled {
+            main_fns.push(Box::new(NumberHighlighter::new(&groups.number.style)));
         }
 
         if let Some(keywords) = &groups.keywords {
@@ -115,10 +111,11 @@ impl Highlighters {
     fn set_after_fns(groups: &Groups) -> Vec<Box<dyn Highlight + Send>> {
         let mut after_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
 
-        if let Some(quotes_group) = &groups.quotes {
-            if !quotes_group.disabled {
-                after_fns.push(Box::new(QuoteHighlighter::new(&quotes_group.style, quotes_group.token)));
-            }
+        if !groups.quotes.disabled {
+            after_fns.push(Box::new(QuoteHighlighter::new(
+                &groups.quotes.style,
+                groups.quotes.token,
+            )));
         }
 
         after_fns
