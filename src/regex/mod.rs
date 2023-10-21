@@ -13,14 +13,12 @@ lazy_static! {
     pub static ref TIME_REGEX: Regex = {
         Regex::new(
             r"(?x)                       
-    \b                           
-    (?:                              
-        (?P<equals2>=?)              # Optional equals sign for time alone
-        (?P<sep1>[T\s])?             # Capture separator (either a space or T)
-        (?P<time2>\d{2}:\d{2}:\d{2}) # Capture time alone
-        (?P<frac2>[.,]\d+)?          # Capture fractional seconds for time alone
-    )                              
-    \b                           
+                (?:
+                    (?P<T>[T\s])?                # Capture separator (either a space or T)
+                    (?P<time>\d{2}:\d{2}:\d{2}) # Capture time alone
+                    (?P<frac>[.,]\d+)?          # Capture fractional seconds
+                    (?P<tz>Z)?                  # Capture timezone (Zulu time)
+                )  
     ",
         )
         .expect("Invalid regex pattern")

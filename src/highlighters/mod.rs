@@ -18,6 +18,7 @@ use crate::highlighters::number::NumberHighlighter;
 use crate::highlighters::path::PathHighlighter;
 use crate::highlighters::process::ProcessHighlighter;
 use crate::highlighters::quotes::QuoteHighlighter;
+use crate::highlighters::time::TimeHighlighter;
 use crate::highlighters::url::UrlHighlighter;
 use crate::highlighters::uuid::UuidHighlighter;
 use crate::theme::defaults::get_default_keywords;
@@ -44,6 +45,10 @@ impl Highlighters {
 
         if !theme.date.disabled {
             before_fns.push(Box::new(DateHighlighter::new(&theme.date.style)));
+        }
+
+        if !theme.time.disabled {
+            before_fns.push(Box::new(TimeHighlighter::new(&theme.time.time, &theme.time.zone)));
         }
 
         if !theme.url.disabled {

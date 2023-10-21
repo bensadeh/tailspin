@@ -76,7 +76,9 @@ nix-shell -p tailspin
 
 ```toml
 [date]
-date = { fg = "magenta" }
+style = { fg = "magenta" }
+
+[time]
 time = { fg = "blue" }
 zone = { fg = "red" }
 ```
