@@ -76,9 +76,15 @@ nix-shell -p tailspin
 
 ```toml
 [date]
-date = { fg = "magenta" }
+style = { fg = "magenta" }
+# To shorten the date, uncomment the line below
+# shorten = { to = "␣", style = { fg = "magenta" } }
+
+[time]
 time = { fg = "blue" }
 zone = { fg = "red" }
+# To shorten the time, uncomment the line below
+# shorten = { to = "␣", style = { fg = "blue" } }
 ```
 
 </details>

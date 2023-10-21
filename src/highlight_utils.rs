@@ -8,6 +8,27 @@ lazy_static! {
 
 const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
 
+pub(crate) fn replace_with_awareness(color: &str, input: &str, replace_with: &str, regex: &Regex) -> String {
+    let chunks = split_into_chunks(input);
+
+    let mut output = calculate_and_allocate_capacity(input);
+    for chunk in chunks {
+        match chunk {
+            Chunk::Normal(text) => {
+                let highlighted = regex.replace_all(text, |_caps: &Captures<'_>| {
+                    format!("{}{}{}", color, replace_with, color::RESET)
+                });
+                output.push_str(&highlighted);
+            }
+            Chunk::Highlighted(text) => {
+                output.push_str(text);
+            }
+        }
+    }
+
+    output
+}
+
 pub(crate) fn highlight_with_awareness_replace_all(color: &str, input: &str, regex: &Regex) -> String {
     let chunks = split_into_chunks(input);
 

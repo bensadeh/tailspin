@@ -6,6 +6,7 @@ mod number;
 mod path;
 mod process;
 mod quotes;
+mod time;
 mod url;
 mod uuid;
 
@@ -17,6 +18,7 @@ use crate::highlighters::number::NumberHighlighter;
 use crate::highlighters::path::PathHighlighter;
 use crate::highlighters::process::ProcessHighlighter;
 use crate::highlighters::quotes::QuoteHighlighter;
+use crate::highlighters::time::TimeHighlighter;
 use crate::highlighters::url::UrlHighlighter;
 use crate::highlighters::uuid::UuidHighlighter;
 use crate::theme::defaults::get_default_keywords;
@@ -43,9 +45,16 @@ impl Highlighters {
 
         if !theme.date.disabled {
             before_fns.push(Box::new(DateHighlighter::new(
-                &theme.date.date,
-                &theme.date.time,
-                &theme.date.zone,
+                &theme.date.style,
+                theme.date.shorten.clone(),
+            )));
+        }
+
+        if !theme.time.disabled {
+            before_fns.push(Box::new(TimeHighlighter::new(
+                &theme.time.time,
+                &theme.time.zone,
+                theme.time.shorten.clone(),
             )));
         }
 
