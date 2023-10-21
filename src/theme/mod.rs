@@ -37,11 +37,10 @@ pub struct Uuid {
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Ip {
     pub segment: Style,
     pub separator: Style,
-    #[serde(default)]
     pub disabled: bool,
 }
 
