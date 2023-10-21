@@ -65,10 +65,11 @@ impl Highlighters {
             )));
         }
 
-        if let Some(kv) = &config.groups.key_value {
-            if !kv.disabled {
-                before_fns.push(Box::new(KeyValueHighlighter::new(&kv.key, &kv.separator)));
-            }
+        if !config.groups.key_value.disabled {
+            before_fns.push(Box::new(KeyValueHighlighter::new(
+                &config.groups.key_value.key,
+                &config.groups.key_value.separator,
+            )));
         }
 
         if !config.groups.uuid.disabled {
