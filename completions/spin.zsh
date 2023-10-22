@@ -26,8 +26,6 @@ _spin() {
 '--tail[Start at the end of the file]' \
 '(-f --follow)-p[Print the output to stdout]' \
 '(-f --follow)--print[Print the output to stdout]' \
-'--create-default-config[Generate a new configuration file]' \
-'(--create-default-config)--show-default-config[Print the default configuration]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

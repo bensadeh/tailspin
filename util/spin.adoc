@@ -45,15 +45,6 @@ Defaults to _XDG_CONFIG_HOME/tailspin/config.toml_ or _~/.config/tailspin/config
 Continuously listen to stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside _less_.
 
-*--create-default-config*::
-Generate a new configuration file.
-Uses _XDG_CONFIG_HOME/tailspin/config.toml_ as the location if set.
-Otherwise, uses _~/.config/tailspin/config.toml_ as the default path.
-Will not overwrite current config file if one is already present.
-
-*--show-default-config*::
-Print the default configuration.
-
 == SEE ALSO
 
 *less*(1), *tail*(1)

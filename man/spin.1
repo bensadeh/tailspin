@@ -2,12 +2,12 @@
 .\"     Title: spin
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.20
-.\"      Date: 2023-09-23
+.\"      Date: 2023-10-22
 .\"    Manual: tailspin
 .\"    Source: tailspin 1.6.0
 .\"  Language: English
 .\"
-.TH "SPIN" "1" "2023-09-23" "tailspin 1.6.0" "tailspin"
+.TH "SPIN" "1" "2023-10-22" "tailspin 1.6.0" "tailspin"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -65,19 +65,6 @@ Defaults to \fIXDG_CONFIG_HOME/tailspin/config.toml\fP or \fI~/.config/tailspin/
 .RS 4
 Continuously listen to stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside \fIless\fP.
-.RE
-.sp
-\fB\-\-create\-default\-config\fP
-.RS 4
-Generate a new configuration file.
-Uses \fIXDG_CONFIG_HOME/tailspin/config.toml\fP as the location if set.
-Otherwise, uses \fI~/.config/tailspin/config.toml\fP as the default path.
-Will not overwrite current config file if one is already present.
-.RE
-.sp
-\fB\-\-show\-default\-config\fP
-.RS 4
-Print the default configuration.
 .RE
 .SH "SEE ALSO"
 .sp

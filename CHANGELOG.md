@@ -6,7 +6,7 @@
 - Added option for adding a border to keywords highlighter
 - Disable highlights with `disable` for all highlight groups except Keywords
 - Simplified the configuration file format
-- Date and time can be configured to be hidden from logs
+- Date and time can be configured to be hidden 
 
 ## 1.5.1
 
