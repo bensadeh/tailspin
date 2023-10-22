@@ -58,7 +58,7 @@ async fn get_writer(output: Output, follow: bool) -> (Box<dyn AsyncLineWriter + 
             (writer, presenter)
         }
         Output::Stdout => {
-            let writer = StdoutWriter::new();
+            let writer = StdoutWriter::init();
             let presenter = NoPresenter::get_presenter();
 
             (writer, presenter)

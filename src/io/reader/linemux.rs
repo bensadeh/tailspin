@@ -44,7 +44,7 @@ impl Linemux {
         Box::new(Self {
             custom_message: None,
             number_of_lines,
-            current_line: 1,
+            current_line: 0,
             reached_eof_tx,
             lines,
         })
@@ -99,7 +99,7 @@ impl Linemux {
         Box::new(Self {
             custom_message: Some(custom_message),
             number_of_lines: None,
-            current_line: 1,
+            current_line: 0,
             reached_eof_tx,
             lines,
         })
@@ -126,6 +126,8 @@ fn get_separator() -> String {
 #[async_trait]
 impl AsyncLineReader for Linemux {
     async fn next_line(&mut self) -> io::Result<Option<String>> {
+        self.current_line += 1;
+
         if let Some(custom_message) = self.custom_message.take() {
             return Ok(Some(custom_message));
         }
@@ -135,13 +137,14 @@ impl AsyncLineReader for Linemux {
             _ => return Ok(None),
         };
 
+        let next_line = line.line().to_owned();
+
         if let Some(number_of_lines) = self.number_of_lines {
-            if self.current_line == number_of_lines {
+            if self.current_line >= number_of_lines {
                 self.send_eof_signal();
             }
         }
 
-        self.current_line += 1;
-        Ok(Some(line.line().to_owned()))
+        Ok(Some(next_line))
     }
 }
