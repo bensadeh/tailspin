@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.7.0
+## 1.6.1
 
 - Fixed a bug where the `--print` flag would occasionally cause a panic
 

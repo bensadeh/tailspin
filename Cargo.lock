@@ -898,7 +898,7 @@ dependencies = [
 
 [[package]]
 name = "tailspin"
-version = "1.7.0"
+version = "1.6.1"
 dependencies = [
  "async-trait",
  "clap",
