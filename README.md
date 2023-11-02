@@ -46,15 +46,12 @@ keywords and more.
 it requires no configuration or setup and will work predictably regardless of the format the log file is in.
 
 ## Installing
-
+### Package Managers
 The binary name for `tailspin` is `spin`.
 
 ```console
 # Cargo
 cargo install tailspin
-
-# Debian
-apt install tailspin
 
 # AUR
 paru -S tailspin
@@ -62,6 +59,13 @@ paru -S tailspin
 # Nix
 nix-shell -p tailspin
 ```
+### From Source
+
+```console
+cargo install --path .
+```
+
+Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `PATH` environment variable.
 
 ## Highlight Groups
 
