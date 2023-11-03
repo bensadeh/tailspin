@@ -61,6 +61,9 @@ paru -S tailspin
 
 # Nix
 nix-shell -p tailspin
+
+# NetBSD
+pkgin install tailspin
 ```
 ### From Source
 
