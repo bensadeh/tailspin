@@ -50,6 +50,9 @@ it requires no configuration or setup and will work predictably regardless of th
 The binary name for `tailspin` is `spin`.
 
 ```console
+# Homebrew
+brew install tailspin
+
 # Cargo
 cargo install tailspin
 
@@ -58,10 +61,6 @@ paru -S tailspin
 
 # Nix
 nix-shell -p tailspin
-
-# macOS
-brew tap bensadeh/tailspin https://github.com/bensadeh/tailspin
-brew install tailspin
 ```
 ### From Source
 
