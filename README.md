@@ -60,9 +60,9 @@ paru -S tailspin
 nix-shell -p tailspin
 
 # macOS
-brew tap bensadeh/tailspin https://github.com/bensadeh/tailspin
 brew install tailspin
 ```
+
 ### From Source
 
 ```console
