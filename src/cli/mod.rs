@@ -4,7 +4,7 @@ use std::io;
 use std::process::exit;
 
 #[derive(Parser)]
-#[command(name = "spin")]
+#[command(name = "tspin")]
 #[command(author, version, about)]
 pub struct Cli {
     /// Path to file or folder

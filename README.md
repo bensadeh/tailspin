@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                  
+#                                                                                                                                                                                                                                                                   
 
 <p align="center">
 A log file highlighter
@@ -46,8 +46,10 @@ keywords and more.
 it requires no configuration or setup and will work predictably regardless of the format the log file is in.
 
 ## Installing
+
 ### Package Managers
-The binary name for `tailspin` is `spin`.
+
+The binary name for `tailspin` is `tspin`.
 
 ```console
 # Homebrew
@@ -65,6 +67,7 @@ nix-shell -p tailspin
 # NetBSD
 pkgin install tailspin
 ```
+
 ### From Source
 
 ```console
@@ -325,15 +328,15 @@ style = { fg = "red", italic = true }
 ## Working with `stdin` and `stdout`
 
 By default, `tailspin` will open a file in the pager `less`. However, if you pipe something into `tailspin`, it will
-print the highlighted output directly to `stdout`. This is similar to running `spin [file] --print`.
+print the highlighted output directly to `stdout`. This is similar to running `tspin [file] --print`.
 
 To let `tailspin` highlight the logs of different commands, you can pipe the output of those commands into `tailspin`
 like so:
 
 ```console
-journalctl -f | spin
-cat /var/log/syslog | spin
-kubectl logs -f pod_name | spin
+journalctl -f | tspin
+cat /var/log/syslog | tspin
+kubectl logs -f pod_name | tspin
 ```
 
 ## Using the pager `less`

@@ -9,9 +9,9 @@ cd ..
 cargo build
 
 # Path to the built binary
-spin_path=./target/debug/spin
+spin_path=./target/debug/tspin
 
 # Generate shell completions
-$spin_path --z-generate-shell-completions zsh > completions/spin.zsh
-$spin_path --z-generate-shell-completions bash > completions/spin.bash
-$spin_path --z-generate-shell-completions fish > completions/spin.fish
+$spin_path --z-generate-shell-completions zsh > completions/tspin.zsh
+$spin_path --z-generate-shell-completions bash > completions/tspin.bash
+$spin_path --z-generate-shell-completions fish > completions/tspin.fish

@@ -65,7 +65,7 @@ fn validate_input(
     if !has_data_from_stdin && !has_file_or_folder_input && !has_follow_command_input {
         return Err(Error {
             exit_code: OK,
-            message: format!("Missing filename ({} for help)", "spin --help".magenta()),
+            message: format!("Missing filename ({} for help)", "tspin --help".magenta()),
         });
     }
 

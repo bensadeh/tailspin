@@ -1,8 +1,8 @@
-#compdef spin
+#compdef tspin
 
 autoload -U is-at-least
 
-_spin() {
+_tspin() {
     typeset -A opt_args
     typeset -a _arguments_options
     local ret=1
@@ -34,14 +34,14 @@ _spin() {
 && ret=0
 }
 
-(( $+functions[_spin_commands] )) ||
-_spin_commands() {
+(( $+functions[_tspin_commands] )) ||
+_tspin_commands() {
     local commands; commands=()
-    _describe -t commands 'spin commands' commands "$@"
+    _describe -t commands 'tspin commands' commands "$@"
 }
 
-if [ "$funcstack[1]" = "_spin" ]; then
-    _spin "$@"
+if [ "$funcstack[1]" = "_tspin" ]; then
+    _tspin "$@"
 else
-    compdef _spin spin
+    compdef _tspin tspin
 fi

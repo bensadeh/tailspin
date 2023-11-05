@@ -4,6 +4,14 @@
 
 
 
+## 2.0.0
+
+- Changed the binary name from `spin` to `tspin`
+
+This is a symbolic release to settle on a new binary name with fewer conflicts. Both `tailspin` and `spin` already exist
+as binaries in different systems and distributions. `tspin` is a short and unique name that is unlikely to conflict with
+other binaries.
+
 ## 1.6.1
 
 - Fixed a bug where the `--print` flag would occasionally cause a panic
@@ -23,7 +31,7 @@
 ## 1.5.0 - 16.09.23
 
 - Errors are now printed to `stderr` instead of `stdout`
-- Date higlighter now supports different highlights for date and time segment
+- Date highlighter now supports different highlights for date and time segment
 - Added Key Value highlighter
 - Added unix process highlighter
 

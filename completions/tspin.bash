@@ -1,4 +1,4 @@
-_spin() {
+_tspin() {
     local i cur prev opts cmd
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
@@ -10,7 +10,7 @@ _spin() {
     do
         case "${cmd},${i}" in
             ",$1")
-                cmd="spin"
+                cmd="tspin"
                 ;;
             *)
                 ;;
@@ -18,7 +18,7 @@ _spin() {
     done
 
     case "${cmd}" in
-        spin)
+        tspin)
             opts="-f -t -p -c -l -h -V --follow --tail --print --config-path --follow-command --z-generate-shell-completions --help --version [FILE]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -55,4 +55,4 @@ _spin() {
     esac
 }
 
-complete -F _spin -o nosort -o bashdefault -o default spin
+complete -F _tspin -o nosort -o bashdefault -o default tspin

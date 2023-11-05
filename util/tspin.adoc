@@ -1,4 +1,4 @@
-= spin(1)
+= tspin(1)
 :doctype: manpage
 :manmanual: tailspin
 :man source: tailspin {release-version}
@@ -13,7 +13,7 @@ endif::[]
 
 == NAME
 
-spin - A log file highlighter
+tspin - A log file highlighter
 
 == SYNOPSIS
 

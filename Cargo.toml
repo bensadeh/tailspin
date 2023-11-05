@@ -1,6 +1,6 @@
 [package]
 name = "tailspin"
-version = "1.7.1"
+version = "2.0.0"
 edition = "2021"
 authors = ["Ben Sadeh"]
 description = "A log file highlighter"
@@ -11,7 +11,7 @@ rust-version = "1.70"
 
 [[bin]]
 path = "src/main.rs"
-name = "spin"
+name = "tspin"
 
 [dependencies]
 async-trait = "0.1.74"
