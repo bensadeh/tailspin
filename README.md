@@ -388,7 +388,7 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 -t, --tail                   Start at the end of the file
 -p, --print                  Print the output to stdout
 -c, --config-path PATH       Path to a custom configuration file
--t, --follow-command 'CMD'   Follows the output of the provided command
+-l, --follow-command 'CMD'   Follows the output of the provided command
 ```
 
 
