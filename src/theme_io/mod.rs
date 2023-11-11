@@ -11,7 +11,9 @@ pub fn load_theme(path: Option<String>) -> Theme {
             PathBuf::from(expanded_path)
         }
         Err(_) => {
-            let home_dir = env::var("HOME").expect("HOME directory not set");
+            let home_dir = env::var("HOME")
+                .or(env::var("USERPROFILE"))
+                .expect("HOME directory not set");
             PathBuf::from(home_dir).join(".config")
         }
     };

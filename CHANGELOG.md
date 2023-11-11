@@ -1,12 +1,9 @@
 # Changelog
+
 ## 2.1.0
 
 - Fixed a bug where opening empty files would hang forever
-
-
-
-
-
+- Look for config file in `USERPROFILE` and `$HOME` instead of just `$HOME`
 
 ## 2.0.0
 
