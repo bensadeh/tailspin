@@ -1,9 +1,9 @@
 # Changelog
 ## 2.1.0
 
+- Fixed a bug where opening empty files would hang forever
 
 
-## 1.7.1
 
 
 

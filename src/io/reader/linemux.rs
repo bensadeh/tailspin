@@ -24,7 +24,7 @@ impl Linemux {
     ) -> Box<dyn AsyncLineReader + Send> {
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
-        if tail {
+        if tail || number_of_lines == 0 {
             if let Some(reached_eof) = reached_eof_tx.take() {
                 reached_eof
                     .send(())
