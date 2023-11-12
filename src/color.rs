@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 pub const RESET: &str = "\x1b[0m";
 
-#[derive(Debug, Clone, Default, Copy)]
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Default, Copy)]
 pub enum Fg {
     Red,
     Green,
@@ -20,7 +20,7 @@ pub enum Fg {
     None,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Default)]
 pub enum Bg {
     Red,
     Green,

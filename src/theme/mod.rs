@@ -4,7 +4,7 @@ use crate::color::{Bg, Fg};
 
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Eq, PartialEq, Hash, Debug, Deserialize, Default, Clone)]
 pub struct Style {
     #[serde(default)]
     pub fg: Fg,
@@ -113,7 +113,7 @@ pub struct Url {
     pub disabled: bool,
 }
 
-#[derive(Debug, Deserialize, Default, Clone)]
+#[derive(Eq, Hash, PartialEq, Debug, Deserialize, Default, Clone)]
 #[serde(default)]
 pub struct Keyword {
     pub style: Style,
