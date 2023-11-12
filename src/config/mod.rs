@@ -20,7 +20,7 @@ enum PathType {
     Folder,
 }
 
-pub fn create_config_or_exit_early(args: Cli) -> Config {
+pub fn create_config_or_exit_early(args: &Cli) -> Config {
     match create_config(args) {
         Ok(c) => c,
         Err(e) => {
@@ -33,7 +33,7 @@ pub fn create_config_or_exit_early(args: Cli) -> Config {
     }
 }
 
-fn create_config(args: Cli) -> Result<Config, Error> {
+fn create_config(args: &Cli) -> Result<Config, Error> {
     let has_data_from_stdin = !stdin().is_terminal();
 
     validate_input(

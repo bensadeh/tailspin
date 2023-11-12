@@ -31,6 +31,22 @@ pub struct Cli {
     #[clap(short = 'l', long = "follow-command", conflicts_with = "follow")]
     pub listen_command: Option<String>,
 
+    /// Disable the highlighting of all builtin keyword groups (booleans, severity and REST)
+    #[clap(long = "disable-builtin-keywords")]
+    pub disable_keyword_builtins: bool,
+
+    /// Disable the highlighting of booleans and nulls
+    #[clap(long = "disable-booleans")]
+    pub disable_booleans: bool,
+
+    /// Disable the highlighting of severity levels
+    #[clap(long = "disable-severity")]
+    pub disable_severity: bool,
+
+    /// Disable the highlighting of REST verbs
+    #[clap(long = "disable-rest")]
+    pub disable_rest: bool,
+
     /// Print completions to stdout
     #[clap(long = "z-generate-shell-completions", hide = true)]
     pub generate_shell_completions: Option<String>,

@@ -384,11 +384,15 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 ## Settings
 
 ```console
--f, --follow                 Follow the contents of the file
--t, --tail                   Start at the end of the file
--p, --print                  Print the output to stdout
--c, --config-path PATH       Path to a custom configuration file
--l, --follow-command 'CMD'   Follows the output of the provided command
+-f, --follow                     Follow the contents of the file
+-t, --tail                       Start at the end of the file
+-p, --print                      Print the output to stdout
+-c, --config-path PATH           Path to a custom configuration file
+-l, --follow-command 'CMD'       Follows the output of the provided command
+    --disable-builtin-keywords   Disables the highlighting of all builtin keyword groups
+    --disable-booleans           Disables the highlighting of booleans and nulls
+    --disable-severity           Disables the highlighting of severity levels
+    --disable-rest               Disables the highlighting of REST verbs
 ```
 
 

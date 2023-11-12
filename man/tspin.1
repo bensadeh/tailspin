@@ -2,12 +2,12 @@
 .\"     Title: tspin
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.20
-.\"      Date: 2023-11-05
+.\"      Date: 2023-11-12
 .\"    Manual: tailspin
-.\"    Source: tailspin 2.0.0
+.\"    Source: tailspin 2.1.0
 .\"  Language: English
 .\"
-.TH "TSPIN" "1" "2023-11-05" "tailspin 2.0.0" "tailspin"
+.TH "TSPIN" "1" "2023-11-12" "tailspin 2.1.0" "tailspin"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -65,6 +65,26 @@ Defaults to \fIXDG_CONFIG_HOME/tailspin/config.toml\fP or \fI~/.config/tailspin/
 .RS 4
 Continuously listen to stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside \fIless\fP.
+.RE
+.sp
+\fB\-\-disable\-builtin\-keywords\fP
+.RS 4
+Disables the highlighting of all builtin keyword groups (booleans, severity and REST).
+.RE
+.sp
+\fB\-\-disable\-booleans\fP
+.RS 4
+Disables the highlighting of booleans and nulls.
+.RE
+.sp
+\fB\-\-disable\-severity\fP
+.RS 4
+Disables the highlighting of severity levels.
+.RE
+.sp
+\fB\-\-disable\-rest\fP
+.RS 4
+Disables the highlighting of REST verbs.
 .RE
 .SH "SEE ALSO"
 .sp

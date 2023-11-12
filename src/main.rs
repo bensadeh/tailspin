@@ -12,6 +12,7 @@ mod theme;
 mod theme_io;
 mod types;
 
+use crate::cli::Cli;
 use crate::highlight_processor::HighlightProcessor;
 use crate::io::controller::get_io_and_presenter;
 use crate::io::presenter::Present;
@@ -26,20 +27,20 @@ use tokio::sync::oneshot;
 async fn main() -> Result<()> {
     color_eyre::install()?;
 
-    let args = cli::get_args_or_exit_early();
-    let theme = theme_io::load_theme(args.config_path.clone());
-    let config = config::create_config_or_exit_early(args);
+    let cli = cli::get_args_or_exit_early();
+    let theme = theme_io::load_theme(cli.config_path.clone());
+    let config = config::create_config_or_exit_early(&cli);
 
-    run(theme, config).await;
+    run(theme, config, cli).await;
 
     Ok(())
 }
 
-pub async fn run(theme: Theme, config: Config) {
+pub async fn run(theme: Theme, config: Config, cli: Cli) {
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
     let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;
 
-    let highlighter = highlighters::Highlighters::new(&theme);
+    let highlighter = highlighters::Highlighters::new(&theme, &cli);
     let highlight_processor = HighlightProcessor::new(highlighter);
 
     tokio::spawn(process_lines(io, highlight_processor));

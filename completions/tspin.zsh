@@ -26,6 +26,10 @@ _tspin() {
 '--tail[Start at the end of the file]' \
 '(-f --follow)-p[Print the output to stdout]' \
 '(-f --follow)--print[Print the output to stdout]' \
+'--disable-builtin-keywords[Disable the highlighting of all builtin keyword groups (booleans, severity and REST)]' \
+'--disable-booleans[Disable the highlighting of booleans and nulls]' \
+'--disable-severity[Disable the highlighting of severity levels]' \
+'--disable-rest[Disable the highlighting of REST verbs]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

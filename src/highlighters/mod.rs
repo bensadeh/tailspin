@@ -10,6 +10,8 @@ mod time;
 mod url;
 mod uuid;
 
+use crate::cli::Cli;
+use crate::consolidator::consolidate_keywords;
 use crate::highlighters::date::DateHighlighter;
 use crate::highlighters::ip::IpHighlighter;
 use crate::highlighters::key_value::KeyValueHighlighter;
@@ -21,7 +23,7 @@ use crate::highlighters::quotes::QuoteHighlighter;
 use crate::highlighters::time::TimeHighlighter;
 use crate::highlighters::url::UrlHighlighter;
 use crate::highlighters::uuid::UuidHighlighter;
-use crate::theme::defaults::get_default_keywords;
+use crate::theme::defaults::{get_boolean_keywords, get_rest_keywords, get_severity_keywords};
 use crate::theme::{Keyword, Theme};
 use crate::types::Highlight;
 
@@ -32,10 +34,10 @@ pub struct Highlighters {
 }
 
 impl Highlighters {
-    pub fn new(theme: &Theme) -> Highlighters {
+    pub fn new(theme: &Theme, cli: &Cli) -> Highlighters {
         Highlighters {
             before: Self::set_before_fns(theme),
-            main: Self::set_main_fns(theme),
+            main: Self::set_main_fns(theme, cli),
             after: Self::set_after_fns(theme),
         }
     }
@@ -98,9 +100,9 @@ impl Highlighters {
         before_fns
     }
 
-    fn set_main_fns(theme: &Theme) -> Vec<Box<dyn Highlight + Send>> {
+    fn set_main_fns(theme: &Theme, cli: &Cli) -> Vec<Box<dyn Highlight + Send>> {
         let mut main_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
-        let keywords = Self::get_keywords(&theme.keywords, true);
+        let keywords = Self::get_keywords(theme, cli);
 
         if !theme.number.disabled {
             main_fns.push(Box::new(NumberHighlighter::new(&theme.number.style)));
@@ -127,15 +129,29 @@ impl Highlighters {
         after_fns
     }
 
-    fn get_keywords(custom_keywords: &Option<Vec<Keyword>>, disable_default_keywords: bool) -> Vec<Keyword> {
-        if disable_default_keywords {
-            let default_keywords = get_default_keywords();
-            match custom_keywords {
-                Some(ck) => [default_keywords, ck.clone()].concat(),
-                None => default_keywords,
+    fn get_keywords(theme: &Theme, cli: &Cli) -> Vec<Keyword> {
+        let keywords = Self::get_custom_and_builtin_keywords(theme, cli);
+
+        consolidate_keywords(keywords)
+    }
+
+    fn get_custom_and_builtin_keywords(theme: &Theme, cli: &Cli) -> Vec<Keyword> {
+        let mut all_keywords = theme.keywords.clone().unwrap_or_default();
+
+        if !cli.disable_keyword_builtins {
+            if !cli.disable_booleans {
+                all_keywords.extend(get_boolean_keywords());
             }
-        } else {
-            custom_keywords.clone().unwrap_or_default()
+
+            if !cli.disable_severity {
+                all_keywords.extend(get_severity_keywords());
+            }
+
+            if !cli.disable_rest {
+                all_keywords.extend(get_rest_keywords());
+            }
         }
+
+        all_keywords
     }
 }

@@ -17,7 +17,7 @@ tspin - A log file highlighter
 
 == SYNOPSIS
 
-*spin* [_OPTION_]... [_FILE_|_FOLDER_]...
+*tspin* [_OPTION_]... [_FILE_|_FOLDER_]...
 
 == DESCRIPTION
 
@@ -44,6 +44,18 @@ Defaults to _XDG_CONFIG_HOME/tailspin/config.toml_ or _~/.config/tailspin/config
 *-l, --follow-command* _COMMAND_::
 Continuously listen to stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside _less_.
+
+*--disable-builtin-keywords*::
+Disables the highlighting of all builtin keyword groups (booleans, severity and REST).
+
+*--disable-booleans*::
+Disables the highlighting of booleans and nulls.
+
+*--disable-severity*::
+Disables the highlighting of severity levels.
+
+*--disable-rest*::
+Disables the highlighting of REST verbs.
 
 == SEE ALSO
 

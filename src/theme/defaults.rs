@@ -189,7 +189,7 @@ impl Default for Url {
     }
 }
 
-pub fn get_default_keywords() -> Vec<Keyword> {
+pub fn get_severity_keywords() -> Vec<Keyword> {
     vec![
         Keyword {
             words: vec!["ERROR".to_string()],
@@ -231,15 +231,11 @@ pub fn get_default_keywords() -> Vec<Keyword> {
             },
             border: false,
         },
-        Keyword {
-            words: vec!["null".to_string(), "true".to_string(), "false".to_string()],
-            style: Style {
-                fg: Fg::Red,
-                italic: true,
-                ..Default::default()
-            },
-            border: false,
-        },
+    ]
+}
+
+pub fn get_rest_keywords() -> Vec<Keyword> {
+    vec![
         Keyword {
             words: vec!["GET".to_string()],
             style: Style {
@@ -277,4 +273,16 @@ pub fn get_default_keywords() -> Vec<Keyword> {
             border: true,
         },
     ]
+}
+
+pub fn get_boolean_keywords() -> Vec<Keyword> {
+    vec![Keyword {
+        words: vec!["null".to_string(), "true".to_string(), "false".to_string()],
+        style: Style {
+            fg: Fg::Red,
+            italic: true,
+            ..Default::default()
+        },
+        border: false,
+    }]
 }
