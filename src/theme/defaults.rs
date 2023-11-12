@@ -200,7 +200,7 @@ pub fn get_severity_keywords() -> Vec<Keyword> {
             border: false,
         },
         Keyword {
-            words: vec!["WARN".to_string()],
+            words: vec!["WARN".to_string(), "WARNING".to_string()],
             style: Style {
                 fg: Fg::Yellow,
                 ..Default::default()
@@ -216,7 +216,7 @@ pub fn get_severity_keywords() -> Vec<Keyword> {
             border: false,
         },
         Keyword {
-            words: vec!["DEBUG".to_string()],
+            words: vec!["DEBUG".to_string(), "SUCCESS".to_string()],
             style: Style {
                 fg: Fg::Green,
                 ..Default::default()
