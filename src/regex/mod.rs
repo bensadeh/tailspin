@@ -78,5 +78,5 @@ lazy_static! {
     pub static ref KEY_VALUE_REGEX: Regex =
         Regex::new(r"(?P<space_or_start>(^)|\s)(?P<key>\w+\b)(?P<equals>=)").expect("Invalid regex pattern");
     pub static ref PROCESS_REGEX: Regex =
-        Regex::new(r"(?P<process_name>\w+)\[(?P<process_num>\d+)\]").expect("Invalid regex pattern");
+        Regex::new(r"(?P<process_name>[\w-]+)\[(?P<process_num>\d+)\]").expect("Invalid regex pattern");
 }

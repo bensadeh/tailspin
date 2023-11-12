@@ -5,6 +5,7 @@
 - Fixed a bug where opening empty files would hang forever
 - Look for config file in `USERPROFILE` and `$HOME` instead of just `$HOME`
 - Added flags for disabling builtin keywords
+- Process names with dashes are now highlighted properly
 
 ## 2.0.0
 

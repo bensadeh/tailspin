@@ -82,7 +82,7 @@ ts=2022-09-21 caller=client.go:247 msg="value is nil"
 kernel[0]: Page fault at address 0xabcdef
 mysqld[789]: Connected from 127.0.0.1
 docker[654]: Container abcdefgh started successfully
-sshd[222]: Accepted publickey for root from 192.168.1.20
+ssh-d[222]: Accepted publickey for root from 192.168.1.20
 cron[101]: Running scheduled job ID 23456
 
 
