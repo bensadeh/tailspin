@@ -6,6 +6,7 @@
 - Look for config file in `USERPROFILE` and `$HOME` instead of just `$HOME`
 - Added flags for disabling builtin keywords
 - Process names with dashes are now highlighted properly
+- Better error messages when `less` is not found
 
 ## 2.0.0
 

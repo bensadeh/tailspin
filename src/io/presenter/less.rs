@@ -1,5 +1,6 @@
 use crate::io::presenter::Present;
 use std::process::Command;
+use std::{io, process};
 
 pub struct Less {
     file_path: String,
@@ -17,20 +18,24 @@ impl Present for Less {
         pass_ctrl_c_events_to_child_process();
 
         let args = get_args(self.follow);
-        let status = Command::new("less")
+        let result = Command::new("less")
             .env("LESSSECURE", "1")
             .args(args.as_slice())
             .arg(self.file_path.clone())
             .status();
 
-        match status {
+        match result {
             Ok(status) => {
-                if !status.success() {
-                    eprintln!("Failed to open file with less");
-                }
+                eprintln!("Failed to open file with less: Exit code {}", status);
+                process::exit(1);
             }
             Err(err) => {
-                eprintln!("Failed to run less: {}", err);
+                if err.kind() == io::ErrorKind::NotFound {
+                    eprintln!("'less' command not found. Please ensure it is installed and on your PATH.");
+                } else {
+                    eprintln!("Failed to run less: {}", err);
+                }
+                process::exit(1);
             }
         }
     }
