@@ -1,17 +1,21 @@
 use crate::theme::{Keyword, Style};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 pub fn consolidate_keywords(keywords: Vec<Keyword>) -> Vec<Keyword> {
-    let mut map: HashMap<(Style, bool), Vec<String>> = HashMap::new();
+    let mut map: HashMap<(Style, bool), HashSet<String>> = HashMap::new();
 
     for keyword in keywords {
         map.entry((keyword.style, keyword.border))
             .or_default()
-            .extend(keyword.words);
+            .extend(keyword.words.into_iter());
     }
 
     map.into_iter()
-        .map(|((style, border), words)| Keyword { style, words, border })
+        .map(|((style, border), words)| Keyword {
+            style,
+            words: words.into_iter().collect(),
+            border,
+        })
         .collect()
 }
 
@@ -57,27 +61,151 @@ mod tests {
         let expected = vec![
             Keyword {
                 style: style_red.clone(),
-                words: vec!["apple", "banana", "orange"]
-                    .into_iter()
-                    .map(String::from)
-                    .collect(),
+                words: vec!["apple".into(), "banana".into(), "orange".into()],
                 border: true,
             },
             Keyword {
                 style: style_red.clone(),
-                words: vec!["melon"].into_iter().map(String::from).collect(),
+                words: vec!["melon".into()],
                 border: false,
             },
             Keyword {
                 style: style_default.clone(),
-                words: vec!["grape"].into_iter().map(String::from).collect(),
+                words: vec!["grape".into()],
                 border: false,
             },
         ];
 
         assert_eq!(consolidated.len(), expected.len());
+
         for expected_keyword in expected {
-            assert!(consolidated.contains(&expected_keyword));
+            assert!(consolidated.contains(&expected_keyword), "Expected keyword not found");
         }
+    }
+
+    #[test]
+    fn test_different_styles_and_borders() {
+        let style_one = Style {
+            fg: Fg::Red,
+            ..Default::default()
+        };
+        let style_two = Style {
+            fg: Fg::Blue,
+            ..Default::default()
+        };
+
+        let keywords = vec![
+            Keyword {
+                style: style_one,
+                words: vec!["apple".into(), "banana".into()],
+                border: true,
+            },
+            Keyword {
+                style: style_two,
+                words: vec!["orange".into()],
+                border: false,
+            },
+        ];
+
+        let consolidated = consolidate_keywords(keywords);
+        assert_eq!(consolidated.len(), 2);
+    }
+
+    #[test]
+    fn test_same_name_and_different_styles() {
+        let style_one = Style {
+            fg: Fg::Green,
+            ..Default::default()
+        };
+        let style_two = Style {
+            fg: Fg::Yellow,
+            ..Default::default()
+        };
+
+        let keywords = vec![
+            Keyword {
+                style: style_one,
+                words: vec!["apple".into()],
+                border: true,
+            },
+            Keyword {
+                style: style_two,
+                words: vec!["apple".into()],
+                border: false,
+            },
+        ];
+
+        let consolidated = consolidate_keywords(keywords);
+        assert_eq!(consolidated.len(), 2);
+    }
+
+    #[test]
+    fn test_duplicate_words() {
+        let style = Style {
+            fg: Fg::Red,
+            ..Default::default()
+        };
+
+        let keywords = vec![
+            Keyword {
+                style: style.clone(),
+                words: vec!["apple".into(), "banana".into()],
+                border: true,
+            },
+            Keyword {
+                style,
+                words: vec!["banana".into(), "cherry".into()],
+                border: true,
+            },
+        ];
+
+        let consolidated = consolidate_keywords(keywords);
+        assert_eq!(consolidated.len(), 1);
+        assert!(consolidated[0].words.contains(&"banana".to_string()));
+        assert_eq!(consolidated[0].words.len(), 3);
+    }
+
+    #[test]
+    fn test_empty_words_list() {
+        let style = Style {
+            fg: Fg::Red,
+            ..Default::default()
+        };
+
+        let keywords = vec![Keyword {
+            style,
+            words: vec![],
+            border: true,
+        }];
+
+        let consolidated = consolidate_keywords(keywords);
+        assert_eq!(consolidated.len(), 1);
+        assert!(consolidated[0].words.is_empty());
+    }
+
+    #[test]
+    fn test_single_keyword() {
+        let style = Style {
+            fg: Fg::Red,
+            ..Default::default()
+        };
+
+        let keywords = vec![Keyword {
+            style,
+            words: vec!["apple".into()],
+            border: true,
+        }];
+
+        let consolidated = consolidate_keywords(keywords);
+        assert_eq!(consolidated.len(), 1);
+        assert_eq!(consolidated[0].words, vec!["apple".to_string()]);
+    }
+
+    #[test]
+    fn test_no_keywords() {
+        let keywords: Vec<Keyword> = vec![];
+
+        let consolidated = consolidate_keywords(keywords);
+        assert!(consolidated.is_empty());
     }
 }

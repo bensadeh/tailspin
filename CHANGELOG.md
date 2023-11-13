@@ -1,8 +1,8 @@
 # Changelog
+
 ## 2.2.0
 
-
-
+- Properly flatten and merge keywords to improve regex performance
 
 ## 2.1.0
 
@@ -11,7 +11,6 @@
 - Added flags for disabling builtin keywords
 - Process names with dashes are now highlighted properly
 - Better error messages when `less` is not found
- 
 
 ## 2.0.0
 
