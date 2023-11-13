@@ -237,7 +237,7 @@ pub fn get_severity_keywords() -> Vec<Keyword> {
 pub fn get_rest_keywords() -> Vec<Keyword> {
     vec![
         Keyword {
-            words: vec!["GET".to_string()],
+            words: vec!["GET".to_string(), "HEAD".to_string()],
             style: Style {
                 fg: Fg::Black,
                 bg: Bg::Green,
