@@ -42,6 +42,6 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: target/${{ matrix.target }}/release/tailspin
-        asset_name: tailspin-${{ matrix.target}}
+        file: target/${{ matrix.target }}/release/tspin
+        asset_name: tspin-${{ matrix.target}}
         tag: ${{ github.ref }}
