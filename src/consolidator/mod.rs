@@ -16,6 +16,7 @@ pub fn consolidate_keywords(keywords: Vec<Keyword>) -> Vec<Keyword> {
             words: words.into_iter().collect(),
             border,
         })
+        .filter(|keyword| !keyword.words.is_empty())
         .collect()
 }
 
@@ -33,7 +34,7 @@ mod tests {
 
         let style_default = Style { ..Default::default() };
 
-        let keywords = vec![
+        let input_keywords = vec![
             Keyword {
                 style: style_red.clone(),
                 words: vec!["apple".into(), "banana".into()],
@@ -56,7 +57,7 @@ mod tests {
             },
         ];
 
-        let consolidated = consolidate_keywords(keywords);
+        let actual = consolidate_keywords(input_keywords);
 
         let expected = vec![
             Keyword {
@@ -76,10 +77,10 @@ mod tests {
             },
         ];
 
-        assert_eq!(consolidated.len(), expected.len());
+        assert_eq!(actual.len(), expected.len());
 
         for expected_keyword in expected {
-            assert!(consolidated.contains(&expected_keyword), "Expected keyword not found");
+            assert!(actual.contains(&expected_keyword), "Expected keyword not found");
         }
     }
 
@@ -167,20 +168,17 @@ mod tests {
 
     #[test]
     fn test_empty_words_list() {
-        let style = Style {
-            fg: Fg::Red,
-            ..Default::default()
-        };
-
         let keywords = vec![Keyword {
-            style,
+            style: Style {
+                fg: Fg::Red,
+                ..Default::default()
+            },
             words: vec![],
             border: true,
         }];
 
         let consolidated = consolidate_keywords(keywords);
-        assert_eq!(consolidated.len(), 1);
-        assert!(consolidated[0].words.is_empty());
+        assert!(consolidated.is_empty());
     }
 
     #[test]
