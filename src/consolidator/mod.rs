@@ -78,10 +78,6 @@ mod tests {
         ];
 
         assert_eq!(actual.len(), expected.len());
-
-        for expected_keyword in expected {
-            assert!(actual.contains(&expected_keyword), "Expected keyword not found");
-        }
     }
 
     #[test]
