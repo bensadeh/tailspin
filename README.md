@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                        
+#                                                                                                                                                                                                                                                                            
 
 <p align="center">
 A log file highlighter
@@ -84,47 +84,11 @@ Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `P
   <img src="assets/examples/dates.png" width="600"/>
 </p>
 
-<details>
-<summary>Config</summary>
-
-```toml
-[date]
-style = { fg = "magenta" }
-# To shorten the date, uncomment the line below
-# shorten = { to = "␣", style = { fg = "magenta" } }
-
-[time]
-time = { fg = "blue" }
-zone = { fg = "red" }
-# To shorten the time, uncomment the line below
-# shorten = { to = "␣", style = { fg = "blue" } }
-```
-
-</details>
-
 ### Keywords
 
 <p align="center">
   <img src="assets/examples/keywords.png" width="600"/>
 </p>
-
-<details>
-<summary>Config</summary>
-
-```toml
-[[keywords]]
-words = ['null', 'true', 'false']
-style = { fg = "red", italic = true }
-
-[[keywords]]
-words = ['GET']
-style = { fg = "black", bg = "green" }
-border = true
-
-# You can add as many keywords as you'd like
-```
-
-</details>
 
 ### URLs
 
@@ -132,37 +96,11 @@ border = true
   <img src="assets/examples/urls.png" width="600"/>
 </p>
 
-<details>
-<summary>Config</summary>
-
-```toml
-[url]
-http = { faint = true }
-https = { bold = true }
-host = { fg = "blue", faint = true }
-path = { fg = "blue" }
-query_params_key = { fg = "magenta" }
-query_params_value = { fg = "cyan" }
-symbols = { fg = "red" }
-```
-
-</details>
-
 ### Numbers
 
 <p align="center">
   <img src="assets/examples/numbers.png" width="600"/>
 </p>
-
-<details>
-<summary>Config</summary>
-
-```toml
-[number]
-style = { fg = "cyan" }
-```
-
-</details>
 
 ### IP Addresses
 
@@ -170,33 +108,11 @@ style = { fg = "cyan" }
   <img src="assets/examples/ip.png" width="600"/>
 </p>
 
-<details>
-<summary>Config</summary>
-
-```toml
-[ip]
-segment = { fg = "blue", italic = true }
-separator = { fg = "red" }
-```
-
-</details>
-
 ### Quotes
 
 <p align="center">
   <img src="assets/examples/quotes.png" width="600"/>
 </p>
-
-<details>
-<summary>Config</summary>
-
-```toml
-[quotes]
-style = { fg = "yellow" }
-token = '"'
-```
-
-</details>
 
 ### Unix file paths
 
@@ -204,27 +120,11 @@ token = '"'
   <img src="assets/examples/paths.png" width="600"/>
 </p>
 
-<details>
-<summary>Config</summary>
-
-```toml
-[path]
-segment = { fg = "green", italic = true }
-separator = { fg = "yellow" }
-```
-
-</details>
-
 ### HTTP methods
 
 <p align="center">
   <img src="assets/examples/http.png" width="600"/>
 </p>
-
-<details>
-<summary>Config</summary>
-See Keywords
-</details>
 
 ### UUIDs
 
@@ -232,51 +132,17 @@ See Keywords
   <img src="assets/examples/uuids.png" width="600"/>
 </p>
 
-<details>
-<summary>Config</summary>
-
-```toml
-[uuid]
-segment = { fg = "blue", italic = true }
-separator = { fg = "red" }
-```
-
-</details>
-
 ### Key-value pairs
 
 <p align="center">
   <img src="assets/examples/kv.png" width="600"/>
 </p>
 
-<details>
-<summary>Config</summary>
-
-```toml
-[key_value]
-key = { faint = true }
-separator = { fg = "white" }
-```
-
-</details>
-
 ### Unix processes
 
 <p align="center">
   <img src="assets/examples/processes.png" width="600"/>
 </p>
-
-<details>
-<summary>Config</summary>
-
-```toml
-[process]
-name = { fg = "green" }
-separator = { fg = "red" }
-id = { fg = "yellow" }
-```
-
-</details>
 
 ## Watching folders
 
@@ -301,6 +167,82 @@ Styles have the following shape:
 ```toml
 style = { fg = "color", bg = "color", italic = false, bold = false, underline = false }
 ```
+
+To edit the different highlight groups, include them in your `config.toml` file. For example, to edit the `date`
+highlight group, add the following to your `config.toml`:
+
+```toml
+[date]
+style = { fg = "green" }
+```
+
+Collapse the following section to see the default config:
+
+<details>
+<summary>Default highlight groups settings</summary>
+
+```toml
+[date]
+style = { fg = "magenta" }
+# To shorten the date, uncomment the line below
+# shorten = { to = "␣", style = { fg = "magenta" } }
+
+[time]
+time = { fg = "blue" }
+zone = { fg = "red" }
+# To shorten the time, uncomment the line below
+# shorten = { to = "␣", style = { fg = "blue" } }
+
+[[keywords]]
+words = ['null', 'true', 'false']
+style = { fg = "red", italic = true }
+
+[[keywords]]
+words = ['GET']
+style = { fg = "black", bg = "green" }
+border = true
+
+# You can add as many keywords as you'd like
+
+[url]
+http = { faint = true }
+https = { bold = true }
+host = { fg = "blue", faint = true }
+path = { fg = "blue" }
+query_params_key = { fg = "magenta" }
+query_params_value = { fg = "cyan" }
+symbols = { fg = "red" }
+
+[number]
+style = { fg = "cyan" }
+
+[ip]
+segment = { fg = "blue", italic = true }
+separator = { fg = "red" }
+
+[quotes]
+style = { fg = "yellow" }
+token = '"'
+
+[path]
+segment = { fg = "green", italic = true }
+separator = { fg = "yellow" }
+
+[uuid]
+segment = { fg = "blue", italic = true }
+separator = { fg = "red" }
+
+[key_value]
+key = { faint = true }
+separator = { fg = "white" }
+
+[process]
+name = { fg = "green" }
+separator = { fg = "red" }
+id = { fg = "yellow" }
+```
+
+</details>
 
 ### Disabling Highlight Groups
 
