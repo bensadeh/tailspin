@@ -274,7 +274,7 @@ the command line, use the `--words-[red|green|yellow|blue|magenta|cyan]` flag fo
 of words to be highlighted.
 
 <p align="center">
-  <img src="assets/examples/otf.png" width="600"/>
+  <img src="assets/examples/otf.png" width="800"/>
 </p>
 
 ## Working with `stdin` and `stdout`
