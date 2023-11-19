@@ -132,7 +132,14 @@ impl Highlighters {
 
     fn get_keywords(theme: &Theme, cli: &Cli) -> Vec<Keyword> {
         let custom_and_builtins = Self::get_custom_and_builtin_keywords(theme, cli);
-        let on_the_fly_keywords = extract_all_keywords(cli.words_red.clone(), cli.words_yellow.clone());
+        let on_the_fly_keywords = extract_all_keywords(
+            cli.words_red.clone(),
+            cli.words_green.clone(),
+            cli.words_yellow.clone(),
+            cli.words_blue.clone(),
+            cli.words_magenta.clone(),
+            cli.words_cyan.clone(),
+        );
 
         let all_keywords = [custom_and_builtins, on_the_fly_keywords].concat();
 
