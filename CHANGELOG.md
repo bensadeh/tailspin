@@ -5,6 +5,7 @@
 - Properly flatten and merge keywords to improve regex performance
 - Binaries are now added to the GitHub Release (Thanks @ecarrara and @supleed2)
 - Added `HEAD` HTTP method to the REST keywords (Thanks @mkogan1)
+- Fixed a bug where the message `Failed to open file with less: Exit code 0` would show after exiting `less`
 
 ## 2.1.0
 

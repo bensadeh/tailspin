@@ -25,10 +25,7 @@ impl Present for Less {
             .status();
 
         match result {
-            Ok(status) => {
-                eprintln!("Failed to open file with less: Exit code {}", status);
-                process::exit(1);
-            }
+            Ok(_) => {}
             Err(err) => {
                 if err.kind() == io::ErrorKind::NotFound {
                     eprintln!("'less' command not found. Please ensure it is installed and on your PATH.");
