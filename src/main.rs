@@ -1,11 +1,11 @@
 mod cli;
 mod color;
 mod config;
-mod consolidator;
 mod highlight_processor;
 mod highlight_utils;
 mod highlighters;
 mod io;
+mod keyword;
 mod line_info;
 mod regex;
 mod theme;

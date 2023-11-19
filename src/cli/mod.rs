@@ -31,6 +31,30 @@ pub struct Cli {
     #[clap(short = 'l', long = "follow-command", conflicts_with = "follow")]
     pub listen_command: Option<String>,
 
+    /// Highlight the provided words in red
+    #[clap(long = "words-red", use_value_delimiter = true)]
+    pub words_red: Vec<String>,
+
+    /// Highlight the provided words in green
+    #[clap(long = "words-green", use_value_delimiter = true)]
+    pub words_green: Vec<String>,
+
+    /// Highlight the provided words in yellow
+    #[clap(long = "words-yellow", use_value_delimiter = true)]
+    pub words_yellow: Vec<String>,
+
+    /// Highlight the provided words in blue
+    #[clap(long = "words-blue", use_value_delimiter = true)]
+    pub words_blue: Vec<String>,
+
+    /// Highlight the provided words in magenta
+    #[clap(long = "words-magenta", use_value_delimiter = true)]
+    pub words_magenta: Vec<String>,
+
+    /// Highlight the provided words in cyan
+    #[clap(long = "words-cyan", use_value_delimiter = true)]
+    pub words_cyan: Vec<String>,
+
     /// Disable the highlighting of all builtin keyword groups (booleans, severity and REST)
     #[clap(long = "disable-builtin-keywords")]
     pub disable_keyword_builtins: bool,

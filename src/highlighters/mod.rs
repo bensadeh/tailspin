@@ -11,7 +11,6 @@ mod url;
 mod uuid;
 
 use crate::cli::Cli;
-use crate::consolidator::consolidate_keywords;
 use crate::highlighters::date::DateHighlighter;
 use crate::highlighters::ip::IpHighlighter;
 use crate::highlighters::key_value::KeyValueHighlighter;
@@ -23,6 +22,8 @@ use crate::highlighters::quotes::QuoteHighlighter;
 use crate::highlighters::time::TimeHighlighter;
 use crate::highlighters::url::UrlHighlighter;
 use crate::highlighters::uuid::UuidHighlighter;
+use crate::keyword::consolidator::consolidate_keywords;
+use crate::keyword::extractor::extract_all_keywords;
 use crate::theme::defaults::{get_boolean_keywords, get_rest_keywords, get_severity_keywords};
 use crate::theme::{Keyword, Theme};
 use crate::types::Highlight;
@@ -130,9 +131,12 @@ impl Highlighters {
     }
 
     fn get_keywords(theme: &Theme, cli: &Cli) -> Vec<Keyword> {
-        let keywords = Self::get_custom_and_builtin_keywords(theme, cli);
+        let custom_and_builtins = Self::get_custom_and_builtin_keywords(theme, cli);
+        let on_the_fly_keywords = extract_all_keywords(cli.words_red.clone(), cli.words_yellow.clone());
 
-        consolidate_keywords(keywords)
+        let all_keywords = [custom_and_builtins, on_the_fly_keywords].concat();
+
+        consolidate_keywords(all_keywords)
     }
 
     fn get_custom_and_builtin_keywords(theme: &Theme, cli: &Cli) -> Vec<Keyword> {

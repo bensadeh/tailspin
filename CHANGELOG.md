@@ -2,6 +2,7 @@
 
 ## 2.2.0
 
+- Added flags for setting simple highlights on the fly, for example: (`tspin --words-red popcorn,movie`)
 - Properly flatten and merge keywords to improve regex performance
 - Binaries are now added to the GitHub Release (Thanks @ecarrara and @supleed2)
 - Added `HEAD` HTTP method to the REST keywords (Thanks @mkogan1)
