@@ -31,4 +31,5 @@ jobs:
         with:
           bin: tspin
           target: ${{ matrix.target }}
+          archive: tailspin-$target
           token: ${{ secrets.GITHUB_TOKEN }}
