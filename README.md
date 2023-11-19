@@ -341,12 +341,12 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 -p, --print                      Print the output to stdout
 -c, --config-path PATH           Path to a custom configuration file
 -l, --follow-command [CMD]       Follows the output of the provided command
-    --words-red      [WORDS]      Highlight the provided words in red
-    --words-green    [WORDS]      Highlight the provided words in green
-    --words-yellow   [WORDS]      Highlight the provided words in yellow
-    --words-blue     [WORDS]      Highlight the provided words in blue
-    --words-magenta  [WORDS]      Highlight the provided words in magenta
-    --words-cyan     [WORDS]      Highlight the provided words in cyan
+    --words-red      [WORDS]     Highlight the provided words in red
+    --words-green    [WORDS]     Highlight the provided words in green
+    --words-yellow   [WORDS]     Highlight the provided words in yellow
+    --words-blue     [WORDS]     Highlight the provided words in blue
+    --words-magenta  [WORDS]     Highlight the provided words in magenta
+    --words-cyan     [WORDS]     Highlight the provided words in cyan
     --disable-builtin-keywords   Disables the highlighting of all builtin keyword groups
     --disable-booleans           Disables the highlighting of booleans and nulls
     --disable-severity           Disables the highlighting of severity levels
