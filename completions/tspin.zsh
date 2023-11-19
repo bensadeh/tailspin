@@ -19,6 +19,12 @@ _tspin() {
 '--config-path=[Path to a custom configuration file]:CONFIG_PATH: ' \
 '(-f --follow)-l+[Continuously listens to the stdout of the provided command and prevents interrupt events (Ctrl + C) from reaching the command]:LISTEN_COMMAND: ' \
 '(-f --follow)--follow-command=[Continuously listens to the stdout of the provided command and prevents interrupt events (Ctrl + C) from reaching the command]:LISTEN_COMMAND: ' \
+'*--words-red=[Highlight the provided words in red]:WORDS_RED: ' \
+'*--words-green=[Highlight the provided words in green]:WORDS_GREEN: ' \
+'*--words-yellow=[Highlight the provided words in yellow]:WORDS_YELLOW: ' \
+'*--words-blue=[Highlight the provided words in blue]:WORDS_BLUE: ' \
+'*--words-magenta=[Highlight the provided words in magenta]:WORDS_MAGENTA: ' \
+'*--words-cyan=[Highlight the provided words in cyan]:WORDS_CYAN: ' \
 '--z-generate-shell-completions=[Print completions to stdout]:GENERATE_SHELL_COMPLETIONS: ' \
 '-f[Follow (tail) the contents of the file]' \
 '--follow[Follow (tail) the contents of the file]' \

@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                   
+#                                                                                                                                                                                                                                                                        
 
 <p align="center">
 A log file highlighter
@@ -311,7 +311,7 @@ To disable a highlight group, set the `disabled` field to true:
 disabled = true
 ```
 
-### Adding Keywords
+### Adding Keywords via config.toml
 
 To add custom keywords, either include them in the list of keywords or add new entries:
 
@@ -324,6 +324,16 @@ style = { fg = "green" }
 words = ['null', 'true', 'false']
 style = { fg = "red", italic = true }
 ```
+
+### Adding Keywords from the command line
+
+Sometimes it is more convenient to add highlight groups on the fly without having to edit a TOML. To add highlights from
+the command line, use the `--words-[red|green|yellow|blue|magenta|cyan]` flag followed by a comma separated list
+of words to be highlighted.
+
+<p align="center">
+  <img src="assets/examples/otf.png" width="600"/>
+</p>
 
 ## Working with `stdin` and `stdout`
 
@@ -388,7 +398,13 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 -t, --tail                       Start at the end of the file
 -p, --print                      Print the output to stdout
 -c, --config-path PATH           Path to a custom configuration file
--l, --follow-command 'CMD'       Follows the output of the provided command
+-l, --follow-command [CMD]       Follows the output of the provided command
+    --words-red      [WORDS]      Highlight the provided words in red
+    --words-green    [WORDS]      Highlight the provided words in green
+    --words-yellow   [WORDS]      Highlight the provided words in yellow
+    --words-blue     [WORDS]      Highlight the provided words in blue
+    --words-magenta  [WORDS]      Highlight the provided words in magenta
+    --words-cyan     [WORDS]      Highlight the provided words in cyan
     --disable-builtin-keywords   Disables the highlighting of all builtin keyword groups
     --disable-booleans           Disables the highlighting of booleans and nulls
     --disable-severity           Disables the highlighting of severity levels

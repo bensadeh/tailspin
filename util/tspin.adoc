@@ -45,23 +45,8 @@ Defaults to _XDG_CONFIG_HOME/tailspin/config.toml_ or _~/.config/tailspin/config
 Continuously listen to stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside _less_.
 
-*--words-red*::
-Highlight the provided comma separated words in red
-
-*--words-green*::
-Highlight the provided comma separated words in green
-
-*--words-yellow*::
-Highlight the provided comma separated words in yellow
-
-*--words-blue*::
-Highlight the provided comma separated words in blue
-
-*--words-magenta*::
-Highlight the provided comma separated words in magenta
-
-*--words-cyan*::
-* Highlight the provided comma separated words in cyan
+*--words-[red|green|yellow|blue|magenta|cyan]*::
+Highlight the provided comma separated words in the desired color.
 
 *--disable-builtin-keywords*::
 Disables the highlighting of all builtin keyword groups (booleans, severity and REST).

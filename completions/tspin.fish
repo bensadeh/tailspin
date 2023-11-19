@@ -1,5 +1,11 @@
 complete -c tspin -s c -l config-path -d 'Path to a custom configuration file' -r
 complete -c tspin -s l -l follow-command -d 'Continuously listens to the stdout of the provided command and prevents interrupt events (Ctrl + C) from reaching the command' -r
+complete -c tspin -l words-red -d 'Highlight the provided words in red' -r
+complete -c tspin -l words-green -d 'Highlight the provided words in green' -r
+complete -c tspin -l words-yellow -d 'Highlight the provided words in yellow' -r
+complete -c tspin -l words-blue -d 'Highlight the provided words in blue' -r
+complete -c tspin -l words-magenta -d 'Highlight the provided words in magenta' -r
+complete -c tspin -l words-cyan -d 'Highlight the provided words in cyan' -r
 complete -c tspin -l z-generate-shell-completions -d 'Print completions to stdout' -r
 complete -c tspin -s f -l follow -d 'Follow (tail) the contents of the file'
 complete -c tspin -s t -l tail -d 'Start at the end of the file'
