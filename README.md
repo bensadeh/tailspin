@@ -66,6 +66,9 @@ nix-shell -p tailspin
 
 # NetBSD
 pkgin install tailspin
+
+# FreeBSD
+pkg install tailspin
 ```
 
 ### From Source
