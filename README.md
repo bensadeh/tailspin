@@ -58,8 +58,8 @@ brew install tailspin
 # Cargo
 cargo install tailspin
 
-# AUR
-paru -S tailspin
+# Archlinux
+pacman -S tailspin
 
 # Nix
 nix-shell -p tailspin
