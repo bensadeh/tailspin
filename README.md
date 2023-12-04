@@ -79,6 +79,10 @@ cargo install --path .
 
 Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `PATH` environment variable.
 
+> **Note** 
+> When building from source, make sure that you are using the latest version
+> of [`less`](http://greenwoodsoftware.com/less/).
+
 ## Highlight Groups
 
 ### Dates
