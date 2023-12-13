@@ -17,7 +17,7 @@ use crate::highlight_processor::HighlightProcessor;
 use crate::theme::Theme;
 use crate::types::Config;
 use color_eyre::eyre::Result;
-use io::controller::{get_reader_and_presenter, Reader, Writer};
+use io::controller::{get_reader_and_writer, Reader, Writer};
 use tokio::sync::oneshot;
 
 #[tokio::main]
@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
 
 pub async fn run(theme: Theme, config: Config, cli: Cli) {
     let (eof_signaler, eof_receiver) = oneshot::channel::<()>();
-    let (reader, writer) = get_reader_and_presenter(config, Some(eof_signaler)).await;
+    let (reader, writer) = get_reader_and_writer(config, Some(eof_signaler)).await;
     let highlight_processor = {
         let highlighter = highlighters::Highlighters::new(&theme, &cli);
         HighlightProcessor::new(highlighter)

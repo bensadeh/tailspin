@@ -13,7 +13,7 @@ use super::writer::minus::Minus;
 pub type Reader = Box<dyn AsyncLineReader + Send>;
 pub type Writer = Box<dyn AsyncLineWriter + Send>;
 
-pub async fn get_reader_and_presenter(config: Config, eof_signaler: EOFSignaler) -> (Reader, Writer) {
+pub async fn get_reader_and_writer(config: Config, eof_signaler: EOFSignaler) -> (Reader, Writer) {
     let reader = get_reader(config.input, config.follow, config.tail, eof_signaler).await;
     let writer = get_writer(config.output).await;
 
