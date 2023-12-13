@@ -1,9 +1,6 @@
-use minus::{dynamic_paging, MinusError, Pager};
+use minus::{dynamic_paging, Pager};
 use std::fmt::Write;
-use tokio::{
-    io,
-    task::{self, JoinHandle},
-};
+use tokio::{io, task};
 
 use crate::io::controller::Writer;
 
@@ -11,7 +8,6 @@ use super::AsyncLineWriter;
 
 pub struct Minus {
     pager: Pager,
-    join_handler: JoinHandle<Result<(), MinusError>>,
 }
 
 impl Minus {
@@ -19,9 +15,9 @@ impl Minus {
         let pager = Pager::new();
         let actual_pager = pager.clone();
 
-        let join_handler = task::spawn(async { dynamic_paging(actual_pager) });
+        // task::spawn(async { dynamic_paging(actual_pager) });
 
-        Box::new(Self { pager, join_handler })
+        Box::new(Self { pager })
     }
 }
 

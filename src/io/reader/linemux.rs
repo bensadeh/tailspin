@@ -49,9 +49,11 @@ impl Linemux {
     pub async fn get_reader_multiple(
         folder_name: String,
         file_paths: Vec<String>,
-        eof_signaler: EOFSignaler,
+        mut eof_signaler: EOFSignaler,
     ) -> Box<dyn AsyncLineReader + Send> {
         use std::path::Path;
+
+        super::send_eof_signal(eof_signaler.take());
 
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
@@ -116,7 +118,9 @@ impl AsyncLineReader for Linemux {
 
         let line = match self.lines.next_line().await {
             Ok(Some(line)) => line,
-            _ => return Ok(None),
+            _ => {
+                return Ok(None);
+            }
         };
 
         let next_line = line.line().to_owned();

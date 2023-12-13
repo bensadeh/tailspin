@@ -41,16 +41,17 @@ pub async fn run(theme: Theme, config: Config, cli: Cli) {
         HighlightProcessor::new(highlighter)
     };
 
-    tokio::spawn(start(reader, writer, highlight_processor));
+    let page_process = tokio::spawn(start(reader, writer, highlight_processor));
 
-    eof_receiver
-        .await
-        .expect("Could not receive EOF signal from oneshot channel");
+    let (res1, res2) = tokio::join!(page_process, eof_receiver);
+    res1.unwrap();
+    res2.expect("Could not receive EOF signal from oneshot channel");
 }
 
 async fn start(mut reader: Reader, mut writer: Writer, highlight_processor: HighlightProcessor) {
     while let Ok(Some(line)) = reader.next_line().await {
         let highlighted_line = highlight_processor.apply(&line);
-        writer.write_line(&highlighted_line).await.unwrap();
+        // writer.write_line(&highlighted_line).await.unwrap();
+        println!("{}", line);
     }
 }
