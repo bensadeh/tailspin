@@ -4,14 +4,15 @@ use color_eyre::owo_colors::OwoColorize;
 use linemux::MuxedLines;
 use std::io;
 use terminal_size::{terminal_size, Height, Width};
-use tokio::sync::oneshot::Sender;
+
+use super::EOFSignaler;
 
 pub struct Linemux {
     custom_message: Option<String>,
     number_of_lines: Option<usize>,
     current_line: usize,
-    reached_eof_tx: Option<Sender<()>>,
     lines: MuxedLines,
+    eof_signaler: EOFSignaler,
 }
 
 impl Linemux {
@@ -20,17 +21,12 @@ impl Linemux {
         number_of_lines: usize,
         follow: bool,
         tail: bool,
-        mut reached_eof_tx: Option<Sender<()>>,
+        mut eof_signaler: EOFSignaler,
     ) -> Box<dyn AsyncLineReader + Send> {
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
         if tail || number_of_lines == 0 {
-            if let Some(reached_eof) = reached_eof_tx.take() {
-                reached_eof
-                    .send(())
-                    .expect("Failed sending EOF signal to oneshot channel");
-            }
-
+            super::send_eof_signal(eof_signaler.take());
             lines.add_file(&file_path).await.expect("Could not add file to linemux");
         } else {
             lines
@@ -45,23 +41,17 @@ impl Linemux {
             custom_message: None,
             number_of_lines,
             current_line: 0,
-            reached_eof_tx,
             lines,
+            eof_signaler,
         })
     }
 
     pub async fn get_reader_multiple(
         folder_name: String,
         file_paths: Vec<String>,
-        mut reached_eof_tx: Option<Sender<()>>,
+        eof_signaler: EOFSignaler,
     ) -> Box<dyn AsyncLineReader + Send> {
         use std::path::Path;
-
-        if let Some(reached_eof) = reached_eof_tx.take() {
-            reached_eof
-                .send(())
-                .expect("Failed sending EOF signal to oneshot channel");
-        }
 
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
@@ -100,17 +90,9 @@ impl Linemux {
             custom_message: Some(custom_message),
             number_of_lines: None,
             current_line: 0,
-            reached_eof_tx,
             lines,
+            eof_signaler,
         })
-    }
-
-    fn send_eof_signal(&mut self) {
-        if let Some(reached_eof) = self.reached_eof_tx.take() {
-            reached_eof
-                .send(())
-                .expect("Failed sending EOF signal to oneshot channel");
-        }
     }
 }
 
@@ -141,7 +123,7 @@ impl AsyncLineReader for Linemux {
 
         if let Some(number_of_lines) = self.number_of_lines {
             if self.current_line >= number_of_lines {
-                self.send_eof_signal();
+                super::send_eof_signal(self.eof_signaler.take());
             }
         }
 

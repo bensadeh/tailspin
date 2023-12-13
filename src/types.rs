@@ -39,6 +39,6 @@ pub enum Input {
 }
 
 pub enum Output {
-    TempFile,
+    Pager,
     Stdout,
 }

@@ -14,13 +14,10 @@ mod types;
 
 use crate::cli::Cli;
 use crate::highlight_processor::HighlightProcessor;
-use crate::io::controller::get_io_and_presenter;
-use crate::io::presenter::Present;
-use crate::io::reader::AsyncLineReader;
-use crate::io::writer::AsyncLineWriter;
 use crate::theme::Theme;
 use crate::types::Config;
 use color_eyre::eyre::Result;
+use io::controller::{get_reader_and_presenter, Reader, Writer};
 use tokio::sync::oneshot;
 
 #[tokio::main]
@@ -37,27 +34,23 @@ async fn main() -> Result<()> {
 }
 
 pub async fn run(theme: Theme, config: Config, cli: Cli) {
-    let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
-    let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;
+    let (eof_signaler, eof_receiver) = oneshot::channel::<()>();
+    let (reader, writer) = get_reader_and_presenter(config, Some(eof_signaler)).await;
+    let highlight_processor = {
+        let highlighter = highlighters::Highlighters::new(&theme, &cli);
+        HighlightProcessor::new(highlighter)
+    };
 
-    let highlighter = highlighters::Highlighters::new(&theme, &cli);
-    let highlight_processor = HighlightProcessor::new(highlighter);
+    tokio::spawn(start(reader, writer, highlight_processor));
 
-    tokio::spawn(process_lines(io, highlight_processor));
-
-    reached_eof_rx
+    eof_receiver
         .await
         .expect("Could not receive EOF signal from oneshot channel");
-
-    presenter.present();
 }
 
-async fn process_lines<T: AsyncLineReader + AsyncLineWriter + Unpin + Send>(
-    mut io: T,
-    highlight_processor: HighlightProcessor,
-) {
-    while let Ok(Some(line)) = io.next_line().await {
+async fn start(mut reader: Reader, mut writer: Writer, highlight_processor: HighlightProcessor) {
+    while let Ok(Some(line)) = reader.next_line().await {
         let highlighted_line = highlight_processor.apply(&line);
-        io.write_line(&highlighted_line).await.unwrap();
+        writer.write_line(&highlighted_line).await.unwrap();
     }
 }

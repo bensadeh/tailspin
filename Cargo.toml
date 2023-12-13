@@ -22,6 +22,7 @@ colored = "2"
 ctrlc = "3.4.1"
 lazy_static = "1.4.0"
 linemux = "0.3"
+minus = { version = "5.5.0", features = ["search", "dynamic_output"] }
 once_cell = "1.18.0"
 rand = "0.8.5"
 regex = "1.10.2"

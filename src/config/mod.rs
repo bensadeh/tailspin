@@ -111,7 +111,7 @@ fn get_output(has_data_from_stdin: bool, is_print_flag: bool) -> Output {
         return Output::Stdout;
     }
 
-    Output::TempFile
+    Output::Pager
 }
 
 fn determine_input(path: String) -> Result<Input, Error> {
