@@ -15,7 +15,7 @@ impl Minus {
         let pager = Pager::new();
         let actual_pager = pager.clone();
 
-        // task::spawn(async { dynamic_paging(actual_pager) });
+        task::spawn(async { dynamic_paging(actual_pager) });
 
         Box::new(Self { pager })
     }

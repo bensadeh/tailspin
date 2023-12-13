@@ -51,7 +51,6 @@ pub async fn run(theme: Theme, config: Config, cli: Cli) {
 async fn start(mut reader: Reader, mut writer: Writer, highlight_processor: HighlightProcessor) {
     while let Ok(Some(line)) = reader.next_line().await {
         let highlighted_line = highlight_processor.apply(&line);
-        // writer.write_line(&highlighted_line).await.unwrap();
-        println!("{}", line);
+        writer.write_line(&highlighted_line).await.unwrap();
     }
 }
