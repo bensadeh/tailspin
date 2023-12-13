@@ -34,7 +34,7 @@ Start at the end of the file.
 Always true if opening a folder.
 
 *-p, --print*::
-Print the output to stdout instead of viewing the contents in the pager _less_.
+Print the output to stdout instead of viewing the contents in the pager.
 Always true if using stdin.
 
 *-c, --config-path* _CONFIG_PATH_::
@@ -43,7 +43,7 @@ Defaults to _XDG_CONFIG_HOME/tailspin/config.toml_ or _~/.config/tailspin/config
 
 *-l, --follow-command* _COMMAND_::
 Continuously listen to stdout of the provided command.
-The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside _less_.
+The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside the pager.
 
 *--words-[red|green|yellow|blue|magenta|cyan]*::
 Highlight the provided comma separated words in the desired color.
@@ -62,7 +62,7 @@ Disables the highlighting of REST verbs.
 
 == SEE ALSO
 
-*less*(1), *tail*(1)
+*tail*(1)
 
 == About
 
