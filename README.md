@@ -39,11 +39,11 @@ A log file highlighter
 ## Overview
 
 `tailspin` works by reading through a log file line by line, running a series of regexes
-against each line. The regexes recognize patterns like dates, numbers, severity
+against each line. The regexes recognize patterns you expect to find in a logfile, like dates, numbers, severity
 keywords and more.
 
 `tailspin` does not make any assumptions on the format or position of the items it wants to highlight. For this reason,
-it requires no configuration or setup and will work predictably regardless of the format the log file is in.
+it requires no configuration and the highlighting will work consistently across different logfiles.
 
 ## Installing
 
@@ -58,8 +58,8 @@ brew install tailspin
 # Cargo
 cargo install tailspin
 
-# AUR
-paru -S tailspin
+# Archlinux
+pacman -S tailspin
 
 # Nix
 nix-shell -p tailspin
@@ -78,6 +78,10 @@ cargo install --path .
 ```
 
 Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `PATH` environment variable.
+
+> [!NOTE]
+> When building from source, make sure that you are using the latest version
+> of [`less`](http://greenwoodsoftware.com/less/).
 
 ## Highlight Groups
 

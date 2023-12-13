@@ -4,3 +4,4 @@
 *.bash linguist-vendored
 *.fish linguist-vendored
 *.adoc linguist-vendored
+*.nix linguist-vendored
