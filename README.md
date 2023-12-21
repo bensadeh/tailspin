@@ -346,18 +346,13 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 -f, --follow                     Follow the contents of the file
 -t, --tail                       Start at the end of the file
 -p, --print                      Print the output to stdout
--c, --config-path PATH           Path to a custom configuration file
--l, --follow-command [CMD]       Follows the output of the provided command
-    --words-red      [WORDS]     Highlight the provided words in red
-    --words-green    [WORDS]     Highlight the provided words in green
-    --words-yellow   [WORDS]     Highlight the provided words in yellow
-    --words-blue     [WORDS]     Highlight the provided words in blue
-    --words-magenta  [WORDS]     Highlight the provided words in magenta
-    --words-cyan     [WORDS]     Highlight the provided words in cyan
-    --disable-builtin-keywords   Disables the highlighting of all builtin keyword groups
-    --disable-booleans           Disables the highlighting of booleans and nulls
-    --disable-severity           Disables the highlighting of severity levels
-    --disable-rest               Disables the highlighting of REST verbs
+-c, --config-path [PATH]         Use the configuration file from the provided path
+-l, --follow-command [CMD]       Follow the output of the provided command
+    --words-[COLOR] [WORDS]      Highlight the provided words with the given color
+    --disable-builtin-keywords   Disable the highlighting of all builtin groups
+    --disable-booleans           Disable the highlighting of booleans and nulls
+    --disable-severity           Disable the highlighting of severity levels
+    --disable-rest               Disable the highlighting of REST verbs
 ```
 
 
