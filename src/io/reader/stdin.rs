@@ -2,18 +2,19 @@ use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use tokio::io;
 use tokio::io::{AsyncBufReadExt, BufReader, Stdin};
-use tokio::sync::oneshot::Sender;
+
+use super::EOFSignaler;
 
 pub struct StdinReader {
     reader: BufReader<Stdin>,
-    reached_eof_tx: Option<Sender<()>>,
+    eof_signaler: EOFSignaler,
 }
 
 impl StdinReader {
-    pub fn get_reader(reached_eof_tx: Option<Sender<()>>) -> Box<dyn AsyncLineReader + Send> {
+    pub fn get_reader(eof_signaler: EOFSignaler) -> Box<dyn AsyncLineReader + Send> {
         Box::new(StdinReader {
             reader: BufReader::new(tokio::io::stdin()),
-            reached_eof_tx,
+            eof_signaler,
         })
     }
 
@@ -36,14 +37,6 @@ impl StdinReader {
 
         buf
     }
-
-    fn send_eof_signal(&mut self) {
-        if let Some(reached_eof) = self.reached_eof_tx.take() {
-            reached_eof
-                .send(())
-                .expect("Failed sending EOF signal to oneshot channel");
-        }
-    }
 }
 
 #[async_trait]
@@ -52,7 +45,7 @@ impl AsyncLineReader for StdinReader {
         let buffer = self.read_bytes_until_newline().await?;
 
         if buffer.is_empty() {
-            self.send_eof_signal();
+            super::send_eof_signal(self.eof_signaler.take());
             return Ok(None);
         }
 

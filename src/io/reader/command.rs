@@ -1,25 +1,20 @@
+use crate::io::controller::Reader;
 use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use std::process::Stdio;
 use tokio::io;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command as AsyncCommand;
-use tokio::sync::oneshot::Sender;
+
+use super::EOFSignaler;
 
 pub struct CommandReader {
     reader: BufReader<tokio::process::ChildStdout>,
 }
 
 impl CommandReader {
-    pub async fn get_reader(
-        command: String,
-        mut reached_eof_tx: Option<Sender<()>>,
-    ) -> Box<dyn AsyncLineReader + Send> {
-        if let Some(reached_eof) = reached_eof_tx.take() {
-            reached_eof
-                .send(())
-                .expect("Failed sending EOF signal to oneshot channel");
-        };
+    pub async fn get_reader(command: String, mut eof_signaler: EOFSignaler) -> Reader {
+        super::send_eof_signal(eof_signaler.take());
 
         let trap_command = format!("trap '' INT; {}", command);
 

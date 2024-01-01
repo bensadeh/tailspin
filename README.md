@@ -19,7 +19,7 @@ A log file highlighter
 - 🌈 Highlights numbers, dates, IP-addresses, UUIDs, URLs and more
 - ⚙️ All highlight groups are customizable
 - 🧬 Easy to integrate with other commands
-- 🔍 Uses `less` under the hood for scrollback, search and filtering
+- 🔍 Uses [`minus`](https://github.com/arijit79/minus) under the hood for scrollback, search and filtering
 
 #
 
@@ -31,7 +31,7 @@ A log file highlighter
 * [Watching folders](#watching-folders)
 * [Customizing Highlight Groups](#customizing-highlight-groups)
 * [Working with `stdin` and `stdout`](#working-with-stdin-and-stdout)
-* [Using the pager `less`](#using-the-pager-less)
+* [Using the pager `minus`](#using-the-pager-minus)
 * [Settings](#settings)
 
 ***
@@ -78,10 +78,6 @@ cargo install --path .
 ```
 
 Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `PATH` environment variable.
-
-> [!NOTE]
-> When building from source, make sure that you are using the latest version
-> of [`less`](http://greenwoodsoftware.com/less/).
 
 ## Highlight Groups
 
@@ -286,7 +282,7 @@ of words to be highlighted.
 
 ## Working with `stdin` and `stdout`
 
-By default, `tailspin` will open a file in the pager `less`. However, if you pipe something into `tailspin`, it will
+By default, `tailspin` will open a file in the pager `minus`. However, if you pipe something into `tailspin`, it will
 print the highlighted output directly to `stdout`. This is similar to running `tspin [file] --print`.
 
 To let `tailspin` highlight the logs of different commands, you can pipe the output of those commands into `tailspin`
@@ -298,47 +294,12 @@ cat /var/log/syslog | tspin
 kubectl logs -f pod_name | tspin
 ```
 
-## Using the pager `less`
+## Using the pager `minus`
 
 ### Overview
 
-`tailspin` uses `less` as its pager to view the highlighted log files. You can get more info on `less` via the **man**
-command (`man less`) or by hitting the <kbd>h</kbd> button to access the help screen.
-
-### Navigating
-
-Navigating within `less` uses a set of keybindings that may be familiar to users of `vim` or other `vi`-like
-editors. Here's a brief overview of the most useful navigation commands:
-
-- <kbd>j</kbd>/<kbd>k</kbd>: Scroll one line up / down
-- <kbd>d</kbd>/<kbd>u</kbd>: Scroll one half-page up / down
-- <kbd>g</kbd>/<kbd>G</kbd>: Go to the top / bottom of the file
-
-### Follow mode
-
-When you run `tailspin` with the `-f` or `--follow` flag, it will scroll to the bottom and print new lines to the screen
-as they're added to the file.
-
-To stop following the file, interrupt with <kbd>Ctrl + C</kbd>. This will stop the tailing, but keep the
-file open, allowing you to review the existing content.
-
-To resume following the file from within `less`, press <kbd>Shift + F</kbd>.
-
-### Search
-
-Use <kbd>/</kbd> followed by your search query. For example, `/ERROR` finds the first occurrence of
-**ERROR**.
-
-After the search, <kbd>n</kbd> finds the next instance, and <kbd>N</kbd> finds the previous instance.
-
-### Filtering
-
-`less` allows filtering lines by a keyword, using <kbd>&</kbd> followed by the pattern. For instance, `&ERROR` shows
-only lines with **ERROR**.
-
-To only show lines containing either `ERROR` or `WARN`, use a regular expression: `&\(ERROR\|WARN\)`.
-
-To clear the filter, use <kbd>&</kbd> with no pattern.
+`tailspin` uses `minus` as its pager to view the highlighted log files.
+You can see the available keyibdings [here](https://docs.rs/minus/latest/minus/index.html#standard-actions).
 
 ## Settings
 
