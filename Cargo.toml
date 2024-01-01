@@ -14,9 +14,9 @@ path = "src/main.rs"
 name = "tspin"
 
 [dependencies]
-async-trait = "0.1.75"
-clap = { version = "4.4.11", features = ["derive"] }
-clap_complete = "4.4.4"
+async-trait = "0.1.76"
+clap = { version = "4.4.12", features = ["derive"] }
+clap_complete = "4.4.5"
 color-eyre = "0.6.2"
 colored = "2"
 ctrlc = "3.4.2"
@@ -27,7 +27,7 @@ rand = "0.8.5"
 regex = "1.10.2"
 serde = { version = "1.0", features = ["derive"] }
 shellexpand = "3.1.0"
-tempfile = "3.8.1"
+tempfile = "3.9.0"
 terminal_size = "0.3.0"
 tokio = { version = "1.35.1", features = ["full"] }
 toml = "0.8.8"
