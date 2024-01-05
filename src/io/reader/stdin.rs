@@ -53,7 +53,7 @@ impl AsyncLineReader for StdinReader {
     async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
         let mut bucket = Vec::new();
 
-        while bucket.len() < self.bucket_size {
+        while bucket.len() <= self.bucket_size {
             let buffer = match self.read_bytes_until_newline().await {
                 Ok(buffer) if !buffer.is_empty() => buffer,
                 _ => {
