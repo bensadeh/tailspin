@@ -29,7 +29,8 @@ impl HighlightProcessor {
                     self.apply_highlighters(&result, &line_info, highlighters)
                 })
             })
-            .collect()
+            .collect::<Vec<_>>()
+            .join("\n")
     }
 
     fn apply_highlighters(

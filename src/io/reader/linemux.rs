@@ -126,25 +126,37 @@ fn get_separator() -> String {
 #[async_trait]
 impl AsyncLineReader for Linemux {
     async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
-        self.current_line += 1;
+        let mut bucket = Vec::new();
+        let bucket_size = 8; // You can make this a field of your struct if it needs to be configurable
 
-        if let Some(custom_message) = self.custom_message.take() {
-            return Ok(Some(vec![custom_message]));
-        }
+        while bucket.len() < bucket_size {
+            self.current_line += 1;
 
-        let line = match self.lines.next_line().await {
-            Ok(Some(line)) => line,
-            _ => return Ok(None),
-        };
+            if let Some(custom_message) = self.custom_message.take() {
+                bucket.push(custom_message);
+                break;
+            }
 
-        let next_line = line.line().to_owned();
+            let line = match self.lines.next_line().await {
+                Ok(Some(line)) => line,
+                _ => break,
+            };
 
-        if let Some(number_of_lines) = self.number_of_lines {
-            if self.current_line >= number_of_lines {
-                self.send_eof_signal();
+            let next_line = line.line().to_owned();
+            bucket.push(next_line);
+
+            if let Some(number_of_lines) = self.number_of_lines {
+                if self.current_line >= number_of_lines {
+                    self.send_eof_signal();
+                    break;
+                }
             }
         }
 
-        Ok(Some(vec![next_line]))
+        if bucket.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(bucket))
+        }
     }
 }
