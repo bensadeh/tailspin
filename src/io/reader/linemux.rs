@@ -47,7 +47,7 @@ impl Linemux {
         Box::new(Self {
             custom_message: None,
             number_of_lines,
-            bucket_size: adjusted_bucket_size,
+            bucket_size: adjusted_bucket_size - 1,
             current_line: 0,
             reached_eof_tx,
             lines,
