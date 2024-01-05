@@ -38,6 +38,6 @@ impl Highlight for DateHighlighter {
             );
         }
 
-        highlight_utils::highlight_with_awareness_replace_all(&self.style, input, &DATE_REGEX)
+        highlight_utils::highlight_with_awareness_replace_all(&self.style, input, &DATE_REGEX, false)
     }
 }
