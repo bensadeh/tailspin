@@ -121,6 +121,14 @@ pub struct Keyword {
     pub border: bool,
 }
 
+#[derive(Eq, Hash, PartialEq, Debug, Deserialize, Default, Clone)]
+#[serde(default)]
+pub struct Regexp {
+    pub regular_expression: String,
+    pub style: Style,
+    pub border: bool,
+}
+
 #[derive(Debug, Deserialize, Default, Clone)]
 pub struct Theme {
     #[serde(default)]
@@ -145,4 +153,6 @@ pub struct Theme {
     pub process: Process,
     #[serde(default)]
     pub keywords: Option<Vec<Keyword>>,
+    #[serde(default)]
+    pub regexps: Option<Vec<Regexp>>,
 }
