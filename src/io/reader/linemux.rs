@@ -127,7 +127,7 @@ fn get_separator() -> String {
 impl AsyncLineReader for Linemux {
     async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
         let mut bucket = Vec::new();
-        let bucket_size = 8; // You can make this a field of your struct if it needs to be configurable
+        let bucket_size = 10000;
 
         while bucket.len() < bucket_size {
             self.current_line += 1;

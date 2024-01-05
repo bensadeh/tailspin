@@ -49,16 +49,30 @@ impl StdinReader {
 #[async_trait]
 impl AsyncLineReader for StdinReader {
     async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
-        let buffer = self.read_bytes_until_newline().await?;
+        let mut bucket = Vec::new();
+        let bucket_size = 10000;
 
-        if buffer.is_empty() {
-            self.send_eof_signal();
-            return Ok(None);
+        while bucket.len() < bucket_size {
+            let buffer = match self.read_bytes_until_newline().await {
+                Ok(buffer) if !buffer.is_empty() => buffer,
+                _ => {
+                    if !bucket.is_empty() {
+                        self.send_eof_signal();
+                    }
+                    break;
+                }
+            };
+
+            let buffer = Self::strip_newline_character(buffer);
+            let line = String::from_utf8_lossy(&buffer).into_owned();
+
+            bucket.push(line);
         }
 
-        let buffer = Self::strip_newline_character(buffer);
-        let line = String::from_utf8_lossy(&buffer).into_owned();
-
-        Ok(Some(vec![line]))
+        if bucket.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(bucket))
+        }
     }
 }
