@@ -9,6 +9,7 @@ use tokio::sync::oneshot::Sender;
 pub struct Linemux {
     custom_message: Option<String>,
     number_of_lines: Option<usize>,
+    bucket_size: usize,
     current_line: usize,
     reached_eof_tx: Option<Sender<()>>,
     lines: MuxedLines,
@@ -18,6 +19,7 @@ impl Linemux {
     pub async fn get_reader_single(
         file_path: String,
         number_of_lines: usize,
+        bucket_size: usize,
         follow: bool,
         tail: bool,
         mut reached_eof_tx: Option<Sender<()>>,
@@ -44,6 +46,7 @@ impl Linemux {
         Box::new(Self {
             custom_message: None,
             number_of_lines,
+            bucket_size,
             current_line: 0,
             reached_eof_tx,
             lines,
@@ -53,6 +56,7 @@ impl Linemux {
     pub async fn get_reader_multiple(
         folder_name: String,
         file_paths: Vec<String>,
+        bucket_size: usize,
         mut reached_eof_tx: Option<Sender<()>>,
     ) -> Box<dyn AsyncLineReader + Send> {
         use std::path::Path;
@@ -99,6 +103,7 @@ impl Linemux {
         Box::new(Self {
             custom_message: Some(custom_message),
             number_of_lines: None,
+            bucket_size,
             current_line: 0,
             reached_eof_tx,
             lines,
@@ -127,9 +132,8 @@ fn get_separator() -> String {
 impl AsyncLineReader for Linemux {
     async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
         let mut bucket = Vec::new();
-        let bucket_size = 10000;
 
-        while bucket.len() < bucket_size {
+        while bucket.len() < self.bucket_size {
             self.current_line += 1;
 
             if let Some(custom_message) = self.custom_message.take() {

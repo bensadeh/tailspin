@@ -19,6 +19,7 @@ pub struct Config {
     pub output: Output,
     pub follow: bool,
     pub tail: bool,
+    pub bucket_size: usize,
 }
 
 pub struct PathAndLineCount {

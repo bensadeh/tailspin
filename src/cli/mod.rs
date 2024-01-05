@@ -77,7 +77,7 @@ pub struct Cli {
 
     /// Set the bucket size for parallel processing
     #[clap(long, default_value_t = 10000)]
-    bucket_size: usize,
+    pub bucket_size: usize,
 }
 
 pub fn get_args_or_exit_early() -> Cli {
