@@ -125,11 +125,11 @@ fn get_separator() -> String {
 
 #[async_trait]
 impl AsyncLineReader for Linemux {
-    async fn next_line(&mut self) -> io::Result<Option<String>> {
+    async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
         self.current_line += 1;
 
         if let Some(custom_message) = self.custom_message.take() {
-            return Ok(Some(custom_message));
+            return Ok(Some(vec![custom_message]));
         }
 
         let line = match self.lines.next_line().await {
@@ -145,6 +145,6 @@ impl AsyncLineReader for Linemux {
             }
         }
 
-        Ok(Some(next_line))
+        Ok(Some(vec![next_line]))
     }
 }

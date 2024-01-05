@@ -57,7 +57,7 @@ async fn process_lines<T: AsyncLineReader + AsyncLineWriter + Unpin + Send>(
     highlight_processor: HighlightProcessor,
 ) {
     while let Ok(Some(line)) = io.next_line().await {
-        let highlighted_line = highlight_processor.apply(&line);
-        io.write_line(&highlighted_line).await.unwrap();
+        let highlighted_lines = highlight_processor.apply(line);
+        io.write_line(&highlighted_lines).await.unwrap();
     }
 }

@@ -31,3 +31,4 @@ tempfile = "3.9.0"
 terminal_size = "0.3.0"
 tokio = { version = "1.35.1", features = ["full"] }
 toml = "0.8.8"
+rayon = "1.8.0"

@@ -68,7 +68,7 @@ async fn get_writer(output: Output, follow: bool) -> (Box<dyn AsyncLineWriter + 
 
 #[async_trait]
 impl AsyncLineReader for Io {
-    async fn next_line(&mut self) -> io::Result<Option<String>> {
+    async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
         self.reader.next_line().await
     }
 }

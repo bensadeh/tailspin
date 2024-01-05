@@ -60,7 +60,7 @@ impl CommandReader {
 
 #[async_trait]
 impl AsyncLineReader for CommandReader {
-    async fn next_line(&mut self) -> io::Result<Option<String>> {
+    async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
         let buffer = self.read_bytes_until_newline().await?;
 
         if buffer.is_empty() {
@@ -70,6 +70,6 @@ impl AsyncLineReader for CommandReader {
         let buffer = Self::strip_newline_character(buffer);
         let line = String::from_utf8_lossy(&buffer).into_owned();
 
-        Ok(Some(line))
+        Ok(Some(vec![line]))
     }
 }
