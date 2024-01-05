@@ -2,12 +2,12 @@
 .\"     Title: tspin
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.20
-.\"      Date: 2023-11-19
+.\"      Date: 2024-01-05
 .\"    Manual: tailspin
-.\"    Source: tailspin 2.2.0
+.\"    Source: tailspin 2.3.0
 .\"  Language: English
 .\"
-.TH "TSPIN" "1" "2023-11-19" "tailspin 2.2.0" "tailspin"
+.TH "TSPIN" "1" "2024-01-05" "tailspin 2.3.0" "tailspin"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -90,6 +90,12 @@ Disables the highlighting of severity levels.
 \fB\-\-disable\-rest\fP
 .RS 4
 Disables the highlighting of REST verbs.
+.RE
+.sp
+\fB\-\-bucket\-size\fP [INT]
+.RS 4
+tailspin collects lines into a bucket in order to process them in parallel.
+Use this flag to override the default bucket size in case the default value is not optimal for your use case.
 .RE
 .SH "SEE ALSO"
 .sp

@@ -348,6 +348,7 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 -p, --print                      Print the output to stdout
 -c, --config-path [PATH]         Use the configuration file from the provided path
 -l, --follow-command [CMD]       Follow the output of the provided command
+    --bucket-size [SIZE]         Set the bucket size for parallel processing
     --words-[COLOR] [WORDS]      Highlight the provided words with the given color
     --disable-builtin-keywords   Disable the highlighting of all builtin groups
     --disable-booleans           Disable the highlighting of booleans and nulls

@@ -1,8 +1,9 @@
 # Changelog
+
 ## 2.3.0
 
-
-
+- `tailspin` now reads lines in chunks and highlights them in parallel. This should improve performance especially when
+  reading large files.
 
 ## 2.2.0
 
