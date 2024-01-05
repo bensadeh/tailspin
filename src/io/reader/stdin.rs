@@ -7,13 +7,15 @@ use tokio::sync::oneshot::Sender;
 pub struct StdinReader {
     reader: BufReader<Stdin>,
     reached_eof_tx: Option<Sender<()>>,
+    bucket_size: usize,
 }
 
 impl StdinReader {
-    pub fn get_reader(reached_eof_tx: Option<Sender<()>>) -> Box<dyn AsyncLineReader + Send> {
+    pub fn get_reader(reached_eof_tx: Option<Sender<()>>, bucket_size: usize) -> Box<dyn AsyncLineReader + Send> {
         Box::new(StdinReader {
             reader: BufReader::new(tokio::io::stdin()),
             reached_eof_tx,
+            bucket_size,
         })
     }
 
