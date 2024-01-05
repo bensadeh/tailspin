@@ -42,11 +42,12 @@ impl Linemux {
         }
 
         let number_of_lines = if follow { Some(1) } else { Some(number_of_lines) };
+        let adjusted_bucket_size = std::cmp::min(bucket_size, number_of_lines.unwrap_or(bucket_size));
 
         Box::new(Self {
             custom_message: None,
             number_of_lines,
-            bucket_size,
+            bucket_size: adjusted_bucket_size,
             current_line: 0,
             reached_eof_tx,
             lines,
