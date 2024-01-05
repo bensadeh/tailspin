@@ -6,6 +6,7 @@ mod number;
 mod path;
 mod process;
 mod quotes;
+mod regexp;
 mod time;
 mod url;
 mod uuid;
@@ -19,6 +20,7 @@ use crate::highlighters::number::NumberHighlighter;
 use crate::highlighters::path::PathHighlighter;
 use crate::highlighters::process::ProcessHighlighter;
 use crate::highlighters::quotes::QuoteHighlighter;
+use crate::highlighters::regexp::RegexpHighlighter;
 use crate::highlighters::time::TimeHighlighter;
 use crate::highlighters::url::UrlHighlighter;
 use crate::highlighters::uuid::UuidHighlighter;
@@ -104,6 +106,7 @@ impl Highlighters {
     fn set_main_fns(theme: &Theme, cli: &Cli) -> Vec<Box<dyn Highlight + Send>> {
         let mut main_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
         let keywords = Self::get_keywords(theme, cli);
+        let regexps = theme.regexps.clone().unwrap_or_default();
 
         if !theme.number.disabled {
             main_fns.push(Box::new(NumberHighlighter::new(&theme.number.style)));
@@ -114,6 +117,14 @@ impl Highlighters {
                 &keyword.words,
                 &keyword.style,
                 keyword.border,
+            )));
+        }
+
+        for regexp in regexps {
+            main_fns.push(Box::new(RegexpHighlighter::new(
+                &regexp.regular_expression,
+                &regexp.style,
+                regexp.border,
             )));
         }
 

@@ -1,0 +1,3 @@
+[[regexps]]
+regular_expression = 'Started (.*)\.'
+style = { fg = "red" }
