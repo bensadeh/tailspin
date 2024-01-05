@@ -1,8 +1,8 @@
 use crate::color::to_ansi;
+use crate::highlight_utils;
 use crate::line_info::LineInfo;
 use crate::theme::Style;
 use crate::types::Highlight;
-use crate::{color, highlight_utils};
 use regex::Regex;
 
 pub struct KeywordHighlighter {
@@ -40,13 +40,5 @@ impl Highlight for KeywordHighlighter {
 }
 
 fn highlight_keywords(color: &str, input: &str, keyword_regex: &Regex, border: bool) -> String {
-    if border {
-        keyword_regex
-            .replace_all(input, |cap: &regex::Captures| {
-                format!("{} {} {}", color, &cap[0], color::RESET)
-            })
-            .to_string()
-    } else {
-        highlight_utils::highlight_with_awareness_replace_all(color, input, keyword_regex)
-    }
+    highlight_utils::highlight_with_awareness_replace_all(color, input, keyword_regex, border)
 }

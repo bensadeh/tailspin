@@ -26,5 +26,5 @@ impl Highlight for NumberHighlighter {
 }
 
 fn highlight_numbers(color: &str, input: &str) -> String {
-    highlight_utils::highlight_with_awareness_replace_all(color, input, &NUMBER_REGEX)
+    highlight_utils::highlight_with_awareness_replace_all(color, input, &NUMBER_REGEX, false)
 }
