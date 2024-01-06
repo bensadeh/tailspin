@@ -2,6 +2,7 @@ use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use color_eyre::owo_colors::OwoColorize;
 use linemux::MuxedLines;
+use std::cmp::min;
 use std::io;
 use terminal_size::{terminal_size, Height, Width};
 use tokio::sync::oneshot::Sender;
@@ -42,12 +43,15 @@ impl Linemux {
         }
 
         let number_of_lines = if follow { Some(1) } else { Some(number_of_lines) };
-        let adjusted_bucket_size = std::cmp::min(bucket_size, number_of_lines.unwrap_or(bucket_size));
+        let adjusted_bucket_size = min(bucket_size, number_of_lines.unwrap_or(bucket_size)) - 1;
+        let clamped_bucket_size = adjusted_bucket_size.clamp(1, bucket_size);
+
+        println!("clamped_bucket_size: {}", clamped_bucket_size);
 
         Box::new(Self {
             custom_message: None,
             number_of_lines,
-            bucket_size: adjusted_bucket_size - 1,
+            bucket_size: clamped_bucket_size,
             current_line: 0,
             reached_eof_tx,
             lines,
@@ -135,8 +139,6 @@ impl AsyncLineReader for Linemux {
         let mut bucket = Vec::new();
 
         while bucket.len() < self.bucket_size {
-            self.current_line += 1;
-
             if let Some(custom_message) = self.custom_message.take() {
                 bucket.push(custom_message);
                 break;
@@ -149,6 +151,7 @@ impl AsyncLineReader for Linemux {
 
             let next_line = line.line().to_owned();
             bucket.push(next_line);
+            self.current_line += 1;
 
             if let Some(number_of_lines) = self.number_of_lines {
                 if self.current_line >= number_of_lines {
