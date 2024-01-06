@@ -57,9 +57,7 @@ impl AsyncLineReader for StdinReader {
             let buffer = match self.read_bytes_until_newline().await {
                 Ok(buffer) if !buffer.is_empty() => buffer,
                 _ => {
-                    if !bucket.is_empty() {
-                        self.send_eof_signal();
-                    }
+                    self.send_eof_signal();
                     break;
                 }
             };
