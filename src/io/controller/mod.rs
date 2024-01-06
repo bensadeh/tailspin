@@ -32,7 +32,7 @@ pub async fn get_io_and_presenter(config: Config, reached_eof_tx: Option<Sender<
         reached_eof_tx,
     )
     .await;
-    let (writer, presenter) = get_writer(config.output, config.follow).await;
+    let (writer, presenter) = get_writer_and_presenter(config.output, config.follow).await;
 
     (Io { reader, writer }, Presenter { presenter })
 }
@@ -64,7 +64,10 @@ async fn get_reader(
     }
 }
 
-async fn get_writer(output: Output, follow: bool) -> (Box<dyn AsyncLineWriter + Send>, Box<dyn Present + Send>) {
+async fn get_writer_and_presenter(
+    output: Output,
+    follow: bool,
+) -> (Box<dyn AsyncLineWriter + Send>, Box<dyn Present + Send>) {
     match output {
         Output::TempFile => {
             let result = TempFile::get_writer_result().await;
