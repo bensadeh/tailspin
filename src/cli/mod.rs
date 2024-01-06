@@ -11,13 +11,13 @@ pub struct Cli {
     #[clap(name = "FILE")]
     pub file_or_folder_path: Option<String>,
 
-    /// Follow (tail) the contents of a file
+    /// Follow the contents of a file
     #[clap(short = 'f', long = "follow")]
     pub follow: bool,
 
     /// Start at the end of the file
-    #[clap(short = 't', long = "tail")]
-    pub tail: bool,
+    #[clap(short = 'e', long = "start-at-end")]
+    pub start_at_end: bool,
 
     /// Print the output to stdout
     #[clap(short = 'p', long = "print", conflicts_with = "follow")]

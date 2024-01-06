@@ -22,12 +22,12 @@ impl Linemux {
         number_of_lines: usize,
         bucket_size: usize,
         follow: bool,
-        tail: bool,
+        start_at_end: bool,
         mut reached_eof_tx: Option<Sender<()>>,
     ) -> Box<dyn AsyncLineReader + Send> {
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
-        if tail {
+        if start_at_end {
             lines.add_file(&file_path).await.expect("Could not add file to linemux");
 
             if let Some(reached_eof) = reached_eof_tx.take() {

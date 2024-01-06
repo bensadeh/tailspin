@@ -18,7 +18,7 @@ pub struct Config {
     pub input: Input,
     pub output: Output,
     pub follow: bool,
-    pub tail: bool,
+    pub start_at_end: bool,
     pub bucket_size: usize,
 }
 

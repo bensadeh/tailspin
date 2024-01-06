@@ -344,7 +344,7 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 
 ```console
 -f, --follow                     Follow the contents of the file
--t, --tail                       Start at the end of the file
+-e, --start-at-end               Start at the end of the file
 -p, --print                      Print the output to stdout
 -c, --config-path [PATH]         Use the configuration file from the provided path
 -l, --follow-command [CMD]       Follow the output of the provided command

@@ -51,7 +51,7 @@ fn create_config(args: &Cli) -> Result<Config, Error> {
         input,
         output,
         follow,
-        tail: args.tail,
+        start_at_end: args.start_at_end,
         bucket_size: args.bucket_size,
     };
 

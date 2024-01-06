@@ -27,7 +27,7 @@ pub async fn get_io_and_presenter(config: Config, reached_eof_tx: Option<Sender<
     let reader = get_reader(
         config.input,
         config.follow,
-        config.tail,
+        config.start_at_end,
         config.bucket_size,
         reached_eof_tx,
     )
@@ -40,7 +40,7 @@ pub async fn get_io_and_presenter(config: Config, reached_eof_tx: Option<Sender<
 async fn get_reader(
     input: Input,
     follow: bool,
-    tail: bool,
+    start_at_end: bool,
     bucket_size: usize,
     reached_eof_tx: Option<Sender<()>>,
 ) -> Box<dyn AsyncLineReader + Send> {
@@ -51,7 +51,7 @@ async fn get_reader(
                 file_info.line_count,
                 bucket_size,
                 follow,
-                tail,
+                start_at_end,
                 reached_eof_tx,
             )
             .await
