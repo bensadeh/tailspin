@@ -27,14 +27,14 @@ impl Linemux {
     ) -> Box<dyn AsyncLineReader + Send> {
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
-        if tail || number_of_lines == 0 {
+        if tail {
+            lines.add_file(&file_path).await.expect("Could not add file to linemux");
+
             if let Some(reached_eof) = reached_eof_tx.take() {
                 reached_eof
                     .send(())
                     .expect("Failed sending EOF signal to oneshot channel");
             }
-
-            lines.add_file(&file_path).await.expect("Could not add file to linemux");
         } else {
             lines
                 .add_file_from_start(&file_path)
@@ -42,15 +42,20 @@ impl Linemux {
                 .expect("Could not add file to linemux");
         }
 
-        let number_of_lines = if follow { Some(1) } else { Some(number_of_lines) };
-        let adjusted_bucket_size = min(bucket_size, number_of_lines.unwrap_or(bucket_size)) - 1;
-        let clamped_bucket_size = adjusted_bucket_size.clamp(1, bucket_size);
+        if follow {
+            if let Some(reached_eof) = reached_eof_tx.take() {
+                reached_eof
+                    .send(())
+                    .expect("Failed sending EOF signal to oneshot channel");
+            }
+        }
 
-        println!("clamped_bucket_size: {}", clamped_bucket_size);
+        let adjusted_bucket_size = min(bucket_size, number_of_lines) - 1;
+        let clamped_bucket_size = adjusted_bucket_size.clamp(1, bucket_size);
 
         Box::new(Self {
             custom_message: None,
-            number_of_lines,
+            number_of_lines: Some(number_of_lines),
             bucket_size: clamped_bucket_size,
             current_line: 0,
             reached_eof_tx,

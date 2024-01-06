@@ -50,8 +50,8 @@ async fn get_reader(
                 file_info.path,
                 file_info.line_count,
                 bucket_size,
-                tail,
                 follow,
+                tail,
                 reached_eof_tx,
             )
             .await
