@@ -37,40 +37,48 @@ impl Highlight for RegexpHighlighter {
 pub(crate) fn highlight_text_new(regex: &Regex, text: &str, color: &str) -> String {
     let capture_groups = regex.captures_len() - 1;
 
-    generic_process_with_awareness(text, |chunk| match capture_groups {
-        1 => {
-            let mut new_string = String::new();
-            let mut last_end = 0;
+    let mut new_string = String::new();
+    let mut last_end = 0;
 
-            for caps in regex.captures_iter(chunk) {
-                if let Some(entire_match) = caps.get(0) {
-                    // Add the text before the entire regex match
-                    new_string.push_str(&chunk[last_end..entire_match.start()]);
+    for caps in regex.captures_iter(text) {
+        if let Some(entire_match) = caps.get(0) {
+            // Add the text before the regex match
+            new_string.push_str(&get_pre_match_text(text, last_end, entire_match.start()));
 
-                    // Add the text from the start of the regex match to the start of the capturing group
-                    new_string.push_str(&chunk[entire_match.start()..caps.get(1).unwrap().start()]);
-
-                    // Highlight the captured group
-                    new_string.push_str(color);
-                    new_string.push_str(caps.get(1).unwrap().as_str());
-                    new_string.push_str(color::RESET);
-
-                    // Add the text from the end of the capturing group to the end of the entire regex match
-                    new_string.push_str(&chunk[caps.get(1).unwrap().end()..entire_match.end()]);
-
-                    // Update the end of the last entire regex match
-                    last_end = entire_match.end();
+            // Determine what part of the match to highlight
+            match capture_groups {
+                1 => {
+                    if let Some(captured) = caps.get(1) {
+                        // Add the text before the capturing group (from the start of the entire match)
+                        new_string.push_str(&get_pre_match_text(text, entire_match.start(), captured.start()));
+                        // Highlight the captured group
+                        new_string.push_str(&highlight_capture(color, captured.as_str()));
+                        // Add the text after the capturing group (up to the end of the entire match)
+                        new_string.push_str(&get_pre_match_text(text, captured.end(), entire_match.end()));
+                    }
+                }
+                _ => {
+                    // No capturing groups or more than one, highlight the entire match
+                    new_string.push_str(&highlight_capture(color, entire_match.as_str()));
                 }
             }
 
-            // Add the remaining text after the last regex match
-            new_string.push_str(&chunk[last_end..]);
-            new_string
+            // Update the last_end position to the end of the entire match
+            last_end = entire_match.end();
         }
-        _ => regex
-            .replace_all(chunk, |caps: &Captures| {
-                format!("{}{}{}", color, &caps[0], color::RESET)
-            })
-            .to_string(),
-    })
+    }
+
+    // Add the remaining text after the last match
+    new_string.push_str(&text[last_end..]);
+    new_string
+}
+
+// Extract text before the regex match
+fn get_pre_match_text(text: &str, start: usize, end: usize) -> String {
+    text[start..end].to_string()
+}
+
+// Apply highlighting to the captured group
+fn highlight_capture(color: &str, captured: &str) -> String {
+    format!("{}{}{}", color, captured, color::RESET)
 }
