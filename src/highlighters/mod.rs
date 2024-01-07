@@ -122,7 +122,7 @@ impl Highlighters {
         }
 
         for regexp in regexps {
-            main_fns.push(Box::new(RegexpHighlighter::new(
+            main_fns.push(Arc::new(RegexpHighlighter::new(
                 &regexp.regular_expression,
                 &regexp.style,
                 regexp.border,
