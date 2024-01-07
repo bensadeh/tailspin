@@ -76,6 +76,28 @@ where
     output
 }
 
+pub(crate) fn generic_process_with_awareness<F>(input: &str, process_chunk: F) -> String
+where
+    F: Fn(&str) -> String,
+{
+    let chunks = split_into_chunks(input);
+    let mut output = calculate_and_allocate_capacity(input);
+
+    for chunk in chunks {
+        match chunk {
+            Chunk::NotHighlighted(text) => {
+                let processed_text = process_chunk(text);
+                output.push_str(&processed_text);
+            }
+            Chunk::AlreadyHighlighted(text) => {
+                output.push_str(text);
+            }
+        }
+    }
+
+    output
+}
+
 fn calculate_and_allocate_capacity(input: &str) -> String {
     let allocation_size = input.len().saturating_mul(3);
     let allocation_size = std::cmp::min(allocation_size, MAX_ALLOCATION_SIZE);
