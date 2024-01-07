@@ -14,13 +14,13 @@ pub(crate) fn replace_with_awareness(color: &str, input: &str, replace_with: &st
     let mut output = calculate_and_allocate_capacity(input);
     for chunk in chunks {
         match chunk {
-            Chunk::Normal(text) => {
+            Chunk::NotHighlighted(text) => {
                 let highlighted = regex.replace_all(text, |_caps: &Captures<'_>| {
                     format!("{}{}{}", color, replace_with, color::RESET)
                 });
                 output.push_str(&highlighted);
             }
-            Chunk::Highlighted(text) => {
+            Chunk::AlreadyHighlighted(text) => {
                 output.push_str(text);
             }
         }
@@ -35,7 +35,7 @@ pub(crate) fn highlight_with_awareness_replace_all(color: &str, input: &str, reg
     let mut output = calculate_and_allocate_capacity(input);
     for chunk in chunks {
         match chunk {
-            Chunk::Normal(text) => {
+            Chunk::NotHighlighted(text) => {
                 let highlighted = regex.replace_all(text, |caps: &Captures<'_>| {
                     if border {
                         format!("{} {} {}", color, &caps[0], color::RESET)
@@ -45,7 +45,7 @@ pub(crate) fn highlight_with_awareness_replace_all(color: &str, input: &str, reg
                 });
                 output.push_str(&highlighted);
             }
-            Chunk::Highlighted(text) => {
+            Chunk::AlreadyHighlighted(text) => {
                 output.push_str(text);
             }
         }
@@ -63,11 +63,11 @@ where
 
     for chunk in chunks {
         match chunk {
-            Chunk::Normal(text) => {
+            Chunk::NotHighlighted(text) => {
                 let highlighted = regex.replace_all(text, |caps: &Captures<'_>| highlight_fn(caps));
                 output.push_str(&highlighted);
             }
-            Chunk::Highlighted(text) => {
+            Chunk::AlreadyHighlighted(text) => {
                 output.push_str(text);
             }
         }
@@ -84,8 +84,8 @@ fn calculate_and_allocate_capacity(input: &str) -> String {
 }
 
 enum Chunk<'a> {
-    Normal(&'a str),
-    Highlighted(&'a str),
+    NotHighlighted(&'a str),
+    AlreadyHighlighted(&'a str),
 }
 
 fn split_into_chunks(input: &str) -> Vec<Chunk> {
@@ -103,11 +103,11 @@ fn split_into_chunks(input: &str) -> Vec<Chunk> {
     } {
         let i = i + start;
         if inside_escape {
-            chunks.push(Chunk::Highlighted(&input[start..=i + reset_code.len() - 1]));
+            chunks.push(Chunk::AlreadyHighlighted(&input[start..=i + reset_code.len() - 1]));
             start = i + reset_code.len();
         } else {
             if i != start {
-                chunks.push(Chunk::Normal(&input[start..i]));
+                chunks.push(Chunk::NotHighlighted(&input[start..i]));
             }
             start = i;
         }
@@ -116,9 +116,9 @@ fn split_into_chunks(input: &str) -> Vec<Chunk> {
 
     if start != input.len() {
         chunks.push(if inside_escape {
-            Chunk::Highlighted(&input[start..])
+            Chunk::AlreadyHighlighted(&input[start..])
         } else {
-            Chunk::Normal(&input[start..])
+            Chunk::NotHighlighted(&input[start..])
         });
     }
 
@@ -163,15 +163,15 @@ mod tests {
 
         assert_eq!(chunks.len(), 3);
         match &chunks[0] {
-            Chunk::Normal(text) => assert_eq!(*text, "Here is a date "),
+            Chunk::NotHighlighted(text) => assert_eq!(*text, "Here is a date "),
             _ => panic!("Unexpected chunk type."),
         }
         match &chunks[1] {
-            Chunk::Highlighted(text) => assert_eq!(*text, "\x1b[31m2023-06-24\x1b[0m"),
+            Chunk::AlreadyHighlighted(text) => assert_eq!(*text, "\x1b[31m2023-06-24\x1b[0m"),
             _ => panic!("Unexpected chunk type."),
         }
         match &chunks[2] {
-            Chunk::Normal(text) => assert_eq!(*text, ", and here is a number 12345."),
+            Chunk::NotHighlighted(text) => assert_eq!(*text, ", and here is a number 12345."),
             _ => panic!("Unexpected chunk type."),
         }
     }
