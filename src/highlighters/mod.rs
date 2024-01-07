@@ -29,11 +29,12 @@ use crate::keyword::extractor::extract_all_keywords;
 use crate::theme::defaults::{get_boolean_keywords, get_rest_keywords, get_severity_keywords};
 use crate::theme::{Keyword, Theme};
 use crate::types::Highlight;
+use std::sync::Arc;
 
 pub struct Highlighters {
-    pub before: Vec<Box<dyn Highlight + Send>>,
-    pub main: Vec<Box<dyn Highlight + Send>>,
-    pub after: Vec<Box<dyn Highlight + Send>>,
+    pub before: Vec<Arc<dyn Highlight + Send + Sync>>,
+    pub main: Vec<Arc<dyn Highlight + Send + Sync>>,
+    pub after: Vec<Arc<dyn Highlight + Send + Sync>>,
 }
 
 impl Highlighters {
@@ -45,18 +46,18 @@ impl Highlighters {
         }
     }
 
-    fn set_before_fns(theme: &Theme) -> Vec<Box<dyn Highlight + Send>> {
-        let mut before_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
+    fn set_before_fns(theme: &Theme) -> Vec<Arc<dyn Highlight + Send + Sync>> {
+        let mut before_fns: Vec<Arc<dyn Highlight + Send + Sync>> = Vec::new();
 
         if !theme.date.disabled {
-            before_fns.push(Box::new(DateHighlighter::new(
+            before_fns.push(Arc::new(DateHighlighter::new(
                 &theme.date.style,
                 theme.date.shorten.clone(),
             )));
         }
 
         if !theme.time.disabled {
-            before_fns.push(Box::new(TimeHighlighter::new(
+            before_fns.push(Arc::new(TimeHighlighter::new(
                 &theme.time.time,
                 &theme.time.zone,
                 theme.time.shorten.clone(),
@@ -64,36 +65,36 @@ impl Highlighters {
         }
 
         if !theme.url.disabled {
-            before_fns.push(Box::new(UrlHighlighter::new(&theme.url)));
+            before_fns.push(Arc::new(UrlHighlighter::new(&theme.url)));
         }
 
         if !theme.path.disabled {
-            before_fns.push(Box::new(PathHighlighter::new(
+            before_fns.push(Arc::new(PathHighlighter::new(
                 &theme.path.segment,
                 &theme.path.separator,
             )));
         }
 
         if !theme.ip.disabled {
-            before_fns.push(Box::new(IpHighlighter::new(&theme.ip.segment, &theme.ip.separator)));
+            before_fns.push(Arc::new(IpHighlighter::new(&theme.ip.segment, &theme.ip.separator)));
         }
 
         if !theme.key_value.disabled {
-            before_fns.push(Box::new(KeyValueHighlighter::new(
+            before_fns.push(Arc::new(KeyValueHighlighter::new(
                 &theme.key_value.key,
                 &theme.key_value.separator,
             )));
         }
 
         if !theme.uuid.disabled {
-            before_fns.push(Box::new(UuidHighlighter::new(
+            before_fns.push(Arc::new(UuidHighlighter::new(
                 &theme.uuid.segment,
                 &theme.uuid.separator,
             )));
         }
 
         if !theme.process.disabled {
-            before_fns.push(Box::new(ProcessHighlighter::new(
+            before_fns.push(Arc::new(ProcessHighlighter::new(
                 &theme.process.name,
                 &theme.process.separator,
                 &theme.process.id,
@@ -103,17 +104,17 @@ impl Highlighters {
         before_fns
     }
 
-    fn set_main_fns(theme: &Theme, cli: &Cli) -> Vec<Box<dyn Highlight + Send>> {
-        let mut main_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
+    fn set_main_fns(theme: &Theme, cli: &Cli) -> Vec<Arc<dyn Highlight + Send + Sync>> {
+        let mut main_fns: Vec<Arc<dyn Highlight + Send + Sync>> = Vec::new();
         let keywords = Self::get_keywords(theme, cli);
         let regexps = theme.regexps.clone().unwrap_or_default();
 
         if !theme.number.disabled {
-            main_fns.push(Box::new(NumberHighlighter::new(&theme.number.style)));
+            main_fns.push(Arc::new(NumberHighlighter::new(&theme.number.style)));
         }
 
         for keyword in keywords {
-            main_fns.push(Box::new(KeywordHighlighter::new(
+            main_fns.push(Arc::new(KeywordHighlighter::new(
                 &keyword.words,
                 &keyword.style,
                 keyword.border,
@@ -131,11 +132,11 @@ impl Highlighters {
         main_fns
     }
 
-    fn set_after_fns(theme: &Theme) -> Vec<Box<dyn Highlight + Send>> {
-        let mut after_fns: Vec<Box<dyn Highlight + Send>> = Vec::new();
+    fn set_after_fns(theme: &Theme) -> Vec<Arc<dyn Highlight + Send + Sync>> {
+        let mut after_fns: Vec<Arc<dyn Highlight + Send + Sync>> = Vec::new();
 
         if !theme.quotes.disabled {
-            after_fns.push(Box::new(QuoteHighlighter::new(&theme.quotes.style, theme.quotes.token)));
+            after_fns.push(Arc::new(QuoteHighlighter::new(&theme.quotes.style, theme.quotes.token)));
         }
 
         after_fns

@@ -29,7 +29,7 @@ tailspin is a command line tool that highlights log files.
 Follow (tail) the contents of the file.
 Always true if opening a folder or using the _--follow-command_ flag.
 
-*-t, --tail*::
+*-e, --start-at-end*::
 Start at the end of the file.
 Always true if opening a folder.
 
@@ -59,6 +59,10 @@ Disables the highlighting of severity levels.
 
 *--disable-rest*::
 Disables the highlighting of REST verbs.
+
+*--bucket-size* [INT]::
+tailspin collects lines into a bucket in order to process them in parallel.
+Use this flag to override the default bucket size in case the default value is not optimal for your use case.
 
 == SEE ALSO
 

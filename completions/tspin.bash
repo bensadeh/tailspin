@@ -19,7 +19,7 @@ _tspin() {
 
     case "${cmd}" in
         tspin)
-            opts="-f -t -p -c -l -h -V --follow --tail --print --config-path --follow-command --words-red --words-green --words-yellow --words-blue --words-magenta --words-cyan --disable-builtin-keywords --disable-booleans --disable-severity --disable-rest --z-generate-shell-completions --help --version [FILE]"
+            opts="-f -t -p -c -l -h -V --follow --tail --print --config-path --follow-command --words-red --words-green --words-yellow --words-blue --words-magenta --words-cyan --disable-builtin-keywords --disable-booleans --disable-severity --disable-rest --z-generate-shell-completions --bucket-size --help --version [FILE]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -66,6 +66,10 @@ _tspin() {
                     return 0
                     ;;
                 --z-generate-shell-completions)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --bucket-size)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;

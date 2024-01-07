@@ -11,23 +11,23 @@ pub struct Cli {
     #[clap(name = "FILE")]
     pub file_or_folder_path: Option<String>,
 
-    /// Follow (tail) the contents of the file
+    /// Follow the contents of a file
     #[clap(short = 'f', long = "follow")]
     pub follow: bool,
 
     /// Start at the end of the file
-    #[clap(short = 't', long = "tail")]
-    pub tail: bool,
+    #[clap(short = 'e', long = "start-at-end")]
+    pub start_at_end: bool,
 
     /// Print the output to stdout
     #[clap(short = 'p', long = "print", conflicts_with = "follow")]
     pub to_stdout: bool,
 
-    /// Path to a custom configuration file
+    /// Provide a custom path to a configuration file
     #[clap(short = 'c', long = "config-path")]
     pub config_path: Option<String>,
 
-    /// Continuously listens to the stdout of the provided command and prevents interrupt events (Ctrl + C) from reaching the command
+    /// Continuously listen to stdout from provided command and prevent interrupt events (Ctrl + C) from reaching the command
     #[clap(short = 'l', long = "follow-command", conflicts_with = "follow")]
     pub listen_command: Option<String>,
 
@@ -70,6 +70,10 @@ pub struct Cli {
     /// Disable the highlighting of REST verbs
     #[clap(long = "disable-rest")]
     pub disable_rest: bool,
+
+    /// Set the bucket size for parallel processing
+    #[clap(long, default_value_t = 10000)]
+    pub bucket_size: usize,
 
     /// Print completions to stdout
     #[clap(long = "z-generate-shell-completions", hide = true)]

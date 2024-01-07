@@ -42,7 +42,7 @@ fn create_config(args: &Cli) -> Result<Config, Error> {
         args.listen_command.is_some(),
     )?;
 
-    let input_type = determine_input_type(&args, has_data_from_stdin)?;
+    let input_type = determine_input_type(args, has_data_from_stdin)?;
     let input = get_input(input_type)?;
     let output = get_output(has_data_from_stdin, args.to_stdout);
     let follow = should_follow(args.follow, args.listen_command.is_some(), &input);
@@ -51,7 +51,8 @@ fn create_config(args: &Cli) -> Result<Config, Error> {
         input,
         output,
         follow,
-        tail: args.tail,
+        start_at_end: args.start_at_end,
+        bucket_size: args.bucket_size,
     };
 
     Ok(config)

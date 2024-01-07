@@ -7,6 +7,7 @@ complete -c tspin -l words-blue -d 'Highlight the provided words in blue' -r
 complete -c tspin -l words-magenta -d 'Highlight the provided words in magenta' -r
 complete -c tspin -l words-cyan -d 'Highlight the provided words in cyan' -r
 complete -c tspin -l z-generate-shell-completions -d 'Print completions to stdout' -r
+complete -c tspin -l bucket-size -d 'Set the bucket size for parallel processing' -r
 complete -c tspin -s f -l follow -d 'Follow (tail) the contents of the file'
 complete -c tspin -s t -l tail -d 'Start at the end of the file'
 complete -c tspin -s p -l print -d 'Print the output to stdout'

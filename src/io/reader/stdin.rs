@@ -7,13 +7,15 @@ use tokio::sync::oneshot::Sender;
 pub struct StdinReader {
     reader: BufReader<Stdin>,
     reached_eof_tx: Option<Sender<()>>,
+    bucket_size: usize,
 }
 
 impl StdinReader {
-    pub fn get_reader(reached_eof_tx: Option<Sender<()>>) -> Box<dyn AsyncLineReader + Send> {
+    pub fn get_reader(reached_eof_tx: Option<Sender<()>>, bucket_size: usize) -> Box<dyn AsyncLineReader + Send> {
         Box::new(StdinReader {
             reader: BufReader::new(tokio::io::stdin()),
             reached_eof_tx,
+            bucket_size,
         })
     }
 
@@ -48,17 +50,28 @@ impl StdinReader {
 
 #[async_trait]
 impl AsyncLineReader for StdinReader {
-    async fn next_line(&mut self) -> io::Result<Option<String>> {
-        let buffer = self.read_bytes_until_newline().await?;
+    async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
+        let mut bucket = Vec::new();
 
-        if buffer.is_empty() {
-            self.send_eof_signal();
-            return Ok(None);
+        while bucket.len() <= self.bucket_size {
+            let buffer = match self.read_bytes_until_newline().await {
+                Ok(buffer) if !buffer.is_empty() => buffer,
+                _ => {
+                    self.send_eof_signal();
+                    break;
+                }
+            };
+
+            let buffer = Self::strip_newline_character(buffer);
+            let line = String::from_utf8_lossy(&buffer).into_owned();
+
+            bucket.push(line);
         }
 
-        let buffer = Self::strip_newline_character(buffer);
-        let line = String::from_utf8_lossy(&buffer).into_owned();
-
-        Ok(Some(line))
+        if bucket.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(bucket))
+        }
     }
 }

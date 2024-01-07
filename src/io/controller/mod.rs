@@ -24,8 +24,15 @@ pub struct Presenter {
 }
 
 pub async fn get_io_and_presenter(config: Config, reached_eof_tx: Option<Sender<()>>) -> (Io, Presenter) {
-    let reader = get_reader(config.input, config.follow, config.tail, reached_eof_tx).await;
-    let (writer, presenter) = get_writer(config.output, config.follow).await;
+    let reader = get_reader(
+        config.input,
+        config.follow,
+        config.start_at_end,
+        config.bucket_size,
+        reached_eof_tx,
+    )
+    .await;
+    let (writer, presenter) = get_writer_and_presenter(config.output, config.follow).await;
 
     (Io { reader, writer }, Presenter { presenter })
 }
@@ -33,20 +40,34 @@ pub async fn get_io_and_presenter(config: Config, reached_eof_tx: Option<Sender<
 async fn get_reader(
     input: Input,
     follow: bool,
-    tail: bool,
+    start_at_end: bool,
+    bucket_size: usize,
     reached_eof_tx: Option<Sender<()>>,
 ) -> Box<dyn AsyncLineReader + Send> {
     match input {
         Input::File(file_info) => {
-            Linemux::get_reader_single(file_info.path, file_info.line_count, follow, tail, reached_eof_tx).await
+            Linemux::get_reader_single(
+                file_info.path,
+                file_info.line_count,
+                bucket_size,
+                follow,
+                start_at_end,
+                reached_eof_tx,
+            )
+            .await
         }
-        Input::Folder(info) => Linemux::get_reader_multiple(info.folder_name, info.file_paths, reached_eof_tx).await,
-        Input::Stdin => StdinReader::get_reader(reached_eof_tx),
+        Input::Folder(info) => {
+            Linemux::get_reader_multiple(info.folder_name, info.file_paths, bucket_size, reached_eof_tx).await
+        }
+        Input::Stdin => StdinReader::get_reader(reached_eof_tx, bucket_size),
         Input::Command(cmd) => CommandReader::get_reader(cmd, reached_eof_tx).await,
     }
 }
 
-async fn get_writer(output: Output, follow: bool) -> (Box<dyn AsyncLineWriter + Send>, Box<dyn Present + Send>) {
+async fn get_writer_and_presenter(
+    output: Output,
+    follow: bool,
+) -> (Box<dyn AsyncLineWriter + Send>, Box<dyn Present + Send>) {
     match output {
         Output::TempFile => {
             let result = TempFile::get_writer_result().await;
@@ -68,7 +89,7 @@ async fn get_writer(output: Output, follow: bool) -> (Box<dyn AsyncLineWriter + 
 
 #[async_trait]
 impl AsyncLineReader for Io {
-    async fn next_line(&mut self) -> io::Result<Option<String>> {
+    async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
         self.reader.next_line().await
     }
 }

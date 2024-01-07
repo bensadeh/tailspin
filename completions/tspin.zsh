@@ -26,6 +26,7 @@ _tspin() {
 '*--words-magenta=[Highlight the provided words in magenta]:WORDS_MAGENTA: ' \
 '*--words-cyan=[Highlight the provided words in cyan]:WORDS_CYAN: ' \
 '--z-generate-shell-completions=[Print completions to stdout]:GENERATE_SHELL_COMPLETIONS: ' \
+'--bucket-size=[Set the bucket size for parallel processing]:BUCKET_SIZE: ' \
 '-f[Follow (tail) the contents of the file]' \
 '--follow[Follow (tail) the contents of the file]' \
 '-t[Start at the end of the file]' \

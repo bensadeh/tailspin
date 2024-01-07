@@ -2,6 +2,7 @@ use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use color_eyre::owo_colors::OwoColorize;
 use linemux::MuxedLines;
+use std::cmp::min;
 use std::io;
 use terminal_size::{terminal_size, Height, Width};
 use tokio::sync::oneshot::Sender;
@@ -9,6 +10,7 @@ use tokio::sync::oneshot::Sender;
 pub struct Linemux {
     custom_message: Option<String>,
     number_of_lines: Option<usize>,
+    bucket_size: usize,
     current_line: usize,
     reached_eof_tx: Option<Sender<()>>,
     lines: MuxedLines,
@@ -18,20 +20,21 @@ impl Linemux {
     pub async fn get_reader_single(
         file_path: String,
         number_of_lines: usize,
+        bucket_size: usize,
         follow: bool,
-        tail: bool,
+        start_at_end: bool,
         mut reached_eof_tx: Option<Sender<()>>,
     ) -> Box<dyn AsyncLineReader + Send> {
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
-        if tail || number_of_lines == 0 {
+        if start_at_end {
+            lines.add_file(&file_path).await.expect("Could not add file to linemux");
+
             if let Some(reached_eof) = reached_eof_tx.take() {
                 reached_eof
                     .send(())
                     .expect("Failed sending EOF signal to oneshot channel");
             }
-
-            lines.add_file(&file_path).await.expect("Could not add file to linemux");
         } else {
             lines
                 .add_file_from_start(&file_path)
@@ -39,11 +42,21 @@ impl Linemux {
                 .expect("Could not add file to linemux");
         }
 
-        let number_of_lines = if follow { Some(1) } else { Some(number_of_lines) };
+        if follow {
+            if let Some(reached_eof) = reached_eof_tx.take() {
+                reached_eof
+                    .send(())
+                    .expect("Failed sending EOF signal to oneshot channel");
+            }
+        }
+
+        let adjusted_bucket_size = min(bucket_size, number_of_lines) - 1;
+        let clamped_bucket_size = adjusted_bucket_size.clamp(1, bucket_size);
 
         Box::new(Self {
             custom_message: None,
-            number_of_lines,
+            number_of_lines: Some(number_of_lines),
+            bucket_size: clamped_bucket_size,
             current_line: 0,
             reached_eof_tx,
             lines,
@@ -53,6 +66,7 @@ impl Linemux {
     pub async fn get_reader_multiple(
         folder_name: String,
         file_paths: Vec<String>,
+        bucket_size: usize,
         mut reached_eof_tx: Option<Sender<()>>,
     ) -> Box<dyn AsyncLineReader + Send> {
         use std::path::Path;
@@ -99,6 +113,7 @@ impl Linemux {
         Box::new(Self {
             custom_message: Some(custom_message),
             number_of_lines: None,
+            bucket_size,
             current_line: 0,
             reached_eof_tx,
             lines,
@@ -125,26 +140,36 @@ fn get_separator() -> String {
 
 #[async_trait]
 impl AsyncLineReader for Linemux {
-    async fn next_line(&mut self) -> io::Result<Option<String>> {
-        self.current_line += 1;
+    async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
+        let mut bucket = Vec::new();
 
-        if let Some(custom_message) = self.custom_message.take() {
-            return Ok(Some(custom_message));
-        }
+        while bucket.len() < self.bucket_size {
+            if let Some(custom_message) = self.custom_message.take() {
+                bucket.push(custom_message);
+                break;
+            }
 
-        let line = match self.lines.next_line().await {
-            Ok(Some(line)) => line,
-            _ => return Ok(None),
-        };
+            let line = match self.lines.next_line().await {
+                Ok(Some(line)) => line,
+                _ => break,
+            };
 
-        let next_line = line.line().to_owned();
+            let next_line = line.line().to_owned();
+            bucket.push(next_line);
+            self.current_line += 1;
 
-        if let Some(number_of_lines) = self.number_of_lines {
-            if self.current_line >= number_of_lines {
-                self.send_eof_signal();
+            if let Some(number_of_lines) = self.number_of_lines {
+                if self.current_line >= number_of_lines {
+                    self.send_eof_signal();
+                    break;
+                }
             }
         }
 
-        Ok(Some(next_line))
+        if bucket.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(bucket))
+        }
     }
 }
