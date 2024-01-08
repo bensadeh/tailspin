@@ -19,7 +19,7 @@ _tspin() {
 
     case "${cmd}" in
         tspin)
-            opts="-f -t -p -c -l -h -V --follow --tail --print --config-path --follow-command --words-red --words-green --words-yellow --words-blue --words-magenta --words-cyan --disable-builtin-keywords --disable-booleans --disable-severity --disable-rest --z-generate-shell-completions --bucket-size --help --version [FILE]"
+            opts="-f -e -p -c -l -h -V --follow --start-at-end --print --config-path --follow-command --words-red --words-green --words-yellow --words-blue --words-magenta --words-cyan --disable-builtin-keywords --disable-booleans --disable-severity --disable-rest --bucket-size --z-generate-shell-completions --help --version [FILE]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -65,11 +65,11 @@ _tspin() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                --z-generate-shell-completions)
+                --bucket-size)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                --bucket-size)
+                --z-generate-shell-completions)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -83,4 +83,8 @@ _tspin() {
     esac
 }
 
-complete -F _tspin -o nosort -o bashdefault -o default tspin
+if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
+    complete -F _tspin -o nosort -o bashdefault -o default tspin
+else
+    complete -F _tspin -o bashdefault -o default tspin
+fi

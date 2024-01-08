@@ -2,8 +2,8 @@
 
 ## 2.3.0
 
-- `tailspin` now reads lines in chunks and highlights them in parallel. This should improve performance especially when
-  reading large files.
+- `tailspin` now uses multiple threads to process lines in parallel
+- Added `--bucket-size` flag to configure the number of lines to process in parallel
 - Changed `-t,--tail` flag to `-e,--start-at-end` to avoid confusion with `tail -f`
 
 ## 2.2.0
