@@ -14,9 +14,9 @@ path = "src/main.rs"
 name = "tspin"
 
 [dependencies]
-async-trait = "0.1.76"
-clap = { version = "4.4.12", features = ["derive"] }
-clap_complete = "4.4.5"
+async-trait = "0.1.77"
+clap = { version = "4.4.13", features = ["derive"] }
+clap_complete = "4.4.6"
 color-eyre = "0.6.2"
 colored = "2"
 ctrlc = "3.4.2"
