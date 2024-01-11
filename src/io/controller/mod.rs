@@ -50,7 +50,7 @@ async fn get_reader(
         Input::Folder(info) => {
             Linemux::get_reader_multiple(info.folder_name, info.file_paths, bucket_size, reached_eof_tx).await
         }
-        Input::Stdin => StdinReader::get_reader(reached_eof_tx, bucket_size),
+        Input::Stdin => StdinReader::get_reader(reached_eof_tx),
         Input::Command(cmd) => CommandReader::get_reader(cmd, reached_eof_tx).await,
     }
 }
