@@ -1,8 +1,9 @@
 # Changelog
+
 ## 2.4.0
 
-
-
+- Added a regexp highlighter with support for one capture group
+- Changed the behavior of processing lines from `stdin` to be sequential for better stability
 
 ## 2.3.0
 
