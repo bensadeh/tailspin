@@ -1,18 +1,17 @@
-use crate::color::to_ansi;
 use crate::highlight_utils;
 use crate::line_info::LineInfo;
-use crate::theme::Style;
 use crate::types::Highlight;
+use nu_ansi_term::Style;
 use regex::Regex;
 
 pub struct KeywordHighlighter {
     keyword_regex: Regex,
-    color: String,
+    style: Style,
     border: bool,
 }
 
 impl KeywordHighlighter {
-    pub fn new(keywords: &[String], style: &Style, border: bool) -> Self {
+    pub fn new(keywords: Vec<String>, style: Style, border: bool) -> Self {
         let keyword_pattern = keywords
             .iter()
             .map(|word| regex::escape(word))
@@ -23,7 +22,7 @@ impl KeywordHighlighter {
 
         Self {
             keyword_regex,
-            color: to_ansi(style),
+            style,
             border,
         }
     }
@@ -35,10 +34,11 @@ impl Highlight for KeywordHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        highlight_keywords(&self.color, input, &self.keyword_regex, self.border)
+        highlight_utils::highlight_with_awareness_replace_all_with_new_style(
+            &self.style,
+            input,
+            &self.keyword_regex,
+            self.border,
+        )
     }
-}
-
-fn highlight_keywords(color: &str, input: &str, keyword_regex: &Regex, border: bool) -> String {
-    highlight_utils::highlight_with_awareness_replace_all(color, input, keyword_regex, border)
 }

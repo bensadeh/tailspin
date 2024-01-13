@@ -1,5 +1,5 @@
-use crate::color::Fg;
-use crate::theme::{Keyword, Style};
+use crate::theme::processed::Keyword;
+use nu_ansi_term::{Color, Style};
 
 pub fn extract_all_keywords(
     words_red: Vec<String>,
@@ -10,24 +10,21 @@ pub fn extract_all_keywords(
     words_cyan: Vec<String>,
 ) -> Vec<Keyword> {
     [
-        extract_keywords(words_red, Fg::Red),
-        extract_keywords(words_green, Fg::Green),
-        extract_keywords(words_yellow, Fg::Yellow),
-        extract_keywords(words_blue, Fg::Blue),
-        extract_keywords(words_magenta, Fg::Magenta),
-        extract_keywords(words_cyan, Fg::Cyan),
+        extract_keywords(words_red, Color::Red),
+        extract_keywords(words_green, Color::Green),
+        extract_keywords(words_yellow, Color::Yellow),
+        extract_keywords(words_blue, Color::Blue),
+        extract_keywords(words_magenta, Color::Magenta),
+        extract_keywords(words_cyan, Color::Cyan),
     ]
     .concat()
 }
 
-pub fn extract_keywords(words: Vec<String>, color: Fg) -> Vec<Keyword> {
+pub fn extract_keywords(words: Vec<String>, color: Color) -> Vec<Keyword> {
     words
         .into_iter()
         .map(|word| Keyword {
-            style: Style {
-                fg: color,
-                ..Default::default()
-            },
+            style: Style::from(color),
             words: vec![word],
             ..Default::default()
         })

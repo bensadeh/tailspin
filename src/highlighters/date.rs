@@ -1,43 +1,28 @@
-use crate::color::to_ansi;
 use crate::highlight_utils;
 use crate::line_info::LineInfo;
-use crate::regex::DATE_REGEX;
-use crate::theme::{Shorten, Style};
 use crate::types::Highlight;
+use nu_ansi_term::Style;
+use once_cell::sync::Lazy;
+use regex::Regex;
+
+static DATE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\d{4}-\d{2}-\d{2}").expect("Invalid regex pattern"));
 
 pub struct DateHighlighter {
-    style: String,
-    shorten: Option<Shorten>,
+    style: Style,
 }
 
 impl DateHighlighter {
-    pub fn new(style: &Style, shorten: Option<Shorten>) -> Self {
-        Self {
-            style: to_ansi(style),
-            shorten,
-        }
+    pub fn new(style: Style) -> Self {
+        Self { style }
     }
 }
 
 impl Highlight for DateHighlighter {
     fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
-        if line_info.dashes < 2 {
-            return true;
-        }
-
-        false
+        line_info.dashes < 2
     }
 
     fn apply(&self, input: &str) -> String {
-        if let Some(shorten) = &self.shorten {
-            return highlight_utils::replace_with_awareness(
-                to_ansi(&shorten.clone().style).as_str(),
-                input,
-                &shorten.to,
-                &DATE_REGEX,
-            );
-        }
-
-        highlight_utils::highlight_with_awareness_replace_all(&self.style, input, &DATE_REGEX, false)
+        highlight_utils::highlight_with_awareness_replace_all_with_new_style(&self.style, input, &DATE_REGEX, false)
     }
 }

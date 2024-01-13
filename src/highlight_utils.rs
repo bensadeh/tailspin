@@ -1,5 +1,6 @@
 use crate::color;
 use lazy_static::lazy_static;
+use nu_ansi_term::Style;
 use regex::{Captures, Regex};
 
 lazy_static! {
@@ -41,6 +42,36 @@ pub(crate) fn highlight_with_awareness_replace_all(color: &str, input: &str, reg
                         format!("{} {} {}", color, &caps[0], color::RESET)
                     } else {
                         format!("{}{}{}", color, &caps[0], color::RESET)
+                    }
+                });
+                output.push_str(&highlighted);
+            }
+            Chunk::AlreadyHighlighted(text) => {
+                output.push_str(text);
+            }
+        }
+    }
+
+    output
+}
+
+pub(crate) fn highlight_with_awareness_replace_all_with_new_style(
+    style: &Style,
+    input: &str,
+    regex: &Regex,
+    border: bool,
+) -> String {
+    let chunks = split_into_chunks(input);
+
+    let mut output = calculate_and_allocate_capacity(input);
+    for chunk in chunks {
+        match chunk {
+            Chunk::NotHighlighted(text) => {
+                let highlighted = regex.replace_all(text, |caps: &Captures<'_>| {
+                    if border {
+                        format!(" {} ", style.paint(&caps[0]))
+                    } else {
+                        format!("{}", style.paint(&caps[0]))
                     }
                 });
                 output.push_str(&highlighted);

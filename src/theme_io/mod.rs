@@ -1,5 +1,4 @@
-use crate::theme::Theme;
-
+use crate::theme::raw::Theme;
 use std::path::PathBuf;
 use std::process::exit;
 use std::{env, fs};

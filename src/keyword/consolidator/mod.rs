@@ -1,36 +1,59 @@
-use crate::theme::{Keyword, Style};
+use crate::theme::processed::Keyword;
+use nu_ansi_term::Style;
 use std::collections::{HashMap, HashSet};
 
+// pub fn consolidate_keywords(keywords: Vec<Keyword>) -> Vec<Keyword> {
+//     let mut map: HashMap<(Style, bool), HashSet<String>> = HashMap::new();
+//
+//     for keyword in keywords {
+//         map.entry((keyword.style, keyword.border))
+//             .or_default()
+//             .extend(keyword.words.into_iter());
+//     }
+//
+//     map.into_iter()
+//         .map(|((style, border), words)| Keyword {
+//             style,
+//             words: words.into_iter().collect(),
+//             border,
+//         })
+//         .filter(|keyword| !keyword.words.is_empty())
+//         .collect()
+// }
+
 pub fn consolidate_keywords(keywords: Vec<Keyword>) -> Vec<Keyword> {
-    let mut map: HashMap<(Style, bool), HashSet<String>> = HashMap::new();
+    let mut consolidated: Vec<Keyword> = Vec::new();
 
     for keyword in keywords {
-        map.entry((keyword.style, keyword.border))
-            .or_default()
-            .extend(keyword.words.into_iter());
+        let mut found = false;
+        for cons in consolidated.iter_mut() {
+            if cons.style == keyword.style && cons.border == keyword.border {
+                cons.words.extend(keyword.words.clone());
+                found = true;
+                break;
+            }
+        }
+        if !found {
+            consolidated.push(keyword);
+        }
     }
 
-    map.into_iter()
-        .map(|((style, border), words)| Keyword {
-            style,
-            words: words.into_iter().collect(),
-            border,
-        })
+    consolidated
+        .into_iter()
         .filter(|keyword| !keyword.words.is_empty())
         .collect()
 }
 
+// Assuming Keyword struct remains the same
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::color::Fg;
+    use nu_ansi_term::Color;
 
     #[test]
     fn test_consolidate_keywords() {
-        let style_red = Style {
-            fg: Fg::Red,
-            ..Default::default()
-        };
+        let style_red = Style::new().fg(Color::Red);
 
         let style_default = Style { ..Default::default() };
 
@@ -82,14 +105,8 @@ mod tests {
 
     #[test]
     fn test_different_styles_and_borders() {
-        let style_one = Style {
-            fg: Fg::Red,
-            ..Default::default()
-        };
-        let style_two = Style {
-            fg: Fg::Blue,
-            ..Default::default()
-        };
+        let style_one = Style::new().fg(Color::Red);
+        let style_two = Style::new().fg(Color::Blue);
 
         let keywords = vec![
             Keyword {
@@ -110,14 +127,8 @@ mod tests {
 
     #[test]
     fn test_same_name_and_different_styles() {
-        let style_one = Style {
-            fg: Fg::Green,
-            ..Default::default()
-        };
-        let style_two = Style {
-            fg: Fg::Yellow,
-            ..Default::default()
-        };
+        let style_one = Style::new().fg(Color::Green);
+        let style_two = Style::new().fg(Color::Yellow);
 
         let keywords = vec![
             Keyword {
@@ -138,10 +149,7 @@ mod tests {
 
     #[test]
     fn test_duplicate_words() {
-        let style = Style {
-            fg: Fg::Red,
-            ..Default::default()
-        };
+        let style = Style::new().fg(Color::Red);
 
         let keywords = vec![
             Keyword {
@@ -165,10 +173,7 @@ mod tests {
     #[test]
     fn test_empty_words_list() {
         let keywords = vec![Keyword {
-            style: Style {
-                fg: Fg::Red,
-                ..Default::default()
-            },
+            style: Style::new().fg(Color::Red),
             words: vec![],
             border: true,
         }];
@@ -179,13 +184,8 @@ mod tests {
 
     #[test]
     fn test_single_keyword() {
-        let style = Style {
-            fg: Fg::Red,
-            ..Default::default()
-        };
-
         let keywords = vec![Keyword {
-            style,
+            style: Style::new().fg(Color::Red),
             words: vec!["apple".into()],
             border: true,
         }];

@@ -1,17 +1,31 @@
-use crate::color::to_ansi;
 use crate::highlight_utils;
 use crate::line_info::LineInfo;
-use crate::regex::NUMBER_REGEX;
-use crate::theme::Style;
 use crate::types::Highlight;
+use nu_ansi_term::Style;
+use once_cell::sync::Lazy;
+use regex::Regex;
+
+static NUMBER_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"(?x)       # Enable comments and whitespace insensitivity
+            \b       # Word boundary, ensures we are at the start of a number
+            \d+      # Matches one or more digits
+            (\.      # Start a group to match a decimal part
+            \d+      # Matches one or more digits after the dot
+            )?       # The decimal part is optional
+            \b       # Word boundary, ensures we are at the end of a number
+            ",
+    )
+    .expect("Invalid regex pattern")
+});
 
 pub struct NumberHighlighter {
-    color: String,
+    style: Style,
 }
 
 impl NumberHighlighter {
-    pub fn new(style: &Style) -> Self {
-        Self { color: to_ansi(style) }
+    pub fn new(style: Style) -> Self {
+        Self { style }
     }
 }
 
@@ -21,10 +35,7 @@ impl Highlight for NumberHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        highlight_numbers(&self.color, input)
+        let color = &self.style;
+        highlight_utils::highlight_with_awareness_replace_all_with_new_style(color, input, &NUMBER_REGEX, false)
     }
-}
-
-fn highlight_numbers(color: &str, input: &str) -> String {
-    highlight_utils::highlight_with_awareness_replace_all(color, input, &NUMBER_REGEX, false)
 }

@@ -19,7 +19,7 @@ use crate::highlighters::keyword::KeywordHighlighter;
 use crate::highlighters::number::NumberHighlighter;
 use crate::highlighters::path::PathHighlighter;
 use crate::highlighters::process::ProcessHighlighter;
-use crate::highlighters::quotes::QuoteHighlighter;
+// use crate::highlighters::quotes::QuoteHighlighter;
 use crate::highlighters::regexp::RegexpHighlighter;
 use crate::highlighters::time::TimeHighlighter;
 use crate::highlighters::url::UrlHighlighter;
@@ -27,7 +27,7 @@ use crate::highlighters::uuid::UuidHighlighter;
 use crate::keyword::consolidator::consolidate_keywords;
 use crate::keyword::extractor::extract_all_keywords;
 use crate::theme::defaults::{get_boolean_keywords, get_rest_keywords, get_severity_keywords};
-use crate::theme::{Keyword, Theme};
+use crate::theme::processed::{Keyword, Theme};
 use crate::types::Highlight;
 use std::sync::Arc;
 
@@ -50,54 +50,49 @@ impl Highlighters {
         let mut before_fns: Vec<Arc<dyn Highlight + Send + Sync>> = Vec::new();
 
         if !theme.date.disabled {
-            before_fns.push(Arc::new(DateHighlighter::new(
-                &theme.date.style,
-                theme.date.shorten.clone(),
-            )));
+            before_fns.push(Arc::new(DateHighlighter::new(theme.date.style)));
         }
 
         if !theme.time.disabled {
-            before_fns.push(Arc::new(TimeHighlighter::new(
-                &theme.time.time,
-                &theme.time.zone,
-                theme.time.shorten.clone(),
-            )));
+            before_fns.push(Arc::new(TimeHighlighter::new(theme.time.time, theme.time.zone)));
         }
 
         if !theme.url.disabled {
-            before_fns.push(Arc::new(UrlHighlighter::new(&theme.url)));
-        }
-
-        if !theme.path.disabled {
-            before_fns.push(Arc::new(PathHighlighter::new(
-                &theme.path.segment,
-                &theme.path.separator,
+            before_fns.push(Arc::new(UrlHighlighter::new(
+                theme.url.http,
+                theme.url.https,
+                theme.url.host,
+                theme.url.path,
+                theme.url.query_params_key,
+                theme.url.query_params_value,
+                theme.url.symbols,
             )));
         }
 
+        if !theme.path.disabled {
+            before_fns.push(Arc::new(PathHighlighter::new(theme.path.segment, theme.path.separator)));
+        }
+
         if !theme.ip.disabled {
-            before_fns.push(Arc::new(IpHighlighter::new(&theme.ip.segment, &theme.ip.separator)));
+            before_fns.push(Arc::new(IpHighlighter::new(theme.ip.segment, theme.ip.separator)));
         }
 
         if !theme.key_value.disabled {
             before_fns.push(Arc::new(KeyValueHighlighter::new(
-                &theme.key_value.key,
-                &theme.key_value.separator,
+                theme.key_value.key,
+                theme.key_value.separator,
             )));
         }
 
         if !theme.uuid.disabled {
-            before_fns.push(Arc::new(UuidHighlighter::new(
-                &theme.uuid.segment,
-                &theme.uuid.separator,
-            )));
+            before_fns.push(Arc::new(UuidHighlighter::new(theme.uuid.segment, theme.uuid.separator)));
         }
 
         if !theme.process.disabled {
             before_fns.push(Arc::new(ProcessHighlighter::new(
-                &theme.process.name,
-                &theme.process.separator,
-                &theme.process.id,
+                theme.process.name,
+                theme.process.separator,
+                theme.process.id,
             )));
         }
 
@@ -110,21 +105,21 @@ impl Highlighters {
         let regexps = theme.regexps.clone().unwrap_or_default();
 
         if !theme.number.disabled {
-            main_fns.push(Arc::new(NumberHighlighter::new(&theme.number.style)));
+            main_fns.push(Arc::new(NumberHighlighter::new(theme.number.style)));
         }
 
         for keyword in keywords {
             main_fns.push(Arc::new(KeywordHighlighter::new(
-                &keyword.words,
-                &keyword.style,
+                keyword.words,
+                keyword.style,
                 keyword.border,
             )));
         }
 
         for regexp in regexps {
             main_fns.push(Arc::new(RegexpHighlighter::new(
-                &regexp.regular_expression,
-                &regexp.style,
+                regexp.regular_expression,
+                regexp.style,
                 regexp.border,
             )));
         }
@@ -136,7 +131,7 @@ impl Highlighters {
         let mut after_fns: Vec<Arc<dyn Highlight + Send + Sync>> = Vec::new();
 
         if !theme.quotes.disabled {
-            after_fns.push(Arc::new(QuoteHighlighter::new(&theme.quotes.style, theme.quotes.token)));
+            // after_fns.push(Arc::new(QuoteHighlighter::new(&theme.quotes.style, theme.quotes.token)));
         }
 
         after_fns

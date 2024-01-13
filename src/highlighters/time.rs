@@ -1,47 +1,55 @@
-use crate::color::to_ansi;
 use crate::line_info::LineInfo;
-use crate::regex::TIME_REGEX;
-use crate::theme::{Shorten, Style};
 use crate::types::Highlight;
-use crate::{color, highlight_utils};
+use nu_ansi_term::Style;
+use once_cell::sync::Lazy;
+use regex::Regex;
+
+static TIME_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(
+        r"(?x)                       
+                (?:
+                    (?P<T>[T\s])?               # Capture separator (either a space or T)
+                    (?P<time>\d{2}:\d{2}:\d{2}) # Capture time alone
+                    (?P<frac>[.,]\d+)?          # Capture fractional seconds
+                    (?P<tz>Z)?                  # Capture timezone (Zulu time)
+                )  
+    ",
+    )
+    .expect("Invalid regex pattern")
+});
 
 pub struct TimeHighlighter {
-    time: String,
-    zone: String,
-    shorten: Option<Shorten>,
+    time: Style,
+    zone: Style,
 }
 
 impl TimeHighlighter {
-    pub fn new(time: &Style, zone: &Style, shorten: Option<Shorten>) -> Self {
-        Self {
-            time: to_ansi(time),
-            zone: to_ansi(zone),
-            shorten,
-        }
+    pub fn new(time: Style, zone: Style) -> Self {
+        Self { time, zone }
     }
 
     fn highlight_time(&self, input: &str) -> String {
         let highlighted = TIME_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
             let t_part = if let Some(m) = caps.name("T") {
-                format!("{}{}{}", self.zone, m.as_str(), color::RESET)
+                format!("{}", self.zone.paint(m.as_str()))
             } else {
                 String::new()
             };
 
             let time_part = if let Some(m) = caps.name("time") {
-                format!("{}{}{}", self.time, m.as_str(), color::RESET)
+                format!("{}", self.time.paint(m.as_str()))
             } else {
                 String::new()
             };
 
             let frac_part = if let Some(m) = caps.name("frac") {
-                format!("{}{}{}", self.time, m.as_str(), color::RESET)
+                format!("{}", self.time.paint(m.as_str()))
             } else {
                 String::new()
             };
 
             let zone_part = if let Some(m) = caps.name("tz") {
-                format!("{}{}{}", self.zone, m.as_str(), color::RESET)
+                format!("{}", self.zone.paint(m.as_str()))
             } else {
                 String::new()
             };
@@ -55,23 +63,10 @@ impl TimeHighlighter {
 
 impl Highlight for TimeHighlighter {
     fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
-        if line_info.colons < 2 {
-            return true;
-        }
-
-        false
+        line_info.colons < 2
     }
 
     fn apply(&self, input: &str) -> String {
-        if let Some(shorten) = &self.shorten {
-            return highlight_utils::replace_with_awareness(
-                to_ansi(&shorten.clone().style).as_str(),
-                input,
-                &shorten.to,
-                &TIME_REGEX,
-            );
-        }
-
         self.highlight_time(input)
     }
 }

@@ -1,20 +1,20 @@
-use crate::color::to_ansi;
 use crate::line_info::LineInfo;
-use crate::regex::KEY_VALUE_REGEX;
-use crate::theme::Style;
 use crate::types::Highlight;
+use nu_ansi_term::Style;
+use once_cell::sync::Lazy;
+use regex::Regex;
+
+static KEY_VALUE_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"(?P<space_or_start>(^)|\s)(?P<key>\w+\b)(?P<equals>=)").expect("Invalid regex pattern"));
 
 pub struct KeyValueHighlighter {
-    key_color: String,
-    equals_sign_color: String,
+    key: Style,
+    separator: Style,
 }
 
 impl KeyValueHighlighter {
-    pub fn new(key_style: &Style, equals_sign_style: &Style) -> Self {
-        Self {
-            key_color: to_ansi(key_style),
-            equals_sign_color: to_ansi(equals_sign_style),
-        }
+    pub fn new(key: Style, separator: Style) -> Self {
+        Self { key, separator }
     }
 }
 
@@ -28,24 +28,20 @@ impl Highlight for KeyValueHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        highlight_key_values(&self.key_color, &self.equals_sign_color, input)
+        KEY_VALUE_REGEX
+            .replace_all(input, |captures: &regex::Captures| {
+                let space_or_start = captures.name("space_or_start").map(|s| s.as_str()).unwrap_or_default();
+                let key = captures
+                    .name("key")
+                    .map(|k| format!("{}", self.key.paint(k.as_str())))
+                    .unwrap_or_default();
+                let equals_sign = captures
+                    .name("equals")
+                    .map(|e| format!("{}", self.separator.paint(e.as_str())))
+                    .unwrap_or_default();
+
+                format!("{}{}{}", space_or_start, key, equals_sign)
+            })
+            .to_string()
     }
-}
-
-fn highlight_key_values(key_color: &str, equals_sign_color: &str, input: &str) -> String {
-    KEY_VALUE_REGEX
-        .replace_all(input, |captures: &regex::Captures| {
-            let space_or_start = captures.name("space_or_start").map(|s| s.as_str()).unwrap_or_default();
-            let key = captures
-                .name("key")
-                .map(|k| format!("{}{}\x1B[0m", key_color, k.as_str()))
-                .unwrap_or_default();
-            let equals_sign = captures
-                .name("equals")
-                .map(|e| format!("{}{}\x1B[0m", equals_sign_color, e.as_str()))
-                .unwrap_or_default();
-
-            format!("{}{}{}", space_or_start, key, equals_sign)
-        })
-        .to_string()
 }
