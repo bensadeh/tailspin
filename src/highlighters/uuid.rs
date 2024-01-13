@@ -1,12 +1,11 @@
 use crate::highlight_utils::highlight_with_awareness;
 use crate::line_info::LineInfo;
-use crate::regex::UUID_REGEX;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
-static DATE_REGEX: Lazy<Regex> = Lazy::new(|| {
+static UUID_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
         r"(?x)
             (\b[0-9a-fA-F]{8}\b)    # Match first segment of UUID

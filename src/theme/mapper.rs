@@ -1,8 +1,8 @@
 use crate::theme;
 use crate::theme::raw::Theme;
 
-pub fn map(raw_theme: Theme) -> theme::processed::Theme {
-    return theme::processed::Theme {
+pub fn map(_raw_theme: Theme) -> theme::processed::Theme {
+    theme::processed::Theme {
         date: Default::default(),
         time: Default::default(),
         number: Default::default(),
@@ -15,5 +15,5 @@ pub fn map(raw_theme: Theme) -> theme::processed::Theme {
         uuid: Default::default(),
         quotes: Default::default(),
         regexps: None,
-    };
+    }
 }

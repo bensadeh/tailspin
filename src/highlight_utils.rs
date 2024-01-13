@@ -9,7 +9,7 @@ lazy_static! {
 
 const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
 
-pub(crate) fn replace_with_awareness(color: &str, input: &str, replace_with: &str, regex: &Regex) -> String {
+pub(crate) fn _replace_with_awareness(color: &str, input: &str, replace_with: &str, regex: &Regex) -> String {
     let chunks = split_into_chunks(input);
 
     let mut output = calculate_and_allocate_capacity(input);
@@ -30,7 +30,7 @@ pub(crate) fn replace_with_awareness(color: &str, input: &str, replace_with: &st
     output
 }
 
-pub(crate) fn highlight_with_awareness_replace_all(color: &str, input: &str, regex: &Regex, border: bool) -> String {
+pub(crate) fn _highlight_with_awareness_replace_all(color: &str, input: &str, regex: &Regex, border: bool) -> String {
     let chunks = split_into_chunks(input);
 
     let mut output = calculate_and_allocate_capacity(input);
@@ -107,7 +107,7 @@ where
     output
 }
 
-pub(crate) fn generic_process_with_awareness<F>(input: &str, process_chunk: F) -> String
+pub(crate) fn _generic_process_with_awareness<F>(input: &str, process_chunk: F) -> String
 where
     F: Fn(&str) -> String,
 {
@@ -188,7 +188,7 @@ mod tests {
         let regex = Regex::new(r"\b\d+\b").unwrap();
         let input = "Here is a number 12345, and here is another 54321.";
         let color = "\x1b[31m"; // ANSI color code for red
-        let result = highlight_with_awareness_replace_all(color, input, &regex, false);
+        let result = _highlight_with_awareness_replace_all(color, input, &regex, false);
 
         assert_eq!(
             result,
@@ -201,7 +201,7 @@ mod tests {
         let regex = Regex::new(r"\b\d+\b").unwrap();
         let input = "Here is a date \x1b[31m2023-06-24\x1b[0m, and here is a number 12345.";
         let color = "\x1b[31m"; // ANSI color code for red
-        let result = highlight_with_awareness_replace_all(color, input, &regex, false);
+        let result = _highlight_with_awareness_replace_all(color, input, &regex, false);
 
         assert_eq!(
             result,

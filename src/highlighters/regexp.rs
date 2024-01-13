@@ -6,7 +6,7 @@ use regex::Regex;
 pub struct RegexpHighlighter {
     keyword_regex: Regex,
     style: Style,
-    border: bool,
+    _border: bool,
 }
 
 impl RegexpHighlighter {
@@ -16,7 +16,7 @@ impl RegexpHighlighter {
         Self {
             keyword_regex,
             style,
-            border,
+            _border: border,
         }
     }
 }

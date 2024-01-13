@@ -7,7 +7,6 @@ mod highlighters;
 mod io;
 mod keyword;
 mod line_info;
-mod regex;
 mod theme;
 mod theme_io;
 mod types;
