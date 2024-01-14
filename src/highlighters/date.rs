@@ -22,6 +22,10 @@ impl Highlight for DateHighlighter {
         line_info.dashes < 2
     }
 
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
+        true
+    }
+
     fn apply(&self, input: &str) -> String {
         highlight_utils::highlight_with_awareness_replace_all_with_new_style(&self.style, input, &DATE_REGEX, false)
     }

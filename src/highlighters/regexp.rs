@@ -26,6 +26,10 @@ impl Highlight for RegexpHighlighter {
         false
     }
 
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
+        true
+    }
+
     fn apply(&self, input: &str) -> String {
         let regex = &self.keyword_regex;
         let color = &self.style;

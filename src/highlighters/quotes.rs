@@ -30,6 +30,10 @@ impl Highlight for QuoteHighlighter {
         line_info.double_quotes == 0 || line_info.double_quotes % 2 != 0
     }
 
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
+        false
+    }
+
     fn apply(&self, input: &str) -> String {
         self.highlight_inside_quotes(input)
     }

@@ -35,11 +35,11 @@ impl UuidHighlighter {
 
 impl Highlight for UuidHighlighter {
     fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
-        if line_info.dashes < 4 {
-            return true;
-        }
+        line_info.dashes < 4
+    }
 
-        false
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
+        true
     }
 
     fn apply(&self, input: &str) -> String {

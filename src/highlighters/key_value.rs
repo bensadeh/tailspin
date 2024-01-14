@@ -20,11 +20,11 @@ impl KeyValueHighlighter {
 
 impl Highlight for KeyValueHighlighter {
     fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
-        if line_info.equals < 1 {
-            return true;
-        }
+        line_info.equals < 1
+    }
 
-        false
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
+        true
     }
 
     fn apply(&self, input: &str) -> String {

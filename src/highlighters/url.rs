@@ -50,6 +50,10 @@ impl Highlight for UrlHighlighter {
         line_info.slashes < 1 || line_info.colons == 0
     }
 
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
+        true
+    }
+
     fn apply(&self, input: &str) -> String {
         let highlighted = URL_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
             let mut output = String::new();

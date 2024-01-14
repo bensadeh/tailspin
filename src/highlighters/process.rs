@@ -28,6 +28,10 @@ impl Highlight for ProcessHighlighter {
         line_info.left_bracket < 1 || line_info.right_bracket < 1
     }
 
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
+        true
+    }
+
     fn apply(&self, input: &str) -> String {
         PROCESS_REGEX
             .replace_all(input, |captures: &regex::Captures| {

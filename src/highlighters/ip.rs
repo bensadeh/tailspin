@@ -25,6 +25,10 @@ impl Highlight for IpHighlighter {
         line_info.dots < 3
     }
 
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
+        true
+    }
+
     fn apply(&self, input: &str) -> String {
         let segment = &self.segment;
         let separator = &self.separator;

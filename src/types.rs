@@ -6,6 +6,7 @@ pub const MISUSE_SHELL_BUILTIN: i32 = 2;
 
 pub trait Highlight {
     fn should_short_circuit(&self, line_info: &LineInfo) -> bool;
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool;
     fn apply(&self, input: &str) -> String;
 }
 

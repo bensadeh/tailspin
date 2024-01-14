@@ -66,6 +66,10 @@ impl Highlight for TimeHighlighter {
         line_info.colons < 2
     }
 
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
+        true
+    }
+
     fn apply(&self, input: &str) -> String {
         self.highlight_time(input)
     }

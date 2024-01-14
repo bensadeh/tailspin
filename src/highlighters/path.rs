@@ -23,11 +23,11 @@ pub struct PathHighlighter {
 
 impl Highlight for PathHighlighter {
     fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
-        if line_info.slashes == 0 {
-            return true;
-        }
+        line_info.slashes == 0
+    }
 
-        false
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
+        true
     }
 
     fn apply(&self, input: &str) -> String {

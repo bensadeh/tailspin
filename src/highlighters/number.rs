@@ -34,6 +34,10 @@ impl Highlight for NumberHighlighter {
         false
     }
 
+    fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
+        true
+    }
+
     fn apply(&self, input: &str) -> String {
         let color = &self.style;
         highlight_utils::highlight_with_awareness_replace_all_with_new_style(color, input, &NUMBER_REGEX, false)
