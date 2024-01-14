@@ -1,5 +1,6 @@
 use crate::theme;
 use crate::theme::processed::{Date, FilePath, Ip, KeyValue, Number, Process, Quotes, Time, Url, Uuid};
+use crate::theme::raw::{Keyword, Regexp};
 use nu_ansi_term::{Color, Style};
 
 pub fn map(raw: theme::raw::Theme) -> theme::processed::Theme {
@@ -64,8 +65,8 @@ pub fn map(raw: theme::raw::Theme) -> theme::processed::Theme {
             token: raw.quotes.token.map_or(Quotes::default().token, |c| c),
             disabled: raw.quotes.disabled,
         },
-        keywords: Default::default(),
-        regexps: Default::default(),
+        keywords: process_keywords(raw.keywords),
+        regexps: process_regexps(raw.regexps),
     }
 }
 
@@ -103,4 +104,40 @@ fn map_to_color_or_exit_early(color: &str) -> Color {
         "black" => Color::Black,
         _ => panic!("Unsupported color: {}", color),
     }
+}
+
+fn process_keywords(raw_keywords: Option<Vec<Keyword>>) -> Vec<theme::processed::Keyword> {
+    let mut keywords = Vec::new();
+
+    if let Some(raw_kws) = raw_keywords {
+        for raw_keyword in raw_kws {
+            let words = raw_keyword.words;
+            let style = to_style(raw_keyword.style);
+            let border = raw_keyword.border;
+
+            keywords.push(theme::processed::Keyword { style, words, border });
+        }
+    }
+
+    keywords
+}
+
+fn process_regexps(raw_regexps: Option<Vec<Regexp>>) -> Vec<theme::processed::Regexp> {
+    let mut regexps = Vec::new();
+
+    if let Some(raw_rxs) = raw_regexps {
+        for raw_regexp in raw_rxs {
+            let regular_expression = raw_regexp.regular_expression;
+            let style = to_style(raw_regexp.style);
+            let border = raw_regexp.border;
+
+            regexps.push(theme::processed::Regexp {
+                regular_expression,
+                style,
+                border,
+            });
+        }
+    }
+
+    regexps
 }

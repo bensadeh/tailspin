@@ -102,7 +102,7 @@ impl Highlighters {
     fn set_main_fns(theme: &Theme, cli: &Cli) -> Vec<Arc<dyn Highlight + Send + Sync>> {
         let mut main_fns: Vec<Arc<dyn Highlight + Send + Sync>> = Vec::new();
         let keywords = Self::get_keywords(theme, cli);
-        let regexps = theme.regexps.clone().unwrap_or_default();
+        let regexps = theme.regexps.clone();
 
         if !theme.number.disabled {
             main_fns.push(Arc::new(NumberHighlighter::new(theme.number.style)));
@@ -154,7 +154,7 @@ impl Highlighters {
     }
 
     fn get_custom_and_builtin_keywords(theme: &Theme, cli: &Cli) -> Vec<Keyword> {
-        let mut all_keywords = theme.keywords.clone().unwrap_or_default();
+        let mut all_keywords = theme.keywords.clone();
 
         if !cli.disable_keyword_builtins {
             if !cli.disable_booleans {

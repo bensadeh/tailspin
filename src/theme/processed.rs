@@ -89,6 +89,6 @@ pub struct Theme {
     pub key_value: KeyValue,
     pub path: FilePath,
     pub process: Process,
-    pub keywords: Option<Vec<Keyword>>,
-    pub regexps: Option<Vec<Regexp>>,
+    pub keywords: Vec<Keyword>,
+    pub regexps: Vec<Regexp>,
 }
