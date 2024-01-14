@@ -27,7 +27,7 @@ async fn main() -> Result<()> {
 
     let cli = cli::get_args_or_exit_early();
     let theme = theme_io::load_theme(cli.config_path.clone());
-    let processed_theme = theme::mapper::map(theme);
+    let processed_theme = theme::mapper::map_or_exit_early(theme);
     let config = config::create_config_or_exit_early(&cli);
 
     run(processed_theme, config, cli).await;

@@ -3,7 +3,7 @@ use crate::theme::processed::{Date, FilePath, Ip, KeyValue, Number, Process, Quo
 use crate::theme::raw::{Keyword, Regexp};
 use nu_ansi_term::{Color, Style};
 
-pub fn map(raw: theme::raw::Theme) -> theme::processed::Theme {
+pub fn map_or_exit_early(raw: theme::raw::Theme) -> theme::processed::Theme {
     theme::processed::Theme {
         date: Date {
             style: raw.date.style.map_or(Date::default().style, to_style),
