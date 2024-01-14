@@ -1,7 +1,5 @@
-use nu_ansi_term::Style;
 use regex::{Captures, Regex};
 
-const RESET: &str = "\x1b[0m";
 const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
 
 pub(crate) fn highlight_with_awareness<F>(input: &str, regex: &Regex, highlight_fn: F) -> String
