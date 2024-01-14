@@ -3,6 +3,7 @@
 ## 3.0.0
 
 - Process highlighter has updated default styling and matches processes with parenthesis
+- UUID highlighter now highlights numbers and letters in individual styling
 
 
 ## 2.4.0

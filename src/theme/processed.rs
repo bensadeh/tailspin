@@ -1,8 +1,9 @@
 use nu_ansi_term::Style;
 
 pub struct Uuid {
-    pub segment: Style,
-    pub separator: Style,
+    pub number: Style,
+    pub letter: Style,
+    pub dash: Style,
     pub disabled: bool,
 }
 

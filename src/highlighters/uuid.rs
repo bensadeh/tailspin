@@ -4,31 +4,37 @@ use nu_ansi_term::Style;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
+// Keep the original regex that matches the whole UUID
 static UUID_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
         r"(?x)
-            (\b[0-9a-fA-F]{8}\b)    # Match first segment of UUID
-            (-)                     # Match separator
-            (\b[0-9a-fA-F]{4}\b)    # Match second segment of UUID
-            (-)                     # Match separator
-            (\b[0-9a-fA-F]{4}\b)    # Match third segment of UUID
-            (-)                     # Match separator
-            (\b[0-9a-fA-F]{4}\b)    # Match fourth segment of UUID
-            (-)                     # Match separator
-            (\b[0-9a-fA-F]{12}\b)   # Match last segment of UUID
+            \b[0-9a-fA-F]{8}\b    # Match first segment of UUID
+            -                     # Match separator
+            \b[0-9a-fA-F]{4}\b    # Match second segment of UUID
+            -                     # Match separator
+            \b[0-9a-fA-F]{4}\b    # Match third segment of UUID
+            -                     # Match separator
+            \b[0-9a-fA-F]{4}\b    # Match fourth segment of UUID
+            -                     # Match separator
+            \b[0-9a-fA-F]{12}\b   # Match last segment of UUID
         ",
     )
     .expect("Invalid UUID regex pattern")
 });
 
 pub struct UuidHighlighter {
-    segment: Style,
-    separator: Style,
+    number: Style,
+    letter: Style,
+    dash: Style,
 }
 
 impl UuidHighlighter {
-    pub fn new(segment: Style, separator: Style) -> Self {
-        Self { segment, separator }
+    pub fn new(number_style: Style, letter_style: Style, dash_style: Style) -> Self {
+        Self {
+            number: number_style,
+            letter: letter_style,
+            dash: dash_style,
+        }
     }
 }
 
@@ -44,15 +50,15 @@ impl Highlight for UuidHighlighter {
     fn apply(&self, input: &str) -> String {
         UUID_REGEX
             .replace_all(input, |caps: &Captures<'_>| {
-                let mut output = String::new();
-                for i in 1..caps.len() {
-                    if &caps[i] == "-" {
-                        output.push_str(&format!("{}", self.separator.paint(&caps[i])));
-                    } else {
-                        output.push_str(&format!("{}", self.segment.paint(&caps[i])));
-                    }
-                }
-                output
+                caps[0]
+                    .chars()
+                    .map(|c| match c {
+                        '0'..='9' => format!("{}", self.number.paint(c.to_string())),
+                        'a'..='f' | 'A'..='F' => format!("{}", self.letter.paint(c.to_string())),
+                        '-' => format!("{}", self.dash.paint(c.to_string())),
+                        _ => c.to_string(),
+                    })
+                    .collect::<String>()
             })
             .to_string()
     }

@@ -4,8 +4,9 @@ use nu_ansi_term::{Color, Style};
 impl Default for Uuid {
     fn default() -> Self {
         Uuid {
-            segment: Style::new().fg(Color::Blue).italic(),
-            separator: Style::new().fg(Color::Red),
+            number: Style::new().fg(Color::Blue).italic(),
+            letter: Style::new().fg(Color::Magenta).italic().dimmed(),
+            dash: Style::new().fg(Color::Red),
             disabled: false,
         }
     }

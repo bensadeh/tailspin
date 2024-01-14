@@ -85,7 +85,11 @@ impl Highlighters {
         }
 
         if !theme.uuid.disabled {
-            before_fns.push(Arc::new(UuidHighlighter::new(theme.uuid.segment, theme.uuid.separator)));
+            before_fns.push(Arc::new(UuidHighlighter::new(
+                theme.uuid.number,
+                theme.uuid.letter,
+                theme.uuid.dash,
+            )));
         }
 
         if !theme.process.disabled {

@@ -19,8 +19,9 @@ pub struct Style {
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct Uuid {
-    pub segment: Option<Style>,
-    pub separator: Option<Style>,
+    pub number: Option<Style>,
+    pub letter: Option<Style>,
+    pub dash: Option<Style>,
     pub disabled: bool,
 }
 

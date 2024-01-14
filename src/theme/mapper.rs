@@ -56,8 +56,9 @@ pub fn map_or_exit_early(raw: theme::raw::Theme) -> theme::processed::Theme {
             disabled: raw.key_value.disabled,
         },
         uuid: Uuid {
-            segment: raw.uuid.segment.map_or(Uuid::default().segment, to_style),
-            separator: raw.uuid.separator.map_or(Uuid::default().separator, to_style),
+            number: raw.uuid.number.map_or(Uuid::default().number, to_style),
+            letter: raw.uuid.letter.map_or(Uuid::default().letter, to_style),
+            dash: raw.uuid.dash.map_or(Uuid::default().dash, to_style),
             disabled: raw.uuid.disabled,
         },
         quotes: Quotes {
