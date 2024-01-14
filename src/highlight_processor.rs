@@ -1,3 +1,4 @@
+use crate::highlight_utils::apply_without_overwriting_existing_highlighting;
 use crate::highlighters::Highlighters;
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
@@ -42,6 +43,12 @@ impl HighlightProcessor {
         highlighters
             .iter()
             .filter(|highlighter| !highlighter.should_short_circuit(line_info))
-            .fold(String::from(text), |result, highlighter| highlighter.apply(&result))
+            .fold(String::from(text), |result, highlighter| {
+                if highlighter.only_apply_to_segments_not_already_highlighted() {
+                    apply_without_overwriting_existing_highlighting(&result, |chunk| highlighter.apply(chunk))
+                } else {
+                    highlighter.apply(&result)
+                }
+            })
     }
 }

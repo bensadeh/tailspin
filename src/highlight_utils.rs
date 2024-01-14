@@ -102,7 +102,7 @@ where
     output
 }
 
-pub(crate) fn _generic_process_with_awareness<F>(input: &str, process_chunk: F) -> String
+pub(crate) fn apply_without_overwriting_existing_highlighting<F>(input: &str, process_chunk: F) -> String
 where
     F: Fn(&str) -> String,
 {
@@ -112,8 +112,7 @@ where
     for chunk in chunks {
         match chunk {
             Chunk::NotHighlighted(text) => {
-                let processed_text = process_chunk(text);
-                output.push_str(&processed_text);
+                output.push_str(&process_chunk(text));
             }
             Chunk::AlreadyHighlighted(text) => {
                 output.push_str(text);
