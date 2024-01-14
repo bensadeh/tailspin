@@ -1,7 +1,8 @@
 # Changelog
-## 2.5.0
 
+## 3.0.0
 
+- Process highlighter has updated default styling and matches processes with parenthesis
 
 
 ## 2.4.0

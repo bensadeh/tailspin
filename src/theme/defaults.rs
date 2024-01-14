@@ -63,9 +63,9 @@ impl Default for Time {
 impl Default for Process {
     fn default() -> Self {
         Process {
-            name: Style::new().fg(Color::Green),
-            id: Style::new().fg(Color::Red),
-            separator: Style::new().fg(Color::Yellow),
+            name: Style::new().fg(Color::Yellow),
+            id: Style::new().fg(Color::Cyan),
+            separator: Style::new().fg(Color::Red),
             disabled: false,
         }
     }

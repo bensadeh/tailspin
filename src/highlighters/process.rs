@@ -3,9 +3,9 @@ use crate::types::Highlight;
 use nu_ansi_term::Style;
 use once_cell::sync::Lazy;
 use regex::Regex;
-
-static PROCESS_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(?P<process_name>[\w-]+)\[(?P<process_num>\d+)\]").expect("Invalid regex pattern"));
+static PROCESS_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(?P<process_name>\([^)]+\)|[\w-]+)\[(?P<process_num>\d+)]").expect("Invalid regex pattern")
+});
 
 pub struct ProcessHighlighter {
     process_name: Style,
