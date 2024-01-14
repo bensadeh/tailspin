@@ -1,9 +1,8 @@
-use crate::highlight_utils;
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
 use once_cell::sync::Lazy;
-use regex::Regex;
+use regex::{Captures, Regex};
 
 static NUMBER_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
@@ -39,7 +38,8 @@ impl Highlight for NumberHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        let color = &self.style;
-        highlight_utils::highlight_with_awareness_replace_all_with_new_style(color, input, &NUMBER_REGEX, false)
+        NUMBER_REGEX
+            .replace_all(input, |caps: &Captures<'_>| format!("{}", self.style.paint(&caps[0])))
+            .to_string()
     }
 }

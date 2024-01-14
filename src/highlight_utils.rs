@@ -4,36 +4,6 @@ use regex::{Captures, Regex};
 const RESET: &str = "\x1b[0m";
 const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
 
-pub(crate) fn highlight_with_awareness_replace_all_with_new_style(
-    style: &Style,
-    input: &str,
-    regex: &Regex,
-    border: bool,
-) -> String {
-    let chunks = split_into_chunks(input);
-
-    let mut output = calculate_and_allocate_capacity(input);
-    for chunk in chunks {
-        match chunk {
-            Chunk::NotHighlighted(text) => {
-                let highlighted = regex.replace_all(text, |caps: &Captures<'_>| {
-                    if border {
-                        format!(" {} ", style.paint(&caps[0]))
-                    } else {
-                        format!("{}", style.paint(&caps[0]))
-                    }
-                });
-                output.push_str(&highlighted);
-            }
-            Chunk::AlreadyHighlighted(text) => {
-                output.push_str(text);
-            }
-        }
-    }
-
-    output
-}
-
 pub(crate) fn highlight_with_awareness<F>(input: &str, regex: &Regex, highlight_fn: F) -> String
 where
     F: Fn(&Captures) -> String,
