@@ -1,10 +1,5 @@
-use lazy_static::lazy_static;
 use nu_ansi_term::Style;
 use regex::{Captures, Regex};
-
-lazy_static! {
-    static ref ESCAPE_CODE_REGEX: Regex = Regex::new(r"\x1b\[[0-9;]*m").expect("Invalid regex pattern");
-}
 
 const RESET: &str = "\x1b[0m";
 const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
