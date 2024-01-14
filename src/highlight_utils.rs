@@ -4,52 +4,6 @@ use regex::{Captures, Regex};
 const RESET: &str = "\x1b[0m";
 const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
 
-pub(crate) fn _replace_with_awareness(color: &str, input: &str, replace_with: &str, regex: &Regex) -> String {
-    let chunks = split_into_chunks(input);
-
-    let mut output = calculate_and_allocate_capacity(input);
-    for chunk in chunks {
-        match chunk {
-            Chunk::NotHighlighted(text) => {
-                let highlighted = regex.replace_all(text, |_caps: &Captures<'_>| {
-                    format!("{}{}{}", color, replace_with, RESET)
-                });
-                output.push_str(&highlighted);
-            }
-            Chunk::AlreadyHighlighted(text) => {
-                output.push_str(text);
-            }
-        }
-    }
-
-    output
-}
-
-pub(crate) fn _highlight_with_awareness_replace_all(color: &str, input: &str, regex: &Regex, border: bool) -> String {
-    let chunks = split_into_chunks(input);
-
-    let mut output = calculate_and_allocate_capacity(input);
-    for chunk in chunks {
-        match chunk {
-            Chunk::NotHighlighted(text) => {
-                let highlighted = regex.replace_all(text, |caps: &Captures<'_>| {
-                    if border {
-                        format!("{} {} {}", color, &caps[0], RESET)
-                    } else {
-                        format!("{}{}{}", color, &caps[0], RESET)
-                    }
-                });
-                output.push_str(&highlighted);
-            }
-            Chunk::AlreadyHighlighted(text) => {
-                output.push_str(text);
-            }
-        }
-    }
-
-    output
-}
-
 pub(crate) fn highlight_with_awareness_replace_all_with_new_style(
     style: &Style,
     input: &str,
@@ -176,32 +130,6 @@ fn split_into_chunks(input: &str) -> Vec<Chunk> {
 mod tests {
     use super::*;
     use regex::Regex;
-
-    #[test]
-    fn test_highlight_with_awareness() {
-        let regex = Regex::new(r"\b\d+\b").unwrap();
-        let input = "Here is a number 12345, and here is another 54321.";
-        let color = "\x1b[31m"; // ANSI color code for red
-        let result = _highlight_with_awareness_replace_all(color, input, &regex, false);
-
-        assert_eq!(
-            result,
-            "Here is a number \x1b[31m12345\x1b[0m, and here is another \x1b[31m54321\x1b[0m."
-        );
-    }
-
-    #[test]
-    fn test_highlight_with_awareness_with_highlighted_chunks() {
-        let regex = Regex::new(r"\b\d+\b").unwrap();
-        let input = "Here is a date \x1b[31m2023-06-24\x1b[0m, and here is a number 12345.";
-        let color = "\x1b[31m"; // ANSI color code for red
-        let result = _highlight_with_awareness_replace_all(color, input, &regex, false);
-
-        assert_eq!(
-            result,
-            "Here is a date \x1b[31m2023-06-24\x1b[0m, and here is a number \x1b[31m12345\x1b[0m."
-        );
-    }
 
     #[test]
     fn test_split_into_chunks() {
