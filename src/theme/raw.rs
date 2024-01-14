@@ -19,93 +19,84 @@ pub struct Style {
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct Uuid {
-    pub segment: Style,
-    pub separator: Style,
+    pub segment: Option<Style>,
+    pub separator: Option<Style>,
     pub disabled: bool,
 }
 
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct Ip {
-    pub segment: Style,
-    pub separator: Style,
+    pub segment: Option<Style>,
+    pub separator: Option<Style>,
     pub disabled: bool,
 }
 
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct KeyValue {
-    pub key: Style,
-    pub separator: Style,
+    pub key: Option<Style>,
+    pub separator: Option<Style>,
     pub disabled: bool,
 }
 
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct FilePath {
-    pub segment: Style,
-    pub separator: Style,
+    pub segment: Option<Style>,
+    pub separator: Option<Style>,
     pub disabled: bool,
 }
 
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct Date {
-    pub style: Style,
-    pub shorten: Option<Shorten>,
+    pub style: Option<Style>,
     pub disabled: bool,
 }
 
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
-pub struct Shorten {
-    pub to: String,
-    pub style: Style,
-}
-
-#[derive(Default, Debug, Deserialize, Clone)]
-#[serde(default)]
 pub struct Time {
-    pub time: Style,
-    pub zone: Style,
-    pub shorten: Option<Shorten>,
+    pub time: Option<Style>,
+    pub zone: Option<Style>,
     pub disabled: bool,
 }
 
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct Process {
-    pub name: Style,
-    pub id: Style,
-    pub separator: Style,
+    pub name: Option<Style>,
+    pub id: Option<Style>,
+    pub separator: Option<Style>,
     pub disabled: bool,
 }
 
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct Number {
-    pub style: Style,
+    pub style: Option<Style>,
     pub disabled: bool,
 }
 
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct Quotes {
-    pub style: Style,
-    pub token: char,
+    pub style: Option<Style>,
+    pub token: Option<char>,
     pub disabled: bool,
 }
 
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct Url {
-    pub http: Style,
-    pub https: Style,
-    pub host: Style,
-    pub path: Style,
-    pub query_params_key: Style,
-    pub query_params_value: Style,
-    pub symbols: Style,
+    pub http: Option<Style>,
+    pub https: Option<Style>,
+    pub host: Option<Style>,
+    pub path: Option<Style>,
+    pub query_params_key: Option<Style>,
+    pub query_params_value: Option<Style>,
+    pub symbols: Option<Style>,
     pub disabled: bool,
 }
 

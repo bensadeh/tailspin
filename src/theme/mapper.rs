@@ -1,19 +1,106 @@
 use crate::theme;
-use crate::theme::raw::Theme;
+use crate::theme::processed::{Date, FilePath, Ip, KeyValue, Number, Process, Quotes, Time, Url, Uuid};
+use nu_ansi_term::{Color, Style};
 
-pub fn map(_raw_theme: Theme) -> theme::processed::Theme {
+pub fn map(raw: theme::raw::Theme) -> theme::processed::Theme {
     theme::processed::Theme {
-        date: Default::default(),
-        time: Default::default(),
-        number: Default::default(),
-        url: Default::default(),
-        path: Default::default(),
-        process: Default::default(),
-        keywords: None,
-        ip: Default::default(),
-        key_value: Default::default(),
-        uuid: Default::default(),
-        quotes: Default::default(),
-        regexps: None,
+        date: Date {
+            style: raw.date.style.map_or(Date::default().style, to_style),
+            disabled: raw.date.disabled,
+        },
+        time: Time {
+            time: raw.time.time.map_or(Time::default().time, to_style),
+            zone: raw.time.zone.map_or(Time::default().zone, to_style),
+            disabled: raw.time.disabled,
+        },
+        number: Number {
+            style: raw.number.style.map_or(Number::default().style, to_style),
+            disabled: raw.number.disabled,
+        },
+        url: Url {
+            http: raw.url.http.map_or(Url::default().http, to_style),
+            https: raw.url.https.map_or(Url::default().https, to_style),
+            host: raw.url.host.map_or(Url::default().host, to_style),
+            path: raw.url.path.map_or(Url::default().path, to_style),
+            query_params_key: raw
+                .url
+                .query_params_key
+                .map_or(Url::default().query_params_key, to_style),
+            query_params_value: raw
+                .url
+                .query_params_value
+                .map_or(Url::default().query_params_value, to_style),
+            symbols: raw.url.symbols.map_or(Url::default().symbols, to_style),
+            disabled: raw.url.disabled,
+        },
+        path: FilePath {
+            segment: raw.path.segment.map_or(FilePath::default().segment, to_style),
+            separator: raw.path.separator.map_or(FilePath::default().separator, to_style),
+            disabled: raw.path.disabled,
+        },
+        process: Process {
+            name: raw.process.name.map_or(Process::default().name, to_style),
+            id: raw.process.id.map_or(Process::default().id, to_style),
+            separator: raw.process.separator.map_or(Process::default().separator, to_style),
+            disabled: raw.process.disabled,
+        },
+        ip: Ip {
+            segment: raw.ip.segment.map_or(Ip::default().segment, to_style),
+            separator: raw.ip.separator.map_or(Ip::default().separator, to_style),
+            disabled: raw.ip.disabled,
+        },
+        key_value: KeyValue {
+            key: raw.key_value.key.map_or(KeyValue::default().key, to_style),
+            separator: raw.key_value.separator.map_or(KeyValue::default().separator, to_style),
+            disabled: raw.key_value.disabled,
+        },
+        uuid: Uuid {
+            segment: raw.uuid.segment.map_or(Uuid::default().segment, to_style),
+            separator: raw.uuid.separator.map_or(Uuid::default().separator, to_style),
+            disabled: raw.uuid.disabled,
+        },
+        quotes: Quotes {
+            style: raw.quotes.style.map_or(Quotes::default().style, to_style),
+            token: raw.quotes.token.map_or(Quotes::default().token, |c| c),
+            disabled: raw.quotes.disabled,
+        },
+        keywords: Default::default(),
+        regexps: Default::default(),
+    }
+}
+
+fn to_style(style: theme::raw::Style) -> Style {
+    let fg_color = map_to_color_or_exit_early(&style.fg);
+    let bg_color = map_to_color_or_exit_early(&style.bg);
+
+    let mut ansi_style = Style::new().fg(fg_color).on(bg_color);
+
+    if style.bold {
+        ansi_style = ansi_style.bold();
+    }
+    if style.faint {
+        ansi_style = ansi_style.dimmed();
+    }
+    if style.italic {
+        ansi_style = ansi_style.italic();
+    }
+    if style.underline {
+        ansi_style = ansi_style.underline();
+    }
+
+    ansi_style
+}
+
+fn map_to_color_or_exit_early(color: &str) -> Color {
+    match color.to_lowercase().as_str() {
+        "red" => Color::Red,
+        "green" => Color::Green,
+        "yellow" => Color::Yellow,
+        "blue" => Color::Blue,
+        "magenta" => Color::Magenta,
+        "cyan" => Color::Cyan,
+        "white" => Color::White,
+        "black" => Color::Black,
+        _ => panic!("Unsupported color: {}", color),
     }
 }
