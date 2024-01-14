@@ -1,11 +1,10 @@
-use crate::highlight_utils;
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
-use regex::Regex;
+use regex::{Captures, Regex};
 
 pub struct KeywordHighlighter {
-    keyword_regex: Regex,
+    regex: Regex,
     style: Style,
     border: bool,
 }
@@ -18,13 +17,9 @@ impl KeywordHighlighter {
             .collect::<Vec<_>>()
             .join("|");
 
-        let keyword_regex = Regex::new(&format!(r"\b({})\b", keyword_pattern)).expect("Invalid regex pattern");
+        let regex = Regex::new(&format!(r"\b({})\b", keyword_pattern)).expect("Invalid regex pattern");
 
-        Self {
-            keyword_regex,
-            style,
-            border,
-        }
+        Self { regex, style, border }
     }
 }
 
@@ -38,11 +33,15 @@ impl Highlight for KeywordHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        highlight_utils::highlight_with_awareness_replace_all_with_new_style(
-            &self.style,
-            input,
-            &self.keyword_regex,
-            self.border,
-        )
+        self.regex
+            .replace_all(input, |caps: &Captures<'_>| {
+                if self.border {
+                    let capture_with_extra_border = format!(" {} ", &caps[0]);
+                    format!("{}", self.style.paint(capture_with_extra_border))
+                } else {
+                    format!("{}", self.style.paint(&caps[0]))
+                }
+            })
+            .to_string()
     }
 }
