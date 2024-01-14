@@ -1,4 +1,3 @@
-use crate::highlight_utils::highlight_with_awareness;
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -42,12 +41,14 @@ impl Highlight for IpHighlighter {
             (segment, 7),
         ];
 
-        highlight_with_awareness(input, &IP_ADDRESS_REGEX, |caps: &Captures<'_>| {
-            let mut output = String::new();
-            for &(color, group) in &highlight_groups {
-                output.push_str(&format!("{}", color.paint(&caps[group])));
-            }
-            output
-        })
+        IP_ADDRESS_REGEX
+            .replace_all(input, |caps: &Captures<'_>| {
+                let mut output = String::new();
+                for &(color, group) in &highlight_groups {
+                    output.push_str(&format!("{}", color.paint(&caps[group])));
+                }
+                output
+            })
+            .to_string()
     }
 }
