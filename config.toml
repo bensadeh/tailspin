@@ -1,6 +1,6 @@
 [[regexps]]
 regular_expression = 'Started (.*)\.'
-style = { fg = "red" }
+style = { fg = "redd" }
 
 [[regexps]]
 regular_expression = 'Stopped .*'

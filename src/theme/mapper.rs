@@ -93,17 +93,28 @@ fn to_style(style: theme::raw::Style) -> Style {
 }
 
 fn map_to_color_or_exit_early(color: &str) -> Color {
-    match color.to_lowercase().as_str() {
-        "red" => Color::Red,
-        "green" => Color::Green,
-        "yellow" => Color::Yellow,
-        "blue" => Color::Blue,
-        "magenta" => Color::Magenta,
-        "cyan" => Color::Cyan,
-        "white" => Color::White,
-        "black" => Color::Black,
-        _ => panic!("Unsupported color: {}", color),
-    }
+    let color = match color.to_lowercase().as_str() {
+        "red" => Ok(Color::Red),
+        "green" => Ok(Color::Green),
+        "yellow" => Ok(Color::Yellow),
+        "blue" => Ok(Color::Blue),
+        "magenta" => Ok(Color::Magenta),
+        "purple" => Ok(Color::Magenta),
+        "cyan" => Ok(Color::Cyan),
+        "white" => Ok(Color::White),
+        "black" => Ok(Color::Black),
+        "" => Ok(Color::Default),
+        _ => Err(color),
+    };
+
+    color.unwrap_or_else(|color| {
+        eprintln!(
+            "{}: {} is not a valid color",
+            Style::new().bold().paint("Could not parse config.toml"),
+            Color::Red.paint(color)
+        );
+        std::process::exit(1);
+    })
 }
 
 fn process_keywords(raw_keywords: Option<Vec<Keyword>>) -> Vec<theme::processed::Keyword> {
