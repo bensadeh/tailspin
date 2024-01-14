@@ -1,4 +1,3 @@
-use crate::highlight_utils::highlight_with_awareness;
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -43,91 +42,18 @@ impl Highlight for UuidHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        highlight_with_awareness(input, &UUID_REGEX, |caps: &Captures<'_>| {
-            let mut output = String::new();
-            for i in 1..caps.len() {
-                if &caps[i] == "-" {
-                    output.push_str(&format!("{}", self.separator.paint(&caps[i])));
-                } else {
-                    output.push_str(&format!("{}", self.segment.paint(&caps[i])));
+        UUID_REGEX
+            .replace_all(input, |caps: &Captures<'_>| {
+                let mut output = String::new();
+                for i in 1..caps.len() {
+                    if &caps[i] == "-" {
+                        output.push_str(&format!("{}", self.separator.paint(&caps[i])));
+                    } else {
+                        output.push_str(&format!("{}", self.segment.paint(&caps[i])));
+                    }
                 }
-            }
-            output
-        })
+                output
+            })
+            .to_string()
     }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use crate::color::Fg;
-//     use crate::theme::Style;
-//
-//     #[test]
-//     fn test_highlight_uuids() {
-//         let uuid = "550e8400-e29b-41d4-a716-446655440000";
-//         let segment = Style {
-//             fg: Fg::Red,
-//             ..Default::default()
-//         };
-//         let separator = Style {
-//             fg: Fg::Green,
-//             ..Default::default()
-//         };
-//
-//         let highlighter = UuidHighlighter::new(&segment, &separator);
-//         let highlighted = highlighter.apply(uuid);
-//
-//         let segment_color = "\x1b[31m"; // ANSI color code for red
-//         let separator_color = "\x1b[32m"; // ANSI color code for green
-//         let expected = format!(
-//             "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-//             segment_color,
-//             "550e8400",
-//             color::RESET,
-//             separator_color,
-//             "-",
-//             color::RESET,
-//             segment_color,
-//             "e29b",
-//             color::RESET,
-//             separator_color,
-//             "-",
-//             color::RESET,
-//             segment_color,
-//             "41d4",
-//             color::RESET,
-//             separator_color,
-//             "-",
-//             color::RESET,
-//             segment_color,
-//             "a716",
-//             color::RESET,
-//             separator_color,
-//             "-",
-//             color::RESET,
-//             segment_color,
-//             "446655440000",
-//             color::RESET
-//         );
-//         assert_eq!(highlighted, expected);
-//     }
-//
-//     #[test]
-//     fn test_highlight_uuids_no_uuid() {
-//         let text = "this is a test string with no uuid";
-//         let segment = Style {
-//             fg: Fg::Red,
-//             ..Default::default()
-//         };
-//         let separator = Style {
-//             fg: Fg::Green,
-//             ..Default::default()
-//         };
-//
-//         let highlighter = UuidHighlighter::new(&segment, &separator);
-//         let highlighted = highlighter.apply(text);
-//
-//         assert_eq!(highlighted, text);
-//     }
-// }

@@ -1,28 +1,4 @@
-use regex::{Captures, Regex};
-
 const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
-
-pub(crate) fn highlight_with_awareness<F>(input: &str, regex: &Regex, highlight_fn: F) -> String
-where
-    F: Fn(&Captures) -> String,
-{
-    let chunks = split_into_chunks(input);
-    let mut output = calculate_and_allocate_capacity(input);
-
-    for chunk in chunks {
-        match chunk {
-            Chunk::NotHighlighted(text) => {
-                let highlighted = regex.replace_all(text, |caps: &Captures<'_>| highlight_fn(caps));
-                output.push_str(&highlighted);
-            }
-            Chunk::AlreadyHighlighted(text) => {
-                output.push_str(text);
-            }
-        }
-    }
-
-    output
-}
 
 pub(crate) fn apply_without_overwriting_existing_highlighting<F>(input: &str, process_chunk: F) -> String
 where
