@@ -1,9 +1,8 @@
-use crate::highlight_utils;
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
 use once_cell::sync::Lazy;
-use regex::Regex;
+use regex::{Captures, Regex};
 
 static DATE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\d{4}-\d{2}-\d{2}").expect("Invalid regex pattern"));
 
@@ -27,6 +26,8 @@ impl Highlight for DateHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        highlight_utils::highlight_with_awareness_replace_all_with_new_style(&self.style, input, &DATE_REGEX, false)
+        DATE_REGEX
+            .replace_all(input, |caps: &Captures<'_>| format!("{}", self.style.paint(&caps[0])))
+            .to_string()
     }
 }
