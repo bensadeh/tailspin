@@ -12,11 +12,22 @@ impl Default for Uuid {
     }
 }
 
-impl Default for Ip {
+impl Default for IpV4 {
     fn default() -> Self {
-        Ip {
+        IpV4 {
             segment: Style::new().fg(Color::Blue).italic(),
             separator: Style::new().fg(Color::Red),
+            disabled: false,
+        }
+    }
+}
+
+impl Default for IpV6 {
+    fn default() -> Self {
+        IpV6 {
+            number: Style::new().fg(Color::Blue).italic(),
+            letter: Style::new().fg(Color::Red),
+            separator: Style::new().fg(Color::Yellow),
             disabled: false,
         }
     }

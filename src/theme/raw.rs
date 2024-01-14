@@ -27,8 +27,17 @@ pub struct Uuid {
 
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
-pub struct Ip {
+pub struct IpV4 {
     pub segment: Option<Style>,
+    pub separator: Option<Style>,
+    pub disabled: bool,
+}
+
+#[derive(Default, Debug, Deserialize, Clone)]
+#[serde(default)]
+pub struct IpV6 {
+    pub number: Option<Style>,
+    pub letter: Option<Style>,
     pub separator: Option<Style>,
     pub disabled: bool,
 }
@@ -132,7 +141,9 @@ pub struct Theme {
     #[serde(default)]
     pub url: Url,
     #[serde(default)]
-    pub ip: Ip,
+    pub ip_v4: IpV4,
+    #[serde(default)]
+    pub ip_v6: IpV6,
     #[serde(default)]
     pub key_value: KeyValue,
     #[serde(default)]

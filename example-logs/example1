@@ -22,6 +22,15 @@ Jan 02 21:14:54 innodellix systemd[1]: Started Cleanup of Snapper Snapshots.
 2022-09-09 11:48:34,534        Last login attempt failed
 2022-09-22T07:46:34.171800155Z Event logged for debugging purposes
 
+# Ip v 6
+Log 2001:0db8:85a3:0000:0000:8a2e:0370:7334 asdf
+Log 2001:db8:85a3::8a2e:370:7334 asdf
+Log 2001:db8:85a3::8a2e:192.0.2.33 asdf
+Log fe80::7a31:c1ff:fe02:bc33 asdf
+Log [2001:db8:85a3::8a2e:370:7334]:8080 asdf
+Log 2001:db8::1234:5678 asdf
+Log fe80::1ff:fe23:4567:890a%eth0 asdf
+
 # Numbers
 Duration: 42 seconds
 High CPU usage detected: 95%

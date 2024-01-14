@@ -7,8 +7,15 @@ pub struct Uuid {
     pub disabled: bool,
 }
 
-pub struct Ip {
+pub struct IpV4 {
     pub segment: Style,
+    pub separator: Style,
+    pub disabled: bool,
+}
+
+pub struct IpV6 {
+    pub number: Style,
+    pub letter: Style,
     pub separator: Style,
     pub disabled: bool,
 }
@@ -86,7 +93,8 @@ pub struct Theme {
     pub quotes: Quotes,
     pub uuid: Uuid,
     pub url: Url,
-    pub ip: Ip,
+    pub ip_v4: IpV4,
+    pub ip_v6: IpV6,
     pub key_value: KeyValue,
     pub path: FilePath,
     pub process: Process,

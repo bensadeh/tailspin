@@ -1,5 +1,5 @@
 use crate::theme;
-use crate::theme::processed::{Date, FilePath, Ip, KeyValue, Number, Process, Quotes, Time, Url, Uuid};
+use crate::theme::processed::{Date, FilePath, IpV4, IpV6, KeyValue, Number, Process, Quotes, Time, Url, Uuid};
 use crate::theme::raw::{Keyword, Regexp};
 use nu_ansi_term::{Color, Style};
 
@@ -45,10 +45,16 @@ pub fn map_or_exit_early(raw: theme::raw::Theme) -> theme::processed::Theme {
             separator: raw.process.separator.map_or(Process::default().separator, to_style),
             disabled: raw.process.disabled,
         },
-        ip: Ip {
-            segment: raw.ip.segment.map_or(Ip::default().segment, to_style),
-            separator: raw.ip.separator.map_or(Ip::default().separator, to_style),
-            disabled: raw.ip.disabled,
+        ip_v4: IpV4 {
+            segment: raw.ip_v4.segment.map_or(IpV4::default().segment, to_style),
+            separator: raw.ip_v4.separator.map_or(IpV4::default().separator, to_style),
+            disabled: raw.ip_v4.disabled,
+        },
+        ip_v6: IpV6 {
+            number: raw.ip_v6.number.map_or(IpV6::default().number, to_style),
+            letter: raw.ip_v6.letter.map_or(IpV6::default().letter, to_style),
+            separator: raw.ip_v6.separator.map_or(IpV6::default().separator, to_style),
+            disabled: raw.ip_v6.disabled,
         },
         key_value: KeyValue {
             key: raw.key_value.key.map_or(KeyValue::default().key, to_style),
