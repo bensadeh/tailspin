@@ -1,4 +1,3 @@
-use crate::color;
 use lazy_static::lazy_static;
 use nu_ansi_term::Style;
 use regex::{Captures, Regex};
@@ -7,6 +6,7 @@ lazy_static! {
     static ref ESCAPE_CODE_REGEX: Regex = Regex::new(r"\x1b\[[0-9;]*m").expect("Invalid regex pattern");
 }
 
+const RESET: &str = "\x1b[0m";
 const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
 
 pub(crate) fn _replace_with_awareness(color: &str, input: &str, replace_with: &str, regex: &Regex) -> String {
@@ -17,7 +17,7 @@ pub(crate) fn _replace_with_awareness(color: &str, input: &str, replace_with: &s
         match chunk {
             Chunk::NotHighlighted(text) => {
                 let highlighted = regex.replace_all(text, |_caps: &Captures<'_>| {
-                    format!("{}{}{}", color, replace_with, color::RESET)
+                    format!("{}{}{}", color, replace_with, RESET)
                 });
                 output.push_str(&highlighted);
             }
@@ -39,9 +39,9 @@ pub(crate) fn _highlight_with_awareness_replace_all(color: &str, input: &str, re
             Chunk::NotHighlighted(text) => {
                 let highlighted = regex.replace_all(text, |caps: &Captures<'_>| {
                     if border {
-                        format!("{} {} {}", color, &caps[0], color::RESET)
+                        format!("{} {} {}", color, &caps[0], RESET)
                     } else {
-                        format!("{}{}{}", color, &caps[0], color::RESET)
+                        format!("{}{}{}", color, &caps[0], RESET)
                     }
                 });
                 output.push_str(&highlighted);

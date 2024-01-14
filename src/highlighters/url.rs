@@ -1,4 +1,3 @@
-use crate::color;
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -90,7 +89,7 @@ impl Highlight for UrlHighlighter {
                 output.push_str(&format!("{}", query_highlighted));
             }
 
-            output.push_str(color::RESET);
+            // output.push_str(color::RESET);
 
             output
         });

@@ -19,7 +19,7 @@ use crate::highlighters::keyword::KeywordHighlighter;
 use crate::highlighters::number::NumberHighlighter;
 use crate::highlighters::path::PathHighlighter;
 use crate::highlighters::process::ProcessHighlighter;
-// use crate::highlighters::quotes::QuoteHighlighter;
+use crate::highlighters::quotes::QuoteHighlighter;
 use crate::highlighters::regexp::RegexpHighlighter;
 use crate::highlighters::time::TimeHighlighter;
 use crate::highlighters::url::UrlHighlighter;
@@ -127,15 +127,14 @@ impl Highlighters {
         main_fns
     }
 
-    fn set_after_fns(_theme: &Theme) -> Vec<Arc<dyn Highlight + Send + Sync>> {
-        Vec::new()
-        // let mut after_fns: Vec<Arc<dyn Highlight + Send + Sync>> = Vec::new();
-        //
-        // if !theme.quotes.disabled {
-        //     after_fns.push(Arc::new(QuoteHighlighter::new(&theme.quotes.style, theme.quotes.token)));
-        // }
-        //
-        // after_fns
+    fn set_after_fns(theme: &Theme) -> Vec<Arc<dyn Highlight + Send + Sync>> {
+        let mut after_fns: Vec<Arc<dyn Highlight + Send + Sync>> = Vec::new();
+
+        if !theme.quotes.disabled {
+            after_fns.push(Arc::new(QuoteHighlighter::new(theme.quotes.style, theme.quotes.token)));
+        }
+
+        after_fns
     }
 
     fn get_keywords(theme: &Theme, cli: &Cli) -> Vec<Keyword> {
