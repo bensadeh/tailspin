@@ -55,10 +55,6 @@ impl Highlighters {
             before_fns.push(Arc::new(DateHighlighter::new(theme.date.style)));
         }
 
-        if !theme.time.disabled {
-            before_fns.push(Arc::new(TimeHighlighter::new(theme.time.time, theme.time.zone)));
-        }
-
         if !theme.url.disabled {
             before_fns.push(Arc::new(UrlHighlighter::new(
                 theme.url.http,
@@ -85,6 +81,10 @@ impl Highlighters {
                 theme.ip_v6.letter,
                 theme.ip_v6.separator,
             )));
+        }
+
+        if !theme.time.disabled {
+            before_fns.push(Arc::new(TimeHighlighter::new(theme.time.time, theme.time.zone)));
         }
 
         if !theme.key_value.disabled {
