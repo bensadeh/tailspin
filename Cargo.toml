@@ -15,7 +15,7 @@ name = "tspin"
 
 [dependencies]
 async-trait = "0.1.77"
-clap = { version = "4.4.13", features = ["derive"] }
+clap = { version = "4.4.16", features = ["derive"] }
 clap_complete = "4.4.6"
 color-eyre = "0.6.2"
 colored = "2"
