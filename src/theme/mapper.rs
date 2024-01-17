@@ -1,5 +1,7 @@
 use crate::theme;
-use crate::theme::processed::{Date, FilePath, IpV4, IpV6, KeyValue, Number, Process, Quotes, Time, Url, Uuid};
+use crate::theme::processed::{
+    Date, FilePath, IpV4, IpV6, KeyValue, Number, Pointer, Process, Quotes, Time, Url, Uuid,
+};
 use crate::theme::raw::{Keyword, Regexp};
 use nu_ansi_term::{Color, Style};
 
@@ -71,6 +73,13 @@ pub fn map_or_exit_early(raw: theme::raw::Theme) -> theme::processed::Theme {
             style: raw.quotes.style.map_or(Quotes::default().style, to_style),
             token: raw.quotes.token.map_or(Quotes::default().token, |c| c),
             disabled: raw.quotes.disabled,
+        },
+        pointer: Pointer {
+            number: raw.pointer.number.map_or(Pointer::default().number, to_style),
+            letter: raw.pointer.letter.map_or(Pointer::default().letter, to_style),
+            separator: raw.pointer.separator.map_or(Pointer::default().separator, to_style),
+            x: raw.pointer.x.map_or(Pointer::default().x, to_style),
+            disabled: raw.pointer.disabled,
         },
         keywords: process_keywords(raw.keywords),
         regexps: process_regexps(raw.regexps),

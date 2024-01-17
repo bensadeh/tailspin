@@ -59,6 +59,12 @@ IPv6: 2605:e440:8::2:1b
 http://91.149.202.91/1000MB.test
 http://[2605:e440:8::2:1b]/1000MB.test
 
+# Pointers
+Error occurred at memory address 0x1A2B3C4D. Please check the log for more details.
+Received data from 0xABCDEF12, processing now.
+Kernel module loaded at address 0x87654321ABCDEF00. Starting diagnostics.
+Failed to read data from address 0x9988776655443322. Retrying operation.
+
 # Numbers
 Duration: 42 seconds
 High CPU usage detected: 95%

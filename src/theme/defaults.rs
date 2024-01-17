@@ -12,6 +12,18 @@ impl Default for Uuid {
     }
 }
 
+impl Default for Pointer {
+    fn default() -> Self {
+        Pointer {
+            number: Style::new().fg(Color::Blue).italic(),
+            letter: Style::new().fg(Color::Magenta).italic().dimmed(),
+            separator: Style::new().dimmed(),
+            x: Style::new().fg(Color::Red),
+            disabled: false,
+        }
+    }
+}
+
 impl Default for IpV4 {
     fn default() -> Self {
         IpV4 {
@@ -105,8 +117,8 @@ impl Default for Quotes {
 impl Default for Url {
     fn default() -> Self {
         Url {
-            http: Style::new().dimmed(),
-            https: Style::new().bold(),
+            http: Style::new().fg(Color::Red).dimmed(),
+            https: Style::new().fg(Color::Green).dimmed(),
             host: Style::new().fg(Color::Blue).dimmed(),
             path: Style::new().fg(Color::Blue),
             query_params_key: Style::new().fg(Color::Magenta),

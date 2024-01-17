@@ -7,6 +7,14 @@ pub struct Uuid {
     pub disabled: bool,
 }
 
+pub struct Pointer {
+    pub number: Style,
+    pub letter: Style,
+    pub separator: Style,
+    pub x: Style,
+    pub disabled: bool,
+}
+
 pub struct IpV4 {
     pub segment: Style,
     pub separator: Style,
@@ -88,16 +96,17 @@ pub struct Regexp {
 
 pub struct Theme {
     pub date: Date,
-    pub time: Time,
-    pub number: Number,
-    pub quotes: Quotes,
-    pub uuid: Uuid,
-    pub url: Url,
     pub ip_v4: IpV4,
     pub ip_v6: IpV6,
     pub key_value: KeyValue,
+    pub number: Number,
     pub path: FilePath,
+    pub pointer: Pointer,
     pub process: Process,
+    pub quotes: Quotes,
+    pub time: Time,
+    pub url: Url,
+    pub uuid: Uuid,
     pub keywords: Vec<Keyword>,
     pub regexps: Vec<Regexp>,
 }

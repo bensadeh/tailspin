@@ -5,6 +5,7 @@ mod key_value;
 mod keyword;
 mod number;
 mod path;
+mod pointer;
 mod process;
 mod quotes;
 mod regexp;
@@ -20,6 +21,7 @@ use crate::highlighters::key_value::KeyValueHighlighter;
 use crate::highlighters::keyword::KeywordHighlighter;
 use crate::highlighters::number::NumberHighlighter;
 use crate::highlighters::path::PathHighlighter;
+use crate::highlighters::pointer::PointerHighlighter;
 use crate::highlighters::process::ProcessHighlighter;
 use crate::highlighters::quotes::QuoteHighlighter;
 use crate::highlighters::regexp::RegexpHighlighter;
@@ -99,6 +101,15 @@ impl Highlighters {
                 theme.uuid.number,
                 theme.uuid.letter,
                 theme.uuid.dash,
+            )));
+        }
+
+        if !theme.pointer.disabled {
+            before_fns.push(Arc::new(PointerHighlighter::new(
+                theme.pointer.number,
+                theme.pointer.letter,
+                theme.pointer.separator,
+                theme.pointer.x,
             )));
         }
 
