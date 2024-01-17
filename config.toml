@@ -1,6 +1,13 @@
+[pointer]
+number = { fg = "green" }
+letter = { fg = "blue" }
+separator = { fg = "red" }
+ separator_token = "a"
+x = { fg = "red" }
+
 [[regexps]]
 regular_expression = 'Started (.*)\.'
-style = { fg = "redd" }
+style = { fg = "red" }
 
 [[regexps]]
 regular_expression = 'Stopped .*'

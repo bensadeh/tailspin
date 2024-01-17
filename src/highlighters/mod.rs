@@ -109,6 +109,7 @@ impl Highlighters {
                 theme.pointer.number,
                 theme.pointer.letter,
                 theme.pointer.separator,
+                theme.pointer.separator_token,
                 theme.pointer.x,
             )));
         }

@@ -19,55 +19,19 @@ pub struct PointerHighlighter {
     number: Style,
     letter: Style,
     separator: Style,
+    separator_token: char,
     x: Style,
 }
 
 impl PointerHighlighter {
-    pub fn new(number: Style, letter: Style, separator: Style, x: Style) -> Self {
+    pub fn new(number: Style, letter: Style, separator: Style, separator_token: char, x: Style) -> Self {
         Self {
             number,
             letter,
             separator,
+            separator_token,
             x,
         }
-    }
-
-    fn highlight_char(&self, c: char) -> String {
-        match c {
-            '0'..='9' => format!("{}", self.number.paint(c.to_string())),
-            'x' | 'X' => format!("{}", self.x.paint(c.to_string())),
-            'a'..='f' | 'A'..='F' => format!("{}", self.letter.paint(c.to_string())),
-            _ => c.to_string(),
-        }
-    }
-
-    fn format_pointer_match(&self, caps: &Captures<'_>) -> String {
-        let prefix = caps.name("prefix").or_else(|| caps.name("prefix64")).unwrap().as_str();
-        let first_half = caps
-            .name("first_half")
-            .or_else(|| caps.name("first_half64"))
-            .unwrap()
-            .as_str();
-        let formatted_prefix = prefix.chars().map(|c| self.highlight_char(c)).collect::<String>();
-        let formatted_first_half = first_half.chars().map(|c| self.highlight_char(c)).collect::<String>();
-
-        caps.name("second_half").map_or_else(
-            || format!("{}{}", formatted_prefix, formatted_first_half),
-            |second_half| {
-                let formatted_second_half = second_half
-                    .as_str()
-                    .chars()
-                    .map(|c| self.highlight_char(c))
-                    .collect::<String>();
-                format!(
-                    "{}{}{}{}",
-                    formatted_prefix,
-                    formatted_first_half,
-                    self.separator.paint("•"),
-                    formatted_second_half
-                )
-            },
-        )
     }
 }
 
@@ -82,7 +46,49 @@ impl Highlight for PointerHighlighter {
 
     fn apply(&self, input: &str) -> String {
         POINTER_REGEX
-            .replace_all(input, |caps: &Captures<'_>| self.format_pointer_match(caps))
+            .replace_all(input, |caps: &Captures<'_>| {
+                let prefix = caps.name("prefix").or_else(|| caps.name("prefix64")).unwrap().as_str();
+                let first_half = caps
+                    .name("first_half")
+                    .or_else(|| caps.name("first_half64"))
+                    .unwrap()
+                    .as_str();
+                let formatted_prefix = prefix
+                    .chars()
+                    .map(|c| highlight_char(c, self.number, self.x, self.letter))
+                    .collect::<String>();
+                let formatted_first_half = first_half
+                    .chars()
+                    .map(|c| highlight_char(c, self.number, self.x, self.letter))
+                    .collect::<String>();
+
+                caps.name("second_half").map_or_else(
+                    || format!("{}{}", formatted_prefix, formatted_first_half),
+                    |second_half| {
+                        let formatted_second_half = second_half
+                            .as_str()
+                            .chars()
+                            .map(|c| highlight_char(c, self.number, self.x, self.letter))
+                            .collect::<String>();
+                        format!(
+                            "{}{}{}{}",
+                            formatted_prefix,
+                            formatted_first_half,
+                            self.separator.paint(self.separator_token.to_string()),
+                            formatted_second_half
+                        )
+                    },
+                )
+            })
             .to_string()
+    }
+}
+
+fn highlight_char(c: char, number: Style, x: Style, letter: Style) -> String {
+    match c {
+        '0'..='9' => format!("{}", number.paint(c.to_string())),
+        'x' | 'X' => format!("{}", x.paint(c.to_string())),
+        'a'..='f' | 'A'..='F' => format!("{}", letter.paint(c.to_string())),
+        _ => c.to_string(),
     }
 }

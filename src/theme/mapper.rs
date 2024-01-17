@@ -78,6 +78,10 @@ pub fn map_or_exit_early(raw: theme::raw::Theme) -> theme::processed::Theme {
             number: raw.pointer.number.map_or(Pointer::default().number, to_style),
             letter: raw.pointer.letter.map_or(Pointer::default().letter, to_style),
             separator: raw.pointer.separator.map_or(Pointer::default().separator, to_style),
+            separator_token: raw
+                .pointer
+                .separator_token
+                .map_or(Pointer::default().separator_token, |c| c),
             x: raw.pointer.x.map_or(Pointer::default().x, to_style),
             disabled: raw.pointer.disabled,
         },

@@ -11,6 +11,7 @@ pub struct Pointer {
     pub number: Style,
     pub letter: Style,
     pub separator: Style,
+    pub separator_token: char,
     pub x: Style,
     pub disabled: bool,
 }

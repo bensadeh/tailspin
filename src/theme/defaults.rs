@@ -18,6 +18,7 @@ impl Default for Pointer {
             number: Style::new().fg(Color::Blue).italic(),
             letter: Style::new().fg(Color::Magenta).italic().dimmed(),
             separator: Style::new().dimmed(),
+            separator_token: '•',
             x: Style::new().fg(Color::Red),
             disabled: false,
         }

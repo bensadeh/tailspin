@@ -31,6 +31,7 @@ pub struct Pointer {
     pub number: Option<Style>,
     pub letter: Option<Style>,
     pub separator: Option<Style>,
+    pub separator_token: Option<char>,
     pub x: Option<Style>,
     pub disabled: bool,
 }
