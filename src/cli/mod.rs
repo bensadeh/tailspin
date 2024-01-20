@@ -24,11 +24,11 @@ pub struct Cli {
     pub to_stdout: bool,
 
     /// Provide a custom path to a configuration file
-    #[clap(short = 'c', long = "config-path")]
+    #[clap(long = "config-path")]
     pub config_path: Option<String>,
 
-    /// Continuously listen to stdout from provided command and prevent interrupt events (Ctrl + C) from reaching the command
-    #[clap(short = 'l', long = "follow-command", conflicts_with = "follow")]
+    /// Continuously listen to stdout from the provided command and prevent interrupt events (Ctrl + C) from reaching the command
+    #[clap(short = 'c', long = "listen-command", conflicts_with = "follow")]
     pub listen_command: Option<String>,
 
     /// Highlight the provided words in red

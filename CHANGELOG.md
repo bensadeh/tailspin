@@ -6,6 +6,7 @@
 - UUID highlighter now highlights numbers and letters in individual styling
 - Added a new highlighter for highlighting pointers
 - Re-Enabled parallel processing from `stdin`
+- Renamed `--follow-command` to `--listen-command`
 
 ## 2.4.0
 

@@ -37,12 +37,12 @@ Always true if opening a folder.
 Print the output to stdout instead of viewing the contents in the pager _less_.
 Always true if using stdin.
 
-*-c, --config-path* _CONFIG_PATH_::
+*--config-path* _CONFIG_PATH_::
 Specify the path to a custom configuration file.
 Defaults to _XDG_CONFIG_HOME/tailspin/config.toml_ or _~/.config/tailspin/config.toml_ if not set.
 
-*-l, --follow-command* _COMMAND_::
-Continuously listen to stdout of the provided command.
+*-c, --listen-command* _COMMAND_::
+Continuously listen to the stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside _less_.
 
 *--words-[red|green|yellow|blue|magenta|cyan]*::
