@@ -93,94 +93,9 @@ impl Highlight for UrlHighlighter {
                 output.push_str(&format!("{}", query_highlighted));
             }
 
-            // output.push_str(color::RESET);
-
             output
         });
 
         highlighted.into_owned()
     }
 }
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use crate::color::Fg;
-//
-//     #[test]
-//     fn test_highlight_urls() {
-//         let url_group = get_default_group();
-//
-//         let highlighter = UrlHighlighter::new(&url_group);
-//
-//         let input = "Visit https://www.example.com/path?param1=value1&param2=value2";
-//         let expected_output =
-//             "Visit \u{1b}[31mhttps:\u{1b}[0m//\u{1b}[0m\u{1b}[33mwww.example.com\u{1b}[0m\u{1b}[34m/path\u{1b}[0m\u{1b}[37m?\u{1b}[35mparam1\u{1b}[37m=\u{1b}[36mvalue1\u{1b}[37m&\u{1b}[35mparam2\u{1b}[37m=\u{1b}[36mvalue2\u{1b}[0m\u{1b}[0m";
-//
-//         assert_eq!(highlighter.apply(input), expected_output);
-//     }
-//
-//     #[test]
-//     fn test_short_circuit_on_few_slashes() {
-//         let line_info = LineInfo {
-//             slashes: 1,
-//             ..Default::default()
-//         };
-//
-//         let url_group = get_default_group();
-//
-//         let highlighter = UrlHighlighter::new(&url_group);
-//         let should_short_circuit_actual = highlighter.should_short_circuit(&line_info);
-//
-//         assert!(should_short_circuit_actual);
-//     }
-//
-//     #[test]
-//     fn test_short_circuit_on_no_colons() {
-//         let line_info = LineInfo {
-//             slashes: 2,
-//             ..Default::default()
-//         };
-//
-//         let url_group = get_default_group();
-//         let highlighter = UrlHighlighter::new(&url_group);
-//
-//         let should_short_circuit_actual = highlighter.should_short_circuit(&line_info);
-//
-//         assert!(should_short_circuit_actual);
-//     }
-//
-//     fn get_default_group() -> Url {
-//         Url {
-//             http: Style {
-//                 fg: Fg::Red,
-//                 ..Default::default()
-//             },
-//             https: Style {
-//                 fg: Fg::Red,
-//                 ..Default::default()
-//             },
-//             host: Style {
-//                 fg: Fg::Yellow,
-//                 ..Default::default()
-//             },
-//             path: Style {
-//                 fg: Fg::Blue,
-//                 ..Default::default()
-//             },
-//             query_params_key: Style {
-//                 fg: Fg::Magenta,
-//                 ..Default::default()
-//             },
-//             query_params_value: Style {
-//                 fg: Fg::Cyan,
-//                 ..Default::default()
-//             },
-//             symbols: Style {
-//                 fg: Fg::White,
-//                 ..Default::default()
-//             },
-//             disabled: false,
-//         }
-//     }
-// }

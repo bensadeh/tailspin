@@ -5,6 +5,7 @@
 - Process highlighter has updated default styling and matches processes with parenthesis
 - UUID highlighter now highlights numbers and letters in individual styling
 - Added a new highlighter for highlighting pointers
+- Re-Enabled parallel processing from `stdin`
 
 ## 2.4.0
 
