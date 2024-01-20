@@ -7,6 +7,7 @@
 - Added a new highlighter for highlighting pointers
 - Re-Enabled parallel processing from `stdin`
 - Renamed `--follow-command` to `--listen-command`
+- Removed `bucket-size` flag
 
 ## 2.4.0
 

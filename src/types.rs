@@ -20,7 +20,6 @@ pub struct Config {
     pub output: Output,
     pub follow: bool,
     pub start_at_end: bool,
-    pub bucket_size: usize,
 }
 
 pub struct PathAndLineCount {

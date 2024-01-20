@@ -60,10 +60,6 @@ Disables the highlighting of severity levels.
 *--disable-rest*::
 Disables the highlighting of REST verbs.
 
-*--bucket-size* [INT]::
-tailspin collects lines into a bucket in order to process them in parallel.
-Use this flag to override the default bucket size in case the default value is not optimal for your use case.
-
 == SEE ALSO
 
 *less*(1), *tail*(1)

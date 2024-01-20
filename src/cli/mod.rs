@@ -71,10 +71,6 @@ pub struct Cli {
     #[clap(long = "disable-rest")]
     pub disable_rest: bool,
 
-    /// Set the bucket size for parallel processing
-    #[clap(long, default_value_t = 10000)]
-    pub bucket_size: usize,
-
     /// Print completions to stdout
     #[clap(long = "z-generate-shell-completions", hide = true)]
     pub generate_shell_completions: Option<String>,

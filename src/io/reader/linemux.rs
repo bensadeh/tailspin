@@ -20,7 +20,6 @@ impl Linemux {
     pub async fn get_reader_single(
         file_path: String,
         number_of_lines: usize,
-        bucket_size: usize,
         start_at_end: bool,
         mut reached_eof_tx: Option<Sender<()>>,
     ) -> Box<dyn AsyncLineReader + Send> {
@@ -41,13 +40,12 @@ impl Linemux {
                 .expect("Could not add file to linemux");
         }
 
-        let adjusted_bucket_size = min(bucket_size, number_of_lines) - 1;
-        let clamped_bucket_size = adjusted_bucket_size.clamp(1, bucket_size);
+        let bucket_size = min(number_of_lines - 1, 100000);
 
         Box::new(Self {
             custom_message: None,
             number_of_lines: Some(number_of_lines),
-            bucket_size: clamped_bucket_size,
+            bucket_size,
             current_line: 0,
             reached_eof_tx,
             lines,
@@ -57,7 +55,6 @@ impl Linemux {
     pub async fn get_reader_multiple(
         folder_name: String,
         file_paths: Vec<String>,
-        bucket_size: usize,
         mut reached_eof_tx: Option<Sender<()>>,
     ) -> Box<dyn AsyncLineReader + Send> {
         use std::path::Path;
@@ -104,7 +101,7 @@ impl Linemux {
         Box::new(Self {
             custom_message: Some(custom_message),
             number_of_lines: None,
-            bucket_size,
+            bucket_size: 1,
             current_line: 0,
             reached_eof_tx,
             lines,

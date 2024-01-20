@@ -24,7 +24,7 @@ pub struct Presenter {
 }
 
 pub async fn get_io_and_presenter(config: Config, reached_eof_tx: Option<Sender<()>>) -> (Io, Presenter) {
-    let reader = get_reader(config.input, config.start_at_end, config.bucket_size, reached_eof_tx).await;
+    let reader = get_reader(config.input, config.start_at_end, reached_eof_tx).await;
     let (writer, presenter) = get_writer_and_presenter(config.output, config.follow).await;
 
     (Io { reader, writer }, Presenter { presenter })
@@ -33,23 +33,13 @@ pub async fn get_io_and_presenter(config: Config, reached_eof_tx: Option<Sender<
 async fn get_reader(
     input: Input,
     start_at_end: bool,
-    bucket_size: usize,
     reached_eof_tx: Option<Sender<()>>,
 ) -> Box<dyn AsyncLineReader + Send> {
     match input {
         Input::File(file_info) => {
-            Linemux::get_reader_single(
-                file_info.path,
-                file_info.line_count,
-                bucket_size,
-                start_at_end,
-                reached_eof_tx,
-            )
-            .await
+            Linemux::get_reader_single(file_info.path, file_info.line_count, start_at_end, reached_eof_tx).await
         }
-        Input::Folder(info) => {
-            Linemux::get_reader_multiple(info.folder_name, info.file_paths, bucket_size, reached_eof_tx).await
-        }
+        Input::Folder(info) => Linemux::get_reader_multiple(info.folder_name, info.file_paths, reached_eof_tx).await,
         Input::Stdin => StdinReader::get_reader(reached_eof_tx),
         Input::Command(cmd) => CommandReader::get_reader(cmd, reached_eof_tx).await,
     }
