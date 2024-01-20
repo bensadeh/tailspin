@@ -48,35 +48,37 @@ impl StdinReader {
                 .expect("Failed sending EOF signal to oneshot channel");
         }
     }
-}
 
-#[async_trait]
-impl AsyncLineReader for StdinReader {
-    async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
-        if self.is_first_call {
-            self.is_first_call = false;
-            let mut lines = Vec::new();
-            let timeout_duration = Duration::from_millis(100);
+    async fn read_bulk_lines(&mut self) -> io::Result<Option<Vec<String>>> {
+        self.is_first_call = false;
 
-            loop {
-                match timeout(timeout_duration, self.read_bytes_until_newline()).await {
-                    Ok(Ok(buffer)) if !buffer.is_empty() => {
-                        let buffer = Self::strip_newline_character(buffer);
-                        let line = String::from_utf8_lossy(&buffer).into_owned();
-                        lines.push(line);
-                    }
-                    _ => break,
-                }
-            }
+        let mut lines = Vec::new();
+        let timeout_duration = Duration::from_millis(100);
 
-            if lines.is_empty() {
-                self.send_eof_signal();
-                return Ok(None);
-            }
-
-            return Ok(Some(lines));
+        while let Some(line) = self.read_line_with_timeout(timeout_duration).await? {
+            lines.push(line);
         }
 
+        if lines.is_empty() {
+            self.send_eof_signal();
+            return Ok(None);
+        }
+
+        Ok(Some(lines))
+    }
+
+    async fn read_line_with_timeout(&mut self, duration: Duration) -> io::Result<Option<String>> {
+        match timeout(duration, self.read_bytes_until_newline()).await {
+            Ok(Ok(buffer)) if !buffer.is_empty() => {
+                let buffer = Self::strip_newline_character(buffer);
+                let line = String::from_utf8_lossy(&buffer).into_owned();
+                Ok(Some(line))
+            }
+            _ => Ok(None),
+        }
+    }
+
+    async fn read_single_line(&mut self) -> io::Result<Option<Vec<String>>> {
         let buffer = self.read_bytes_until_newline().await?;
 
         if buffer.is_empty() {
@@ -88,5 +90,15 @@ impl AsyncLineReader for StdinReader {
         let line = String::from_utf8_lossy(&buffer).into_owned();
 
         Ok(Some(vec![line]))
+    }
+}
+
+#[async_trait]
+impl AsyncLineReader for StdinReader {
+    async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
+        match self.is_first_call {
+            true => self.read_bulk_lines().await,
+            false => self.read_single_line().await,
+        }
     }
 }
