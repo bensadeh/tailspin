@@ -2,17 +2,41 @@
 
 ## 3.0.0
 
-New features:
-- UUID highlighter now highlights numbers and letters in individual styling
+### Overview
+
+In November 2023, `tailspin` had 240 stars and was only available to downloads on Crates.io and Debian. At the time of 
+writing this, it sits at over 4k stars and is available on most major Linux distributions, macOS and Windows.
+
+For version `3.0.0` there are both new features and breaking changes.  
+
+### New features:
+
+- `UUID` highlighter now highlights numbers and letters in individual styling
 - Process highlighter has updated default styling and matches processes with parenthesis
 - Added a new highlighter 32-bit and 64-bit pointers (e.g. `0x7f8c8c0c0c0c`)
-- Added a IPv6 highlighter (e.g. `2001:0db8:85a3:0000:0000:8a2e:0370:7334`)
-- Re-Enabled parallel processing from `stdin`
+- Added a `IPv6` highlighter (e.g. `2001:0db8:85a3:0000:0000:8a2e:0370:7334`)
+- Re-enabled parallel processing from `stdin`
 
-Breaking changes:
-- Renamed `--follow-command` to `--listen-command`
-- Removed `--bucket-size` flag
-- Removed shorten-to flag option for dates and times
+### Breaking changes:
+
+##### Renamed `--follow-command` to `--listen-command`
+
+The `--follow-command` flag has been renamed to `--listen-command` to avoid confusion with the `--tail` flag.
+
+##### Removed `--bucket-size` flag
+
+The `--bucket-size` flag has been removed. The bucket size was ultimately an implementation detail that should be set
+by the program itself.
+
+##### Removed `shorten-to` flag option for dates and times
+
+The `shorten-to` option for dates and times has been removed. The option, set in `config.toml`, let the user shorten the
+date and time to a configurable token.
+
+In order to keep up with the growth of `tailspin`, I've decided to focus on the core of what `tailspin` is doing, namely
+highlighting. This meant that I had to remove some features that were not directly related to highlighting. 
+
+Apologizes for removing this feature and to those who are using it. 
 
 ## 2.4.0
 

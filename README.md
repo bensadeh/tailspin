@@ -191,14 +191,10 @@ Collapse the following section to see the default config:
 ```toml
 [date]
 style = { fg = "magenta" }
-# To shorten the date, uncomment the line below
-# shorten = { to = "␣", style = { fg = "magenta" } }
 
 [time]
 time = { fg = "blue" }
 zone = { fg = "red" }
-# To shorten the time, uncomment the line below
-# shorten = { to = "␣", style = { fg = "blue" } }
 
 [[keywords]]
 words = ['null', 'true', 'false']
