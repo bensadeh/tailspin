@@ -15,17 +15,15 @@ _tspin() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
-'-c+[Provide a custom path to a configuration file]:CONFIG_PATH: ' \
 '--config-path=[Provide a custom path to a configuration file]:CONFIG_PATH: ' \
-'(-f --follow)-l+[Continuously listen to stdout from provided command and prevent interrupt events (Ctrl + C) from reaching the command]:LISTEN_COMMAND: ' \
-'(-f --follow)--follow-command=[Continuously listen to stdout from provided command and prevent interrupt events (Ctrl + C) from reaching the command]:LISTEN_COMMAND: ' \
+'(-f --follow)-c+[Continuously listen to stdout from the provided command and prevent interrupt events (Ctrl + C) from reaching the command]:LISTEN_COMMAND: ' \
+'(-f --follow)--listen-command=[Continuously listen to stdout from the provided command and prevent interrupt events (Ctrl + C) from reaching the command]:LISTEN_COMMAND: ' \
 '*--words-red=[Highlight the provided words in red]:WORDS_RED: ' \
 '*--words-green=[Highlight the provided words in green]:WORDS_GREEN: ' \
 '*--words-yellow=[Highlight the provided words in yellow]:WORDS_YELLOW: ' \
 '*--words-blue=[Highlight the provided words in blue]:WORDS_BLUE: ' \
 '*--words-magenta=[Highlight the provided words in magenta]:WORDS_MAGENTA: ' \
 '*--words-cyan=[Highlight the provided words in cyan]:WORDS_CYAN: ' \
-'--bucket-size=[Set the bucket size for parallel processing]:BUCKET_SIZE: ' \
 '--z-generate-shell-completions=[Print completions to stdout]:GENERATE_SHELL_COMPLETIONS: ' \
 '-f[Follow the contents of a file]' \
 '--follow[Follow the contents of a file]' \

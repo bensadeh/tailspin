@@ -2,12 +2,12 @@
 .\"     Title: tspin
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.20
-.\"      Date: 2024-01-11
+.\"      Date: 2024-01-20
 .\"    Manual: tailspin
-.\"    Source: tailspin 2.4.0
+.\"    Source: tailspin 3.0.0
 .\"  Language: English
 .\"
-.TH "TSPIN" "1" "2024-01-11" "tailspin 2.4.0" "tailspin"
+.TH "TSPIN" "1" "2024-01-20" "tailspin 3.0.0" "tailspin"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -55,15 +55,15 @@ Print the output to stdout instead of viewing the contents in the pager \fIless\
 Always true if using stdin.
 .RE
 .sp
-\fB\-c, \-\-config\-path\fP \fICONFIG_PATH\fP
+\fB\-\-config\-path\fP \fICONFIG_PATH\fP
 .RS 4
 Specify the path to a custom configuration file.
 Defaults to \fIXDG_CONFIG_HOME/tailspin/config.toml\fP or \fI~/.config/tailspin/config.toml\fP if not set.
 .RE
 .sp
-\fB\-l, \-\-follow\-command\fP \fICOMMAND\fP
+\fB\-c, \-\-listen\-command\fP \fICOMMAND\fP
 .RS 4
-Continuously listen to stdout of the provided command.
+Continuously listen to the stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside \fIless\fP.
 .RE
 .sp
@@ -90,12 +90,6 @@ Disables the highlighting of severity levels.
 \fB\-\-disable\-rest\fP
 .RS 4
 Disables the highlighting of REST verbs.
-.RE
-.sp
-\fB\-\-bucket\-size\fP [INT]
-.RS 4
-tailspin collects lines into a bucket in order to process them in parallel.
-Use this flag to override the default bucket size in case the default value is not optimal for your use case.
 .RE
 .SH "SEE ALSO"
 .sp
