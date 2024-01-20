@@ -2,8 +2,8 @@
 2022-08-29 08:10:00 |  INFO | New ProcessId [c66a5398-2aa5-11ec-8631-0242ac110089] for user 123456
 2022-08-29 08:11:00 | TRACE | User 123456 has [0] new messages
 2022-08-29 08:11:00 | TRACE | Syncing tables and updating modules for user 123456
+2022-08-29 08:11:00 | DEBUG | Ping to 192.168.0.1 failed
 2022-08-29 08:11:00 | DEBUG | MessageMonitor: Checking outgoing messages on thread [5]
-2022-08-29 08:11:00 | DEBUG | MessageMonitor: Outgoing message process already started for thread [5]
 2022-08-29 08:11:00 | DEBUG | MessageMonitor: Checking outgoing messages on thread [4]
 2022-08-29 08:11:00 | ERROR | MessageValidator: Could not parse message, input was null
 2022-08-29 08:11:01 | ERROR | Could not generate key, "hasMoreResults" was false

@@ -8,18 +8,18 @@ static IP_ADDRESS_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(\b\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3})(\.)(\d{1,3}\b)").expect("Invalid IP address regex pattern")
 });
 
-pub struct IpHighlighter {
-    segment: Style,
+pub struct Ipv4Highlighter {
+    number: Style,
     separator: Style,
 }
 
-impl IpHighlighter {
-    pub fn new(segment: Style, separator: Style) -> Self {
-        Self { segment, separator }
+impl Ipv4Highlighter {
+    pub fn new(number: Style, separator: Style) -> Self {
+        Self { number, separator }
     }
 }
 
-impl Highlight for IpHighlighter {
+impl Highlight for Ipv4Highlighter {
     fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
         line_info.dots < 3
     }
@@ -29,7 +29,7 @@ impl Highlight for IpHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        let segment = &self.segment;
+        let segment = &self.number;
         let separator = &self.separator;
         let highlight_groups = [
             (segment, 1),

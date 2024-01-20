@@ -15,7 +15,7 @@ mod uuid;
 
 use crate::cli::Cli;
 use crate::highlighters::date::DateHighlighter;
-use crate::highlighters::ipv4::IpHighlighter;
+use crate::highlighters::ipv4::Ipv4Highlighter;
 use crate::highlighters::ipv6::Ipv6Highlighter;
 use crate::highlighters::key_value::KeyValueHighlighter;
 use crate::highlighters::keyword::KeywordHighlighter;
@@ -73,15 +73,13 @@ impl Highlighters {
             before_fns.push(Arc::new(PathHighlighter::new(theme.path.segment, theme.path.separator)));
         }
 
-        if !theme.ip_v4.disabled {
-            before_fns.push(Arc::new(IpHighlighter::new(theme.ip_v4.segment, theme.ip_v4.separator)));
-        }
+        if !theme.ip.disabled {
+            before_fns.push(Arc::new(Ipv4Highlighter::new(theme.ip.number, theme.ip.separator)));
 
-        if !theme.ip_v6.disabled {
             before_fns.push(Arc::new(Ipv6Highlighter::new(
-                theme.ip_v6.number,
-                theme.ip_v6.letter,
-                theme.ip_v6.separator,
+                theme.ip.number,
+                theme.ip.letter,
+                theme.ip.separator,
             )));
         }
 

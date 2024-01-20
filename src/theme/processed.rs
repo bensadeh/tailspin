@@ -16,13 +16,7 @@ pub struct Pointer {
     pub disabled: bool,
 }
 
-pub struct IpV4 {
-    pub segment: Style,
-    pub separator: Style,
-    pub disabled: bool,
-}
-
-pub struct IpV6 {
+pub struct Ip {
     pub number: Style,
     pub letter: Style,
     pub separator: Style,
@@ -97,8 +91,7 @@ pub struct Regexp {
 
 pub struct Theme {
     pub date: Date,
-    pub ip_v4: IpV4,
-    pub ip_v6: IpV6,
+    pub ip: Ip,
     pub key_value: KeyValue,
     pub number: Number,
     pub path: FilePath,

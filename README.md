@@ -145,6 +145,12 @@ Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `P
   <img src="assets/examples/kv.png" width="600"/>
 </p>
 
+### Pointer addresses
+
+<p align="center">
+  <img src="assets/examples/pointers.png" width="600"/>
+</p>
+
 ### Unix processes
 
 <p align="center">
@@ -183,7 +189,7 @@ highlight group, add the following to your `config.toml`:
 style = { fg = "green" }
 ```
 
-Collapse the following section to see the default config:
+Expand the section below to see the default config for the highlight groups:
 
 <details>
 <summary>Default highlight groups settings</summary>
@@ -208,8 +214,8 @@ border = true
 # You can add as many keywords as you'd like
 
 [url]
-http = { faint = true }
-https = { bold = true }
+http = { fg = "red", faint = true }
+https = { fg = "green", faint = true }
 host = { fg = "blue", faint = true }
 path = { fg = "blue" }
 query_params_key = { fg = "magenta" }
@@ -220,7 +226,8 @@ symbols = { fg = "red" }
 style = { fg = "cyan" }
 
 [ip]
-segment = { fg = "blue", italic = true }
+number = { fg = "blue", italic = true }
+letter = { fg = "magenta", italic = true }
 separator = { fg = "red" }
 
 [quotes]
@@ -232,7 +239,13 @@ segment = { fg = "green", italic = true }
 separator = { fg = "yellow" }
 
 [uuid]
-segment = { fg = "blue", italic = true }
+number = { fg = "blue", italic = true }
+letter = { fg = "magenta", italic = true }
+separator = { fg = "red" }
+
+[pointer]
+number = { fg = "blue", italic = true }
+letter = { fg = "magenta", italic = true }
 separator = { fg = "red" }
 
 [key_value]
@@ -249,7 +262,7 @@ id = { fg = "yellow" }
 
 ### Disabling Highlight Groups
 
-To disable a highlight group, set the `disabled` field to true:
+To disable a highlight group, set the `disabled` field for that group to true:
 
 ```toml
 [date]
@@ -279,6 +292,19 @@ of words to be highlighted.
 <p align="center">
   <img src="assets/examples/otf.png" width="800"/>
 </p>
+
+### Custom regex highlighters
+
+When you need more control over the highlighting, you can use the regex highlighter. This highlighter allows you to
+specify a regex and a style to be applied to the matched text.
+
+It supports one capture group `()`. When found, it will apply the style to the captured text.
+
+```toml
+[[regexps]]
+regular_expression = 'Started (.*)\.'
+style = { fg = "red" }
+```
 
 ## Working with `stdin` and `stdout`
 

@@ -39,7 +39,7 @@ impl Present for Less {
 }
 
 fn pass_ctrl_c_events_to_child_process() {
-    // Without this handling, pressing Ctrl + C causes the program to exit
+    // Without this handling, pressing Ctrl + C causes tailspin to exit
     // immediately instead of passing the signal down to the child process (less)
     ctrlc::set_handler(|| {}).expect("Error setting Ctrl-C handler");
 }

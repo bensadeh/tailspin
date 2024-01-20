@@ -5,7 +5,7 @@ impl Default for Uuid {
     fn default() -> Self {
         Uuid {
             number: Style::new().fg(Color::Blue).italic(),
-            letter: Style::new().fg(Color::Magenta).italic().dimmed(),
+            letter: Style::new().fg(Color::Magenta).italic(),
             dash: Style::new().fg(Color::Red),
             disabled: false,
         }
@@ -16,7 +16,7 @@ impl Default for Pointer {
     fn default() -> Self {
         Pointer {
             number: Style::new().fg(Color::Blue).italic(),
-            letter: Style::new().fg(Color::Magenta).italic().dimmed(),
+            letter: Style::new().fg(Color::Magenta).italic(),
             separator: Style::new().dimmed(),
             separator_token: '•',
             x: Style::new().fg(Color::Red),
@@ -25,22 +25,12 @@ impl Default for Pointer {
     }
 }
 
-impl Default for IpV4 {
+impl Default for Ip {
     fn default() -> Self {
-        IpV4 {
-            segment: Style::new().fg(Color::Blue).italic(),
-            separator: Style::new().fg(Color::Red),
-            disabled: false,
-        }
-    }
-}
-
-impl Default for IpV6 {
-    fn default() -> Self {
-        IpV6 {
+        Ip {
             number: Style::new().fg(Color::Blue).italic(),
-            letter: Style::new().fg(Color::Red),
-            separator: Style::new().fg(Color::Yellow),
+            letter: Style::new().fg(Color::Magenta).italic(),
+            separator: Style::new().fg(Color::Red),
             disabled: false,
         }
     }

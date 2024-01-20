@@ -60,10 +60,11 @@ http://91.149.202.91/1000MB.test
 http://[2605:e440:8::2:1b]/1000MB.test
 
 # Pointers
-Error occurred at memory address 0x1A2B3C4D. Please check the log for more details.
-Received data from 0xABCDEF12, processing now.
-Kernel module loaded at address 0x87654321ABCDEF00. Starting diagnostics.
-Failed to read data from address 0x9988776655443322. Retrying operation.
+Error occurred at memory address 0x8c2a0aeb
+Received data from 0x25f4a93b, processing now
+Kernel module loaded at address 0xd7b3b2f446e2c21b
+Failed to read data from address 0x96dc1ac2a6db0b40
+Copying data from 0x7f6a2c21 to 0x706a2c21
 
 # Numbers
 Duration: 42 seconds
@@ -101,11 +102,11 @@ File not found:             ~/project/user/documents/report.pdf
 Processing file:            ~/discovery/alfa/project/src/main.js
 
 # IP
-Connected to server at IP address:               192.168.0.1
-Suspicious activity detected from IP:            10.0.0.123
-No connection with remote host:                  172.16.0.254
-Request received from client IP:                 192.168.1.100
-Multiple failed login attempts:                  192.168.0.55
+Suspicious activity detected from IP:  10.0.0.123
+Connected to server at IP address:     192.168.0.1
+No connection with remote host:        172.16.0.254
+Request received from client IP:       2001:db8:0:0:0:ff00:42:8329
+Multiple failed login attempts:        2001:db8::ff00:42:8329
 
 # Keywords
 [INFO ] Task completed. Status: true (result: null)
