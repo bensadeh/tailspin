@@ -71,6 +71,15 @@ pub struct Date {
 
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
+pub struct DateWord {
+    pub day: Option<Style>,
+    pub month: Option<Style>,
+    pub number: Option<Style>,
+    pub disabled: bool,
+}
+
+#[derive(Default, Debug, Deserialize, Clone)]
+#[serde(default)]
 pub struct Time {
     pub time: Option<Style>,
     pub zone: Option<Style>,
@@ -135,6 +144,8 @@ pub struct Regexp {
 pub struct Theme {
     #[serde(default)]
     pub date: Date,
+    #[serde(default)]
+    pub date_word: DateWord,
     #[serde(default)]
     pub time: Time,
     #[serde(default)]

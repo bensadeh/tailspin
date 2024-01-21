@@ -29,8 +29,8 @@ _tspin() {
 '--follow[Follow the contents of a file]' \
 '-e[Start at the end of the file]' \
 '--start-at-end[Start at the end of the file]' \
-'(-f --follow)-p[Print the output to stdout]' \
-'(-f --follow)--print[Print the output to stdout]' \
+'-p[Print the output to stdout]' \
+'--print[Print the output to stdout]' \
 '--disable-builtin-keywords[Disable the highlighting of all builtin keyword groups (booleans, severity and REST)]' \
 '--disable-booleans[Disable the highlighting of booleans and nulls]' \
 '--disable-severity[Disable the highlighting of severity levels]' \

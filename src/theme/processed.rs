@@ -41,6 +41,13 @@ pub struct Date {
     pub disabled: bool,
 }
 
+pub struct DateWord {
+    pub day: Style,
+    pub month: Style,
+    pub number: Style,
+    pub disabled: bool,
+}
+
 pub struct Time {
     pub time: Style,
     pub zone: Style,
@@ -93,6 +100,7 @@ pub struct Regexp {
 
 pub struct Theme {
     pub date: Date,
+    pub date_word: DateWord,
     pub ip: Ip,
     pub key_value: KeyValue,
     pub number: Number,

@@ -66,6 +66,17 @@ impl Default for Date {
     }
 }
 
+impl Default for DateWord {
+    fn default() -> Self {
+        DateWord {
+            day: Style::new().fg(Color::Magenta),
+            month: Style::new().fg(Color::Magenta),
+            number: Style::new().fg(Color::Magenta),
+            disabled: false,
+        }
+    }
+}
+
 impl Default for Time {
     fn default() -> Self {
         Time {

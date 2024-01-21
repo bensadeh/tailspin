@@ -1,5 +1,7 @@
 use crate::theme;
-use crate::theme::processed::{Date, FilePath, Ip, KeyValue, Number, Pointer, Process, Quotes, Time, Url, Uuid};
+use crate::theme::processed::{
+    Date, DateWord, FilePath, Ip, KeyValue, Number, Pointer, Process, Quotes, Time, Url, Uuid,
+};
 use crate::theme::raw::{Keyword, Regexp};
 use nu_ansi_term::{Color, Style};
 
@@ -9,6 +11,12 @@ pub fn map_or_exit_early(raw: theme::raw::Theme) -> theme::processed::Theme {
             number: raw.date.number.map_or(Date::default().number, to_style),
             separator: raw.date.separator.map_or(Date::default().separator, to_style),
             disabled: raw.date.disabled,
+        },
+        date_word: DateWord {
+            day: raw.date_word.day.map_or(DateWord::default().day, to_style),
+            month: raw.date_word.month.map_or(DateWord::default().month, to_style),
+            number: raw.date_word.number.map_or(DateWord::default().number, to_style),
+            disabled: raw.date_word.disabled,
         },
         time: Time {
             time: raw.time.time.map_or(Time::default().time, to_style),

@@ -7,7 +7,9 @@
 In November 2023, `tailspin` had 240 stars and was only available to downloads on Crates.io and Debian. At the time of 
 writing this, it sits at over 4k stars and is available on most major Linux distributions, macOS and Windows.
 
-For version `3.0.0` there are both new features and breaking changes.  
+I am glad to see that `tailspin` has been useful to so many people.
+
+For version `3.0.0` there are both new features and breaking changes.
 
 ### New features:
 
@@ -15,7 +17,7 @@ For version `3.0.0` there are both new features and breaking changes.
 - Process highlighter has updated default styling and matches processes with parenthesis
 - Added a new highlighter 32-bit and 64-bit pointers (e.g. `0x7f8c8c0c0c0c`)
 - Added a `IPv6` highlighter (e.g. `2001:0db8:85a3:0000:0000:8a2e:0370:7334`)
-- Dates formatted as `yyyy/mm/dd` are now highlighted
+- Dates formatted as `yyyy/mm/dd` and `Day Month DD` are now highlighted
 
 ### Breaking changes:
 

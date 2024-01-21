@@ -199,6 +199,11 @@ Expand the section below to see the default config for the highlight groups:
 number = { fg = "magenta" }
 separator = { faint = true }
 
+[date_word] # e.g. "Jan 01", "Mon Feb 28"
+day = { fg = "magenta" }
+month = { fg = "magenta" }
+number = { fg = "magenta" }
+
 [time]
 time = { fg = "blue" }
 zone = { fg = "red" }
@@ -212,8 +217,6 @@ style = { fg = "red", italic = true }
 words = ['GET']
 style = { fg = "black", bg = "green" }
 border = true
-
-# You can add as many keywords as you'd like
 
 [url]
 http = { fg = "red", faint = true }
