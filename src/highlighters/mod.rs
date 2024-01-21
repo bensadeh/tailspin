@@ -1,4 +1,5 @@
-mod date;
+mod date_dash;
+mod date_slash;
 mod ipv4;
 mod ipv6;
 mod key_value;
@@ -14,7 +15,8 @@ mod url;
 mod uuid;
 
 use crate::cli::Cli;
-use crate::highlighters::date::DateHighlighter;
+use crate::highlighters::date_dash::DateDashHighlighter;
+use crate::highlighters::date_slash::DateSlashHighlighter;
 use crate::highlighters::ipv4::Ipv4Highlighter;
 use crate::highlighters::ipv6::Ipv6Highlighter;
 use crate::highlighters::key_value::KeyValueHighlighter;
@@ -54,7 +56,8 @@ impl Highlighters {
         let mut before_fns: Vec<Arc<dyn Highlight + Send + Sync>> = Vec::new();
 
         if !theme.date.disabled {
-            before_fns.push(Arc::new(DateHighlighter::new(theme.date.style)));
+            before_fns.push(Arc::new(DateDashHighlighter::new(theme.date.style)));
+            before_fns.push(Arc::new(DateSlashHighlighter::new(theme.date.style)));
         }
 
         if !theme.url.disabled {
