@@ -7,6 +7,7 @@ use regex::Regex;
 static TIME_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
         r"(?x)
+            \b                                         # Word boundary, ensures we are at the start of a time
             (?P<T>[T\s])?                              # Capture separator (either a space or T)
             (?P<hours>\d{2})(?P<colon1>:)
             (?P<minutes>\d{2})(?P<colon2>:)
