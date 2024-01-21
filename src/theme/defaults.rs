@@ -60,7 +60,7 @@ impl Default for Date {
     fn default() -> Self {
         Date {
             number: Style::new().fg(Color::Magenta),
-            separator: Style::new().fg(Color::Yellow).italic(),
+            separator: Style::new().fg(Color::Default).dimmed(),
             disabled: false,
         }
     }
@@ -71,6 +71,7 @@ impl Default for Time {
         Time {
             time: Style::new().fg(Color::Blue),
             zone: Style::new().fg(Color::Red),
+            separator: Style::new().fg(Color::Default).dimmed(),
             disabled: false,
         }
     }

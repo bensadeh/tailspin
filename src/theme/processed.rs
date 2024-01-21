@@ -44,6 +44,7 @@ pub struct Date {
 pub struct Time {
     pub time: Style,
     pub zone: Style,
+    pub separator: Style,
     pub disabled: bool,
 }
 

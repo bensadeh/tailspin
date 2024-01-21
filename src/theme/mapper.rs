@@ -13,6 +13,7 @@ pub fn map_or_exit_early(raw: theme::raw::Theme) -> theme::processed::Theme {
         time: Time {
             time: raw.time.time.map_or(Time::default().time, to_style),
             zone: raw.time.zone.map_or(Time::default().zone, to_style),
+            separator: raw.time.separator.map_or(Time::default().separator, to_style),
             disabled: raw.time.disabled,
         },
         number: Number {

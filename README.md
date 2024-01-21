@@ -197,11 +197,12 @@ Expand the section below to see the default config for the highlight groups:
 ```toml
 [date]
 number = { fg = "magenta" }
-separator = { fg = "yellow" }
+separator = { faint = true }
 
 [time]
 time = { fg = "blue" }
 zone = { fg = "red" }
+separator = { faint = true }
 
 [[keywords]]
 words = ['null', 'true', 'false']

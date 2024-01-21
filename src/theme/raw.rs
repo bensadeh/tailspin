@@ -74,6 +74,7 @@ pub struct Date {
 pub struct Time {
     pub time: Option<Style>,
     pub zone: Option<Style>,
+    pub separator: Option<Style>,
     pub disabled: bool,
 }
 

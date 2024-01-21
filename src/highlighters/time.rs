@@ -6,13 +6,13 @@ use regex::Regex;
 
 static TIME_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
-        r"(?x)                       
-                (?:
-                    (?P<T>[T\s])?               # Capture separator (either a space or T)
-                    (?P<time>\d{2}:\d{2}:\d{2}) # Capture time alone
-                    (?P<frac>[.,]\d+)?          # Capture fractional seconds
-                    (?P<tz>Z)?                  # Capture timezone (Zulu time)
-                )  
+        r"(?x)
+            (?P<T>[T\s])?                              # Capture separator (either a space or T)
+            (?P<hours>\d{2})(?P<colon1>:)
+            (?P<minutes>\d{2})(?P<colon2>:)
+            (?P<seconds>\d{2})
+            (?P<frac_sep>[.,:])?(?P<frac_digits>\d+)?  # Capture fractional seconds (separator and digits separately)
+            (?P<tz>Z)?                                 # Capture timezone (Z)
     ",
     )
     .expect("Invalid regex pattern")
@@ -21,43 +21,12 @@ static TIME_REGEX: Lazy<Regex> = Lazy::new(|| {
 pub struct TimeHighlighter {
     time: Style,
     zone: Style,
+    separator: Style,
 }
 
 impl TimeHighlighter {
-    pub fn new(time: Style, zone: Style) -> Self {
-        Self { time, zone }
-    }
-
-    fn highlight_time(&self, input: &str) -> String {
-        let highlighted = TIME_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
-            let t_part = if let Some(m) = caps.name("T") {
-                format!("{}", self.zone.paint(m.as_str()))
-            } else {
-                String::new()
-            };
-
-            let time_part = if let Some(m) = caps.name("time") {
-                format!("{}", self.time.paint(m.as_str()))
-            } else {
-                String::new()
-            };
-
-            let frac_part = if let Some(m) = caps.name("frac") {
-                format!("{}", self.time.paint(m.as_str()))
-            } else {
-                String::new()
-            };
-
-            let zone_part = if let Some(m) = caps.name("tz") {
-                format!("{}", self.zone.paint(m.as_str()))
-            } else {
-                String::new()
-            };
-
-            format!("{}{}{}{}", t_part, time_part, frac_part, zone_part)
-        });
-
-        highlighted.into_owned()
+    pub fn new(time: Style, zone: Style, separator: Style) -> Self {
+        Self { time, zone, separator }
     }
 }
 
@@ -71,6 +40,30 @@ impl Highlight for TimeHighlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        self.highlight_time(input)
+        TIME_REGEX
+            .replace_all(input, |caps: &regex::Captures<'_>| {
+                let paint_and_stringify = |name: &str, style: &Style| {
+                    caps.name(name)
+                        .map(|m| style.paint(m.as_str()).to_string())
+                        .unwrap_or_default()
+                };
+
+                let parts = [
+                    ("T", &self.zone),
+                    ("hours", &self.time),
+                    ("colon1", &self.separator),
+                    ("minutes", &self.time),
+                    ("colon2", &self.separator),
+                    ("seconds", &self.time),
+                    ("frac_sep", &self.separator),
+                    ("frac_digits", &self.time),
+                    ("tz", &self.zone),
+                ];
+
+                parts.iter().fold(String::new(), |acc, (name, style)| {
+                    acc + &paint_and_stringify(name, style)
+                })
+            })
+            .to_string()
     }
 }

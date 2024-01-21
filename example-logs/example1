@@ -15,16 +15,19 @@ Jan 02 21:14:54 innodellix systemd[1]: suid-sgid-wrappers.service: Deactivated s
 Jan 02 21:14:54 innodellix systemd[1]: Finished Create SUID/SGID Wrappers.
 Jan 02 21:14:54 innodellix systemd[1]: Started Cleanup of Snapper Snapshots.
 
-2023/10/02 11:42:31:738  Location manager failed: Error Domain=kCLErrorDomain Code=0 "(null)"
-2023/10/02 11:43:27:698  Location manager error: Error Domain=kCLErrorDomain Code=0 "(null)"
-2023/10/02 11:47:39:850  Location manager failed: Error Domain=kCLErrorDomain Code=0 "(null)"
-
 # Date and Time
 07:46:34                       Data backup created
 10:51:19.251                   Event logged
-2022-08-29 08:11:36            Task completed
+2023/10/02 11:47:39:850        Task completed
 2022-09-09 11:48:34,534        Last login attempt failed
 2022-09-22T07:46:34.171800155Z Event logged for debugging purposes
+
+# IP
+Suspicious activity detected from IP:  10.0.0.123
+Connected to server at IP address:     192.168.0.1
+No connection with remote host:        172.16.0.254
+Request received from client IP:       2001:db8:0:0:0:ff00:42:8329
+Multiple failed login attempts:        2001:db8::ff00:42:8329
 
 # Ip v 6
 Log 2001:0db8:85a3:0000:0000:8a2e:0370:7334 asdf
@@ -76,13 +79,6 @@ File successfully created:  /var/log/application.log
 Reading configuration file: /etc/nginx/nginx.conf
 File not found:             ~/project/user/documents/report.pdf
 Processing file:            ~/discovery/alfa/project/src/main.js
-
-# IP
-Suspicious activity detected from IP:  10.0.0.123
-Connected to server at IP address:     192.168.0.1
-No connection with remote host:        172.16.0.254
-Request received from client IP:       2001:db8:0:0:0:ff00:42:8329
-Multiple failed login attempts:        2001:db8::ff00:42:8329
 
 # Keywords
 [INFO ] Task completed. Status: true (result: null)

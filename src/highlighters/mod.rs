@@ -78,6 +78,14 @@ impl Highlighters {
             )));
         }
 
+        if !theme.time.disabled {
+            before_fns.push(Arc::new(TimeHighlighter::new(
+                theme.time.time,
+                theme.time.zone,
+                theme.time.separator,
+            )));
+        }
+
         if !theme.path.disabled {
             before_fns.push(Arc::new(PathHighlighter::new(theme.path.segment, theme.path.separator)));
         }
@@ -90,10 +98,6 @@ impl Highlighters {
                 theme.ip.letter,
                 theme.ip.separator,
             )));
-        }
-
-        if !theme.time.disabled {
-            before_fns.push(Arc::new(TimeHighlighter::new(theme.time.time, theme.time.zone)));
         }
 
         if !theme.key_value.disabled {
