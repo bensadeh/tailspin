@@ -4,7 +4,7 @@
 
 ### Overview
 
-In November 2023, `tailspin` had 240 stars and was only available to downloads on Crates.io and Debian. At the time of 
+In November 2023, `tailspin` had 240 stars and was only available to downloads on Crates.io and Debian. At the time of
 writing this, it sits at over 4k stars and is available on most major Linux distributions, macOS and Windows.
 
 I am glad to see that `tailspin` has been useful to so many people.
@@ -36,9 +36,9 @@ The `shorten-to` option for dates and times has been removed. The option, set in
 date and time to a configurable token.
 
 In order to keep up with the growth of `tailspin`, I've decided to focus on the core of what `tailspin` is doing, namely
-highlighting. This meant that I had to remove some features that were not directly related to highlighting. 
+highlighting. This meant that I had to remove some features that were not directly related to highlighting.
 
-Apologizes for removing this feature and to those who are using it. 
+Apologizes for removing this feature and to those who are using it.
 
 ## 2.4.0
 
