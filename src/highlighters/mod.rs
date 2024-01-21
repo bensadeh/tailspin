@@ -56,8 +56,14 @@ impl Highlighters {
         let mut before_fns: Vec<Arc<dyn Highlight + Send + Sync>> = Vec::new();
 
         if !theme.date.disabled {
-            before_fns.push(Arc::new(DateDashHighlighter::new(theme.date.style)));
-            before_fns.push(Arc::new(DateSlashHighlighter::new(theme.date.style)));
+            before_fns.push(Arc::new(DateDashHighlighter::new(
+                theme.date.number,
+                theme.date.separator,
+            )));
+            before_fns.push(Arc::new(DateSlashHighlighter::new(
+                theme.date.number,
+                theme.date.separator,
+            )));
         }
 
         if !theme.url.disabled {

@@ -196,7 +196,8 @@ Expand the section below to see the default config for the highlight groups:
 
 ```toml
 [date]
-style = { fg = "magenta" }
+number = { fg = "magenta" }
+separator = { fg = "yellow" }
 
 [time]
 time = { fg = "blue" }

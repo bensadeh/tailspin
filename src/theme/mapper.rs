@@ -6,7 +6,8 @@ use nu_ansi_term::{Color, Style};
 pub fn map_or_exit_early(raw: theme::raw::Theme) -> theme::processed::Theme {
     theme::processed::Theme {
         date: Date {
-            style: raw.date.style.map_or(Date::default().style, to_style),
+            number: raw.date.number.map_or(Date::default().number, to_style),
+            separator: raw.date.separator.map_or(Date::default().separator, to_style),
             disabled: raw.date.disabled,
         },
         time: Time {

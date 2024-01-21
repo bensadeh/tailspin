@@ -64,7 +64,8 @@ pub struct FilePath {
 #[derive(Default, Debug, Deserialize, Clone)]
 #[serde(default)]
 pub struct Date {
-    pub style: Option<Style>,
+    pub number: Option<Style>,
+    pub separator: Option<Style>,
     pub disabled: bool,
 }
 

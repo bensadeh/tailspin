@@ -36,7 +36,8 @@ pub struct FilePath {
 }
 
 pub struct Date {
-    pub style: Style,
+    pub number: Style,
+    pub separator: Style,
     pub disabled: bool,
 }
 

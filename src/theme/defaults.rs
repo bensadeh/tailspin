@@ -59,7 +59,8 @@ impl Default for FilePath {
 impl Default for Date {
     fn default() -> Self {
         Date {
-            style: Style::new().fg(Color::Magenta),
+            number: Style::new().fg(Color::Magenta),
+            separator: Style::new().fg(Color::Yellow).italic(),
             disabled: false,
         }
     }
