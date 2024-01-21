@@ -20,7 +20,7 @@ pub struct Cli {
     pub start_at_end: bool,
 
     /// Print the output to stdout
-    #[clap(short = 'p', long = "print", conflicts_with = "follow")]
+    #[clap(short = 'p', long = "print")]
     pub to_stdout: bool,
 
     /// Provide a custom path to a configuration file
