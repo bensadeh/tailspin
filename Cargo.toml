@@ -33,5 +33,5 @@ tokio = { version = "1.35.1", features = ["full"] }
 toml = "0.8.8"
 
 [lib]
-name = "tailspin"
+name = "tspin"
 path = "src/lib.rs"
