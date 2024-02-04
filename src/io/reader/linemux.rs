@@ -8,11 +8,12 @@ use terminal_size::{terminal_size, Height, Width};
 use tokio::sync::oneshot::Sender;
 
 pub struct Linemux {
-    custom_message: Option<String>,
+    startup_message: Option<String>,
     number_of_lines: Option<usize>,
     bucket_size: usize,
     current_line: usize,
     reached_eof_tx: Option<Sender<()>>,
+    reached_eof: bool,
     lines: MuxedLines,
 }
 
@@ -40,14 +41,15 @@ impl Linemux {
                 .expect("Could not add file to linemux");
         }
 
-        let bucket_size = min(number_of_lines - 1, 100000);
+        let bucket_size = min(number_of_lines - 1, 10000);
 
         Box::new(Self {
-            custom_message: None,
+            startup_message: None,
             number_of_lines: Some(number_of_lines),
             bucket_size,
             current_line: 0,
             reached_eof_tx,
+            reached_eof: false,
             lines,
         })
     }
@@ -87,7 +89,7 @@ impl Linemux {
 
         let separator = get_separator();
         let dimmed_separator = separator.dimmed();
-        let custom_message = format!(
+        let startup_message = format!(
             "Watching {} \n{}\n{}\n",
             folder_name.green(),
             file_list,
@@ -99,21 +101,62 @@ impl Linemux {
         }
 
         Box::new(Self {
-            custom_message: Some(custom_message),
+            startup_message: Some(startup_message),
             number_of_lines: None,
             bucket_size: 1,
             current_line: 0,
             reached_eof_tx,
+            reached_eof: true,
             lines,
         })
     }
 
     fn send_eof_signal(&mut self) {
         if let Some(reached_eof) = self.reached_eof_tx.take() {
+            self.reached_eof = true;
+
             reached_eof
                 .send(())
                 .expect("Failed sending EOF signal to oneshot channel");
         }
+    }
+
+    async fn read_lines_until_eof(&mut self) -> io::Result<Option<Vec<String>>> {
+        let mut bucket = Vec::new();
+        let number_of_lines = self.number_of_lines.expect("Number of lines not set");
+
+        while bucket.len() < self.bucket_size {
+            let line = match self.lines.next_line().await {
+                Ok(Some(line)) => line,
+                _ => break,
+            };
+
+            let next_line = line.line().to_owned();
+            bucket.push(next_line);
+            self.current_line += 1;
+
+            if self.current_line >= number_of_lines {
+                self.send_eof_signal();
+                self.bucket_size = 1;
+            }
+        }
+
+        if bucket.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(bucket))
+        }
+    }
+
+    async fn read_line_by_line(&mut self) -> io::Result<Option<Vec<String>>> {
+        let line = match self.lines.next_line().await {
+            Ok(Some(line)) => line,
+            _ => return Ok(None),
+        };
+
+        let next_line = line.line().to_owned();
+
+        Ok(Some(vec![next_line]))
     }
 }
 
@@ -129,35 +172,13 @@ fn get_separator() -> String {
 #[async_trait]
 impl AsyncLineReader for Linemux {
     async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
-        let mut bucket = Vec::new();
-
-        while bucket.len() < self.bucket_size {
-            if let Some(custom_message) = self.custom_message.take() {
-                bucket.push(custom_message);
-                break;
-            }
-
-            let line = match self.lines.next_line().await {
-                Ok(Some(line)) => line,
-                _ => break,
-            };
-
-            let next_line = line.line().to_owned();
-            bucket.push(next_line);
-            self.current_line += 1;
-
-            if let Some(number_of_lines) = self.number_of_lines {
-                if self.current_line >= number_of_lines {
-                    self.send_eof_signal();
-                    break;
-                }
-            }
+        if let Some(custom_message) = self.startup_message.take() {
+            return Ok(Some(vec![custom_message]));
         }
 
-        if bucket.is_empty() {
-            Ok(None)
-        } else {
-            Ok(Some(bucket))
+        match self.reached_eof {
+            true => self.read_line_by_line().await,
+            false => self.read_lines_until_eof().await,
         }
     }
 }

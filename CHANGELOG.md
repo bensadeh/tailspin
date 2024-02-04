@@ -1,7 +1,7 @@
 # Changelog
 ## 3.1.0
 
-
+- Improve parsing of very large log files
 
 
 ## 3.0.0

@@ -1,5 +1,6 @@
 use crate::io::writer::AsyncLineWriter;
 use async_trait::async_trait;
+use color_eyre::owo_colors::OwoColorize;
 use rand::random;
 use std::path::PathBuf;
 use tempfile::TempDir;
@@ -40,8 +41,16 @@ impl TempFile {
 impl AsyncLineWriter for TempFile {
     async fn write_line(&mut self, line: &str) -> io::Result<()> {
         let line_with_newline = format!("{}\n", line);
-        self.temp_file_writer.write_all(line_with_newline.as_bytes()).await?;
-        self.temp_file_writer.flush().await?;
+
+        let write_result = self.temp_file_writer.write_all(line_with_newline.as_bytes()).await;
+        if let Err(e) = write_result {
+            println!("Error writing to temp file: {}", e.yellow());
+        }
+
+        let flush_result = self.temp_file_writer.flush().await;
+        if let Err(e) = flush_result {
+            println!("Error flushing temp file: {}", e.yellow());
+        }
 
         Ok(())
     }

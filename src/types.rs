@@ -42,4 +42,5 @@ pub enum Input {
 pub enum Output {
     TempFile,
     Stdout,
+    Suppress,
 }

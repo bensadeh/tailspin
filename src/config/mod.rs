@@ -44,7 +44,7 @@ fn create_config(args: &Cli) -> Result<Config, Error> {
 
     let input_type = determine_input_type(args, has_data_from_stdin)?;
     let input = get_input(input_type)?;
-    let output = get_output(has_data_from_stdin, args.to_stdout);
+    let output = get_output(has_data_from_stdin, args.to_stdout, args.suppress_output);
     let follow = should_follow(args.follow, args.listen_command.is_some(), &input);
 
     let config = Config {
@@ -106,7 +106,11 @@ fn get_input(input_type: InputType) -> Result<Input, Error> {
     }
 }
 
-fn get_output(has_data_from_stdin: bool, is_print_flag: bool) -> Output {
+fn get_output(has_data_from_stdin: bool, is_print_flag: bool, suppress_output: bool) -> Output {
+    if suppress_output {
+        return Output::Suppress;
+    }
+
     if has_data_from_stdin || is_print_flag {
         return Output::Stdout;
     }

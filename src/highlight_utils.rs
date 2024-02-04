@@ -73,7 +73,6 @@ fn split_into_chunks(input: &str) -> Vec<Chunk> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use regex::Regex;
 
     #[test]
     fn test_split_into_chunks() {

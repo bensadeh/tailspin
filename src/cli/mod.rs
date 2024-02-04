@@ -71,6 +71,10 @@ pub struct Cli {
     #[clap(long = "disable-rest")]
     pub disable_rest: bool,
 
+    /// Suppress all output (for debugging and benchmarking)
+    #[clap(long = "suppress-output", hide = true)]
+    pub suppress_output: bool,
+
     /// Print completions to stdout
     #[clap(long = "z-generate-shell-completions", hide = true)]
     pub generate_shell_completions: Option<String>,
