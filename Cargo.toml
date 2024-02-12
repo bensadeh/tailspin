@@ -15,8 +15,8 @@ name = "tspin"
 
 [dependencies]
 async-trait = "0.1.77"
-clap = { version = "4.4.18", features = ["derive"] }
-clap_complete = "4.4.10"
+clap = { version = "4.5.0", features = ["derive"] }
+clap_complete = "4.5.0"
 color-eyre = "0.6.2"
 ctrlc = "3.4.2"
 linemux = "0.3.0"
@@ -27,7 +27,7 @@ rayon = "1.8.1"
 regex = "1.10.3"
 serde = { version = "1.0.196", features = ["derive"] }
 shellexpand = "3.1.0"
-tempfile = "3.9.0"
+tempfile = "3.10.0"
 terminal_size = "0.3.0"
 tokio = { version = "1.36.0", features = ["full"] }
-toml = "0.8.9"
+toml = "0.8.10"
