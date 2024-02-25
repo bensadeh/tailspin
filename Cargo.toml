@@ -13,6 +13,9 @@ rust-version = "1.70"
 path = "src/main.rs"
 name = "tspin"
 
+[lints.clippy]
+missing-const-for-fn = "deny"
+
 [dependencies]
 async-trait = "0.1.77"
 clap = { version = "4.5.1", features = ["derive"] }
