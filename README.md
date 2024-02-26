@@ -27,6 +27,7 @@ A log file highlighter
 
 * [Overview](#overview)
 * [Installing](#installing)
+* [Usage](#usage)
 * [Highlight Groups](#highlight-groups)
 * [Watching folders](#watching-folders)
 * [Customizing Highlight Groups](#customizing-highlight-groups)
@@ -48,8 +49,6 @@ it requires no configuration and the highlighting will work consistently across 
 ## Installing
 
 ### Package Managers
-
-The binary name for `tailspin` is `tspin`.
 
 ```console
 # Homebrew
@@ -82,6 +81,14 @@ Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `P
 > [!IMPORTANT]
 > When building from source, make sure that you are using the latest version
 > of [`less`](http://greenwoodsoftware.com/less/).
+
+## Usage
+
+The binary name for `tailspin` is `tspin`. To use it simply write in your terminal 
+
+```console
+tspin any-log.log
+``` 
 
 ## Highlight Groups
 
