@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                            
+#                                                                                                                                                                                                                                                                                           
 
 <p align="center">
 A log file highlighter
@@ -26,8 +26,8 @@ A log file highlighter
 ### Table of Contents
 
 * [Overview](#overview)
-* [Installing](#installing)
 * [Usage](#usage)
+* [Installing](#installing)
 * [Highlight Groups](#highlight-groups)
 * [Watching folders](#watching-folders)
 * [Customizing Highlight Groups](#customizing-highlight-groups)
@@ -45,6 +45,24 @@ keywords and more.
 
 `tailspin` does not make any assumptions on the format or position of the items it wants to highlight. For this reason,
 it requires no configuration and the highlighting will work consistently across different logfiles.
+
+## Usage
+
+The binary name for `tailspin` is `tspin`.
+
+```console
+# Read from file and view in `less`
+tspin application.log
+
+# Read from file and print to stdout
+tspin application.log --print
+
+# Read from stdin and print to stdout
+echo "2021-01-01 12:00:00 [INFO] This is a log message" | tspin 
+
+# Read from another command and print to stdout
+kubectl logs [pod name] --follow | tspin
+``` 
 
 ## Installing
 
@@ -81,14 +99,6 @@ Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `P
 > [!IMPORTANT]
 > When building from source, make sure that you are using the latest version
 > of [`less`](http://greenwoodsoftware.com/less/).
-
-## Usage
-
-The binary name for `tailspin` is `tspin`. To use it simply write in your terminal 
-
-```console
-tspin any-log.log
-``` 
 
 ## Highlight Groups
 
