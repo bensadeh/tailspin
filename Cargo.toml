@@ -17,10 +17,10 @@ name = "tspin"
 missing-const-for-fn = "deny"
 
 [dependencies]
-async-trait = "0.1.77"
-clap = { version = "4.5.2", features = ["derive"] }
+async-trait = "0.1.78"
+clap = { version = "4.5.3", features = ["derive"] }
 clap_complete = "4.5.1"
-color-eyre = "0.6.2"
+color-eyre = "0.6.3"
 ctrlc = "3.4.4"
 linemux = "0.3.0"
 nu-ansi-term = "0.50.0"
@@ -33,4 +33,4 @@ shellexpand = "3.1.0"
 tempfile = "3.10.1"
 terminal_size = "0.3.0"
 tokio = { version = "1.36.0", features = ["full"] }
-toml = "0.8.10"
+toml = "0.8.11"
