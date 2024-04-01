@@ -35,6 +35,7 @@ _tspin() {
 '--disable-booleans[Disable the highlighting of booleans and nulls]' \
 '--disable-severity[Disable the highlighting of severity levels]' \
 '--disable-rest[Disable the highlighting of REST verbs]' \
+'--suppress-output[Suppress all output (for debugging and benchmarking)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

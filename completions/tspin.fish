@@ -14,5 +14,6 @@ complete -c tspin -l disable-builtin-keywords -d 'Disable the highlighting of al
 complete -c tspin -l disable-booleans -d 'Disable the highlighting of booleans and nulls'
 complete -c tspin -l disable-severity -d 'Disable the highlighting of severity levels'
 complete -c tspin -l disable-rest -d 'Disable the highlighting of REST verbs'
+complete -c tspin -l suppress-output -d 'Suppress all output (for debugging and benchmarking)'
 complete -c tspin -s h -l help -d 'Print help'
 complete -c tspin -s V -l version -d 'Print version'
