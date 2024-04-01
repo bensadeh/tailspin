@@ -18,7 +18,7 @@ missing-const-for-fn = "deny"
 
 [dependencies]
 async-trait = "0.1.79"
-clap = { version = "4.5.3", features = ["derive"] }
+clap = { version = "4.5.4", features = ["derive"] }
 clap_complete = "4.5.1"
 color-eyre = "0.6.3"
 ctrlc = "3.4.4"
@@ -32,5 +32,5 @@ serde = { version = "1.0.197", features = ["derive"] }
 shellexpand = "3.1.0"
 tempfile = "3.10.1"
 terminal_size = "0.3.0"
-tokio = { version = "1.36.0", features = ["full"] }
+tokio = { version = "1.37.0", features = ["full"] }
 toml = "0.8.12"
