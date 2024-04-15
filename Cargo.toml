@@ -17,9 +17,9 @@ name = "tspin"
 missing-const-for-fn = "deny"
 
 [dependencies]
-async-trait = "0.1.79"
+async-trait = "0.1.80"
 clap = { version = "4.5.4", features = ["derive"] }
-clap_complete = "4.5.1"
+clap_complete = "4.5.2"
 color-eyre = "0.6.3"
 ctrlc = "3.4.4"
 linemux = "0.3.0"
