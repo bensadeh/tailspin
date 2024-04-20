@@ -12,7 +12,6 @@ mod types;
 
 use crate::cli::Cli;
 use crate::highlight_processor::HighlightProcessor;
-use crate::highlighters::Highlighters;
 use crate::io::controller::get_io_and_presenter;
 use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
@@ -40,7 +39,7 @@ pub async fn run(theme: Theme, config: Config, cli: Cli) {
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
     let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;
 
-    let highlighter = Highlighters::new(&theme, &cli);
+    let highlighter = highlighters::Highlighters::new(&theme, &cli);
     let highlight_processor = HighlightProcessor::new(highlighter);
 
     tokio::spawn(process_lines(io, highlight_processor));

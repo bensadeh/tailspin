@@ -119,30 +119,17 @@ fn get_output(has_data_from_stdin: bool, is_print_flag: bool, suppress_output: b
 }
 
 fn determine_input(path: String) -> Result<Input, Error> {
-    let canonical_path = fs::canonicalize(&path).map_err(|_| Error {
-        exit_code: GENERAL_ERROR,
-        message: format!("{}: No such file or directory", path.red()),
-    })?;
-
-    let canonical_path_str = canonical_path.to_str().ok_or(Error {
-        exit_code: GENERAL_ERROR,
-        message: "Canonical path contains invalid UTF-8 characters".into(),
-    })?;
-
-    match check_path_type(&canonical_path)? {
+    match check_path_type(&path)? {
         PathType::File => {
-            let line_count = count_lines(&canonical_path);
-            Ok(Input::File(PathAndLineCount {
-                path: canonical_path_str.to_string(),
-                line_count,
-            }))
+            let line_count = count_lines(&path);
+            Ok(Input::File(PathAndLineCount { path, line_count }))
         }
         PathType::Folder => {
-            let mut paths = list_files_in_directory(&canonical_path)?;
+            let mut paths = list_files_in_directory(Path::new(&path))?;
             paths.sort();
 
             Ok(Input::Folder(FolderInfo {
-                folder_name: canonical_path_str.to_string(),
+                folder_name: path,
                 file_paths: paths,
             }))
         }
