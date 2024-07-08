@@ -17,7 +17,7 @@ name = "tspin"
 missing-const-for-fn = "deny"
 
 [dependencies]
-async-trait = "0.1.80"
+async-trait = "0.1.81"
 clap = { version = "4.5.8", features = ["derive"] }
 clap_complete = "4.5.7"
 color-eyre = "0.6.3"
@@ -28,7 +28,7 @@ once_cell = "1.19.0"
 rand = "0.8.5"
 rayon = "1.10.0"
 regex = "1.10.5"
-serde = { version = "1.0.203", features = ["derive"] }
+serde = { version = "1.0.204", features = ["derive"] }
 shellexpand = "3.1.0"
 tempfile = "3.10.1"
 terminal_size = "0.3.0"
