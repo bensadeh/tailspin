@@ -32,5 +32,5 @@ serde = { version = "1.0.204", features = ["derive"] }
 shellexpand = "3.1.0"
 tempfile = "3.10.1"
 terminal_size = "0.3.0"
-tokio = { version = "1.38.0", features = ["full"] }
-toml = "0.8.14"
+tokio = { version = "1.38.1", features = ["full"] }
+toml = "0.8.15"
