@@ -40,7 +40,7 @@ _tspin() {
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-'::FILE -- Path to file or folder:' \
+'::FILE -- Path to file or folder:_files' \
 && ret=0
 }
 
