@@ -8,7 +8,7 @@ use std::process::exit;
 #[command(author, version, about)]
 pub struct Cli {
     /// Path to file or folder
-    #[clap(name = "FILE")]
+    #[clap(name = "FILE", value_hint = clap::ValueHint::AnyPath)]
     pub file_or_folder_path: Option<String>,
 
     /// Follow the contents of a file
