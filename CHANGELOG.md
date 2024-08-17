@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.1.0
+## 3.0.2
 
 - Add completion hint so shells understand they can complete with file names (Thanks @alerque !)
 
