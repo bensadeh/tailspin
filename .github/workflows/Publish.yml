@@ -68,12 +68,13 @@ jobs:
           # Switch to the branch that triggered the workflow
           git checkout "$BRANCH_NAME"
           
-          # Bump minor version in Cargo.toml
+          # Bump minor version and reset patch version in Cargo.toml
           VERSION_LINE=$(grep "^version" ./Cargo.toml | head -1)
           VERSION=$(echo $VERSION_LINE | grep -oP '\d+\.\d+\.\d+')
+          MAJOR_VERSION=$(echo $VERSION | awk -F'.' '{print $1}')
           MINOR_VERSION=$(echo $VERSION | awk -F'.' '{print $2}')
           BUMPED_MINOR_VERSION=$((MINOR_VERSION + 1))
-          BUMPED_VERSION=$(echo $VERSION | sed "s/\.$MINOR_VERSION\./\.$BUMPED_MINOR_VERSION\./")
+          BUMPED_VERSION="$MAJOR_VERSION.$BUMPED_MINOR_VERSION.0"
           BUMPED_VERSION_LINE=$(echo $VERSION_LINE | sed "s/$VERSION/$BUMPED_VERSION/")
           sed -i "s/$VERSION_LINE/$BUMPED_VERSION_LINE/" ./Cargo.toml
           
