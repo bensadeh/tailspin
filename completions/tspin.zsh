@@ -14,7 +14,7 @@ _tspin() {
     fi
 
     local context curcontext="$curcontext" state line
-    _arguments "${_arguments_options[@]}" \
+    _arguments "${_arguments_options[@]}" : \
 '--config-path=[Provide a custom path to a configuration file]:CONFIG_PATH: ' \
 '(-f --follow)-c+[Continuously listen to stdout from the provided command and prevent interrupt events (Ctrl + C) from reaching the command]:LISTEN_COMMAND: ' \
 '(-f --follow)--listen-command=[Continuously listen to stdout from the provided command and prevent interrupt events (Ctrl + C) from reaching the command]:LISTEN_COMMAND: ' \
@@ -40,7 +40,7 @@ _tspin() {
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-'::FILE -- Path to file or folder:' \
+'::FILE -- Path to file or folder:_files' \
 && ret=0
 }
 
