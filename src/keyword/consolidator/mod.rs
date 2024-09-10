@@ -6,7 +6,7 @@ pub fn consolidate_keywords(keywords: Vec<Keyword>) -> Vec<Keyword> {
 
     for keyword in keywords {
         let mut found = false;
-        for cons in consolidated.iter_mut() {
+        for cons in &mut consolidated {
             if cons.style == keyword.style && cons.border == keyword.border {
                 let mut words_set: HashSet<String> = cons.words.iter().cloned().collect();
                 words_set.extend(keyword.words.clone());
@@ -58,7 +58,7 @@ mod tests {
 
         let actual = consolidate_keywords(input_keywords);
 
-        let expected = vec![
+        let expected = [
             Keyword {
                 style: Style::new().fg(Color::Red),
                 words: vec!["apple".into(), "banana".into(), "orange".into()],

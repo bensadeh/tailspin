@@ -126,9 +126,8 @@ impl Linemux {
         let number_of_lines = self.number_of_lines.expect("Number of lines not set");
 
         while bucket.len() < self.bucket_size {
-            let line = match self.lines.next_line().await {
-                Ok(Some(line)) => line,
-                _ => break,
+            let Ok(Some(line)) = self.lines.next_line().await else {
+                break;
             };
 
             let next_line = line.line().to_owned();
@@ -149,9 +148,8 @@ impl Linemux {
     }
 
     async fn read_line_by_line(&mut self) -> io::Result<Option<Vec<String>>> {
-        let line = match self.lines.next_line().await {
-            Ok(Some(line)) => line,
-            _ => return Ok(None),
+        let Ok(Some(line)) = self.lines.next_line().await else {
+            return Ok(None);
         };
 
         let next_line = line.line().to_owned();
@@ -165,7 +163,7 @@ fn get_separator() -> String {
     if let Some((Width(w), Height(_h))) = size {
         "▁".repeat(w as usize)
     } else {
-        "".to_string()
+        String::new()
     }
 }
 
@@ -176,9 +174,10 @@ impl AsyncLineReader for Linemux {
             return Ok(Some(vec![custom_message]));
         }
 
-        match self.reached_eof {
-            true => self.read_line_by_line().await,
-            false => self.read_lines_until_eof().await,
+        if self.reached_eof {
+            self.read_line_by_line().await
+        } else {
+            self.read_lines_until_eof().await
         }
     }
 }

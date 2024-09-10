@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -23,7 +25,7 @@ pub struct NumberHighlighter {
 }
 
 impl NumberHighlighter {
-    pub fn new(style: Style) -> Self {
+    pub const fn new(style: Style) -> Self {
         Self { style }
     }
 }
@@ -37,9 +39,7 @@ impl Highlight for NumberHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        NUMBER_REGEX
-            .replace_all(input, |caps: &Captures<'_>| format!("{}", self.style.paint(&caps[0])))
-            .to_string()
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        NUMBER_REGEX.replace_all(input, |caps: &Captures<'_>| format!("{}", self.style.paint(&caps[0])))
     }
 }

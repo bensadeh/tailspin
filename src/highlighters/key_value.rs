@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -13,7 +15,7 @@ pub struct KeyValueHighlighter {
 }
 
 impl KeyValueHighlighter {
-    pub fn new(key: Style, separator: Style) -> Self {
+    pub const fn new(key: Style, separator: Style) -> Self {
         Self { key, separator }
     }
 }
@@ -27,21 +29,17 @@ impl Highlight for KeyValueHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        KEY_VALUE_REGEX
-            .replace_all(input, |captures: &regex::Captures| {
-                let space_or_start = captures.name("space_or_start").map(|s| s.as_str()).unwrap_or_default();
-                let key = captures
-                    .name("key")
-                    .map(|k| format!("{}", self.key.paint(k.as_str())))
-                    .unwrap_or_default();
-                let equals_sign = captures
-                    .name("equals")
-                    .map(|e| format!("{}", self.separator.paint(e.as_str())))
-                    .unwrap_or_default();
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        KEY_VALUE_REGEX.replace_all(input, |captures: &regex::Captures| {
+            let space_or_start = &captures["space_or_start"];
+            let key = &captures["key"];
+            let equals_sign = &captures["equals"];
 
-                format!("{}{}{}", space_or_start, key, equals_sign)
-            })
-            .to_string()
+            format!(
+                "{space_or_start}{}{}",
+                self.key.paint(key),
+                self.separator.paint(equals_sign)
+            )
+        })
     }
 }

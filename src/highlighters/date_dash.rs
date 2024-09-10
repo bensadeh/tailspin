@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -15,7 +17,7 @@ pub struct DateDashHighlighter {
 }
 
 impl DateDashHighlighter {
-    pub fn new(number: Style, separator: Style) -> Self {
+    pub const fn new(number: Style, separator: Style) -> Self {
         Self { number, separator }
     }
 }
@@ -29,27 +31,22 @@ impl Highlight for DateDashHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        DATE_REGEX
-            .replace_all(input, |caps: &Captures<'_>| {
-                let year = caps.name("year").map(|m| m.as_str());
-                let month = caps.name("month").map(|m| m.as_str());
-                let day = caps.name("day").map(|m| m.as_str());
-                let separator1 = caps.name("separator1").map(|m| m.as_str());
-                let separator2 = caps.name("separator2").map(|m| m.as_str());
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        DATE_REGEX.replace_all(input, |caps: &Captures<'_>| {
+            let year = &caps["year"];
+            let month = &caps["month"];
+            let day = &caps["day"];
+            let separator1 = &caps["separator1"];
+            let separator2 = &caps["separator2"];
 
-                match (year, month, day, separator1, separator2) {
-                    (Some(y), Some(mo), Some(d), Some(s1), Some(s2)) => format!(
-                        "{}{}{}{}{}",
-                        self.number.paint(y),
-                        self.separator.paint(s1),
-                        self.number.paint(mo),
-                        self.separator.paint(s2),
-                        self.number.paint(d)
-                    ),
-                    _ => input.to_string(),
-                }
-            })
-            .to_string()
+            format!(
+                "{}{}{}{}{}",
+                self.number.paint(year),
+                self.separator.paint(separator1),
+                self.number.paint(month),
+                self.separator.paint(separator2),
+                self.number.paint(day)
+            )
+        })
     }
 }

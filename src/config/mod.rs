@@ -1,7 +1,5 @@
 use crate::cli::Cli;
-use crate::types::{
-    Config, Error, FolderInfo, Input, Output, PathAndLineCount, GENERAL_ERROR, MISUSE_SHELL_BUILTIN, OK,
-};
+use crate::types::{Config, Error, ExitType, FolderInfo, Input, Output, PathAndLineCount};
 use color_eyre::owo_colors::OwoColorize;
 use std::fs;
 use std::fs::{DirEntry, File};
@@ -24,11 +22,11 @@ pub fn create_config_or_exit_early(args: &Cli) -> Config {
     match create_config(args) {
         Ok(c) => c,
         Err(e) => {
-            match e.exit_code {
-                OK => println!("{}", e.message),
+            match e.exit_type {
+                ExitType::Success => println!("{}", e.message),
                 _ => eprintln!("{}", e.message),
             }
-            exit(e.exit_code);
+            exit(e.exit_type.code());
         }
     }
 }
@@ -64,14 +62,14 @@ fn validate_input(
 ) -> Result<(), Error> {
     if !has_data_from_stdin && !has_file_or_folder_input && !has_follow_command_input {
         return Err(Error {
-            exit_code: OK,
+            exit_type: ExitType::Success,
             message: format!("Missing filename ({} for help)", "tspin --help".magenta()),
         });
     }
 
     if has_file_or_folder_input && has_follow_command_input {
         return Err(Error {
-            exit_code: MISUSE_SHELL_BUILTIN,
+            exit_type: ExitType::ShellBuiltinMisuse,
             message: format!("Cannot read from both file and {}", "--listen-command".magenta()),
         });
     }
@@ -93,7 +91,7 @@ fn determine_input_type(args: &Cli, has_data_from_stdin: bool) -> Result<InputTy
     }
 
     Err(Error {
-        exit_code: GENERAL_ERROR,
+        exit_type: ExitType::General,
         message: "Could not determine input type".to_string(),
     })
 }
@@ -106,7 +104,7 @@ fn get_input(input_type: InputType) -> Result<Input, Error> {
     }
 }
 
-fn get_output(has_data_from_stdin: bool, is_print_flag: bool, suppress_output: bool) -> Output {
+const fn get_output(has_data_from_stdin: bool, is_print_flag: bool, suppress_output: bool) -> Output {
     if suppress_output {
         return Output::Suppress;
     }
@@ -138,7 +136,7 @@ fn determine_input(path: String) -> Result<Input, Error> {
 
 fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
     let metadata = fs::metadata(path.as_ref()).map_err(|_| Error {
-        exit_code: GENERAL_ERROR,
+        exit_type: ExitType::General,
         message: format!("{}: No such file or directory", path.as_ref().display().red()),
     })?;
 
@@ -148,13 +146,13 @@ fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
         Ok(PathType::Folder)
     } else {
         Err(Error {
-            exit_code: GENERAL_ERROR,
+            exit_type: ExitType::General,
             message: "Path is neither a file nor a directory".into(),
         })
     }
 }
 
-fn should_follow(follow: bool, has_follow_command: bool, input: &Input) -> bool {
+const fn should_follow(follow: bool, has_follow_command: bool, input: &Input) -> bool {
     if has_follow_command {
         return true;
     }
@@ -169,19 +167,19 @@ fn should_follow(follow: bool, has_follow_command: bool, input: &Input) -> bool 
 fn list_files_in_directory(path: &Path) -> Result<Vec<String>, Error> {
     if !path.is_dir() {
         return Err(Error {
-            exit_code: GENERAL_ERROR,
+            exit_type: ExitType::General,
             message: "Path is not a directory".into(),
         });
     }
 
     fs::read_dir(path)
         .map_err(|_| Error {
-            exit_code: GENERAL_ERROR,
+            exit_type: ExitType::General,
             message: "Unable to read directory".into(),
         })?
         .filter_map(Result::ok)
         .filter(is_normal_file)
-        .map(entry_to_string)
+        .map(|entry: std::fs::DirEntry| entry_to_string(&entry))
         .collect()
 }
 
@@ -191,19 +189,18 @@ fn is_normal_file(entry: &DirEntry) -> bool {
             .path()
             .file_name()
             .and_then(|name| name.to_str())
-            .map(|name| !name.starts_with('.'))
-            .unwrap_or(false)
+            .is_some_and(|name| !name.starts_with('.'))
 }
 
-fn entry_to_string(entry: DirEntry) -> Result<String, Error> {
+fn entry_to_string(entry: &DirEntry) -> Result<String, Error> {
     entry
         .path()
         .to_str()
         .ok_or(Error {
-            exit_code: GENERAL_ERROR,
+            exit_type: ExitType::General,
             message: "Non-UTF8 filename".into(),
         })
-        .map(|s| s.to_string())
+        .map(std::string::ToString::to_string)
 }
 
 fn count_lines<P: AsRef<Path>>(file_path: P) -> usize {

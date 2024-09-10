@@ -1,4 +1,6 @@
-use crate::theme::processed::*;
+use crate::theme::processed::{
+    Date, DateWord, FilePath, Ip, KeyValue, Keyword, Number, Pointer, Process, Quotes, Time, Url, Uuid,
+};
 use nu_ansi_term::{Color, Style};
 
 impl Default for Uuid {

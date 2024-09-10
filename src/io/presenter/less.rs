@@ -30,7 +30,7 @@ impl Present for Less {
                 if err.kind() == io::ErrorKind::NotFound {
                     eprintln!("'less' command not found. Please ensure it is installed and on your PATH.");
                 } else {
-                    eprintln!("Failed to run less: {}", err);
+                    eprintln!("Failed to run less: {err}");
                 }
                 process::exit(1);
             }

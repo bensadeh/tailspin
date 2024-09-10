@@ -26,7 +26,7 @@ async fn main() -> Result<()> {
     color_eyre::install()?;
 
     let cli = cli::get_args_or_exit_early();
-    let theme = theme_io::load_theme(cli.config_path.clone());
+    let theme = theme_io::load_theme(cli.config_path.as_deref());
     let processed_theme = theme::mapper::map_or_exit_early(theme);
     let config = config::create_config_or_exit_early(&cli);
 
@@ -56,7 +56,7 @@ async fn process_lines<T: AsyncLineReader + AsyncLineWriter + Unpin + Send>(
     highlight_processor: HighlightProcessor,
 ) {
     while let Ok(Some(line)) = io.next_line().await {
-        let highlighted_lines = highlight_processor.apply(line);
+        let highlighted_lines = highlight_processor.apply(&line);
         io.write_line(&highlighted_lines).await.unwrap();
     }
 }

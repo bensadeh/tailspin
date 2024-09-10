@@ -21,7 +21,7 @@ impl CommandReader {
                 .expect("Failed sending EOF signal to oneshot channel");
         };
 
-        let trap_command = format!("trap '' INT; {}", command);
+        let trap_command = format!("trap '' INT; {command}");
 
         let child = AsyncCommand::new("sh")
             .arg("-c")

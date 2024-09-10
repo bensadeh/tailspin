@@ -40,7 +40,7 @@ impl TempFile {
 #[async_trait]
 impl AsyncLineWriter for TempFile {
     async fn write_line(&mut self, line: &str) -> io::Result<()> {
-        let line_with_newline = format!("{}\n", line);
+        let line_with_newline = format!("{line}\n");
 
         let write_result = self.temp_file_writer.write_all(line_with_newline.as_bytes()).await;
         if let Err(e) = write_result {
@@ -58,7 +58,7 @@ impl AsyncLineWriter for TempFile {
 
 async fn create_temp_file() -> (TempDir, PathBuf, BufWriter<File>) {
     let unique_id: u32 = random();
-    let filename = format!("tailspin.temp.{}", unique_id);
+    let filename = format!("tailspin.temp.{unique_id}");
 
     let temp_dir = tempfile::tempdir().unwrap();
 

@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -10,14 +12,14 @@ pub struct KeywordHighlighter {
 }
 
 impl KeywordHighlighter {
-    pub fn new(keywords: Vec<String>, style: Style, border: bool) -> Self {
+    pub fn new(keywords: &[String], style: Style, border: bool) -> Self {
         let keyword_pattern = keywords
             .iter()
             .map(|word| regex::escape(word))
             .collect::<Vec<_>>()
             .join("|");
 
-        let regex = Regex::new(&format!(r"\b({})\b", keyword_pattern)).expect("Invalid regex pattern");
+        let regex = Regex::new(&format!(r"\b({keyword_pattern})\b")).expect("Invalid regex pattern");
 
         Self { regex, style, border }
     }
@@ -32,16 +34,18 @@ impl Highlight for KeywordHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        self.regex
-            .replace_all(input, |caps: &Captures<'_>| {
-                if self.border {
-                    let capture_with_extra_border = format!(" {} ", &caps[0]);
-                    format!("{}", self.style.paint(capture_with_extra_border))
-                } else {
-                    format!("{}", self.style.paint(&caps[0]))
-                }
-            })
-            .to_string()
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.regex.replace_all(input, |caps: &Captures<'_>| {
+            if self.border {
+                format!(
+                    "{}{}{}",
+                    self.style.paint(" "),
+                    self.style.paint(&caps[0]),
+                    self.style.paint(" ")
+                )
+            } else {
+                format!("{}", self.style.paint(&caps[0]))
+            }
+        })
     }
 }

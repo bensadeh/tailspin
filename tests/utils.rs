@@ -2,6 +2,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
+#[must_use]
 pub fn build_binary() -> PathBuf {
     Command::new("cargo")
         .arg("build")
@@ -11,6 +12,7 @@ pub fn build_binary() -> PathBuf {
     PathBuf::from("./target/debug/tspin")
 }
 
+#[must_use]
 pub fn run_binary_with_input(binary_path: PathBuf, input: &str) -> String {
     let mut child = Command::new(binary_path)
         .stdin(Stdio::piped())

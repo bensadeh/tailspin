@@ -156,7 +156,7 @@ impl Highlighters {
 
         for keyword in keywords {
             main_fns.push(Arc::new(KeywordHighlighter::new(
-                keyword.words,
+                &keyword.words,
                 keyword.style,
                 keyword.border,
             )));
@@ -164,7 +164,7 @@ impl Highlighters {
 
         for regexp in regexps {
             main_fns.push(Arc::new(RegexpHighlighter::new(
-                regexp.regular_expression,
+                &regexp.regular_expression,
                 regexp.style,
                 regexp.border,
             )));

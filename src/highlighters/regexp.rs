@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -10,8 +12,8 @@ pub struct RegexpHighlighter {
 }
 
 impl RegexpHighlighter {
-    pub fn new(regular_expression: String, style: Style, border: bool) -> Self {
-        let keyword_regex = Regex::new(&regular_expression.to_string()).expect("Invalid regex pattern");
+    pub fn new(regular_expression: &str, style: Style, border: bool) -> Self {
+        let keyword_regex = Regex::new(regular_expression).expect("Invalid regex pattern");
 
         Self {
             keyword_regex,
@@ -30,7 +32,7 @@ impl Highlight for RegexpHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         let regex = &self.keyword_regex;
         let color = &self.style;
         let capture_groups = regex.captures_len() - 1;
@@ -44,22 +46,19 @@ impl Highlight for RegexpHighlighter {
                 new_string.push_str(&get_pre_match_text(input, last_end, entire_match.start()));
 
                 // Determine what part of the match to highlight
-                match capture_groups {
-                    1 => {
-                        if let Some(captured) = caps.get(1) {
-                            // Add the text before the capturing group (from the start of the entire match)
-                            new_string.push_str(&get_pre_match_text(input, entire_match.start(), captured.start()));
-                            // Highlight the captured group
-                            new_string.push_str(&format!("{}", color.paint(captured.as_str())));
-                            // Add the text after the capturing group (up to the end of the entire match)
-                            new_string.push_str(&get_pre_match_text(input, captured.end(), entire_match.end()));
-                        }
+                if capture_groups == 1 {
+                    if let Some(captured) = caps.get(1) {
+                        // Add the text before the capturing group (from the start of the entire match)
+                        new_string.push_str(&get_pre_match_text(input, entire_match.start(), captured.start()));
+                        // Highlight the captured group
+                        new_string.push_str(&format!("{}", color.paint(captured.as_str())));
+                        // Add the text after the capturing group (up to the end of the entire match)
+                        new_string.push_str(&get_pre_match_text(input, captured.end(), entire_match.end()));
                     }
-                    _ => {
-                        // No capturing groups or more than one, highlight the entire match
-                        let captured = entire_match.as_str();
-                        new_string.push_str(&format!("{}", color.paint(captured)));
-                    }
+                } else {
+                    // No capturing groups or more than one, highlight the entire match
+                    let captured = entire_match.as_str();
+                    new_string.push_str(&format!("{}", color.paint(captured)));
                 }
 
                 // Update the last_end position to the end of the entire match
@@ -68,8 +67,12 @@ impl Highlight for RegexpHighlighter {
         }
 
         // Add the remaining text after the last match
-        new_string.push_str(&input[last_end..]);
-        new_string
+        if last_end != 0 {
+            new_string.push_str(&input[last_end..]);
+            Cow::Owned(new_string)
+        } else {
+            Cow::Borrowed(input)
+        }
     }
 }
 

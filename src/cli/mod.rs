@@ -120,5 +120,5 @@ fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
 #[test]
 fn verify_app() {
     use clap::CommandFactory;
-    Cli::command().debug_assert()
+    Cli::command().debug_assert();
 }

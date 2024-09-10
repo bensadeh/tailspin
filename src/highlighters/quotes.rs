@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::highlighters::quotes::State::{InsideQuote, OutsideQuote};
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
@@ -34,7 +36,7 @@ impl Highlight for QuoteHighlighter {
         false
     }
 
-    fn apply(&self, input: &str) -> String {
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         self.highlight_inside_quotes(input)
     }
 }
@@ -48,9 +50,13 @@ enum State {
 }
 
 impl QuoteHighlighter {
-    fn highlight_inside_quotes(&self, input: &str) -> String {
+    fn highlight_inside_quotes<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        if input.find(self.quotes_token).is_none() {
+            return Cow::Borrowed(input);
+        }
+
         let mut state = OutsideQuote;
-        let mut output = String::new();
+        let mut output = String::with_capacity(input.len() + 16);
 
         for ch in input.chars() {
             match &mut state {
@@ -91,7 +97,7 @@ impl QuoteHighlighter {
             };
         }
 
-        output
+        Cow::Owned(output)
     }
 }
 

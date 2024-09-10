@@ -88,6 +88,6 @@ impl AsyncLineWriter for Io {
 
 impl Present for Presenter {
     fn present(&self) {
-        self.presenter.present()
+        self.presenter.present();
     }
 }

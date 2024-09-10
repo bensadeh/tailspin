@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -24,7 +26,7 @@ pub struct UrlHighlighter {
 }
 
 impl UrlHighlighter {
-    pub fn new(
+    pub const fn new(
         http: Style,
         https: Style,
         host: Style,
@@ -54,48 +56,42 @@ impl Highlight for UrlHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        let highlighted = URL_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
-            let mut output = String::new();
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        URL_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
+            let protocol = &caps["protocol"];
+            let protocol_style = match protocol {
+                "http" => self.http,
+                "https" => self.https,
+                _ => Style::default(),
+            };
 
-            if let Some(protocol) = caps.name("protocol") {
-                let style = match protocol.as_str() {
-                    "http" => self.http,
-                    "https" => self.https,
-                    _ => Style::default(),
-                };
-                output.push_str(&format!("{}://", style.paint(protocol.as_str())));
-            }
+            let query_fmt = if let Some(query) = caps.name("query") {
+                QUERY_PARAMS_REGEX.replace_all(query.as_str(), |query_caps: &regex::Captures<'_>| {
+                    let delimiter = &query_caps["delimiter"];
+                    let key = &query_caps["key"];
+                    let equal = &query_caps["equal"];
+                    let value = &query_caps["value"];
 
-            if let Some(host) = caps.name("host") {
-                output.push_str(&format!("{}", self.host.paint(host.as_str())));
-            }
+                    format!(
+                        "{}{}{}{}",
+                        self.symbols.paint(delimiter),
+                        self.query_params_key.paint(key),
+                        self.symbols.paint(equal),
+                        self.query_params_value.paint(value)
+                    )
+                })
+            } else {
+                Cow::Borrowed("")
+            };
 
-            if let Some(path) = caps.name("path") {
-                output.push_str(&format!("{}", self.path.paint(path.as_str())));
-            }
-
-            if let Some(query) = caps.name("query") {
-                let query_highlighted =
-                    QUERY_PARAMS_REGEX.replace_all(query.as_str(), |query_caps: &regex::Captures<'_>| {
-                        let delimiter = query_caps.name("delimiter").map_or("", |m| m.as_str());
-                        let key = query_caps.name("key").map_or("", |m| m.as_str());
-                        let equal = query_caps.name("equal").map_or("", |m| m.as_str());
-                        let value = query_caps.name("value").map_or("", |m| m.as_str());
-                        format!(
-                            "{}{}{}{}",
-                            self.symbols.paint(delimiter),
-                            self.query_params_key.paint(key),
-                            self.symbols.paint(equal),
-                            self.query_params_value.paint(value)
-                        )
-                    });
-                output.push_str(&format!("{}", query_highlighted));
-            }
-
-            output
-        });
-
-        highlighted.into_owned()
+            format!(
+                "{}://{}{}{}",
+                protocol_style.paint(protocol),
+                self.host.paint(&caps["host"]),
+                self.path
+                    .paint(caps.name("path").map(|m| m.as_str()).unwrap_or_default()),
+                query_fmt
+            )
+        })
     }
 }

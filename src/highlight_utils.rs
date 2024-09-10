@@ -1,16 +1,20 @@
+use std::borrow::Cow;
+
 const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
 
-pub(crate) fn apply_without_overwriting_existing_highlighting<F>(input: &str, process_chunk: F) -> String
+pub(crate) fn apply_without_overwriting_existing_highlighting<F>(input: &str, process_chunk: F) -> Cow<str>
 where
-    F: Fn(&str) -> String,
+    F: Fn(&str) -> Cow<str>,
 {
     let chunks = split_into_chunks(input);
     let mut output = calculate_and_allocate_capacity(input);
+    let mut processed = false;
 
     for chunk in chunks {
         match chunk {
             Chunk::NotHighlighted(text) => {
                 output.push_str(&process_chunk(text));
+                processed = true;
             }
             Chunk::AlreadyHighlighted(text) => {
                 output.push_str(text);
@@ -18,7 +22,11 @@ where
         }
     }
 
-    output
+    if processed {
+        Cow::Owned(output)
+    } else {
+        Cow::Borrowed(input)
+    }
 }
 
 fn calculate_and_allocate_capacity(input: &str) -> String {
@@ -34,22 +42,22 @@ enum Chunk<'a> {
 }
 
 fn split_into_chunks(input: &str) -> Vec<Chunk> {
-    let reset_code = "\x1b[0m";
-    let escape_code = "\x1b[";
+    const RESET_CODE: &str = "\x1b[0m";
+    const ESCAPE_CODE: &str = "\x1b[";
 
     let mut chunks = Vec::new();
     let mut start = 0;
     let mut inside_escape = false;
 
     while let Some(i) = if inside_escape {
-        input[start..].find(reset_code)
+        input[start..].find(RESET_CODE)
     } else {
-        input[start..].find(escape_code)
+        input[start..].find(ESCAPE_CODE)
     } {
         let i = i + start;
         if inside_escape {
-            chunks.push(Chunk::AlreadyHighlighted(&input[start..=i + reset_code.len() - 1]));
-            start = i + reset_code.len();
+            chunks.push(Chunk::AlreadyHighlighted(&input[start..(i + RESET_CODE.len())]));
+            start = i + RESET_CODE.len();
         } else {
             if i != start {
                 chunks.push(Chunk::NotHighlighted(&input[start..i]));

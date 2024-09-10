@@ -12,6 +12,6 @@ fn test_binary_with_various_inputs() {
 
     for (input, expected_output) in test_cases {
         let output = utils::run_binary_with_input(binary_path.clone(), input);
-        assert_eq!(output.trim(), expected_output, "Failed on input: {}", input);
+        assert_eq!(output.trim(), expected_output, "Failed on input: {input}");
     }
 }

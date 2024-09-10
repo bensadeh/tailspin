@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -14,7 +16,7 @@ pub struct ProcessHighlighter {
 }
 
 impl ProcessHighlighter {
-    pub fn new(process_name: Style, bracket: Style, process_num: Style) -> Self {
+    pub const fn new(process_name: Style, bracket: Style, process_num: Style) -> Self {
         Self {
             process_name,
             bracket,
@@ -32,26 +34,15 @@ impl Highlight for ProcessHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        PROCESS_REGEX
-            .replace_all(input, |captures: &regex::Captures| {
-                let process_name = captures
-                    .name("process_name")
-                    .map(|p| format!("{}", self.process_name.paint(p.as_str())))
-                    .unwrap_or_default();
-                let process_num = captures
-                    .name("process_num")
-                    .map(|n| format!("{}", self.process_num.paint(n.as_str())))
-                    .unwrap_or_default();
-
-                format!(
-                    "{}{}{}{}",
-                    process_name,
-                    self.bracket.paint("["),
-                    process_num,
-                    self.bracket.paint("]")
-                )
-            })
-            .to_string()
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        PROCESS_REGEX.replace_all(input, |captures: &regex::Captures| {
+            format!(
+                "{}{}{}{}",
+                self.process_name.paint(&captures["process_name"]),
+                self.bracket.paint("["),
+                self.process_num.paint(&captures["process_num"]),
+                self.bracket.paint("]")
+            )
+        })
     }
 }
