@@ -34,22 +34,22 @@ enum Chunk<'a> {
 }
 
 fn split_into_chunks(input: &str) -> Vec<Chunk> {
-    let reset_code = "\x1b[0m";
-    let escape_code = "\x1b[";
+    const RESET_CODE: &str = "\x1b[0m";
+    const ESCAPE_CODE: &str = "\x1b[";
 
     let mut chunks = Vec::new();
     let mut start = 0;
     let mut inside_escape = false;
 
     while let Some(i) = if inside_escape {
-        input[start..].find(reset_code)
+        input[start..].find(RESET_CODE)
     } else {
-        input[start..].find(escape_code)
+        input[start..].find(ESCAPE_CODE)
     } {
         let i = i + start;
         if inside_escape {
-            chunks.push(Chunk::AlreadyHighlighted(&input[start..(i + reset_code.len())]));
-            start = i + reset_code.len();
+            chunks.push(Chunk::AlreadyHighlighted(&input[start..(i + RESET_CODE.len())]));
+            start = i + RESET_CODE.len();
         } else {
             if i != start {
                 chunks.push(Chunk::NotHighlighted(&input[start..i]));
