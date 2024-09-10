@@ -26,7 +26,7 @@ async fn main() -> Result<()> {
     color_eyre::install()?;
 
     let cli = cli::get_args_or_exit_early();
-    let theme = theme_io::load_theme(cli.config_path.clone());
+    let theme = theme_io::load_theme(cli.config_path.as_deref());
     let processed_theme = theme::mapper::map_or_exit_early(theme);
     let config = config::create_config_or_exit_early(&cli);
 
