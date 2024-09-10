@@ -100,13 +100,13 @@ impl Highlighters {
         }
 
         if !theme.ip.disabled {
-            before_fns.push(Arc::new(Ipv4Highlighter::new(theme.ip.number, theme.ip.separator)));
-
             before_fns.push(Arc::new(Ipv6Highlighter::new(
                 theme.ip.number,
                 theme.ip.letter,
                 theme.ip.separator,
             )));
+
+            before_fns.push(Arc::new(Ipv4Highlighter::new(theme.ip.number, theme.ip.separator)));
         }
 
         if !theme.key_value.disabled {

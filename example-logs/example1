@@ -37,6 +37,8 @@ Log fe80::7a31:c1ff:fe02:bc33 asdf
 Log [2001:db8:85a3::8a2e:370:7334]:8080 asdf
 Log 2001:db8::1234:5678 asdf
 Log fe80::1ff:fe23:4567:890a%eth0 asdf
+Log ::1 asdf
+Log ::ffff:127.0.0.1 asdf
 
 # Pointers
 Error occurred at memory address 0x8c2a0aeb
@@ -61,6 +63,7 @@ https://api.example.org/v1/users/123/edit?param=true&flag=false
 
 # HTTP Methods
 User with IP 192.168.1.105 initiated a GET request for /about/us
+PROPFIND /path/to/ressource/ HTTP/1.1" 207 4471 "-" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36"
 A POST request by 192.168.1.106 to /api/create-account failed
 Received a PUT operation on /api/v1/users/update-profile
 During routine checks at 14:13:40, a PATCH request was detected
@@ -108,5 +111,4 @@ mysqld[789]: Connected from 127.0.0.1
 docker[654]: Container abcdefgh started successfully
 ssh-d[222]: Accepted publickey for root from 192.168.1.20
 cron[101]: Running scheduled job ID 23456
-
-
+postfix/postscreen[1894]: CONNECT from [192.168.1.22]:12345 to [127.0.0.1]:25

@@ -1,3 +1,5 @@
+use std::net::Ipv6Addr;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -5,7 +7,7 @@ use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
 static IPV6_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r#"(?:[0-9a-fA-F]{1,4}:{1,2}){3,}[0-9a-fA-F]{1,4}"#).expect("Invalid IPv6 regex pattern"));
+    Lazy::new(|| Regex::new(r#"(?:[0-9a-fA-F\:\.]{3,})"#).expect("Invalid IPv6 regex pattern"));
 
 pub struct Ipv6Highlighter {
     number: Style,
@@ -25,7 +27,7 @@ impl Ipv6Highlighter {
 
 impl Highlight for Ipv6Highlighter {
     fn should_short_circuit(&self, line_info: &LineInfo) -> bool {
-        line_info.colons < 4
+        line_info.colons < 2
     }
 
     fn only_apply_to_segments_not_already_highlighted(&self) -> bool {
@@ -34,8 +36,8 @@ impl Highlight for Ipv6Highlighter {
 
     fn apply(&self, input: &str) -> String {
         IPV6_REGEX
-            .replace_all(input, |caps: &Captures<'_>| {
-                caps[0]
+            .replace_all(input, |caps: &Captures<'_>| match caps[0].parse::<Ipv6Addr>() {
+                Ok(_ip) => caps[0]
                     .chars()
                     .map(|c| match c {
                         '0'..='9' => self.number.paint(c.to_string()).to_string(),
@@ -43,7 +45,8 @@ impl Highlight for Ipv6Highlighter {
                         ':' | '.' => self.separator.paint(c.to_string()).to_string(),
                         _ => c.to_string(),
                     })
-                    .collect::<String>()
+                    .collect::<String>(),
+                Err(_err) => caps[0].to_string(),
             })
             .to_string()
     }
