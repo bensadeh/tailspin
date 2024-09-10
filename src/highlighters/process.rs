@@ -35,20 +35,11 @@ impl Highlight for ProcessHighlighter {
     fn apply(&self, input: &str) -> String {
         PROCESS_REGEX
             .replace_all(input, |captures: &regex::Captures| {
-                let process_name = captures
-                    .name("process_name")
-                    .map(|p| format!("{}", self.process_name.paint(p.as_str())))
-                    .unwrap_or_default();
-                let process_num = captures
-                    .name("process_num")
-                    .map(|n| format!("{}", self.process_num.paint(n.as_str())))
-                    .unwrap_or_default();
-
                 format!(
                     "{}{}{}{}",
-                    process_name,
+                    self.process_name.paint(&captures["process_name"]),
                     self.bracket.paint("["),
-                    process_num,
+                    self.process_num.paint(&captures["process_num"]),
                     self.bracket.paint("]")
                 )
             })

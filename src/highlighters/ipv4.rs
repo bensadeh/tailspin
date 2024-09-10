@@ -29,25 +29,18 @@ impl Highlight for Ipv4Highlighter {
     }
 
     fn apply(&self, input: &str) -> String {
-        let segment = &self.number;
-        let separator = &self.separator;
-        let highlight_groups = [
-            (segment, 1),
-            (separator, 2),
-            (segment, 3),
-            (separator, 4),
-            (segment, 5),
-            (separator, 6),
-            (segment, 7),
-        ];
-
         IP_ADDRESS_REGEX
             .replace_all(input, |caps: &Captures<'_>| {
-                let mut output = String::new();
-                for &(color, group) in &highlight_groups {
-                    output.push_str(&format!("{}", color.paint(&caps[group])));
-                }
-                output
+                format!(
+                    "{}{}{}{}{}{}{}",
+                    self.number.paint(&caps[1]),
+                    self.separator.paint(&caps[2]),
+                    self.number.paint(&caps[3]),
+                    self.separator.paint(&caps[4]),
+                    self.number.paint(&caps[5]),
+                    self.separator.paint(&caps[6]),
+                    self.number.paint(&caps[7]),
+                )
             })
             .to_string()
     }

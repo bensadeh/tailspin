@@ -6,12 +6,12 @@ use regex::{Captures, Regex};
 
 static DATE_WORD_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(
-        r#"(?x)                                         
-        (?P<day1>\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b)? 
-        \s* 
-        (?P<month>\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b) 
-        \s+ 
-        (?P<day2>\b(?:[0-2]?[0-9]|3[0-1])\b)   
+        r#"(?x)
+        (?P<day1>\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b)?
+        \s*
+        (?P<month>\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b)
+        \s+
+        (?P<day2>\b(?:[0-2]?[0-9]|3[0-1])\b)
     "#,
     )
     .expect("Invalid regex pattern")
@@ -45,24 +45,16 @@ impl Highlight for DateWordHighlighter {
     fn apply(&self, input: &str) -> String {
         DATE_WORD_REGEX
             .replace_all(input, |caps: &Captures<'_>| {
-                let day1 = caps.name("day1").map(|m| m.as_str());
-                let month = caps.name("month").map(|m| m.as_str());
-                let day2 = caps.name("day2").map(|m| m.as_str());
+                let day1 = caps.name("day1").map(|m| m.as_str()).unwrap_or_default();
+                let month = &caps["month"];
+                let day2 = &caps["day2"];
 
-                let formatted_day1 = match day1 {
-                    Some(d1) => format!("{} ", self.day_name.paint(d1)),
-                    None => String::new(),
-                };
-
-                match (month, day2) {
-                    (Some(mo), Some(d2)) => format!(
-                        "{}{} {}",
-                        formatted_day1,
-                        self.month_name.paint(mo),
-                        self.day_number.paint(d2)
-                    ),
-                    _ => input.to_string(),
-                }
+                format!(
+                    "{}{} {}",
+                    self.day_name.paint(day1),
+                    self.month_name.paint(month),
+                    self.day_number.paint(day2)
+                )
             })
             .to_string()
     }

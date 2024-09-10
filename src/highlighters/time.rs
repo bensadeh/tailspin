@@ -43,27 +43,20 @@ impl Highlight for TimeHighlighter {
     fn apply(&self, input: &str) -> String {
         TIME_REGEX
             .replace_all(input, |caps: &regex::Captures<'_>| {
-                let paint_and_stringify = |name: &str, style: &Style| {
-                    caps.name(name)
-                        .map(|m| style.paint(m.as_str()).to_string())
-                        .unwrap_or_default()
-                };
-
-                let parts = [
-                    ("T", &self.zone),
-                    ("hours", &self.time),
-                    ("colon1", &self.separator),
-                    ("minutes", &self.time),
-                    ("colon2", &self.separator),
-                    ("seconds", &self.time),
-                    ("frac_sep", &self.separator),
-                    ("frac_digits", &self.time),
-                    ("tz", &self.zone),
-                ];
-
-                parts.iter().fold(String::new(), |acc, (name, style)| {
-                    acc + &paint_and_stringify(name, style)
-                })
+                format!(
+                    "{}{}{}{}{}{}{}{}{}",
+                    self.zone.paint(caps.name("T").map(|m| m.as_str()).unwrap_or_default()),
+                    self.time.paint(&caps["hours"]),
+                    self.separator.paint(&caps["colon1"]),
+                    self.time.paint(&caps["minutes"]),
+                    self.separator.paint(&caps["colon2"]),
+                    self.time.paint(&caps["seconds"]),
+                    self.separator
+                        .paint(caps.name("frac_sep").map(|m| m.as_str()).unwrap_or_default()),
+                    self.time
+                        .paint(caps.name("frac_digits").map(|m| m.as_str()).unwrap_or_default()),
+                    self.zone.paint(caps.name("tz").map(|m| m.as_str()).unwrap_or_default()),
+                )
             })
             .to_string()
     }

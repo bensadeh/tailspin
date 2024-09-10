@@ -33,14 +33,16 @@ impl Highlight for Ipv6Highlighter {
     }
 
     fn apply(&self, input: &str) -> String {
+        let mut b = [0; 2];
+
         IPV6_REGEX
             .replace_all(input, |caps: &Captures<'_>| {
                 caps[0]
                     .chars()
                     .map(|c| match c {
-                        '0'..='9' => self.number.paint(c.to_string()).to_string(),
-                        'a'..='f' | 'A'..='F' => self.letter.paint(c.to_string()).to_string(),
-                        ':' | '.' => self.separator.paint(c.to_string()).to_string(),
+                        '0'..='9' => self.number.paint(c.encode_utf8(&mut b) as &str).to_string(),
+                        'a'..='f' | 'A'..='F' => self.letter.paint(c.encode_utf8(&mut b) as &str).to_string(),
+                        ':' | '.' => self.separator.paint(c.encode_utf8(&mut b) as &str).to_string(),
                         _ => c.to_string(),
                     })
                     .collect::<String>()

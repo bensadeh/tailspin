@@ -50,7 +50,7 @@ enum State {
 impl QuoteHighlighter {
     fn highlight_inside_quotes(&self, input: &str) -> String {
         let mut state = OutsideQuote;
-        let mut output = String::new();
+        let mut output = String::with_capacity(input.len() + 16);
 
         for ch in input.chars() {
             match &mut state {

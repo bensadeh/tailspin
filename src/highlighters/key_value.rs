@@ -30,17 +30,15 @@ impl Highlight for KeyValueHighlighter {
     fn apply(&self, input: &str) -> String {
         KEY_VALUE_REGEX
             .replace_all(input, |captures: &regex::Captures| {
-                let space_or_start = captures.name("space_or_start").map(|s| s.as_str()).unwrap_or_default();
-                let key = captures
-                    .name("key")
-                    .map(|k| format!("{}", self.key.paint(k.as_str())))
-                    .unwrap_or_default();
-                let equals_sign = captures
-                    .name("equals")
-                    .map(|e| format!("{}", self.separator.paint(e.as_str())))
-                    .unwrap_or_default();
+                let space_or_start = &captures["space_or_start"];
+                let key = &captures["key"];
+                let equals_sign = &captures["equals"];
 
-                format!("{space_or_start}{key}{equals_sign}")
+                format!(
+                    "{space_or_start}{}{}",
+                    self.key.paint(key),
+                    self.separator.paint(equals_sign)
+                )
             })
             .to_string()
     }

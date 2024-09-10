@@ -36,8 +36,12 @@ impl Highlight for KeywordHighlighter {
         self.regex
             .replace_all(input, |caps: &Captures<'_>| {
                 if self.border {
-                    let capture_with_extra_border = format!(" {} ", &caps[0]);
-                    format!("{}", self.style.paint(capture_with_extra_border))
+                    format!(
+                        "{}{}{}",
+                        self.style.paint(" "),
+                        self.style.paint(&caps[0]),
+                        self.style.paint(" ")
+                    )
                 } else {
                     format!("{}", self.style.paint(&caps[0]))
                 }
