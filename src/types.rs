@@ -1,17 +1,29 @@
 use crate::line_info::LineInfo;
 
-pub const OK: i32 = 0;
-pub const GENERAL_ERROR: i32 = 1;
-pub const MISUSE_SHELL_BUILTIN: i32 = 2;
-
 pub trait Highlight {
     fn should_short_circuit(&self, line_info: &LineInfo) -> bool;
     fn only_apply_to_segments_not_already_highlighted(&self) -> bool;
     fn apply(&self, input: &str) -> String;
 }
 
+pub enum ExitType {
+    Success,
+    General,
+    ShellBuiltinMisuse,
+}
+
+impl ExitType {
+    pub const fn code(&self) -> i32 {
+        match self {
+            Self::Success => 0,
+            Self::General => 1,
+            Self::ShellBuiltinMisuse => 2,
+        }
+    }
+}
+
 pub struct Error {
-    pub exit_code: i32,
+    pub exit_type: ExitType,
     pub message: String,
 }
 
