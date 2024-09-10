@@ -13,7 +13,7 @@ pub struct KeyValueHighlighter {
 }
 
 impl KeyValueHighlighter {
-    pub fn new(key: Style, separator: Style) -> Self {
+    pub const fn new(key: Style, separator: Style) -> Self {
         Self { key, separator }
     }
 }
@@ -40,7 +40,7 @@ impl Highlight for KeyValueHighlighter {
                     .map(|e| format!("{}", self.separator.paint(e.as_str())))
                     .unwrap_or_default();
 
-                format!("{}{}{}", space_or_start, key, equals_sign)
+                format!("{space_or_start}{key}{equals_sign}")
             })
             .to_string()
     }

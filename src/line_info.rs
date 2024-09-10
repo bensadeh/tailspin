@@ -42,14 +42,14 @@ impl LineInfo {
         }
 
         LineInfo {
-            slashes,
-            dots,
+            colons,
             dashes,
+            dots,
             double_quotes,
             equals,
-            colons,
             left_bracket,
             right_bracket,
+            slashes,
             zeros,
             x,
         }

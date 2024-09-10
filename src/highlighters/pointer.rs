@@ -24,7 +24,7 @@ pub struct PointerHighlighter {
 }
 
 impl PointerHighlighter {
-    pub fn new(number: Style, letter: Style, separator: Style, separator_token: char, x: Style) -> Self {
+    pub const fn new(number: Style, letter: Style, separator: Style, separator_token: char, x: Style) -> Self {
         Self {
             number,
             letter,
@@ -63,7 +63,7 @@ impl Highlight for PointerHighlighter {
                     .collect::<String>();
 
                 caps.name("second_half").map_or_else(
-                    || format!("{}{}", formatted_prefix, formatted_first_half),
+                    || format!("{formatted_prefix}{formatted_first_half}"),
                     |second_half| {
                         let formatted_second_half = second_half
                             .as_str()

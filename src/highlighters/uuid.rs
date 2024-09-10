@@ -29,7 +29,7 @@ pub struct UuidHighlighter {
 }
 
 impl UuidHighlighter {
-    pub fn new(number_style: Style, letter_style: Style, dash_style: Style) -> Self {
+    pub const fn new(number_style: Style, letter_style: Style, dash_style: Style) -> Self {
         Self {
             number: number_style,
             letter: letter_style,

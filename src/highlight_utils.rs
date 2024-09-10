@@ -48,7 +48,7 @@ fn split_into_chunks(input: &str) -> Vec<Chunk> {
     } {
         let i = i + start;
         if inside_escape {
-            chunks.push(Chunk::AlreadyHighlighted(&input[start..=i + reset_code.len() - 1]));
+            chunks.push(Chunk::AlreadyHighlighted(&input[start..(i + reset_code.len())]));
             start = i + reset_code.len();
         } else {
             if i != start {

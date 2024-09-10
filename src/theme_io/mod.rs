@@ -4,17 +4,14 @@ use std::process::exit;
 use std::{env, fs};
 
 pub fn load_theme(path: Option<String>) -> Theme {
-    let config_dir = match env::var("XDG_CONFIG_HOME") {
-        Ok(xdg_config_dir) => {
-            let expanded_path = shellexpand::tilde(&xdg_config_dir).into_owned();
-            PathBuf::from(expanded_path)
-        }
-        Err(_) => {
-            let home_dir = env::var("HOME")
-                .or(env::var("USERPROFILE"))
-                .expect("HOME directory not set");
-            PathBuf::from(home_dir).join(".config")
-        }
+    let config_dir = if let Ok(xdg_config_dir) = env::var("XDG_CONFIG_HOME") {
+        let expanded_path = shellexpand::tilde(&xdg_config_dir).into_owned();
+        PathBuf::from(expanded_path)
+    } else {
+        let home_dir = env::var("HOME")
+            .or(env::var("USERPROFILE"))
+            .expect("HOME directory not set");
+        PathBuf::from(home_dir).join(".config")
     };
 
     let default_config_path = config_dir.join("tailspin").join("config.toml");
@@ -35,7 +32,7 @@ pub fn load_theme(path: Option<String>) -> Theme {
             match toml::from_str::<Theme>(&contents) {
                 Ok(config) => config,
                 Err(err) => {
-                    println!("Could not deserialize file:\n\n{}", err);
+                    println!("Could not deserialize file:\n\n{err}");
                     exit(1);
                 }
             }
@@ -43,7 +40,7 @@ pub fn load_theme(path: Option<String>) -> Theme {
         None => match toml::from_str("") {
             Ok(config) => config,
             Err(err) => {
-                println!("Could instantiate empty config using default values:\n\n{}", err);
+                println!("Could instantiate empty config using default values:\n\n{err}");
                 exit(1);
             }
         },

@@ -10,14 +10,14 @@ pub struct KeywordHighlighter {
 }
 
 impl KeywordHighlighter {
-    pub fn new(keywords: Vec<String>, style: Style, border: bool) -> Self {
+    pub fn new(keywords: &[String], style: Style, border: bool) -> Self {
         let keyword_pattern = keywords
             .iter()
             .map(|word| regex::escape(word))
             .collect::<Vec<_>>()
             .join("|");
 
-        let regex = Regex::new(&format!(r"\b({})\b", keyword_pattern)).expect("Invalid regex pattern");
+        let regex = Regex::new(&format!(r"\b({keyword_pattern})\b")).expect("Invalid regex pattern");
 
         Self { regex, style, border }
     }

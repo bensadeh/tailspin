@@ -10,11 +10,11 @@ pub struct HighlightProcessor {
 }
 
 impl HighlightProcessor {
-    pub fn new(highlighters: Highlighters) -> HighlightProcessor {
+    pub const fn new(highlighters: Highlighters) -> HighlightProcessor {
         HighlightProcessor { highlighters }
     }
 
-    pub fn apply(&self, lines: Vec<String>) -> String {
+    pub fn apply(&self, lines: &[String]) -> String {
         lines
             .par_iter()
             .map(|line| {
@@ -27,7 +27,7 @@ impl HighlightProcessor {
                 ];
 
                 stages.iter().fold(String::from(line), |result, highlighters| {
-                    self.apply_highlighters(&result, &line_info, highlighters)
+                    HighlightProcessor::apply_highlighters(&result, &line_info, highlighters)
                 })
             })
             .collect::<Vec<_>>()
@@ -35,7 +35,6 @@ impl HighlightProcessor {
     }
 
     fn apply_highlighters(
-        &self,
         text: &str,
         line_info: &LineInfo,
         highlighters: &[Arc<dyn Highlight + Send + Sync>],

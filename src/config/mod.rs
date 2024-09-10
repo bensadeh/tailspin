@@ -106,7 +106,7 @@ fn get_input(input_type: InputType) -> Result<Input, Error> {
     }
 }
 
-fn get_output(has_data_from_stdin: bool, is_print_flag: bool, suppress_output: bool) -> Output {
+const fn get_output(has_data_from_stdin: bool, is_print_flag: bool, suppress_output: bool) -> Output {
     if suppress_output {
         return Output::Suppress;
     }
@@ -154,7 +154,7 @@ fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
     }
 }
 
-fn should_follow(follow: bool, has_follow_command: bool, input: &Input) -> bool {
+const fn should_follow(follow: bool, has_follow_command: bool, input: &Input) -> bool {
     if has_follow_command {
         return true;
     }
@@ -181,7 +181,7 @@ fn list_files_in_directory(path: &Path) -> Result<Vec<String>, Error> {
         })?
         .filter_map(Result::ok)
         .filter(is_normal_file)
-        .map(entry_to_string)
+        .map(|entry: std::fs::DirEntry| entry_to_string(&entry))
         .collect()
 }
 
@@ -191,11 +191,10 @@ fn is_normal_file(entry: &DirEntry) -> bool {
             .path()
             .file_name()
             .and_then(|name| name.to_str())
-            .map(|name| !name.starts_with('.'))
-            .unwrap_or(false)
+            .is_some_and(|name| !name.starts_with('.'))
 }
 
-fn entry_to_string(entry: DirEntry) -> Result<String, Error> {
+fn entry_to_string(entry: &DirEntry) -> Result<String, Error> {
     entry
         .path()
         .to_str()
@@ -203,7 +202,7 @@ fn entry_to_string(entry: DirEntry) -> Result<String, Error> {
             exit_code: GENERAL_ERROR,
             message: "Non-UTF8 filename".into(),
         })
-        .map(|s| s.to_string())
+        .map(std::string::ToString::to_string)
 }
 
 fn count_lines<P: AsRef<Path>>(file_path: P) -> usize {

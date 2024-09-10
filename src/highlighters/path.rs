@@ -21,7 +21,7 @@ pub struct PathHighlighter {
 }
 
 impl PathHighlighter {
-    pub fn new(segment: Style, separator: Style) -> Self {
+    pub const fn new(segment: Style, separator: Style) -> Self {
         Self { segment, separator }
     }
 }

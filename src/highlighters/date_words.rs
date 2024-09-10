@@ -24,7 +24,7 @@ pub struct DateWordHighlighter {
 }
 
 impl DateWordHighlighter {
-    pub fn new(day_name: Style, month_name: Style, day_number: Style) -> Self {
+    pub const fn new(day_name: Style, month_name: Style, day_number: Style) -> Self {
         Self {
             day_name,
             month_name,
@@ -51,7 +51,7 @@ impl Highlight for DateWordHighlighter {
 
                 let formatted_day1 = match day1 {
                     Some(d1) => format!("{} ", self.day_name.paint(d1)),
-                    None => "".to_string(),
+                    None => String::new(),
                 };
 
                 match (month, day2) {

@@ -23,7 +23,7 @@ pub struct NumberHighlighter {
 }
 
 impl NumberHighlighter {
-    pub fn new(style: Style) -> Self {
+    pub const fn new(style: Style) -> Self {
         Self { style }
     }
 }
