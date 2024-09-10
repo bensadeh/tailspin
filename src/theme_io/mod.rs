@@ -36,12 +36,7 @@ pub fn load_theme(path: Option<&str>) -> Theme {
                 }
             }
         }
-        None => match toml::from_str("") {
-            Ok(config) => config,
-            Err(err) => {
-                println!("Could instantiate empty config using default values:\n\n{err}");
-                exit(1);
-            }
-        },
+
+        None => Theme::default(),
     }
 }
