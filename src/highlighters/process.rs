@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -32,17 +34,15 @@ impl Highlight for ProcessHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        PROCESS_REGEX
-            .replace_all(input, |captures: &regex::Captures| {
-                format!(
-                    "{}{}{}{}",
-                    self.process_name.paint(&captures["process_name"]),
-                    self.bracket.paint("["),
-                    self.process_num.paint(&captures["process_num"]),
-                    self.bracket.paint("]")
-                )
-            })
-            .to_string()
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        PROCESS_REGEX.replace_all(input, |captures: &regex::Captures| {
+            format!(
+                "{}{}{}{}",
+                self.process_name.paint(&captures["process_name"]),
+                self.bracket.paint("["),
+                self.process_num.paint(&captures["process_num"]),
+                self.bracket.paint("]")
+            )
+        })
     }
 }

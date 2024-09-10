@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -32,21 +34,19 @@ impl Highlight for Ipv6Highlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         let mut b = [0; 2];
 
-        IPV6_REGEX
-            .replace_all(input, |caps: &Captures<'_>| {
-                caps[0]
-                    .chars()
-                    .map(|c| match c {
-                        '0'..='9' => self.number.paint(c.encode_utf8(&mut b) as &str).to_string(),
-                        'a'..='f' | 'A'..='F' => self.letter.paint(c.encode_utf8(&mut b) as &str).to_string(),
-                        ':' | '.' => self.separator.paint(c.encode_utf8(&mut b) as &str).to_string(),
-                        _ => c.to_string(),
-                    })
-                    .collect::<String>()
-            })
-            .to_string()
+        IPV6_REGEX.replace_all(input, |caps: &Captures<'_>| {
+            caps[0]
+                .chars()
+                .map(|c| match c {
+                    '0'..='9' => self.number.paint(c.encode_utf8(&mut b) as &str).to_string(),
+                    'a'..='f' | 'A'..='F' => self.letter.paint(c.encode_utf8(&mut b) as &str).to_string(),
+                    ':' | '.' => self.separator.paint(c.encode_utf8(&mut b) as &str).to_string(),
+                    _ => c.to_string(),
+                })
+                .collect::<String>()
+        })
     }
 }

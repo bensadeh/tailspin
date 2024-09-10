@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -42,20 +44,18 @@ impl Highlight for DateWordHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        DATE_WORD_REGEX
-            .replace_all(input, |caps: &Captures<'_>| {
-                let day1 = caps.name("day1").map(|m| m.as_str()).unwrap_or_default();
-                let month = &caps["month"];
-                let day2 = &caps["day2"];
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        DATE_WORD_REGEX.replace_all(input, |caps: &Captures<'_>| {
+            let day1 = caps.name("day1").map(|m| m.as_str()).unwrap_or_default();
+            let month = &caps["month"];
+            let day2 = &caps["day2"];
 
-                format!(
-                    "{}{} {}",
-                    self.day_name.paint(day1),
-                    self.month_name.paint(month),
-                    self.day_number.paint(day2)
-                )
-            })
-            .to_string()
+            format!(
+                "{}{} {}",
+                self.day_name.paint(day1),
+                self.month_name.paint(month),
+                self.day_number.paint(day2)
+            )
+        })
     }
 }

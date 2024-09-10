@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -35,29 +37,27 @@ impl Highlight for PathHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        PATH_REGEX
-            .replace_all(input, |caps: &Captures<'_>| {
-                let mut output = String::new();
-                let path = &caps[0];
-                let chars: Vec<_> = path.chars().collect();
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        PATH_REGEX.replace_all(input, |caps: &Captures<'_>| {
+            let mut output = String::new();
+            let path = &caps[0];
+            let chars: Vec<_> = path.chars().collect();
 
-                // Check if path starts with a valid character and not a double slash
-                if !(chars[0] == '/' || chars[0] == '~' || (chars[0] == '.' && chars.len() > 1 && chars[1] == '/'))
-                    || (chars[0] == '/' && chars.len() > 1 && chars[1] == '/')
-                {
-                    return path.to_string();
+            // Check if path starts with a valid character and not a double slash
+            if !(chars[0] == '/' || chars[0] == '~' || (chars[0] == '.' && chars.len() > 1 && chars[1] == '/'))
+                || (chars[0] == '/' && chars.len() > 1 && chars[1] == '/')
+            {
+                return path.to_string();
+            }
+
+            for &char in &chars {
+                match char {
+                    '/' => output.push_str(&format!("{}", self.separator.paint(char.to_string()))),
+                    _ => output.push_str(&format!("{}", self.segment.paint(char.to_string()))),
                 }
+            }
 
-                for &char in &chars {
-                    match char {
-                        '/' => output.push_str(&format!("{}", self.separator.paint(char.to_string()))),
-                        _ => output.push_str(&format!("{}", self.segment.paint(char.to_string()))),
-                    }
-                }
-
-                output
-            })
-            .to_string()
+            output
+        })
     }
 }

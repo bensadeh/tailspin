@@ -42,11 +42,22 @@ impl HighlightProcessor {
         highlighters
             .iter()
             .filter(|highlighter| !highlighter.should_short_circuit(line_info))
-            .fold(String::from(text), |result, highlighter| {
+            .fold(String::from(text), |acc, highlighter| {
                 if highlighter.only_apply_to_segments_not_already_highlighted() {
-                    apply_without_overwriting_existing_highlighting(&result, |chunk| highlighter.apply(chunk))
+                    let result =
+                        apply_without_overwriting_existing_highlighting(&acc, |chunk| highlighter.apply(chunk));
+
+                    match result {
+                        std::borrow::Cow::Borrowed(_) => acc,
+                        std::borrow::Cow::Owned(s) => s,
+                    }
                 } else {
-                    highlighter.apply(&result)
+                    let result = highlighter.apply(&acc);
+
+                    match result {
+                        std::borrow::Cow::Borrowed(_) => acc,
+                        std::borrow::Cow::Owned(s) => s,
+                    }
                 }
             })
     }

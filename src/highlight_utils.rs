@@ -1,16 +1,20 @@
+use std::borrow::Cow;
+
 const MAX_ALLOCATION_SIZE: usize = 1024 * 1024; // 1 MiB
 
-pub(crate) fn apply_without_overwriting_existing_highlighting<F>(input: &str, process_chunk: F) -> String
+pub(crate) fn apply_without_overwriting_existing_highlighting<F>(input: &str, process_chunk: F) -> Cow<str>
 where
-    F: Fn(&str) -> String,
+    F: Fn(&str) -> Cow<str>,
 {
     let chunks = split_into_chunks(input);
     let mut output = calculate_and_allocate_capacity(input);
+    let mut processed = false;
 
     for chunk in chunks {
         match chunk {
             Chunk::NotHighlighted(text) => {
                 output.push_str(&process_chunk(text));
+                processed = true;
             }
             Chunk::AlreadyHighlighted(text) => {
                 output.push_str(text);
@@ -18,7 +22,11 @@ where
         }
     }
 
-    output
+    if processed {
+        Cow::Owned(output)
+    } else {
+        Cow::Borrowed(input)
+    }
 }
 
 fn calculate_and_allocate_capacity(input: &str) -> String {

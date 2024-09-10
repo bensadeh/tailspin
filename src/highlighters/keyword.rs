@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -32,20 +34,18 @@ impl Highlight for KeywordHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        self.regex
-            .replace_all(input, |caps: &Captures<'_>| {
-                if self.border {
-                    format!(
-                        "{}{}{}",
-                        self.style.paint(" "),
-                        self.style.paint(&caps[0]),
-                        self.style.paint(" ")
-                    )
-                } else {
-                    format!("{}", self.style.paint(&caps[0]))
-                }
-            })
-            .to_string()
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.regex.replace_all(input, |caps: &Captures<'_>| {
+            if self.border {
+                format!(
+                    "{}{}{}",
+                    self.style.paint(" "),
+                    self.style.paint(&caps[0]),
+                    self.style.paint(" ")
+                )
+            } else {
+                format!("{}", self.style.paint(&caps[0]))
+            }
+        })
     }
 }

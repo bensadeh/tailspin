@@ -1,9 +1,11 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 
 pub trait Highlight {
     fn should_short_circuit(&self, line_info: &LineInfo) -> bool;
     fn only_apply_to_segments_not_already_highlighted(&self) -> bool;
-    fn apply(&self, input: &str) -> String;
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str>;
 }
 
 pub enum ExitType {

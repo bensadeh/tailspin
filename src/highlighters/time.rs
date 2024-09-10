@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -40,24 +42,22 @@ impl Highlight for TimeHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        TIME_REGEX
-            .replace_all(input, |caps: &regex::Captures<'_>| {
-                format!(
-                    "{}{}{}{}{}{}{}{}{}",
-                    self.zone.paint(caps.name("T").map(|m| m.as_str()).unwrap_or_default()),
-                    self.time.paint(&caps["hours"]),
-                    self.separator.paint(&caps["colon1"]),
-                    self.time.paint(&caps["minutes"]),
-                    self.separator.paint(&caps["colon2"]),
-                    self.time.paint(&caps["seconds"]),
-                    self.separator
-                        .paint(caps.name("frac_sep").map(|m| m.as_str()).unwrap_or_default()),
-                    self.time
-                        .paint(caps.name("frac_digits").map(|m| m.as_str()).unwrap_or_default()),
-                    self.zone.paint(caps.name("tz").map(|m| m.as_str()).unwrap_or_default()),
-                )
-            })
-            .to_string()
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        TIME_REGEX.replace_all(input, |caps: &regex::Captures<'_>| {
+            format!(
+                "{}{}{}{}{}{}{}{}{}",
+                self.zone.paint(caps.name("T").map(|m| m.as_str()).unwrap_or_default()),
+                self.time.paint(&caps["hours"]),
+                self.separator.paint(&caps["colon1"]),
+                self.time.paint(&caps["minutes"]),
+                self.separator.paint(&caps["colon2"]),
+                self.time.paint(&caps["seconds"]),
+                self.separator
+                    .paint(caps.name("frac_sep").map(|m| m.as_str()).unwrap_or_default()),
+                self.time
+                    .paint(caps.name("frac_digits").map(|m| m.as_str()).unwrap_or_default()),
+                self.zone.paint(caps.name("tz").map(|m| m.as_str()).unwrap_or_default()),
+            )
+        })
     }
 }

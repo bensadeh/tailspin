@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -29,24 +31,22 @@ impl Highlight for DateDashHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        DATE_REGEX
-            .replace_all(input, |caps: &Captures<'_>| {
-                let year = &caps["year"];
-                let month = &caps["month"];
-                let day = &caps["day"];
-                let separator1 = &caps["separator1"];
-                let separator2 = &caps["separator2"];
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        DATE_REGEX.replace_all(input, |caps: &Captures<'_>| {
+            let year = &caps["year"];
+            let month = &caps["month"];
+            let day = &caps["day"];
+            let separator1 = &caps["separator1"];
+            let separator2 = &caps["separator2"];
 
-                format!(
-                    "{}{}{}{}{}",
-                    self.number.paint(year),
-                    self.separator.paint(separator1),
-                    self.number.paint(month),
-                    self.separator.paint(separator2),
-                    self.number.paint(day)
-                )
-            })
-            .to_string()
+            format!(
+                "{}{}{}{}{}",
+                self.number.paint(year),
+                self.separator.paint(separator1),
+                self.number.paint(month),
+                self.separator.paint(separator2),
+                self.number.paint(day)
+            )
+        })
     }
 }

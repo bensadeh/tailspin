@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -47,19 +49,17 @@ impl Highlight for UuidHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        UUID_REGEX
-            .replace_all(input, |caps: &Captures<'_>| {
-                caps[0]
-                    .chars()
-                    .map(|c| match c {
-                        '0'..='9' => format!("{}", self.number.paint(c.to_string())),
-                        'a'..='f' | 'A'..='F' => format!("{}", self.letter.paint(c.to_string())),
-                        '-' => format!("{}", self.dash.paint(c.to_string())),
-                        _ => c.to_string(),
-                    })
-                    .collect::<String>()
-            })
-            .to_string()
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        UUID_REGEX.replace_all(input, |caps: &Captures<'_>| {
+            caps[0]
+                .chars()
+                .map(|c| match c {
+                    '0'..='9' => format!("{}", self.number.paint(c.to_string())),
+                    'a'..='f' | 'A'..='F' => format!("{}", self.letter.paint(c.to_string())),
+                    '-' => format!("{}", self.dash.paint(c.to_string())),
+                    _ => c.to_string(),
+                })
+                .collect::<String>()
+        })
     }
 }

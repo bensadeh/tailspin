@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use crate::line_info::LineInfo;
 use crate::types::Highlight;
 use nu_ansi_term::Style;
@@ -27,19 +29,17 @@ impl Highlight for KeyValueHighlighter {
         true
     }
 
-    fn apply(&self, input: &str) -> String {
-        KEY_VALUE_REGEX
-            .replace_all(input, |captures: &regex::Captures| {
-                let space_or_start = &captures["space_or_start"];
-                let key = &captures["key"];
-                let equals_sign = &captures["equals"];
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        KEY_VALUE_REGEX.replace_all(input, |captures: &regex::Captures| {
+            let space_or_start = &captures["space_or_start"];
+            let key = &captures["key"];
+            let equals_sign = &captures["equals"];
 
-                format!(
-                    "{space_or_start}{}{}",
-                    self.key.paint(key),
-                    self.separator.paint(equals_sign)
-                )
-            })
-            .to_string()
+            format!(
+                "{space_or_start}{}{}",
+                self.key.paint(key),
+                self.separator.paint(equals_sign)
+            )
+        })
     }
 }
