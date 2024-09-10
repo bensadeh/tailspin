@@ -26,12 +26,18 @@ pub fn load_theme(path: Option<&str>) -> Theme {
 
     match path {
         Some(path) => {
-            let contents = fs::read_to_string(path).expect("Could not read file");
+            let contents = match fs::read_to_string(path) {
+                Ok(c) => c,
+                Err(err) => {
+                    eprintln!("Could not read file '{path}':\n\n{err}");
+                    exit(1);
+                }
+            };
 
             match toml::from_str::<Theme>(&contents) {
                 Ok(config) => config,
                 Err(err) => {
-                    println!("Could not deserialize file '{path}':\n\n{err}");
+                    eprintln!("Could not deserialize file '{path}':\n\n{err}");
                     exit(1);
                 }
             }
