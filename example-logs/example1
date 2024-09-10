@@ -37,6 +37,8 @@ Log fe80::7a31:c1ff:fe02:bc33 asdf
 Log [2001:db8:85a3::8a2e:370:7334]:8080 asdf
 Log 2001:db8::1234:5678 asdf
 Log fe80::1ff:fe23:4567:890a%eth0 asdf
+Log ::1 asdf
+Log ::ffff:127.0.0.1 asdf
 
 # Pointers
 Error occurred at memory address 0x8c2a0aeb
