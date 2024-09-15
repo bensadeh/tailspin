@@ -24,7 +24,7 @@ pub struct UrlHighlighter {
 }
 
 impl UrlHighlighter {
-    pub fn new(
+    pub const fn new(
         http: Style,
         https: Style,
         host: Style,

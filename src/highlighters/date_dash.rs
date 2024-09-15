@@ -15,7 +15,7 @@ pub struct DateDashHighlighter {
 }
 
 impl DateDashHighlighter {
-    pub fn new(number: Style, separator: Style) -> Self {
+    pub const fn new(number: Style, separator: Style) -> Self {
         Self { number, separator }
     }
 }

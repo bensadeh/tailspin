@@ -2,6 +2,7 @@ mod cli;
 mod config;
 mod highlight_processor;
 mod highlight_utils;
+mod highlighter;
 mod highlighters;
 mod io;
 mod keyword;

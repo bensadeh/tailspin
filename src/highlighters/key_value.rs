@@ -13,7 +13,7 @@ pub struct KeyValueHighlighter {
 }
 
 impl KeyValueHighlighter {
-    pub fn new(key: Style, separator: Style) -> Self {
+    pub const fn new(key: Style, separator: Style) -> Self {
         Self { key, separator }
     }
 }

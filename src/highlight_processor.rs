@@ -10,7 +10,7 @@ pub struct HighlightProcessor {
 }
 
 impl HighlightProcessor {
-    pub fn new(highlighters: Highlighters) -> HighlightProcessor {
+    pub const fn new(highlighters: Highlighters) -> HighlightProcessor {
         HighlightProcessor { highlighters }
     }
 

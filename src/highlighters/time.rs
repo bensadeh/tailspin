@@ -26,7 +26,7 @@ pub struct TimeHighlighter {
 }
 
 impl TimeHighlighter {
-    pub fn new(time: Style, zone: Style, separator: Style) -> Self {
+    pub const fn new(time: Style, zone: Style, separator: Style) -> Self {
         Self { time, zone, separator }
     }
 }

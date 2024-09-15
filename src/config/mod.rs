@@ -106,7 +106,7 @@ fn get_input(input_type: InputType) -> Result<Input, Error> {
     }
 }
 
-fn get_output(has_data_from_stdin: bool, is_print_flag: bool, suppress_output: bool) -> Output {
+const fn get_output(has_data_from_stdin: bool, is_print_flag: bool, suppress_output: bool) -> Output {
     if suppress_output {
         return Output::Suppress;
     }
@@ -154,7 +154,7 @@ fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
     }
 }
 
-fn should_follow(follow: bool, has_follow_command: bool, input: &Input) -> bool {
+const fn should_follow(follow: bool, has_follow_command: bool, input: &Input) -> bool {
     if has_follow_command {
         return true;
     }
