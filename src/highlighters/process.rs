@@ -14,7 +14,7 @@ pub struct ProcessHighlighter {
 }
 
 impl ProcessHighlighter {
-    pub fn new(process_name: Style, bracket: Style, process_num: Style) -> Self {
+    pub const fn new(process_name: Style, bracket: Style, process_num: Style) -> Self {
         Self {
             process_name,
             bracket,

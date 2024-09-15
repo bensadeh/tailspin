@@ -14,7 +14,7 @@ pub struct Ipv6Highlighter {
 }
 
 impl Ipv6Highlighter {
-    pub fn new(number: Style, letter: Style, separator: Style) -> Self {
+    pub const fn new(number: Style, letter: Style, separator: Style) -> Self {
         Self {
             number,
             letter,

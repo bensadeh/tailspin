@@ -24,7 +24,7 @@ pub struct DateWordHighlighter {
 }
 
 impl DateWordHighlighter {
-    pub fn new(day_name: Style, month_name: Style, day_number: Style) -> Self {
+    pub const fn new(day_name: Style, month_name: Style, day_number: Style) -> Self {
         Self {
             day_name,
             month_name,

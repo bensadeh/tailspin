@@ -24,7 +24,7 @@ pub struct PointerHighlighter {
 }
 
 impl PointerHighlighter {
-    pub fn new(number: Style, letter: Style, separator: Style, separator_token: char, x: Style) -> Self {
+    pub const fn new(number: Style, letter: Style, separator: Style, separator_token: char, x: Style) -> Self {
         Self {
             number,
             letter,
