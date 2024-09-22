@@ -420,12 +420,12 @@ dependencies = [
 
 [[package]]
 name = "inlet_manifold"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2381be3bfc1906c6321b14329bd374c7f13a0da421482ddd121314ce65d7adaa"
+version = "0.1.2"
+source = "git+https://github.com/bensadeh/manifold?branch=main#a88d385d4df49c80898da6149d547b576ca23107"
 dependencies = [
  "nu-ansi-term",
  "regex",
+ "serde",
  "serde_json",
 ]
 
@@ -947,7 +947,7 @@ dependencies = [
 
 [[package]]
 name = "tailspin"
-version = "3.1.0"
+version = "4.0.0"
 dependencies = [
  "async-trait",
  "clap",
