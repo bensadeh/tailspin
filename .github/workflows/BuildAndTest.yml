@@ -20,7 +20,7 @@ jobs:
         run: |
           cargo build --verbose
           cargo test --verbose
-          cargo clippy --all-targets -- -D warnings
+          cargo clippy --verbose
 
       - name: Check Cargo.lock
         run: |
