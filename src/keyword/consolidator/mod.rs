@@ -58,7 +58,8 @@ mod tests {
 
         let actual = consolidate_keywords(input_keywords);
 
-        let expected = [Keyword {
+        let expected = [
+            Keyword {
                 style: Style::new().fg(Color::Red),
                 words: vec!["apple".into(), "banana".into(), "orange".into()],
                 border: true,
@@ -72,7 +73,8 @@ mod tests {
                 style: Style::default(),
                 words: vec!["grape".into()],
                 border: false,
-            }];
+            },
+        ];
 
         assert_eq!(actual.len(), expected.len());
     }
