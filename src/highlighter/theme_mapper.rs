@@ -1,9 +1,5 @@
-use crate::highlighter::toml::{TomlTheme, UuidToml};
+use crate::highlighter::types::*;
 use inlet_manifold::*;
-
-pub struct ProcessedTheme {
-    pub uuid_config: UuidConfig,
-}
 
 impl From<TomlTheme> for ProcessedTheme {
     fn from(toml: TomlTheme) -> Self {

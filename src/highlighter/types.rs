@@ -1,6 +1,14 @@
 use inlet_manifold::*;
 use serde::Deserialize;
 
+pub struct HighlighterConfig {
+    pub uuid: bool,
+}
+
+pub struct ProcessedTheme {
+    pub uuid_config: UuidConfig,
+}
+
 #[derive(Deserialize, Debug)]
 pub struct TomlTheme {
     pub uuid: Option<UuidToml>,
