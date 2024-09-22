@@ -1,8 +1,7 @@
-mod theme_mapper;
-mod types;
+mod config;
 
-use crate::highlighter::theme_mapper::ProcessedTheme;
-use crate::highlighter::types::HighlighterConfig;
+use crate::highlighter::config::HighlighterConfig;
+use crate::theme::ProcessedTheme;
 use inlet_manifold::*;
 
 fn get_highlighter(theme: ProcessedTheme, config: HighlighterConfig) -> Result<Highlighter, Error> {

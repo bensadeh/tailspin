@@ -1,4 +1,4 @@
-use crate::highlighter::types::*;
+use crate::theme::*;
 use inlet_manifold::*;
 
 impl From<TomlTheme> for ProcessedTheme {

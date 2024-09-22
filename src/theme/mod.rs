@@ -1,9 +1,7 @@
-use inlet_manifold::*;
+use inlet_manifold::{Style, UuidConfig};
 use serde::Deserialize;
 
-pub struct HighlighterConfig {
-    pub uuid: bool,
-}
+mod mappers;
 
 pub struct ProcessedTheme {
     pub uuid_config: UuidConfig,
