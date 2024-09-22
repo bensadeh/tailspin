@@ -1,4 +1,4 @@
-use crate::theme::processed::Keyword;
+use crate::theme_legacy::processed::Keyword;
 use nu_ansi_term::{Color, Style};
 
 pub fn extract_all_keywords(

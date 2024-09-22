@@ -1,4 +1,4 @@
-use crate::theme::processed::Keyword;
+use crate::theme_legacy::processed::Keyword;
 use std::collections::HashSet;
 
 pub fn consolidate_keywords(keywords: Vec<Keyword>) -> Vec<Keyword> {
