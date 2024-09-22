@@ -34,8 +34,8 @@ use crate::highlighters::url::UrlHighlighter;
 use crate::highlighters::uuid::UuidHighlighter;
 use crate::keyword::consolidator::consolidate_keywords;
 use crate::keyword::extractor::extract_all_keywords;
-use crate::theme::defaults::{get_boolean_keywords, get_rest_keywords, get_severity_keywords};
-use crate::theme::processed::{Keyword, Theme};
+use crate::theme_legacy::defaults::{get_boolean_keywords, get_rest_keywords, get_severity_keywords};
+use crate::theme_legacy::processed::{Keyword, Theme};
 use crate::types::Highlight;
 use std::sync::Arc;
 

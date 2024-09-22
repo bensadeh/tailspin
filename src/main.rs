@@ -7,8 +7,8 @@ mod highlighters;
 mod io;
 mod keyword;
 mod line_info;
-mod theme;
 mod theme_io;
+mod theme_legacy;
 mod types;
 
 use crate::cli::Cli;
@@ -17,7 +17,7 @@ use crate::io::controller::get_io_and_presenter;
 use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
 use crate::io::writer::AsyncLineWriter;
-use crate::theme::processed::Theme;
+use crate::theme_legacy::processed::Theme;
 use crate::types::Config;
 use color_eyre::eyre::Result;
 use tokio::sync::oneshot;
@@ -28,7 +28,7 @@ async fn main() -> Result<()> {
 
     let cli = cli::get_args_or_exit_early();
     let theme = theme_io::load_theme(cli.config_path.clone());
-    let processed_theme = theme::mapper::map_or_exit_early(theme);
+    let processed_theme = theme_legacy::mapper::map_or_exit_early(theme);
     let config = config::create_config_or_exit_early(&cli);
 
     run(processed_theme, config, cli).await;

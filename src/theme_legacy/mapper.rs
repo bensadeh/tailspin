@@ -1,12 +1,12 @@
-use crate::theme;
-use crate::theme::processed::{
+use crate::theme_legacy;
+use crate::theme_legacy::processed::{
     Date, DateWord, FilePath, Ip, KeyValue, Number, Pointer, Process, Quotes, Time, Url, Uuid,
 };
-use crate::theme::raw::{Keyword, Regexp};
+use crate::theme_legacy::raw::{Keyword, Regexp};
 use nu_ansi_term::{Color, Style};
 
-pub fn map_or_exit_early(raw: theme::raw::Theme) -> theme::processed::Theme {
-    theme::processed::Theme {
+pub fn map_or_exit_early(raw: theme_legacy::raw::Theme) -> theme_legacy::processed::Theme {
+    theme_legacy::processed::Theme {
         date: Date {
             number: raw.date.number.map_or(Date::default().number, to_style),
             separator: raw.date.separator.map_or(Date::default().separator, to_style),
@@ -93,7 +93,7 @@ pub fn map_or_exit_early(raw: theme::raw::Theme) -> theme::processed::Theme {
     }
 }
 
-fn to_style(style: theme::raw::Style) -> Style {
+fn to_style(style: theme_legacy::raw::Style) -> Style {
     let fg_color = map_to_color_or_exit_early(&style.fg);
     let bg_color = map_to_color_or_exit_early(&style.bg);
 
@@ -140,7 +140,7 @@ fn map_to_color_or_exit_early(color: &str) -> Color {
     })
 }
 
-fn process_keywords(raw_keywords: Option<Vec<Keyword>>) -> Vec<theme::processed::Keyword> {
+fn process_keywords(raw_keywords: Option<Vec<Keyword>>) -> Vec<theme_legacy::processed::Keyword> {
     let mut keywords = Vec::new();
 
     if let Some(raw_kws) = raw_keywords {
@@ -149,14 +149,14 @@ fn process_keywords(raw_keywords: Option<Vec<Keyword>>) -> Vec<theme::processed:
             let style = to_style(raw_keyword.style);
             let border = raw_keyword.border;
 
-            keywords.push(theme::processed::Keyword { style, words, border });
+            keywords.push(theme_legacy::processed::Keyword { style, words, border });
         }
     }
 
     keywords
 }
 
-fn process_regexps(raw_regexps: Option<Vec<Regexp>>) -> Vec<theme::processed::Regexp> {
+fn process_regexps(raw_regexps: Option<Vec<Regexp>>) -> Vec<theme_legacy::processed::Regexp> {
     let mut regexps = Vec::new();
 
     if let Some(raw_rxs) = raw_regexps {
@@ -165,7 +165,7 @@ fn process_regexps(raw_regexps: Option<Vec<Regexp>>) -> Vec<theme::processed::Re
             let style = to_style(raw_regexp.style);
             let border = raw_regexp.border;
 
-            regexps.push(theme::processed::Regexp {
+            regexps.push(theme_legacy::processed::Regexp {
                 regular_expression,
                 style,
                 border,

@@ -1,4 +1,4 @@
-use crate::theme::processed::*;
+use crate::theme_legacy::processed::*;
 use nu_ansi_term::{Color, Style};
 
 impl Default for Uuid {
