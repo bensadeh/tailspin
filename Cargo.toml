@@ -18,8 +18,8 @@ missing-const-for-fn = "deny"
 
 [dependencies]
 async-trait = "0.1.82"
-clap = { version = "4.5.17", features = ["derive"] }
-clap_complete = "4.5.26"
+clap = { version = "4.5.18", features = ["derive"] }
+clap_complete = "4.5.29"
 color-eyre = "0.6.3"
 ctrlc = "3.4.5"
 linemux = "0.3.0"
