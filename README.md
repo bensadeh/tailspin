@@ -58,10 +58,10 @@ tspin application.log
 tspin application.log --print
 
 # Read from stdin and print to stdout
-echo "2021-01-01 12:00:00 [INFO] This is a log message" | tspin 
-
-# Read from another command and print to stdout
 kubectl logs [pod name] --follow | tspin
+
+# Capture the stdout of another command and view in `less`
+tspin --listen-command 'kubectl logs -f pod_name'
 ``` 
 
 ## Installing
@@ -330,6 +330,8 @@ style = { fg = "red" }
 
 ## Working with `stdin` and `stdout`
 
+### Default behavior with pipes
+
 By default, `tailspin` will open a file in the pager `less`. However, if you pipe something into `tailspin`, it will
 print the highlighted output directly to `stdout`. This is similar to running `tspin [file] --print`.
 
@@ -341,6 +343,17 @@ journalctl -f | tspin
 cat /var/log/syslog | tspin
 kubectl logs -f pod_name | tspin
 ```
+
+### Capturing the output of a command and viewing it in `less`
+
+To capture the output of a command and view it in `less`, use the `--listen-command` flag:
+
+```console
+tspin --listen-command 'kubectl logs -f pod_name'
+```
+
+This will run the command `kubectl logs -f pod_name` in the background and pipe the output to `tailspin`. The output
+will be displayed in `less`, allowing you to navigate and search through the logs.
 
 ## Using the pager `less`
 
@@ -390,7 +403,7 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 -f, --follow                     Follow the contents of the file
 -e, --start-at-end               Start at the end of the file
 -p, --print                      Print the output to stdout
--c, --listen-command [CMD]       Listen the output (stdout) of the provided command
+-c, --listen-command '[CMD]'     Listen the output (stdout) of the provided command
     --config-path [PATH]         Use the configuration file from the provided path
     --words-[COLOR] [WORDS]      Highlight the provided words with the given color
     --disable-builtin-keywords   Disable the highlighting of all builtin groups
