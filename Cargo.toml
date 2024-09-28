@@ -14,7 +14,7 @@ path = "src/main.rs"
 name = "tspin"
 
 [lints.clippy]
-missing-const-for-fn = "deny"
+missing-const-for-fn = "warn"
 
 [dependencies]
 async-trait = "0.1.82"

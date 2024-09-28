@@ -3,7 +3,7 @@ use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
 use HighlighterConfigNew::*;
 
-#[derive(Copy)]
+#[derive(Copy, Clone)]
 pub struct CliOpts {
     pub disable_numbers: bool,
     pub disable_letters: bool,
