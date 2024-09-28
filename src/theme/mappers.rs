@@ -1,5 +1,4 @@
 use crate::theme::*;
-use inlet_manifold::*;
 
 impl From<TomlTheme> for ProcessedTheme {
     fn from(toml: TomlTheme) -> Self {
