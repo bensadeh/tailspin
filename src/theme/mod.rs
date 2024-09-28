@@ -3,8 +3,8 @@ use serde::Deserialize;
 
 mod mappers;
 
-pub struct ProcessedTheme {
-    pub uuid_config: UuidConfig,
+pub struct Theme {
+    pub uuid: UuidConfig,
 }
 
 #[derive(Deserialize, Debug)]

@@ -3,7 +3,7 @@ use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
 use HighlighterConfigNew::*;
 
-#[derive(Copy, Clone)]
+#[derive(Copy)]
 pub struct CliOpts {
     pub disable_numbers: bool,
     pub disable_letters: bool,
@@ -21,15 +21,15 @@ pub enum HighlighterConfigNew {
     Mismatch,
 }
 
-pub struct HighlightGroups {
+pub struct HighlighterGroups {
     pub numbers: bool,
     pub letters: bool,
     pub symbols: bool,
 }
 
-impl HighlightGroups {
+impl HighlighterGroups {
     fn new_with_value(value: bool) -> Self {
-        HighlightGroups {
+        HighlighterGroups {
             numbers: value,
             letters: value,
             symbols: value,
@@ -45,16 +45,16 @@ impl HighlightGroups {
     }
 }
 
-pub fn try_get_highlight_groups(cli: CliOpts) -> Result<HighlightGroups, ConfigError> {
+pub fn try_get_highlight_groups(cli: CliOpts) -> Result<HighlighterGroups, ConfigError> {
     match determine_highlighter_type(cli) {
-        AllHighlightersEnabled => Ok(HighlightGroups::all_enabled()),
-        AllHighlightersDisabled => Ok(HighlightGroups::all_disabled()),
-        SomeHighlightersEnabled => Ok(HighlightGroups {
+        AllHighlightersEnabled => Ok(HighlighterGroups::all_enabled()),
+        AllHighlightersDisabled => Ok(HighlighterGroups::all_disabled()),
+        SomeHighlightersEnabled => Ok(HighlighterGroups {
             numbers: cli.enable_numbers,
             letters: cli.enable_letters,
             symbols: cli.enable_symbols,
         }),
-        SomeHighlightersDisabled => Ok(HighlightGroups {
+        SomeHighlightersDisabled => Ok(HighlighterGroups {
             numbers: !cli.disable_numbers,
             letters: !cli.disable_letters,
             symbols: !cli.disable_symbols,

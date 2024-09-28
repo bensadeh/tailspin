@@ -1,9 +1,9 @@
 use crate::theme::*;
 
-impl From<TomlTheme> for ProcessedTheme {
+impl From<TomlTheme> for Theme {
     fn from(toml: TomlTheme) -> Self {
-        ProcessedTheme {
-            uuid_config: toml.uuid.map_or_else(UuidConfig::default, UuidConfig::from),
+        Theme {
+            uuid: toml.uuid.map_or_else(UuidConfig::default, UuidConfig::from),
         }
     }
 }

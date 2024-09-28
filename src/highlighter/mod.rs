@@ -1,14 +1,14 @@
 mod config;
 
-use crate::highlighter::config::HighlightGroups;
-use crate::theme::ProcessedTheme;
+use crate::highlighter::config::HighlighterGroups;
+use crate::theme::Theme;
 use inlet_manifold::{Error, Highlighter};
 
-fn get_highlighter(theme: ProcessedTheme, config: HighlightGroups) -> Result<Highlighter, Error> {
+fn get_highlighter(highlighter_groups: HighlighterGroups, theme: Theme) -> Result<Highlighter, Error> {
     let mut builder = Highlighter::builder();
 
-    if config.letters {
-        builder.with_uuid_highlighter(theme.uuid_config);
+    if highlighter_groups.letters {
+        builder.with_uuid_highlighter(theme.uuid);
     }
 
     builder.build()
