@@ -1,33 +1,9 @@
 use std::error::Error;
 use std::fmt;
 use std::fmt::{Debug, Display, Formatter};
+use HighlighterConfigNew::*;
 
-pub struct HighlighterConfig {
-    pub numbers: bool,
-    pub uuid: bool,
-    pub letters: bool,
-    pub symbols: bool,
-}
-
-impl HighlighterConfig {
-    fn new_all(state: bool) -> Self {
-        HighlighterConfig {
-            numbers: state,
-            uuid: state,
-            letters: state,
-            symbols: state,
-        }
-    }
-
-    fn enable_all() -> Self {
-        Self::new_all(true)
-    }
-
-    fn disable_all() -> Self {
-        Self::new_all(false)
-    }
-}
-
+#[derive(Copy, Clone)]
 pub struct CliOpts {
     pub disable_numbers: bool,
     pub disable_letters: bool,
@@ -35,50 +11,85 @@ pub struct CliOpts {
     pub enable_numbers: bool,
     pub enable_letters: bool,
     pub enable_symbols: bool,
-    // more items with time
 }
 
-pub fn get_config(cli: CliOpts) -> Result<HighlighterConfig, ConfigError> {
-    let any_enable = cli.enable_numbers || cli.enable_letters || cli.enable_symbols;
-    let any_disable = cli.disable_numbers || cli.disable_letters || cli.disable_symbols;
+pub enum HighlighterConfigNew {
+    AllHighlightersEnabled,
+    AllHighlightersDisabled,
+    SomeHighlightersEnabled,
+    SomeHighlightersDisabled,
+    Mismatch,
+}
 
-    if any_enable && any_disable {
-        return Err(ConfigError::ConflictEnableDisable);
+pub struct HighlightGroups {
+    pub numbers: bool,
+    pub letters: bool,
+    pub symbols: bool,
+}
+
+impl HighlightGroups {
+    fn new_with_value(value: bool) -> Self {
+        HighlightGroups {
+            numbers: value,
+            letters: value,
+            symbols: value,
+        }
     }
 
-    let mut config = HighlighterConfig::enable_all();
-
-    if any_enable {
-        // Start with all items off
-        config.numbers = false;
-        config.letters = false;
-        config.symbols = false;
-        // Set specified items to true
-        if cli.enable_numbers {
-            config.numbers = true;
-        }
-        if cli.enable_letters {
-            config.letters = true;
-        }
-        if cli.enable_symbols {
-            config.symbols = true;
-        }
-    } else if any_disable {
-        // Start with all items on (already set by default)
-        // Set specified items to false
-        if cli.disable_numbers {
-            config.numbers = false;
-        }
-        if cli.disable_letters {
-            config.letters = false;
-        }
-        if cli.disable_symbols {
-            config.symbols = false;
-        }
+    pub fn all_enabled() -> Self {
+        Self::new_with_value(true)
     }
-    // If neither enable nor disable options are set, default config is used (all items are on)
 
-    Ok(config)
+    pub fn all_disabled() -> Self {
+        Self::new_with_value(false)
+    }
+}
+
+pub fn try_get_highlight_groups(cli: CliOpts) -> Result<HighlightGroups, ConfigError> {
+    match determine_highlighter_type(cli) {
+        AllHighlightersEnabled => Ok(HighlightGroups::all_enabled()),
+        AllHighlightersDisabled => Ok(HighlightGroups::all_disabled()),
+        SomeHighlightersEnabled => Ok(HighlightGroups {
+            numbers: cli.enable_numbers,
+            letters: cli.enable_letters,
+            symbols: cli.enable_symbols,
+        }),
+        SomeHighlightersDisabled => Ok(HighlightGroups {
+            numbers: !cli.disable_numbers,
+            letters: !cli.disable_letters,
+            symbols: !cli.disable_symbols,
+        }),
+        Mismatch => Err(ConfigError::ConflictEnableDisable),
+    }
+}
+
+pub fn determine_highlighter_type(cli: CliOpts) -> HighlighterConfigNew {
+    let enable_any = cli.enable_numbers || cli.enable_letters || cli.enable_symbols;
+    let disable_any = cli.disable_numbers || cli.disable_letters || cli.disable_symbols;
+    let enable_all = cli.enable_numbers && cli.enable_letters && cli.enable_symbols;
+    let disable_all = cli.disable_numbers && cli.disable_letters && cli.disable_symbols;
+
+    if enable_any && disable_any {
+        return Mismatch;
+    }
+
+    if enable_all {
+        return AllHighlightersEnabled;
+    }
+
+    if disable_all {
+        return AllHighlightersDisabled;
+    }
+
+    if enable_any {
+        return SomeHighlightersEnabled;
+    }
+
+    if disable_any {
+        return SomeHighlightersDisabled;
+    }
+
+    Mismatch
 }
 
 pub enum ConfigError {
@@ -97,7 +108,7 @@ impl Display for ConfigError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             ConfigError::ConflictEnableDisable => {
-                write!(f, "Cannot specify both enable and disable options for the same items")
+                write!(f, "Cannot both enable and disable highlighters")
             }
         }
     }
