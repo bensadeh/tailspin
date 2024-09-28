@@ -28,7 +28,7 @@ pub struct HighlighterGroups {
 }
 
 impl HighlighterGroups {
-    fn new_with_value(value: bool) -> Self {
+    const fn new_with_value(value: bool) -> Self {
         HighlighterGroups {
             numbers: value,
             letters: value,
@@ -36,16 +36,16 @@ impl HighlighterGroups {
         }
     }
 
-    pub fn all_enabled() -> Self {
+    pub const fn all_enabled() -> Self {
         Self::new_with_value(true)
     }
 
-    pub fn all_disabled() -> Self {
+    pub const fn all_disabled() -> Self {
         Self::new_with_value(false)
     }
 }
 
-pub fn try_get_highlight_groups(cli: CliOpts) -> Result<HighlighterGroups, ConfigError> {
+pub const fn try_get_highlight_groups(cli: CliOpts) -> Result<HighlighterGroups, ConfigError> {
     match determine_highlighter_type(cli) {
         AllHighlightersEnabled => Ok(HighlighterGroups::all_enabled()),
         AllHighlightersDisabled => Ok(HighlighterGroups::all_disabled()),
@@ -63,7 +63,7 @@ pub fn try_get_highlight_groups(cli: CliOpts) -> Result<HighlighterGroups, Confi
     }
 }
 
-pub fn determine_highlighter_type(cli: CliOpts) -> HighlighterConfigNew {
+pub const fn determine_highlighter_type(cli: CliOpts) -> HighlighterConfigNew {
     let enable_any = cli.enable_numbers || cli.enable_letters || cli.enable_symbols;
     let disable_any = cli.disable_numbers || cli.disable_letters || cli.disable_symbols;
     let enable_all = cli.enable_numbers && cli.enable_letters && cli.enable_symbols;
