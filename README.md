@@ -19,7 +19,7 @@ A log file highlighter
 - 🌈 Highlights numbers, dates, IP-addresses, UUIDs, URLs and more
 - ⚙️ All highlight groups are customizable
 - 🧬 Easy to integrate with other commands
-- 🔍 Uses `less` under the hood for scrollback, search and filtering
+- 🔍 Uses `less` under the hood 
 
 #
 
