@@ -27,7 +27,7 @@ pub struct Cli {
     #[clap(long = "config-path")]
     pub config_path: Option<String>,
 
-    /// Continuously listen to stdout from the provided command and prevent interrupt events (Ctrl + C) from reaching the command
+    /// Capture the output (stdout) of a command and view it in `less`
     #[clap(short = 'c', long = "listen-command", conflicts_with = "follow")]
     pub listen_command: Option<String>,
 
@@ -76,7 +76,7 @@ pub struct Cli {
     pub suppress_output: bool,
 
     /// Print completions to stdout
-    #[clap(long = "z-generate-shell-completions", hide = true)]
+    #[clap(long = "hidden-generate-shell-completions", hide = true)]
     pub generate_shell_completions: Option<String>,
 }
 
