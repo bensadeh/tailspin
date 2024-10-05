@@ -70,12 +70,86 @@ pub struct Cli {
     /// Disable the highlighting of REST verbs
     #[clap(long = "disable-rest")]
     pub disable_rest: bool,
-    
-    #[clap(long = "disable-numbers")]
-    pub disable_numbers: bool,
-    
+
+    /// Enable the highlighting of numbers
     #[clap(long = "enable-numbers")]
     pub enable_numbers: bool,
+
+    /// Disable the highlighting of numbers
+    #[clap(long = "disable-numbers")]
+    pub disable_numbers: bool,
+
+    /// Enable the highlighting of dates
+    #[clap(long = "enable-dates")]
+    pub enable_dates: bool,
+
+    /// Disable the highlighting of dates
+    #[clap(long = "disable-dates")]
+    pub disable_dates: bool,
+
+    /// Enable the highlighting of URLs
+    #[clap(long = "enable-urls")]
+    pub enable_urls: bool,
+
+    /// Disable the highlighting of URLs
+    #[clap(long = "disable-urls")]
+    pub disable_urls: bool,
+
+    /// Enable the highlighting of paths
+    #[clap(long = "enable-paths")]
+    pub enable_paths: bool,
+
+    /// Disable the highlighting of paths
+    #[clap(long = "disable-paths")]
+    pub disable_paths: bool,
+
+    /// Enable the highlighting of quotes
+    #[clap(long = "enable-quotes")]
+    pub enable_quotes: bool,
+
+    /// Disable the highlighting of quotes
+    #[clap(long = "disable-quotes")]
+    pub disable_quotes: bool,
+
+    /// Enable the highlighting of key value pairs
+    #[clap(long = "enable-key-values")]
+    pub enable_key_values: bool,
+
+    /// Disable the highlighting of key value pairs
+    #[clap(long = "disable-key-values")]
+    pub disable_key_values: bool,
+
+    /// Enable the highlighting of UUIDs
+    #[clap(long = "enable-uuids")]
+    pub enable_uuids: bool,
+
+    /// Disable the highlighting of UUIDs
+    #[clap(long = "disable-uuids")]
+    pub disable_uuids: bool,
+
+    /// Enable the highlighting of IP addresses
+    #[clap(long = "enable-ip-addresses")]
+    pub enable_ip_addresses: bool,
+
+    /// Disable the highlighting of IP addresses
+    #[clap(long = "disable-ip-addresses")]
+    pub disable_ip_addresses: bool,
+
+    /// Enable the highlighting of pointers
+    #[clap(long = "enable-pointers")]
+    pub enable_pointers: bool,
+
+    /// Disable the highlighting of pointers
+    #[clap(long = "disable-pointers")]
+    pub disable_pointers: bool,
+
+    /// Enable the highlighting of unix processes
+    #[clap(long = "enable-processes")]
+    pub enable_processes: bool,
+
+    /// Disable the highlighting of unix processes
+    #[clap(long = "disable-processes")]
+    pub disable_processes: bool,
 
     /// Suppress all output (for debugging and benchmarking)
     #[clap(long = "hidden-suppress-output", hide = true)]
