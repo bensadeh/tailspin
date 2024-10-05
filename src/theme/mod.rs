@@ -8,7 +8,8 @@ pub struct Theme {
     pub numbers: NumberConfig,
     pub uuids: UuidConfig,
     pub quotes: QuotesConfig,
-    pub ip_addresses: IpV6Config,
+    pub ip_v4_addresses: IpV4Config,
+    pub ip_v6_addresses: IpV6Config,
     pub dates: DateTimeConfig,
     pub paths: UnixPathConfig,
     pub urls: UrlConfig,
@@ -49,7 +50,7 @@ pub struct QuotesToml {
     pub style: Option<Style>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Copy, Clone)]
 pub struct IpToml {
     pub number: Option<Style>,
     pub letter: Option<Style>,
