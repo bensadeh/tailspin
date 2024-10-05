@@ -28,7 +28,6 @@ pub struct CliOpts {
 
 pub enum HighlighterConfigNew {
     AllHighlightersEnabled,
-    AllHighlightersDisabled,
     SomeHighlightersEnabled,
     SomeHighlightersDisabled,
     Mismatch,
@@ -66,16 +65,11 @@ impl HighlighterGroups {
     pub const fn all_enabled() -> Self {
         Self::new_with_value(true)
     }
-
-    pub const fn all_disabled() -> Self {
-        Self::new_with_value(false)
-    }
 }
 
 pub const fn try_get_highlight_groups(cli: CliOpts) -> Result<HighlighterGroups, ConfigError> {
     match determine_highlighter_type(cli) {
         AllHighlightersEnabled => Ok(HighlighterGroups::all_enabled()),
-        AllHighlightersDisabled => Ok(HighlighterGroups::all_disabled()),
         SomeHighlightersEnabled => Ok(HighlighterGroups {
             numbers: cli.enable_numbers,
             uuids: cli.enable_uuids,
