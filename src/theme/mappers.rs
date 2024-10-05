@@ -6,7 +6,8 @@ impl From<TomlTheme> for Theme {
             numbers: toml.numbers.map_or_else(NumberConfig::default, NumberConfig::from),
             uuids: toml.uuids.map_or_else(UuidConfig::default, UuidConfig::from),
             quotes: toml.quotes.map_or_else(QuotesConfig::default, QuotesConfig::from),
-            ip_addresses: toml.ip_addresses.map_or_else(IpV6Config::default, IpV6Config::from),
+            ip_v4_addresses: toml.ip_addresses.map_or_else(IpV4Config::default, IpV4Config::from),
+            ip_v6_addresses: toml.ip_addresses.map_or_else(IpV6Config::default, IpV6Config::from),
             dates: toml.dates.map_or_else(DateTimeConfig::default, DateTimeConfig::from),
             paths: toml.paths.map_or_else(UnixPathConfig::default, UnixPathConfig::from),
             urls: toml.urls.map_or_else(UrlConfig::default, UrlConfig::from),
@@ -50,6 +51,17 @@ impl From<QuotesToml> for QuotesConfig {
         QuotesConfig {
             quotes_token: quotes_toml.quotes_token.unwrap_or(default_config.quotes_token),
             style: quotes_toml.style.unwrap_or(default_config.style),
+        }
+    }
+}
+
+impl From<IpToml> for IpV4Config {
+    fn from(ip_toml: IpToml) -> Self {
+        let default_config = IpV4Config::default();
+
+        IpV4Config {
+            number: ip_toml.number.unwrap_or(default_config.number),
+            separator: ip_toml.separator.unwrap_or(default_config.separator),
         }
     }
 }
