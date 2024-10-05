@@ -1,6 +1,5 @@
-use std::error::Error;
-use std::fmt;
-use std::fmt::{Debug, Display, Formatter};
+use std::fmt::Debug;
+use thiserror::Error;
 use HighlighterConfigNew::*;
 
 #[derive(Copy, Clone)]
@@ -64,54 +63,33 @@ pub const fn try_get_highlight_groups(cli: CliOpts) -> Result<HighlighterGroups,
 }
 
 pub const fn determine_highlighter_type(cli: CliOpts) -> HighlighterConfigNew {
-    let enable_any = cli.enable_numbers || cli.enable_paths || cli.enable_urls;
-    let disable_any = cli.disable_numbers || cli.disable_paths || cli.disable_urls;
-    let enable_all = cli.enable_numbers && cli.enable_paths && cli.enable_urls;
-    let disable_all = cli.disable_numbers && cli.disable_paths && cli.disable_urls;
+    let some_enabled = cli.enable_numbers || cli.enable_paths || cli.enable_urls;
+    let some_disabled = cli.disable_numbers || cli.disable_paths || cli.disable_urls;
+    let all_enabled = cli.enable_numbers && cli.enable_paths && cli.enable_urls;
+    let all_disabled = cli.disable_numbers && cli.disable_paths && cli.disable_urls;
 
-    if enable_any && disable_any {
-        return Mismatch;
-    }
+    let none_enabled = !all_enabled;
+    let none_disabled = !all_disabled;
+    let only_some_enabled = some_enabled && none_disabled;
+    let only_some_disabled = some_disabled && none_enabled;
 
-    if enable_all {
+    if none_disabled && none_enabled {
         return AllHighlightersEnabled;
     }
 
-    if disable_all {
-        return AllHighlightersDisabled;
-    }
-
-    if enable_any {
+    if only_some_enabled {
         return SomeHighlightersEnabled;
     }
 
-    if disable_any {
+    if only_some_disabled {
         return SomeHighlightersDisabled;
     }
 
     Mismatch
 }
 
+#[derive(Error, Debug)]
 pub enum ConfigError {
+    #[error("cannot both enable and disable highlighters")]
     ConflictEnableDisable,
 }
-
-impl Debug for ConfigError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            ConfigError::ConflictEnableDisable => write!(f, "ConflictEnableDisable"),
-        }
-    }
-}
-
-impl Display for ConfigError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            ConfigError::ConflictEnableDisable => {
-                write!(f, "Cannot both enable and disable highlighters")
-            }
-        }
-    }
-}
-
-impl Error for ConfigError {}
