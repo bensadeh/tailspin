@@ -3,8 +3,8 @@ use crate::theme::*;
 impl From<TomlTheme> for Theme {
     fn from(toml: TomlTheme) -> Self {
         Theme {
-            uuid: toml.uuid.map_or_else(UuidConfig::default, UuidConfig::from),
-            number: toml.number.map_or_else(NumberConfig::default, NumberConfig::from),
+            uuids: toml.uuids.map_or_else(UuidConfig::default, UuidConfig::from),
+            numbers: toml.numbers.map_or_else(NumberConfig::default, NumberConfig::from),
         }
     }
 }
