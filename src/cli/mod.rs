@@ -112,12 +112,12 @@ pub struct Cli {
     pub disable_quotes: bool,
 
     /// Enable the highlighting of key value pairs
-    #[clap(long = "enable-key-values")]
-    pub enable_key_values: bool,
+    #[clap(long = "enable-key-value-pairs")]
+    pub enable_key_value_pairs: bool,
 
     /// Disable the highlighting of key value pairs
-    #[clap(long = "disable-key-values")]
-    pub disable_key_values: bool,
+    #[clap(long = "disable-key-value-pairs")]
+    pub disable_key_value_pairs: bool,
 
     /// Enable the highlighting of UUIDs
     #[clap(long = "enable-uuids")]
