@@ -2,13 +2,14 @@ use inlet_manifold::{NumberConfig, Style, UuidConfig};
 use serde::Deserialize;
 
 mod mappers;
+pub mod reader;
 
 pub struct Theme {
     pub uuid: UuidConfig,
     pub number: NumberConfig,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Default)]
 pub struct TomlTheme {
     pub uuid: Option<UuidToml>,
     pub number: Option<NumberToml>,

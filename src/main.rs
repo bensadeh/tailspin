@@ -31,7 +31,8 @@ async fn main() -> Result<()> {
     let theme = theme_io::load_theme(cli.config_path.clone());
     let processed_theme = theme_legacy::mapper::map_or_exit_early(theme);
     let config = config::create_config_or_exit_early(&cli);
-    
+    let new_theme = theme::reader::parse_theme(cli.config_path.clone())?;
+
     let cli_options = config::get_cli_opts_for_highlight_groups(&cli);
     let highlighter_groups = highlighter::config::try_get_highlight_groups(cli_options)?;
     // let highligheter = highlighter::get_highlighter(highlighter_groups, processed_theme.clone())?;
