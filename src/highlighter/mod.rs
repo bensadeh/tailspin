@@ -8,7 +8,7 @@ pub fn get_highlighter(highlighter_groups: HighlighterGroups, theme: Theme) -> R
     let mut builder = Highlighter::builder();
 
     if highlighter_groups.numbers {
-        builder.with_number_highlighter(theme.number);
+        builder.with_number_highlighter(theme.numbers);
     }
 
     builder.build()
