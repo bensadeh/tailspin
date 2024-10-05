@@ -1,4 +1,5 @@
 use crate::cli::Cli;
+use crate::highlighter::config::CliOpts;
 use crate::types::{
     Config, Error, FolderInfo, Input, Output, PathAndLineCount, GENERAL_ERROR, MISUSE_SHELL_BUILTIN, OK,
 };
@@ -8,7 +9,6 @@ use std::fs::{DirEntry, File};
 use std::io::{stdin, BufRead, IsTerminal};
 use std::path::Path;
 use std::process::exit;
-use crate::highlighter::config::CliOpts;
 
 enum InputType {
     Stdin,
@@ -216,7 +216,7 @@ fn count_lines<P: AsRef<Path>>(file_path: P) -> usize {
 
 pub const fn get_cli_opts_for_highlight_groups(cli: &Cli) -> CliOpts {
     CliOpts {
-        disable_numbers: cli.disable_numbers,
+        disable_numbers: false,
         disable_paths: false,
         disable_urls: false,
         enable_numbers: false,
