@@ -70,6 +70,12 @@ pub struct Cli {
     /// Disable the highlighting of REST verbs
     #[clap(long = "disable-rest")]
     pub disable_rest: bool,
+    
+    #[clap(long = "disable-numbers")]
+    pub disable_numbers: bool,
+    
+    #[clap(long = "enable-numbers")]
+    pub enable_numbers: bool,
 
     /// Suppress all output (for debugging and benchmarking)
     #[clap(long = "hidden-suppress-output", hide = true)]
