@@ -8,6 +8,7 @@ use std::fs::{DirEntry, File};
 use std::io::{stdin, BufRead, IsTerminal};
 use std::path::Path;
 use std::process::exit;
+use crate::highlighter::config::CliOpts;
 
 enum InputType {
     Stdin,
@@ -211,4 +212,15 @@ fn count_lines<P: AsRef<Path>>(file_path: P) -> usize {
     let reader = std::io::BufReader::new(file);
 
     reader.lines().count()
+}
+
+pub const fn get_cli_opts_for_highlight_groups(cli: &Cli) -> CliOpts {
+    CliOpts {
+        disable_numbers: cli.disable_numbers,
+        disable_paths: false,
+        disable_urls: false,
+        enable_numbers: false,
+        enable_paths: false,
+        enable_urls: false,
+    }
 }

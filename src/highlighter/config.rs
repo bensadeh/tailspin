@@ -6,11 +6,11 @@ use HighlighterConfigNew::*;
 #[derive(Copy, Clone)]
 pub struct CliOpts {
     pub disable_numbers: bool,
-    pub disable_letters: bool,
-    pub disable_symbols: bool,
+    pub disable_paths: bool,
+    pub disable_urls: bool,
     pub enable_numbers: bool,
-    pub enable_letters: bool,
-    pub enable_symbols: bool,
+    pub enable_paths: bool,
+    pub enable_urls: bool,
 }
 
 pub enum HighlighterConfigNew {
@@ -23,16 +23,16 @@ pub enum HighlighterConfigNew {
 
 pub struct HighlighterGroups {
     pub numbers: bool,
-    pub letters: bool,
-    pub symbols: bool,
+    pub paths: bool,
+    pub urls: bool,
 }
 
 impl HighlighterGroups {
     const fn new_with_value(value: bool) -> Self {
         HighlighterGroups {
             numbers: value,
-            letters: value,
-            symbols: value,
+            paths: value,
+            urls: value,
         }
     }
 
@@ -51,23 +51,23 @@ pub const fn try_get_highlight_groups(cli: CliOpts) -> Result<HighlighterGroups,
         AllHighlightersDisabled => Ok(HighlighterGroups::all_disabled()),
         SomeHighlightersEnabled => Ok(HighlighterGroups {
             numbers: cli.enable_numbers,
-            letters: cli.enable_letters,
-            symbols: cli.enable_symbols,
+            paths: cli.enable_paths,
+            urls: cli.enable_urls,
         }),
         SomeHighlightersDisabled => Ok(HighlighterGroups {
             numbers: !cli.disable_numbers,
-            letters: !cli.disable_letters,
-            symbols: !cli.disable_symbols,
+            paths: !cli.disable_paths,
+            urls: !cli.disable_urls,
         }),
         Mismatch => Err(ConfigError::ConflictEnableDisable),
     }
 }
 
 pub const fn determine_highlighter_type(cli: CliOpts) -> HighlighterConfigNew {
-    let enable_any = cli.enable_numbers || cli.enable_letters || cli.enable_symbols;
-    let disable_any = cli.disable_numbers || cli.disable_letters || cli.disable_symbols;
-    let enable_all = cli.enable_numbers && cli.enable_letters && cli.enable_symbols;
-    let disable_all = cli.disable_numbers && cli.disable_letters && cli.disable_symbols;
+    let enable_any = cli.enable_numbers || cli.enable_paths || cli.enable_urls;
+    let disable_any = cli.disable_numbers || cli.disable_paths || cli.disable_urls;
+    let enable_all = cli.enable_numbers && cli.enable_paths && cli.enable_urls;
+    let disable_all = cli.disable_numbers && cli.disable_paths && cli.disable_urls;
 
     if enable_any && disable_any {
         return Mismatch;
