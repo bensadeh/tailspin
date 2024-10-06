@@ -69,20 +69,58 @@ pub fn get_highlighter(highlighter_groups: HighlighterGroups, theme: Theme) -> R
 }
 
 fn add_builtin_keywords(builder: &mut HighlightBuilder) {
-    let keywords = vec![
+    let severity_levels = vec![
         KeywordConfig {
-            words: vec!["let".to_string(), "const".to_string()],
-            style: Style::default(),
+            words: vec!["ERROR".to_string()],
+            style: Style::new().fg(Color::Red),
         },
         KeywordConfig {
-            words: vec!["fn".to_string(), "struct".to_string()],
-            style: Style::default(),
+            words: vec!["WARN".to_string(), "WARNING".to_string()],
+            style: Style::new().fg(Color::Yellow),
         },
         KeywordConfig {
-            words: vec!["if".to_string(), "else".to_string()],
-            style: Style::default(),
+            words: vec!["INFO".to_string()],
+            style: Style::new().fg(Color::White),
+        },
+        KeywordConfig {
+            words: vec!["SUCCESS".to_string(), "DEBUG".to_string()],
+            style: Style::new().fg(Color::Green),
+        },
+        KeywordConfig {
+            words: vec!["TRACE".to_string()],
+            style: Style::new().faint(),
         },
     ];
 
-    builder.with_keyword_highlighter(keywords);
+    let rest_keywords = vec![
+        KeywordConfig {
+            words: vec!["GET".to_string()],
+            style: Style::new().fg(Color::Black).on(Color::Green),
+        },
+        KeywordConfig {
+            words: vec!["POST".to_string()],
+            style: Style::new().fg(Color::Black).on(Color::Yellow),
+        },
+        KeywordConfig {
+            words: vec!["PUT".to_string(), "PATCH".to_string()],
+            style: Style::new().fg(Color::Black).on(Color::Magenta),
+        },
+        KeywordConfig {
+            words: vec!["DELETE".to_string()],
+            style: Style::new().fg(Color::Black).on(Color::Red),
+        },
+    ];
+
+    let booleans = [KeywordConfig {
+        words: vec!["null".to_string(), "true".to_string(), "false".to_string()],
+        style: Style::new().fg(Color::Red).italic(),
+    }];
+
+    let all_keywords = severity_levels
+        .into_iter()
+        .chain(rest_keywords)
+        .chain(booleans)
+        .collect();
+
+    builder.with_keyword_highlighter(all_keywords);
 }
