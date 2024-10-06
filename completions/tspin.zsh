@@ -36,24 +36,24 @@ _tspin() {
 '--disable-severity[Disable the highlighting of severity levels]' \
 '--disable-rest[Disable the highlighting of REST verbs]' \
 '--enable-numbers[Enable the highlighting of numbers]' \
-'--disable-numbers[Disable the highlighting of numbers]' \
 '--enable-dates[Enable the highlighting of dates]' \
-'--disable-dates[Disable the highlighting of dates]' \
 '--enable-urls[Enable the highlighting of URLs]' \
-'--disable-urls[Disable the highlighting of URLs]' \
 '--enable-paths[Enable the highlighting of paths]' \
-'--disable-paths[Disable the highlighting of paths]' \
 '--enable-quotes[Enable the highlighting of quotes]' \
-'--disable-quotes[Disable the highlighting of quotes]' \
 '--enable-key-value-pairs[Enable the highlighting of key value pairs]' \
-'--disable-key-value-pairs[Disable the highlighting of key value pairs]' \
 '--enable-uuids[Enable the highlighting of UUIDs]' \
-'--disable-uuids[Disable the highlighting of UUIDs]' \
 '--enable-ip-addresses[Enable the highlighting of IP addresses]' \
-'--disable-ip-addresses[Disable the highlighting of IP addresses]' \
 '--enable-pointers[Enable the highlighting of pointers]' \
-'--disable-pointers[Disable the highlighting of pointers]' \
 '--enable-processes[Enable the highlighting of unix processes]' \
+'--disable-numbers[Disable the highlighting of numbers]' \
+'--disable-dates[Disable the highlighting of dates]' \
+'--disable-urls[Disable the highlighting of URLs]' \
+'--disable-paths[Disable the highlighting of paths]' \
+'--disable-quotes[Disable the highlighting of quotes]' \
+'--disable-key-value-pairs[Disable the highlighting of key value pairs]' \
+'--disable-uuids[Disable the highlighting of UUIDs]' \
+'--disable-ip-addresses[Disable the highlighting of IP addresses]' \
+'--disable-pointers[Disable the highlighting of pointers]' \
 '--disable-processes[Disable the highlighting of unix processes]' \
 '--hidden-suppress-output[Suppress all output (for debugging and benchmarking)]' \
 '-h[Print help]' \
