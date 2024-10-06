@@ -236,5 +236,7 @@ pub const fn get_cli_opts_for_highlight_groups(cli: &Cli) -> CliOpts {
         disable_processes: cli.disable_processes,
         enable_key_value_pairs: cli.enable_key_value_pairs,
         disable_key_value_pairs: cli.disable_key_value_pairs,
+        enable_json: cli.enable_json,
+        disable_json: cli.disable_json,
     }
 }

@@ -8,6 +8,10 @@ use inlet_manifold::*;
 pub fn get_highlighter(highlighter_groups: HighlighterGroups, theme: Theme) -> Result<Highlighter, Error> {
     let mut builder = Highlighter::builder();
 
+    if highlighter_groups.json {
+        builder.with_json_highlighter(theme.json);
+    }
+
     if true {
         add_builtin_keywords(&mut builder);
     }

@@ -18,6 +18,7 @@ impl From<TomlTheme> for Theme {
             paths: toml.paths.map_or_else(UnixPathConfig::default, UnixPathConfig::from),
             urls: toml.urls.map_or_else(UrlConfig::default, UrlConfig::from),
             pointers: toml.pointers.map_or_else(PointerConfig::default, PointerConfig::from),
+            json: toml.json.map_or_else(JsonConfig::default, JsonConfig::from),
             processes: toml
                 .processes
                 .map_or_else(UnixProcessConfig::default, UnixProcessConfig::from),
@@ -175,6 +176,21 @@ impl From<UnixProcessToml> for UnixProcessConfig {
             name: process_toml.name.unwrap_or(default_config.name),
             id: process_toml.id.unwrap_or(default_config.id),
             bracket: process_toml.bracket.unwrap_or(default_config.bracket),
+        }
+    }
+}
+
+impl From<JsonToml> for JsonConfig {
+    fn from(json_toml: JsonToml) -> Self {
+        let default_config = JsonConfig::default();
+
+        JsonConfig {
+            key: json_toml.key.unwrap_or(default_config.key),
+            quote_token: json_toml.quote_token.unwrap_or(default_config.quote_token),
+            curly_bracket: json_toml.curly_bracket.unwrap_or(default_config.curly_bracket),
+            square_bracket: json_toml.square_bracket.unwrap_or(default_config.square_bracket),
+            comma: json_toml.comma.unwrap_or(default_config.comma),
+            colon: json_toml.colon.unwrap_or(default_config.colon),
         }
     }
 }

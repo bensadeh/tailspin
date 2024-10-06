@@ -18,6 +18,7 @@ pub struct Theme {
     pub pointers: PointerConfig,
     pub processes: UnixProcessConfig,
     pub key_value_pairs: KeyValueConfig,
+    pub json: JsonConfig,
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -34,6 +35,7 @@ pub struct TomlTheme {
     pub pointers: Option<PointerToml>,
     pub processes: Option<UnixProcessToml>,
     pub key_value_pairs: Option<KeyValueToml>,
+    pub json: Option<JsonToml>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -118,4 +120,14 @@ pub struct UnixProcessToml {
 pub struct KeyValueToml {
     pub key: Option<Style>,
     pub separator: Option<Style>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct JsonToml {
+    pub key: Option<Style>,
+    pub quote_token: Option<Style>,
+    pub curly_bracket: Option<Style>,
+    pub square_bracket: Option<Style>,
+    pub comma: Option<Style>,
+    pub colon: Option<Style>,
 }
