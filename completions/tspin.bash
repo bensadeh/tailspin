@@ -19,7 +19,7 @@ _tspin() {
 
     case "${cmd}" in
         tspin)
-            opts="-f -e -p -c -h -V --follow --start-at-end --print --config-path --listen-command --words-red --words-green --words-yellow --words-blue --words-magenta --words-cyan --disable-builtin-keywords --disable-booleans --disable-severity --disable-rest --enable-numbers --disable-numbers --enable-dates --disable-dates --enable-urls --disable-urls --enable-paths --disable-paths --enable-quotes --disable-quotes --enable-key-value-pairs --disable-key-value-pairs --enable-uuids --disable-uuids --enable-ip-addresses --disable-ip-addresses --enable-pointers --disable-pointers --enable-processes --disable-processes --hidden-suppress-output --hidden-generate-shell-completions --help --version [FILE]"
+            opts="-f -e -p -c -h -V --follow --start-at-end --print --config-path --listen-command --words-red --words-green --words-yellow --words-blue --words-magenta --words-cyan --disable-builtin-keywords --disable-booleans --disable-severity --disable-rest --enable-numbers --enable-dates --enable-urls --enable-paths --enable-quotes --enable-key-value-pairs --enable-uuids --enable-ip-addresses --enable-pointers --enable-processes --disable-numbers --disable-dates --disable-urls --disable-paths --disable-quotes --disable-key-value-pairs --disable-uuids --disable-ip-addresses --disable-pointers --disable-processes --hidden-suppress-output --hidden-generate-shell-completions --help --version [FILE]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
