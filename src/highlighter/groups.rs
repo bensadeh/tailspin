@@ -24,6 +24,8 @@ pub struct CliOpts {
     pub disable_processes: bool,
     pub enable_key_value_pairs: bool,
     pub disable_key_value_pairs: bool,
+    pub enable_json: bool,
+    pub disable_json: bool,
 }
 
 pub enum HighlighterConfigNew {
@@ -44,6 +46,7 @@ pub struct HighlighterGroups {
     pub pointers: bool,
     pub processes: bool,
     pub key_value_pairs: bool,
+    pub json: bool,
 }
 
 impl HighlighterGroups {
@@ -59,6 +62,7 @@ impl HighlighterGroups {
             pointers: value,
             processes: value,
             key_value_pairs: value,
+            json: value,
         }
     }
 
@@ -81,6 +85,7 @@ pub const fn get_highlighter_groups(cli: CliOpts) -> Result<HighlighterGroups, C
             pointers: cli.enable_pointers,
             processes: cli.enable_processes,
             key_value_pairs: cli.enable_key_value_pairs,
+            json: cli.enable_json,
         }),
         SomeHighlightersDisabled => Ok(HighlighterGroups {
             numbers: !cli.disable_numbers,
@@ -93,6 +98,7 @@ pub const fn get_highlighter_groups(cli: CliOpts) -> Result<HighlighterGroups, C
             pointers: !cli.disable_pointers,
             processes: !cli.disable_processes,
             key_value_pairs: !cli.disable_key_value_pairs,
+            json: !cli.disable_json,
         }),
         Mismatch => Err(ConfigError::ConflictEnableDisable),
     }
@@ -108,7 +114,8 @@ pub const fn determine_highlighter_type(cli: CliOpts) -> HighlighterConfigNew {
         || cli.enable_urls
         || cli.enable_pointers
         || cli.enable_processes
-        || cli.enable_key_value_pairs;
+        || cli.enable_key_value_pairs
+        || cli.enable_json;
 
     let some_disabled = cli.disable_numbers
         || cli.disable_uuids
@@ -119,7 +126,8 @@ pub const fn determine_highlighter_type(cli: CliOpts) -> HighlighterConfigNew {
         || cli.disable_urls
         || cli.disable_pointers
         || cli.disable_processes
-        || cli.disable_key_value_pairs;
+        || cli.disable_key_value_pairs
+        || cli.disable_json;
 
     let all_enabled = cli.enable_numbers && cli.enable_paths && cli.enable_urls;
     let all_disabled = cli.disable_numbers && cli.disable_paths && cli.disable_urls;

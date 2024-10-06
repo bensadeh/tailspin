@@ -111,6 +111,10 @@ pub struct Cli {
     #[clap(long = "enable-processes")]
     pub enable_processes: bool,
 
+    /// Enable the highlighting of JSON
+    #[clap(long = "enable-json")]
+    pub enable_json: bool,
+
     /// Disable the highlighting of numbers
     #[clap(long = "disable-numbers")]
     pub disable_numbers: bool,
@@ -150,6 +154,10 @@ pub struct Cli {
     /// Disable the highlighting of unix processes
     #[clap(long = "disable-processes")]
     pub disable_processes: bool,
+
+    /// Disable the highlighting of JSON
+    #[clap(long = "disable-json")]
+    pub disable_json: bool,
 
     /// Suppress all output (for debugging and benchmarking)
     #[clap(long = "hidden-suppress-output", hide = true)]
