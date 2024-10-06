@@ -33,7 +33,7 @@ async fn main() -> Result<()> {
     let config = config::create_config_or_exit_early(&cli);
 
     let cli_options = config::get_cli_opts_for_highlight_groups(&cli);
-    let highlighter_groups = highlighter::config::try_get_highlight_groups(cli_options)?;
+    let highlighter_groups = highlighter::groups::get_highlighter_groups(cli_options)?;
 
     let new_theme = theme::reader::parse_theme(cli.config_path.clone())?;
     let highlighter = highlighter::get_highlighter(highlighter_groups, new_theme)?;

@@ -67,7 +67,7 @@ impl HighlighterGroups {
     }
 }
 
-pub const fn try_get_highlight_groups(cli: CliOpts) -> Result<HighlighterGroups, ConfigError> {
+pub const fn get_highlighter_groups(cli: CliOpts) -> Result<HighlighterGroups, ConfigError> {
     match determine_highlighter_type(cli) {
         AllHighlightersEnabled => Ok(HighlighterGroups::all_enabled()),
         SomeHighlightersEnabled => Ok(HighlighterGroups {
