@@ -5,6 +5,8 @@ mod mappers;
 pub mod reader;
 
 pub struct Theme {
+    pub keywords: Vec<KeywordConfig>,
+    pub regexes: Vec<RegexConfig>,
     pub numbers: NumberConfig,
     pub uuids: UuidConfig,
     pub quotes: QuotesConfig,
@@ -20,6 +22,8 @@ pub struct Theme {
 
 #[derive(Deserialize, Debug, Default)]
 pub struct TomlTheme {
+    pub keywords: Option<Vec<KeywordToml>>,
+    pub regexes: Option<Vec<RegexToml>>,
     pub numbers: Option<NumberToml>,
     pub uuids: Option<UuidToml>,
     pub quotes: Option<QuotesToml>,
@@ -30,6 +34,18 @@ pub struct TomlTheme {
     pub pointers: Option<PointerToml>,
     pub processes: Option<UnixProcessToml>,
     pub key_value_pairs: Option<KeyValueToml>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct KeywordToml {
+    pub keyword: Vec<String>,
+    pub style: Style,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct RegexToml {
+    pub regex: String,
+    pub style: Style,
 }
 
 #[derive(Deserialize, Debug)]

@@ -3,6 +3,12 @@ use crate::theme::*;
 impl From<TomlTheme> for Theme {
     fn from(toml: TomlTheme) -> Self {
         Theme {
+            keywords: toml.keywords.map_or_else(Vec::new, |keywords| {
+                keywords.into_iter().map(KeywordConfig::from).collect()
+            }),
+            regexes: toml
+                .regexes
+                .map_or_else(Vec::new, |regexes| regexes.into_iter().map(RegexConfig::from).collect()),
             numbers: toml.numbers.map_or_else(NumberConfig::default, NumberConfig::from),
             uuids: toml.uuids.map_or_else(UuidConfig::default, UuidConfig::from),
             quotes: toml.quotes.map_or_else(QuotesConfig::default, QuotesConfig::from),
@@ -18,6 +24,24 @@ impl From<TomlTheme> for Theme {
             key_value_pairs: toml
                 .key_value_pairs
                 .map_or_else(KeyValueConfig::default, KeyValueConfig::from),
+        }
+    }
+}
+
+impl From<KeywordToml> for KeywordConfig {
+    fn from(keyword_toml: KeywordToml) -> Self {
+        KeywordConfig {
+            words: keyword_toml.keyword,
+            style: keyword_toml.style,
+        }
+    }
+}
+
+impl From<RegexToml> for RegexConfig {
+    fn from(regex_toml: RegexToml) -> Self {
+        RegexConfig {
+            regex: regex_toml.regex,
+            style: regex_toml.style,
         }
     }
 }
