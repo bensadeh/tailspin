@@ -1,6 +1,6 @@
-pub mod config;
+pub mod groups;
 
-use crate::highlighter::config::HighlighterGroups;
+use crate::highlighter::groups::HighlighterGroups;
 use crate::theme::Theme;
 use inlet_manifold::highlighter::HighlightBuilder;
 use inlet_manifold::*;
