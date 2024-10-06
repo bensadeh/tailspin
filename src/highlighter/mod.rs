@@ -12,6 +12,14 @@ pub fn get_highlighter(highlighter_groups: HighlighterGroups, theme: Theme) -> R
         add_builtin_keywords(&mut builder);
     }
 
+    builder.with_keyword_highlighter(theme.keywords);
+
+    if !theme.regexes.is_empty() {
+        for regex in theme.regexes {
+            builder.with_regex_highlighter(regex);
+        }
+    }
+
     if highlighter_groups.numbers {
         builder.with_number_highlighter(theme.numbers);
     }
