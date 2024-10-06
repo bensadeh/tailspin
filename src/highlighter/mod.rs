@@ -2,21 +2,26 @@ pub mod groups;
 
 use crate::highlighter::groups::HighlighterGroups;
 use crate::theme::Theme;
-use inlet_manifold::highlighter::HighlightBuilder;
 use inlet_manifold::*;
 
-pub fn get_highlighter(highlighter_groups: HighlighterGroups, theme: Theme) -> Result<Highlighter, Error> {
+pub fn get_highlighter(
+    highlighter_groups: HighlighterGroups,
+    theme: Theme,
+    enable_builtin_keywords: bool,
+) -> Result<Highlighter, Error> {
     let mut builder = Highlighter::builder();
 
     if highlighter_groups.json {
         builder.with_json_highlighter(theme.json);
     }
 
-    if true {
-        add_builtin_keywords(&mut builder);
-    }
+    let keywords = if enable_builtin_keywords {
+        theme.keywords.into_iter().chain(get_builtin_keywords()).collect()
+    } else {
+        theme.keywords
+    };
 
-    builder.with_keyword_highlighter(theme.keywords);
+    builder.with_keyword_highlighter(keywords);
 
     if !theme.regexes.is_empty() {
         for regex in theme.regexes {
@@ -68,7 +73,7 @@ pub fn get_highlighter(highlighter_groups: HighlighterGroups, theme: Theme) -> R
     builder.build()
 }
 
-fn add_builtin_keywords(builder: &mut HighlightBuilder) {
+fn get_builtin_keywords() -> Vec<KeywordConfig> {
     let severity_levels = vec![
         KeywordConfig {
             words: vec!["ERROR".to_string()],
@@ -116,11 +121,10 @@ fn add_builtin_keywords(builder: &mut HighlightBuilder) {
         style: Style::new().fg(Color::Red).italic(),
     }];
 
-    let all_keywords = severity_levels
+    vec![]
         .into_iter()
+        .chain(severity_levels)
         .chain(rest_keywords)
         .chain(booleans)
-        .collect();
-
-    builder.with_keyword_highlighter(all_keywords);
+        .collect()
 }
