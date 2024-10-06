@@ -25,7 +25,7 @@ ctrlc = "3.4.5"
 inlet_manifold = { git = "https://github.com/bensadeh/manifold", branch = "main" }
 linemux = "0.3.0"
 nu-ansi-term = "0.50.1"
-once_cell = "1.20.1"
+once_cell = "1.20.2"
 rand = "0.8.5"
 rayon = "1.10.0"
 regex = "1.11.0"
