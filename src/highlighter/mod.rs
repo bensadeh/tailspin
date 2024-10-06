@@ -2,10 +2,15 @@ pub mod config;
 
 use crate::highlighter::config::HighlighterGroups;
 use crate::theme::Theme;
-use inlet_manifold::{Error, Highlighter, IpV4Config};
+use inlet_manifold::highlighter::HighlightBuilder;
+use inlet_manifold::*;
 
 pub fn get_highlighter(highlighter_groups: HighlighterGroups, theme: Theme) -> Result<Highlighter, Error> {
     let mut builder = Highlighter::builder();
+
+    if true {
+        add_builtin_keywords(&mut builder);
+    }
 
     if highlighter_groups.numbers {
         builder.with_number_highlighter(theme.numbers);
@@ -49,4 +54,23 @@ pub fn get_highlighter(highlighter_groups: HighlighterGroups, theme: Theme) -> R
     }
 
     builder.build()
+}
+
+fn add_builtin_keywords(builder: &mut HighlightBuilder) {
+    let keywords = vec![
+        KeywordConfig {
+            words: vec!["let".to_string(), "const".to_string()],
+            style: Style::default(),
+        },
+        KeywordConfig {
+            words: vec!["fn".to_string(), "struct".to_string()],
+            style: Style::default(),
+        },
+        KeywordConfig {
+            words: vec!["if".to_string(), "else".to_string()],
+            style: Style::default(),
+        },
+    ];
+
+    builder.with_keyword_highlighter(keywords);
 }
