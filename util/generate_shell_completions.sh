@@ -12,6 +12,6 @@ cargo build
 spin_path=./target/debug/tspin
 
 # Generate shell completions
-$spin_path --z-generate-shell-completions zsh > completions/tspin.zsh
-$spin_path --z-generate-shell-completions bash > completions/tspin.bash
-$spin_path --z-generate-shell-completions fish > completions/tspin.fish
+$spin_path --hidden-generate-shell-completions zsh > completions/tspin.zsh
+$spin_path --hidden-generate-shell-completions bash > completions/tspin.bash
+$spin_path --hidden-generate-shell-completions fish > completions/tspin.fish

@@ -16,15 +16,15 @@ _tspin() {
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
 '--config-path=[Provide a custom path to a configuration file]:CONFIG_PATH: ' \
-'(-f --follow)-c+[Continuously listen to stdout from the provided command and prevent interrupt events (Ctrl + C) from reaching the command]:LISTEN_COMMAND: ' \
-'(-f --follow)--listen-command=[Continuously listen to stdout from the provided command and prevent interrupt events (Ctrl + C) from reaching the command]:LISTEN_COMMAND: ' \
+'(-f --follow)-c+[Capture the output (stdout) of a command and view it in \`less\`]:LISTEN_COMMAND: ' \
+'(-f --follow)--listen-command=[Capture the output (stdout) of a command and view it in \`less\`]:LISTEN_COMMAND: ' \
 '*--words-red=[Highlight the provided words in red]:WORDS_RED: ' \
 '*--words-green=[Highlight the provided words in green]:WORDS_GREEN: ' \
 '*--words-yellow=[Highlight the provided words in yellow]:WORDS_YELLOW: ' \
 '*--words-blue=[Highlight the provided words in blue]:WORDS_BLUE: ' \
 '*--words-magenta=[Highlight the provided words in magenta]:WORDS_MAGENTA: ' \
 '*--words-cyan=[Highlight the provided words in cyan]:WORDS_CYAN: ' \
-'--z-generate-shell-completions=[Print completions to stdout]:GENERATE_SHELL_COMPLETIONS: ' \
+'--hidden-generate-shell-completions=[Print completions to stdout]:GENERATE_SHELL_COMPLETIONS: ' \
 '-f[Follow the contents of a file]' \
 '--follow[Follow the contents of a file]' \
 '-e[Start at the end of the file]' \
@@ -35,7 +35,27 @@ _tspin() {
 '--disable-booleans[Disable the highlighting of booleans and nulls]' \
 '--disable-severity[Disable the highlighting of severity levels]' \
 '--disable-rest[Disable the highlighting of REST verbs]' \
-'--suppress-output[Suppress all output (for debugging and benchmarking)]' \
+'--enable-numbers[Enable the highlighting of numbers]' \
+'--disable-numbers[Disable the highlighting of numbers]' \
+'--enable-dates[Enable the highlighting of dates]' \
+'--disable-dates[Disable the highlighting of dates]' \
+'--enable-urls[Enable the highlighting of URLs]' \
+'--disable-urls[Disable the highlighting of URLs]' \
+'--enable-paths[Enable the highlighting of paths]' \
+'--disable-paths[Disable the highlighting of paths]' \
+'--enable-quotes[Enable the highlighting of quotes]' \
+'--disable-quotes[Disable the highlighting of quotes]' \
+'--enable-key-value-pairs[Enable the highlighting of key value pairs]' \
+'--disable-key-value-pairs[Disable the highlighting of key value pairs]' \
+'--enable-uuids[Enable the highlighting of UUIDs]' \
+'--disable-uuids[Disable the highlighting of UUIDs]' \
+'--enable-ip-addresses[Enable the highlighting of IP addresses]' \
+'--disable-ip-addresses[Disable the highlighting of IP addresses]' \
+'--enable-pointers[Enable the highlighting of pointers]' \
+'--disable-pointers[Disable the highlighting of pointers]' \
+'--enable-processes[Enable the highlighting of unix processes]' \
+'--disable-processes[Disable the highlighting of unix processes]' \
+'--hidden-suppress-output[Suppress all output (for debugging and benchmarking)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \
