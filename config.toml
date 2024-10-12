@@ -2,13 +2,13 @@
 number = { fg = "green" }
 letter = { fg = "blue" }
 separator = { fg = "red" }
- separator_token = "a"
+separator_token = "a"
 x = { fg = "red" }
 
 [[regexps]]
-regular_expression = 'Started (.*)\.'
+regex = 'Started (.*)\.'
 style = { fg = "red" }
 
 [[regexps]]
-regular_expression = 'Stopped .*'
+regex = 'Stopped .*'
 style = { fg = "magenta" }

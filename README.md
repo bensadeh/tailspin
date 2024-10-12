@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                           
+#                                                                                                                                                                                                                                                                                                               
 
 <p align="center">
 A log file highlighter
@@ -213,15 +213,7 @@ Expand the section below to see the default config for the highlight groups:
 
 ```toml
 [date]
-number = { fg = "magenta" }
-separator = { faint = true }
-
-[date_word] # e.g. "Jan 01", "Mon Feb 28"
-day = { fg = "magenta" }
-month = { fg = "magenta" }
-number = { fg = "magenta" }
-
-[time]
+date = { fg = "magenta" }
 time = { fg = "blue" }
 zone = { fg = "red" }
 separator = { faint = true }
