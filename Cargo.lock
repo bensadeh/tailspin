@@ -428,7 +428,7 @@ dependencies = [
 [[package]]
 name = "inlet_manifold"
 version = "0.1.2"
-source = "git+https://github.com/bensadeh/manifold?branch=main#c2a701d550322ea125dbdaa58f16a5128cfb1418"
+source = "git+https://github.com/bensadeh/manifold?branch=main#1e0fe6f1bf63d7494b85eeac9c13da832c709e11"
 dependencies = [
  "nu-ansi-term",
  "regex",

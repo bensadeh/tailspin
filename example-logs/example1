@@ -109,4 +109,9 @@ docker[654]: Container abcdefgh started successfully
 ssh-d[222]: Accepted publickey for root from 192.168.1.20
 cron[101]: Running scheduled job ID 23456
 
-
+# JSON
+{"timestamp": "2022-09-22T08:11:36.171800155Z", "message": "Task completed", "status": "success"}
+{"timestamp": "2022-09-22T08:11:36.171800155Z", "message": "Connection failed", "status": "error"}
+{"timestamp": "2022-09-22T08:11:36.171800155Z", "message": "Invalid input received", "status": "warning"}
+{"timestamp": "2022-09-22T08:11:36.171800155Z", "message": "Configuration loaded", "status": "info"}
+{"timestamp": "2022-09-22T08:11:36.171800155Z", "message": "Invalid request", "status": "debug"}
