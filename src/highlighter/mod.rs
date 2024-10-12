@@ -15,6 +15,11 @@ pub fn get_highlighter(
         builder.with_json_highlighter(theme.json);
     }
 
+    if highlighter_groups.ip_addresses {
+        builder.with_ip_v6_highlighter(theme.ip_v6_addresses);
+        builder.with_ip_v4_highlighter(theme.ip_v4_addresses);
+    }
+
     if highlighter_groups.dates {
         builder.with_date_time_highlighters(theme.dates);
     }
@@ -25,11 +30,6 @@ pub fn get_highlighter(
 
     if highlighter_groups.paths {
         builder.with_unix_path_highlighter(theme.paths);
-    }
-
-    if highlighter_groups.ip_addresses {
-        builder.with_ip_v6_highlighter(theme.ip_v6_addresses);
-        builder.with_ip_v4_highlighter(theme.ip_v4_addresses);
     }
 
     if highlighter_groups.key_value_pairs {
