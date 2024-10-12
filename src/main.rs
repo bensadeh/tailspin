@@ -1,6 +1,6 @@
 mod cli;
 mod config;
-mod highlight_processor_legacy;
+mod highlight_processor;
 mod highlight_utils;
 mod highlighter;
 mod highlighters;
@@ -12,16 +12,15 @@ mod theme_io;
 mod theme_legacy;
 mod types;
 
-use crate::cli::Cli;
-use crate::highlight_processor_legacy::HighlightProcessorLegacy;
+use crate::highlight_processor::HighlightProcessor;
 use crate::io::controller::get_io_and_presenter;
 use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
 use crate::io::writer::AsyncLineWriter;
-use crate::theme_legacy::processed::Theme;
 use crate::types::Config;
 use color_eyre::eyre::Result;
 use highlighter::groups;
+use inlet_manifold::Highlighter;
 use theme::reader;
 use tokio::sync::oneshot;
 
@@ -30,8 +29,6 @@ async fn main() -> Result<()> {
     color_eyre::install()?;
 
     let cli = cli::get_args_or_exit_early();
-    let theme = theme_io::load_theme(cli.config_path.clone());
-    let processed_theme = theme_legacy::mapper::map_or_exit_early(theme);
     let config = config::create_config_or_exit_early(&cli);
 
     let cli_options = config::get_cli_opts_for_highlight_groups(&cli);
@@ -40,17 +37,16 @@ async fn main() -> Result<()> {
     let new_theme = reader::parse_theme(cli.config_path.clone())?;
     let highlighter = highlighter::get_highlighter(highlighter_groups, new_theme, true)?;
 
-    run(processed_theme, config, cli).await;
+    run(highlighter, config).await;
 
     Ok(())
 }
 
-pub async fn run(theme: Theme, config: Config, cli: Cli) {
+pub async fn run(highlighter: Highlighter, config: Config) {
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
     let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;
 
-    let highlighter = highlighters::Highlighters::new(&theme, &cli);
-    let highlight_processor = HighlightProcessorLegacy::new(highlighter);
+    let highlight_processor = HighlightProcessor::new(highlighter);
 
     tokio::spawn(process_lines(io, highlight_processor));
 
@@ -63,7 +59,7 @@ pub async fn run(theme: Theme, config: Config, cli: Cli) {
 
 async fn process_lines<T: AsyncLineReader + AsyncLineWriter + Unpin + Send>(
     mut io: T,
-    highlight_processor: HighlightProcessorLegacy,
+    highlight_processor: HighlightProcessor,
 ) {
     while let Ok(Some(line)) = io.next_line().await {
         let highlighted_lines = highlight_processor.apply(line);
