@@ -1,5 +1,4 @@
 use crate::cli::Cli;
-use crate::highlighter_builder::groups::CliOpts;
 use crate::types::{
     Config, Error, FolderInfo, Input, Output, PathAndLineCount, GENERAL_ERROR, MISUSE_SHELL_BUILTIN, OK,
 };
@@ -212,31 +211,4 @@ fn count_lines<P: AsRef<Path>>(file_path: P) -> usize {
     let reader = std::io::BufReader::new(file);
 
     reader.lines().count()
-}
-
-pub const fn get_cli_opts_for_highlight_groups(cli: &Cli) -> CliOpts {
-    CliOpts {
-        enable_numbers: cli.enable_numbers,
-        disable_numbers: cli.disable_numbers,
-        enable_uuids: cli.enable_uuids,
-        disable_uuids: cli.disable_uuids,
-        enable_quotes: cli.enable_quotes,
-        disable_quotes: cli.disable_quotes,
-        enable_ip_addresses: cli.enable_ip_addresses,
-        disable_ip_addresses: cli.disable_ip_addresses,
-        enable_dates: cli.enable_dates,
-        disable_dates: cli.disable_dates,
-        enable_paths: cli.enable_paths,
-        disable_paths: cli.disable_paths,
-        enable_urls: cli.enable_urls,
-        disable_urls: cli.disable_urls,
-        enable_pointers: cli.enable_pointers,
-        disable_pointers: cli.disable_pointers,
-        enable_processes: cli.enable_processes,
-        disable_processes: cli.disable_processes,
-        enable_key_value_pairs: cli.enable_key_value_pairs,
-        disable_key_value_pairs: cli.disable_key_value_pairs,
-        enable_json: cli.enable_json,
-        disable_json: cli.disable_json,
-    }
 }
