@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                               
+#                                                                                                                                                                                                                                                                                                                    
 
 <p align="center">
 A log file highlighter
@@ -20,6 +20,7 @@ A log file highlighter
 - ⚙️ All highlight groups are customizable
 - 🧬 Easy to integrate with other commands
 - 🔍 Uses `less` under the hood
+- 📦 Powered by the [`manifold`](https://github.com/bensadeh/manifold) crate
 
 #
 
