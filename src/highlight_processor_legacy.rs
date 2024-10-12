@@ -5,13 +5,13 @@ use crate::types::Highlight;
 use rayon::prelude::*;
 use std::sync::Arc;
 
-pub struct HighlightProcessor {
+pub struct HighlightProcessorLegacy {
     highlighters: Highlighters,
 }
 
-impl HighlightProcessor {
-    pub const fn new(highlighters: Highlighters) -> HighlightProcessor {
-        HighlightProcessor { highlighters }
+impl HighlightProcessorLegacy {
+    pub const fn new(highlighters: Highlighters) -> HighlightProcessorLegacy {
+        HighlightProcessorLegacy { highlighters }
     }
 
     pub fn apply(&self, lines: Vec<String>) -> String {
