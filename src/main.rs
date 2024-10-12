@@ -1,27 +1,21 @@
+use rayon::iter::ParallelIterator;
 mod cli;
 mod config;
-mod highlight_processor;
-mod highlight_utils;
-mod highlighter;
-mod highlighters;
+mod highlighter_builder;
 mod io;
-mod keyword;
-mod line_info;
 mod theme;
-mod theme_io;
-mod theme_legacy;
 mod types;
 
 use crate::cli::keywords::get_keywords_from_cli;
-use crate::highlight_processor::HighlightProcessor;
 use crate::io::controller::get_io_and_presenter;
 use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
 use crate::io::writer::AsyncLineWriter;
 use crate::types::Config;
 use color_eyre::eyre::Result;
-use highlighter::groups;
+use highlighter_builder::groups;
 use inlet_manifold::Highlighter;
+use rayon::iter::IntoParallelIterator;
 use theme::reader;
 use tokio::sync::oneshot;
 
@@ -38,7 +32,7 @@ async fn main() -> Result<()> {
     let new_theme = reader::parse_theme(cli.config_path.clone())?;
     let keywords_from_cli = get_keywords_from_cli(&cli);
 
-    let highlighter = highlighter::get_highlighter(
+    let highlighter = highlighter_builder::get_highlighter(
         highlighter_groups,
         new_theme,
         keywords_from_cli,
@@ -54,9 +48,7 @@ pub async fn run(highlighter: Highlighter, config: Config) {
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
     let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;
 
-    let highlight_processor = HighlightProcessor::new(highlighter);
-
-    tokio::spawn(process_lines(io, highlight_processor));
+    tokio::spawn(process_lines(io, highlighter));
 
     reached_eof_rx
         .await
@@ -65,12 +57,14 @@ pub async fn run(highlighter: Highlighter, config: Config) {
     presenter.present();
 }
 
-async fn process_lines<T: AsyncLineReader + AsyncLineWriter + Unpin + Send>(
-    mut io: T,
-    highlight_processor: HighlightProcessor,
-) {
-    while let Ok(Some(line)) = io.next_line().await {
-        let highlighted_lines = highlight_processor.apply(line);
+async fn process_lines<T: AsyncLineReader + AsyncLineWriter + Unpin + Send>(mut io: T, highlighter: Highlighter) {
+    while let Ok(Some(line)) = io.next_line_batch().await {
+        let highlighted_lines = line
+            .into_par_iter()
+            .map(|line| highlighter.apply(line))
+            .collect::<Vec<_>>()
+            .join("\n");
+
         io.write_line(&highlighted_lines).await.unwrap();
     }
 }
