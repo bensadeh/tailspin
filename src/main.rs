@@ -12,6 +12,7 @@ mod theme_io;
 mod theme_legacy;
 mod types;
 
+use crate::cli::keywords::get_keywords_from_cli;
 use crate::highlight_processor::HighlightProcessor;
 use crate::io::controller::get_io_and_presenter;
 use crate::io::presenter::Present;
@@ -35,7 +36,14 @@ async fn main() -> Result<()> {
     let highlighter_groups = groups::get_highlighter_groups(cli_options)?;
 
     let new_theme = reader::parse_theme(cli.config_path.clone())?;
-    let highlighter = highlighter::get_highlighter(highlighter_groups, new_theme, vec![], cli.no_builtin_keywords)?;
+    let keywords_from_cli = get_keywords_from_cli(&cli);
+
+    let highlighter = highlighter::get_highlighter(
+        highlighter_groups,
+        new_theme,
+        keywords_from_cli,
+        cli.no_builtin_keywords,
+    )?;
 
     run(highlighter, config).await;
 

@@ -1,3 +1,5 @@
+pub mod keywords;
+
 use clap::{Command, CommandFactory, Parser};
 use clap_complete::{generate, Generator, Shell};
 use std::io;
