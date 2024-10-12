@@ -19,7 +19,7 @@ _tspin() {
 
     case "${cmd}" in
         tspin)
-            opts="-f -e -p -c -h -V --follow --start-at-end --print --config-path --listen-command --words-red --words-green --words-yellow --words-blue --words-magenta --words-cyan --enable-numbers --enable-dates --enable-urls --enable-paths --enable-quotes --enable-key-value-pairs --enable-uuids --enable-ip-addresses --enable-pointers --enable-processes --enable-json --disable-numbers --disable-dates --disable-urls --disable-paths --disable-quotes --disable-key-value-pairs --disable-uuids --disable-ip-addresses --disable-pointers --disable-processes --disable-json --no-builtin-keywords --suppress-output --hidden-generate-shell-completions --help --version [FILE]"
+            opts="-f -e -p -c -h -V --follow --start-at-end --print --config-path --listen-command --words-red --words-green --words-yellow --words-blue --words-magenta --words-cyan --enable --disable --no-builtin-keywords --suppress-output --hidden-generate-shell-completions --help --version [FILE]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -59,6 +59,14 @@ _tspin() {
                     ;;
                 --words-cyan)
                     COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --enable)
+                    COMPREPLY=($(compgen -W "numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json" -- "${cur}"))
+                    return 0
+                    ;;
+                --disable)
+                    COMPREPLY=($(compgen -W "numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json" -- "${cur}"))
                     return 0
                     ;;
                 --hidden-generate-shell-completions)
