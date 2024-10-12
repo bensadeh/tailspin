@@ -48,7 +48,7 @@ impl StdinReader {
 
 #[async_trait]
 impl AsyncLineReader for StdinReader {
-    async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
+    async fn next_line_batch(&mut self) -> io::Result<Option<Vec<String>>> {
         let buffer = self.read_bytes_until_newline().await?;
 
         if buffer.is_empty() {

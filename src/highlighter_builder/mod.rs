@@ -1,8 +1,8 @@
 mod builtins;
 pub mod groups;
 
-use crate::highlighter::builtins::get_builtin_keywords;
-use crate::highlighter::groups::HighlighterGroups;
+use crate::highlighter_builder::builtins::get_builtin_keywords;
+use crate::highlighter_builder::groups::HighlighterGroups;
 use crate::theme::Theme;
 use inlet_manifold::highlighter::HighlightBuilder;
 use inlet_manifold::*;

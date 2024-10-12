@@ -1,5 +1,5 @@
 use crate::cli::Cli;
-use crate::highlighter::groups::CliOpts;
+use crate::highlighter_builder::groups::CliOpts;
 use crate::types::{
     Config, Error, FolderInfo, Input, Output, PathAndLineCount, GENERAL_ERROR, MISUSE_SHELL_BUILTIN, OK,
 };

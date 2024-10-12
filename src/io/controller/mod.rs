@@ -74,8 +74,8 @@ async fn get_writer_and_presenter(
 
 #[async_trait]
 impl AsyncLineReader for Io {
-    async fn next_line(&mut self) -> io::Result<Option<Vec<String>>> {
-        self.reader.next_line().await
+    async fn next_line_batch(&mut self) -> io::Result<Option<Vec<String>>> {
+        self.reader.next_line_batch().await
     }
 }
 
