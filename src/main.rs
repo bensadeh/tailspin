@@ -26,8 +26,7 @@ async fn main() -> Result<()> {
     let cli = cli::get_args_or_exit_early();
     let config = config::create_config_or_exit_early(&cli);
 
-    let cli_options = config::get_cli_opts_for_highlight_groups(&cli);
-    let highlighter_groups = groups::get_highlighter_groups(cli_options)?;
+    let highlighter_groups = groups::get_highlighter_groups(&cli.enable, &cli.disable)?;
 
     let new_theme = reader::parse_theme(cli.config_path.clone())?;
     let keywords_from_cli = get_keywords_from_cli(&cli);

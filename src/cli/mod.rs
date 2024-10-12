@@ -1,9 +1,24 @@
 pub mod keywords;
 
-use clap::{Command, CommandFactory, Parser};
+use clap::{Command, CommandFactory, Parser, ValueEnum};
 use clap_complete::{generate, Generator, Shell};
 use std::io;
 use std::process::exit;
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum HighlighterGroup {
+    Numbers,
+    Urls,
+    Pointers,
+    Dates,
+    Paths,
+    Quotes,
+    KeyValuePairs,
+    Uuids,
+    IpAddresses,
+    Processes,
+    Json,
+}
 
 #[derive(Parser)]
 #[command(name = "tspin")]
@@ -57,93 +72,13 @@ pub struct Cli {
     #[clap(long = "words-cyan", use_value_delimiter = true)]
     pub words_cyan: Vec<String>,
 
-    /// Enable the highlighting of numbers
-    #[clap(long = "enable-numbers")]
-    pub enable_numbers: bool,
+    /// Enable specific highlighters
+    #[clap(long = "enable", value_enum, use_value_delimiter = true)]
+    pub enable: Vec<HighlighterGroup>,
 
-    /// Enable the highlighting of dates
-    #[clap(long = "enable-dates")]
-    pub enable_dates: bool,
-
-    /// Enable the highlighting of URLs
-    #[clap(long = "enable-urls")]
-    pub enable_urls: bool,
-
-    /// Enable the highlighting of paths
-    #[clap(long = "enable-paths")]
-    pub enable_paths: bool,
-
-    /// Enable the highlighting of quotes
-    #[clap(long = "enable-quotes")]
-    pub enable_quotes: bool,
-
-    /// Enable the highlighting of key value pairs
-    #[clap(long = "enable-key-value-pairs")]
-    pub enable_key_value_pairs: bool,
-
-    /// Enable the highlighting of UUIDs
-    #[clap(long = "enable-uuids")]
-    pub enable_uuids: bool,
-
-    /// Enable the highlighting of IP addresses
-    #[clap(long = "enable-ip-addresses")]
-    pub enable_ip_addresses: bool,
-
-    /// Enable the highlighting of pointers
-    #[clap(long = "enable-pointers")]
-    pub enable_pointers: bool,
-
-    /// Enable the highlighting of unix processes
-    #[clap(long = "enable-processes")]
-    pub enable_processes: bool,
-
-    /// Enable the highlighting of JSON
-    #[clap(long = "enable-json")]
-    pub enable_json: bool,
-
-    /// Disable the highlighting of numbers
-    #[clap(long = "disable-numbers")]
-    pub disable_numbers: bool,
-
-    /// Disable the highlighting of dates
-    #[clap(long = "disable-dates")]
-    pub disable_dates: bool,
-
-    /// Disable the highlighting of URLs
-    #[clap(long = "disable-urls")]
-    pub disable_urls: bool,
-
-    /// Disable the highlighting of paths
-    #[clap(long = "disable-paths")]
-    pub disable_paths: bool,
-
-    /// Disable the highlighting of quotes
-    #[clap(long = "disable-quotes")]
-    pub disable_quotes: bool,
-
-    /// Disable the highlighting of key value pairs
-    #[clap(long = "disable-key-value-pairs")]
-    pub disable_key_value_pairs: bool,
-
-    /// Disable the highlighting of UUIDs
-    #[clap(long = "disable-uuids")]
-    pub disable_uuids: bool,
-
-    /// Disable the highlighting of IP addresses
-    #[clap(long = "disable-ip-addresses")]
-    pub disable_ip_addresses: bool,
-
-    /// Disable the highlighting of pointers
-    #[clap(long = "disable-pointers")]
-    pub disable_pointers: bool,
-
-    /// Disable the highlighting of unix processes
-    #[clap(long = "disable-processes")]
-    pub disable_processes: bool,
-
-    /// Disable the highlighting of JSON
-    #[clap(long = "disable-json")]
-    pub disable_json: bool,
+    /// Disable specific highlighters
+    #[clap(long = "disable", value_enum, use_value_delimiter = true)]
+    pub disable: Vec<HighlighterGroup>,
 
     /// Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)
     #[clap(long = "no-builtin-keywords")]
