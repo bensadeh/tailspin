@@ -48,17 +48,18 @@ The command traps the interrupt signal to allow for cancelling and resuming foll
 *--words-[red|green|yellow|blue|magenta|cyan]*::
 Highlight the provided comma separated words in the desired color.
 
-*--disable-builtin-keywords*::
+*--enable-[numbers|dates|urls|ip-addresses|uuids|quotes|paths|processes|key-value-pairs|pointers]*::
+Enable the highlighting of specific groups only.
+If one or more groups are enabled, all other groups are disabled.
+Cannot be used with _--disable-[group]_.
+
+*--disable-[numbers|dates|urls|ip-addresses|uuids|quotes|paths|processes|key-value-pairs|pointers]*::
+Disable the highlighting of specific groups.
+By default, all groups are enabled.
+Cannot be used with _--enable-[group]_.
+
+*--no-builtin-keywords*::
 Disables the highlighting of all builtin keyword groups (booleans, severity and REST).
-
-*--disable-booleans*::
-Disables the highlighting of booleans and nulls.
-
-*--disable-severity*::
-Disables the highlighting of severity levels.
-
-*--disable-rest*::
-Disables the highlighting of REST verbs.
 
 == SEE ALSO
 

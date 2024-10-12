@@ -57,22 +57,6 @@ pub struct Cli {
     #[clap(long = "words-cyan", use_value_delimiter = true)]
     pub words_cyan: Vec<String>,
 
-    /// Disable the highlighting of all builtin keyword groups (booleans, severity and REST)
-    #[clap(long = "disable-builtin-keywords")]
-    pub disable_keyword_builtins: bool,
-
-    /// Disable the highlighting of booleans and nulls
-    #[clap(long = "disable-booleans")]
-    pub disable_booleans: bool,
-
-    /// Disable the highlighting of severity levels
-    #[clap(long = "disable-severity")]
-    pub disable_severity: bool,
-
-    /// Disable the highlighting of REST verbs
-    #[clap(long = "disable-rest")]
-    pub disable_rest: bool,
-
     /// Enable the highlighting of numbers
     #[clap(long = "enable-numbers")]
     pub enable_numbers: bool,

@@ -31,10 +31,6 @@ _tspin() {
 '--start-at-end[Start at the end of the file]' \
 '-p[Print the output to stdout]' \
 '--print[Print the output to stdout]' \
-'--disable-builtin-keywords[Disable the highlighting of all builtin keyword groups (booleans, severity and REST)]' \
-'--disable-booleans[Disable the highlighting of booleans and nulls]' \
-'--disable-severity[Disable the highlighting of severity levels]' \
-'--disable-rest[Disable the highlighting of REST verbs]' \
 '--enable-numbers[Enable the highlighting of numbers]' \
 '--enable-dates[Enable the highlighting of dates]' \
 '--enable-urls[Enable the highlighting of URLs]' \
@@ -45,6 +41,7 @@ _tspin() {
 '--enable-ip-addresses[Enable the highlighting of IP addresses]' \
 '--enable-pointers[Enable the highlighting of pointers]' \
 '--enable-processes[Enable the highlighting of unix processes]' \
+'--enable-json[Enable the highlighting of JSON]' \
 '--disable-numbers[Disable the highlighting of numbers]' \
 '--disable-dates[Disable the highlighting of dates]' \
 '--disable-urls[Disable the highlighting of URLs]' \
@@ -55,7 +52,9 @@ _tspin() {
 '--disable-ip-addresses[Disable the highlighting of IP addresses]' \
 '--disable-pointers[Disable the highlighting of pointers]' \
 '--disable-processes[Disable the highlighting of unix processes]' \
-'--hidden-suppress-output[Suppress all output (for debugging and benchmarking)]' \
+'--disable-json[Disable the highlighting of JSON]' \
+'--no-builtin-keywords[Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)]' \
+'--suppress-output[Suppress all output (for debugging and benchmarking)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

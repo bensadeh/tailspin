@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                           
+#                                                                                                                                                                                                                                                                                                           
 
 <p align="center">
 A log file highlighter
@@ -19,7 +19,7 @@ A log file highlighter
 - 🌈 Highlights numbers, dates, IP-addresses, UUIDs, URLs and more
 - ⚙️ All highlight groups are customizable
 - 🧬 Easy to integrate with other commands
-- 🔍 Uses `less` under the hood 
+- 🔍 Uses `less` under the hood
 
 #
 
@@ -324,7 +324,7 @@ It supports one capture group `()`. When found, it will apply the style to the c
 
 ```toml
 [[regexps]]
-regular_expression = 'Started (.*)\.'
+regex = 'Started (.*)\.'
 style = { fg = "red" }
 ```
 
@@ -406,10 +406,13 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
 -c, --listen-command '[CMD]'     Listen the output (stdout) of the provided command
     --config-path [PATH]         Use the configuration file from the provided path
     --words-[COLOR] [WORDS]      Highlight the provided words with the given color
-    --disable-builtin-keywords   Disable the highlighting of all builtin groups
-    --disable-booleans           Disable the highlighting of booleans and nulls
-    --disable-severity           Disable the highlighting of severity levels
-    --disable-rest               Disable the highlighting of REST verbs
+    --no-builtin-keywords        Disable the highlighting of booleans, nulls, log severities and common REST verbs
+    
+   # Note: The following flags can be used to enable or disable the highlighting of specific groups.
+   # Enabling one or more groups will disable all other groups. Conversely, disabling one or more 
+   # groups will enable all other groups. Cannot simultaneously enable and disable groups.
+   --enable-[numbers|dates|urls|ip-addresses|uuids|quotes|paths|processes|key-value-pairs|pointers]
+   --disable-[numbers|dates|urls|ip-addresses|uuids|quotes|paths|processes|key-value-pairs|pointers]
 ```
 
 
