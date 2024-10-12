@@ -159,8 +159,12 @@ pub struct Cli {
     #[clap(long = "disable-json")]
     pub disable_json: bool,
 
+    /// Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)
+    #[clap(long = "no-builtin-keywords")]
+    pub no_builtin_keywords: bool,
+
     /// Suppress all output (for debugging and benchmarking)
-    #[clap(long = "hidden-suppress-output", hide = true)]
+    #[clap(long = "suppress-output", hide = true)]
     pub suppress_output: bool,
 
     /// Print completions to stdout

@@ -7,7 +7,8 @@ use inlet_manifold::*;
 pub fn get_highlighter(
     highlighter_groups: HighlighterGroups,
     theme: Theme,
-    enable_builtin_keywords: bool,
+    keyword_configs_from_cli: Vec<KeywordConfig>,
+    disable_builtin_keywords: bool,
 ) -> Result<Highlighter, Error> {
     let mut builder = Highlighter::builder();
 
@@ -53,11 +54,14 @@ pub fn get_highlighter(
     }
 
     {
-        let keywords = if enable_builtin_keywords {
-            theme.keywords.into_iter().chain(get_builtin_keywords()).collect()
-        } else {
-            theme.keywords
-        };
+        let builtin_keywords = get_builtin_keywords(disable_builtin_keywords);
+
+        let keywords = vec![]
+            .into_iter()
+            .chain(theme.keywords)
+            .chain(builtin_keywords)
+            .chain(keyword_configs_from_cli)
+            .collect();
 
         builder.with_keyword_highlighter(keywords);
     }
@@ -75,7 +79,14 @@ pub fn get_highlighter(
     builder.build()
 }
 
-fn get_builtin_keywords() -> Vec<KeywordConfig> {
+fn get_builtin_keywords(disable_builtin_keywords: bool) -> Vec<KeywordConfig> {
+    match disable_builtin_keywords {
+        true => vec![],
+        false => builtin_keywords(),
+    }
+}
+
+fn builtin_keywords() -> Vec<KeywordConfig> {
     let severity_levels = vec![
         KeywordConfig {
             words: vec!["ERROR".to_string()],
