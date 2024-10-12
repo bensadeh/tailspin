@@ -15,30 +15,16 @@ pub fn get_highlighter(
         builder.with_json_highlighter(theme.json);
     }
 
-    let keywords = if enable_builtin_keywords {
-        theme.keywords.into_iter().chain(get_builtin_keywords()).collect()
-    } else {
-        theme.keywords
-    };
-
-    builder.with_keyword_highlighter(keywords);
-
-    if !theme.regexes.is_empty() {
-        for regex in theme.regexes {
-            builder.with_regex_highlighter(regex);
-        }
+    if highlighter_groups.dates {
+        builder.with_date_time_highlighters(theme.dates);
     }
 
-    if highlighter_groups.numbers {
-        builder.with_number_highlighter(theme.numbers);
+    if highlighter_groups.urls {
+        builder.with_url_highlighter(theme.urls);
     }
 
-    if highlighter_groups.uuids {
-        builder.with_uuid_highlighter(theme.uuids);
-    }
-
-    if highlighter_groups.quotes {
-        builder.with_quote_highlighter(theme.quotes);
+    if highlighter_groups.paths {
+        builder.with_unix_path_highlighter(theme.paths);
     }
 
     if highlighter_groups.ip_addresses {
@@ -46,16 +32,12 @@ pub fn get_highlighter(
         builder.with_ip_v4_highlighter(theme.ip_v4_addresses);
     }
 
-    if highlighter_groups.dates {
-        builder.with_date_time_highlighters(theme.dates);
+    if highlighter_groups.key_value_pairs {
+        builder.with_key_value_highlighter(theme.key_value_pairs);
     }
 
-    if highlighter_groups.paths {
-        builder.with_unix_path_highlighter(theme.paths);
-    }
-
-    if highlighter_groups.urls {
-        builder.with_url_highlighter(theme.urls);
+    if highlighter_groups.uuids {
+        builder.with_uuid_highlighter(theme.uuids);
     }
 
     if highlighter_groups.pointers {
@@ -66,8 +48,28 @@ pub fn get_highlighter(
         builder.with_unix_process_highlighter(theme.processes);
     }
 
-    if highlighter_groups.key_value_pairs {
-        builder.with_key_value_highlighter(theme.key_value_pairs);
+    if highlighter_groups.numbers {
+        builder.with_number_highlighter(theme.numbers);
+    }
+
+    {
+        let keywords = if enable_builtin_keywords {
+            theme.keywords.into_iter().chain(get_builtin_keywords()).collect()
+        } else {
+            theme.keywords
+        };
+
+        builder.with_keyword_highlighter(keywords);
+    }
+
+    if !theme.regexes.is_empty() {
+        for regex in theme.regexes {
+            builder.with_regex_highlighter(regex);
+        }
+    }
+
+    if highlighter_groups.quotes {
+        builder.with_quote_highlighter(theme.quotes);
     }
 
     builder.build()
