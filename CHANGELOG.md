@@ -2,6 +2,26 @@
 
 ## 4.0.0
 
+### Overview
+
+This release contains several new feature and breaking changes. From a user perspective, the most notable change is the
+addition of a JSON highlighter. From a developer's perspective, the highlighting engine powering `tailspin` has been
+decoupled and extracted into a separate library called `[manifold](https://github.com/bensadeh/manifold)`.
+
+`manifold` will still be used internally by `tailspin`, but it will also be available as a standalone library for other
+projects to use.
+
+### New features:
+
+- Added a JSON highlighter. `tailspin` will recognize if the line is a valid JSON object and highlight it accordingly.
+
+### Breaking changes:
+
+- Removed the `border` from the style from the keyword styling. Instead, the border will be enabled implicitly by
+  setting a background color for the keyword.
+- Removed date highlighting for formats like `Aug 14` and `Sun Dec 14` etc.
+- One highlighting group for both date and time
+
 ## 3.0.2
 
 - Add completion hint so shells understand they can complete with file names (Thanks @alerque !)
