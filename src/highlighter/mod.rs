@@ -63,10 +63,8 @@ pub fn get_highlighter(
         &mut builder,
     );
 
-    if !theme.regexes.is_empty() {
-        for regex in theme.regexes {
-            builder.with_regex_highlighter(regex);
-        }
+    for regex in theme.regexes {
+        builder.with_regex_highlighter(regex);
     }
 
     if highlighter_groups.quotes {
