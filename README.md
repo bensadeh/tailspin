@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                                    
+#                                                                                                                                                                                                                                                                                                                     
 
 <p align="center">
 A log file highlighter
@@ -400,12 +400,8 @@ To clear the filter, use <kbd>&</kbd> with no pattern.
     --config-path [PATH]         Use the configuration file from the provided path
     --words-[COLOR] [WORDS]      Highlight the provided words with the given color
     --no-builtin-keywords        Disable the highlighting of booleans, nulls, log severities and common REST verbs
-    
-   # Note: The following flags can be used to enable or disable the highlighting of specific groups.
-   # Enabling one or more groups will disable all other groups. Conversely, disabling one or more 
-   # groups will enable all other groups. Cannot simultaneously enable and disable groups.
-   --enable-[numbers|dates|urls|ip-addresses|uuids|quotes|paths|processes|key-value-pairs|pointers]
-   --disable-[numbers|dates|urls|ip-addresses|uuids|quotes|paths|processes|key-value-pairs|pointers]
+    --enable=[HIGHLIGHT_GROUP]   Enable one or more highlight groups, disabling the rest
+    --disable=[HIGHLIGHT_GROUP]  Disable one or more highlight groups, enabling the rest
 ```
 
 

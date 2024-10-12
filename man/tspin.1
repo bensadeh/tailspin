@@ -72,18 +72,18 @@ The command traps the interrupt signal to allow for cancelling and resuming foll
 Highlight the provided comma separated words in the desired color.
 .RE
 .sp
-\fB\-\-enable\-[numbers|dates|urls|ip\-addresses|uuids|quotes|paths|processes|key\-value\-pairs|pointers]\fP
+\fB\-\-enable=[HIGHLIGHT_GROUP]\fP
 .RS 4
-Enable the highlighting of specific groups only.
-If one or more groups are enabled, all other groups are disabled.
-Cannot be used with \fI\-\-disable\-[group]\fP.
+Disable all highlighting groups except the ones specified.
+Comma separated list of groups.
+Cannot be used with \fI\-\-disable=[HIGHLIGHT_GROUP]\fP.
 .RE
 .sp
-\fB\-\-disable\-[numbers|dates|urls|ip\-addresses|uuids|quotes|paths|processes|key\-value\-pairs|pointers]\fP
+\fB\-\-disable=[HIGHLIGHT_GROUP]\fP
 .RS 4
-Disable the highlighting of specific groups.
-By default, all groups are enabled.
-Cannot be used with \fI\-\-enable\-[group]\fP.
+Disable the specified highlighting groups.
+Comma separated list of groups.
+Cannot be used with \fI\-\-enable=[HIGHLIGHT_GROUP]\fP.
 .RE
 .sp
 \fB\-\-no\-builtin\-keywords\fP

@@ -24,6 +24,8 @@ _tspin() {
 '*--words-blue=[Highlight the provided words in blue]:WORDS_BLUE: ' \
 '*--words-magenta=[Highlight the provided words in magenta]:WORDS_MAGENTA: ' \
 '*--words-cyan=[Highlight the provided words in cyan]:WORDS_CYAN: ' \
+'*--enable=[Enable specific highlighters]:ENABLE:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
+'*--disable=[Disable specific highlighters]:DISABLE:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
 '--hidden-generate-shell-completions=[Print completions to stdout]:GENERATE_SHELL_COMPLETIONS: ' \
 '-f[Follow the contents of a file]' \
 '--follow[Follow the contents of a file]' \
@@ -31,28 +33,6 @@ _tspin() {
 '--start-at-end[Start at the end of the file]' \
 '-p[Print the output to stdout]' \
 '--print[Print the output to stdout]' \
-'--enable-numbers[Enable the highlighting of numbers]' \
-'--enable-dates[Enable the highlighting of dates]' \
-'--enable-urls[Enable the highlighting of URLs]' \
-'--enable-paths[Enable the highlighting of paths]' \
-'--enable-quotes[Enable the highlighting of quotes]' \
-'--enable-key-value-pairs[Enable the highlighting of key value pairs]' \
-'--enable-uuids[Enable the highlighting of UUIDs]' \
-'--enable-ip-addresses[Enable the highlighting of IP addresses]' \
-'--enable-pointers[Enable the highlighting of pointers]' \
-'--enable-processes[Enable the highlighting of unix processes]' \
-'--enable-json[Enable the highlighting of JSON]' \
-'--disable-numbers[Disable the highlighting of numbers]' \
-'--disable-dates[Disable the highlighting of dates]' \
-'--disable-urls[Disable the highlighting of URLs]' \
-'--disable-paths[Disable the highlighting of paths]' \
-'--disable-quotes[Disable the highlighting of quotes]' \
-'--disable-key-value-pairs[Disable the highlighting of key value pairs]' \
-'--disable-uuids[Disable the highlighting of UUIDs]' \
-'--disable-ip-addresses[Disable the highlighting of IP addresses]' \
-'--disable-pointers[Disable the highlighting of pointers]' \
-'--disable-processes[Disable the highlighting of unix processes]' \
-'--disable-json[Disable the highlighting of JSON]' \
 '--no-builtin-keywords[Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)]' \
 '--suppress-output[Suppress all output (for debugging and benchmarking)]' \
 '-h[Print help]' \
