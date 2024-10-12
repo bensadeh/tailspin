@@ -1,6 +1,6 @@
 mod cli;
 mod config;
-mod highlight_processor;
+mod highlight_processor_legacy;
 mod highlight_utils;
 mod highlighter;
 mod highlighters;
@@ -13,7 +13,7 @@ mod theme_legacy;
 mod types;
 
 use crate::cli::Cli;
-use crate::highlight_processor::HighlightProcessor;
+use crate::highlight_processor_legacy::HighlightProcessorLegacy;
 use crate::io::controller::get_io_and_presenter;
 use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
@@ -50,7 +50,7 @@ pub async fn run(theme: Theme, config: Config, cli: Cli) {
     let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;
 
     let highlighter = highlighters::Highlighters::new(&theme, &cli);
-    let highlight_processor = HighlightProcessor::new(highlighter);
+    let highlight_processor = HighlightProcessorLegacy::new(highlighter);
 
     tokio::spawn(process_lines(io, highlight_processor));
 
@@ -63,7 +63,7 @@ pub async fn run(theme: Theme, config: Config, cli: Cli) {
 
 async fn process_lines<T: AsyncLineReader + AsyncLineWriter + Unpin + Send>(
     mut io: T,
-    highlight_processor: HighlightProcessor,
+    highlight_processor: HighlightProcessorLegacy,
 ) {
     while let Ok(Some(line)) = io.next_line().await {
         let highlighted_lines = highlight_processor.apply(line);
