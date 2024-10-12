@@ -6,18 +6,29 @@ use std::path::{Path, PathBuf};
 use thiserror::Error;
 
 pub fn parse_theme(custom_config_path: Option<String>) -> Result<Theme, ThemeError> {
-    let toml_theme = if let Some(path) = custom_config_path {
-        read_and_parse_toml(&PathBuf::from(path))?
-    } else {
-        let default_path = get_config_dir()?.join("tailspin").join("theme.toml");
-        match read_and_parse_toml(&default_path) {
-            Ok(theme) => theme,
-            Err(ThemeError::FileNotFound) => TomlTheme::default(),
-            Err(e) => return Err(e),
+    let config_source = match custom_config_path {
+        Some(path) => ThemeConfigPath::Custom(PathBuf::from(path)),
+        None => ThemeConfigPath::Default(get_config_dir()?.join("tailspin").join("theme.toml")),
+    };
+
+    let toml_theme = match config_source {
+        ThemeConfigPath::Custom(ref path) => read_and_parse_toml(path)?,
+        ThemeConfigPath::Default(ref path) => {
+            let toml_result = read_and_parse_toml(path);
+            match toml_result {
+                Ok(theme) => theme,
+                Err(ThemeError::FileNotFound) => TomlTheme::default(),
+                Err(e) => return Err(e),
+            }
         }
     };
 
     Ok(Theme::from(toml_theme))
+}
+
+enum ThemeConfigPath {
+    Custom(PathBuf),
+    Default(PathBuf),
 }
 
 fn read_and_parse_toml(path: &Path) -> Result<TomlTheme, ThemeError> {
