@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
     let highlighter_groups = groups::get_highlighter_groups(cli_options)?;
 
     let new_theme = reader::parse_theme(cli.config_path.clone())?;
-    let highlighter = highlighter::get_highlighter(highlighter_groups, new_theme, true)?;
+    let highlighter = highlighter::get_highlighter(highlighter_groups, new_theme, vec![], cli.no_builtin_keywords)?;
 
     run(highlighter, config).await;
 
