@@ -32,7 +32,7 @@ impl From<TomlTheme> for Theme {
 impl From<KeywordToml> for KeywordConfig {
     fn from(keyword_toml: KeywordToml) -> Self {
         KeywordConfig {
-            words: keyword_toml.keyword,
+            words: keyword_toml.words,
             style: keyword_toml.style,
         }
     }

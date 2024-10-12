@@ -40,7 +40,7 @@ pub struct TomlTheme {
 
 #[derive(Deserialize, Debug)]
 pub struct KeywordToml {
-    pub keyword: Vec<String>,
+    pub words: Vec<String>,
     pub style: Style,
 }
 
