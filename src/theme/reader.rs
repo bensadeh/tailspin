@@ -13,14 +13,11 @@ pub fn parse_theme(custom_config_path: Option<String>) -> Result<Theme, ThemeErr
 
     let toml_theme = match config_source {
         ThemeConfigPath::Custom(ref path) => read_and_parse_toml(path)?,
-        ThemeConfigPath::Default(ref path) => {
-            let toml_result = read_and_parse_toml(path);
-            match toml_result {
-                Ok(theme) => theme,
-                Err(ThemeError::FileNotFound) => TomlTheme::default(),
-                Err(e) => return Err(e),
-            }
-        }
+        ThemeConfigPath::Default(ref path) => match read_and_parse_toml(path) {
+            Ok(theme) => theme,
+            Err(ThemeError::FileNotFound) => TomlTheme::default(),
+            Err(e) => return Err(e),
+        },
     };
 
     Ok(Theme::from(toml_theme))
