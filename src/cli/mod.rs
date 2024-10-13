@@ -1,9 +1,7 @@
+pub mod completions;
 pub mod keywords;
 
-use clap::{Command, CommandFactory, Parser, ValueEnum};
-use clap_complete::{generate, Generator, Shell};
-use std::io;
-use std::process::exit;
+use clap::{Parser, ValueEnum};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub enum HighlighterGroup {
@@ -88,46 +86,17 @@ pub struct Cli {
     #[clap(long = "suppress-output", hide = true)]
     pub suppress_output: bool,
 
-    /// Print completions to stdout
-    #[clap(long = "hidden-generate-shell-completions", hide = true)]
-    pub generate_shell_completions: Option<String>,
-}
+    /// Print bash completions to stdout
+    #[clap(long = "generate-bash-completions", hide = true)]
+    pub generate_bash_completions: bool,
 
-pub fn get_args_or_exit_early() -> Cli {
-    let args = Cli::parse();
+    /// Print fish completions to stdout
+    #[clap(long = "generate-fish-completions", hide = true)]
+    pub generate_fish_completions: bool,
 
-    if should_exit_early(&args) {
-        exit(0);
-    }
-
-    args
-}
-
-fn should_exit_early(args: &Cli) -> bool {
-    if args.generate_shell_completions.is_some() {
-        print_completions_to_stdout();
-        return true;
-    }
-
-    false
-}
-
-pub fn print_completions_to_stdout() {
-    let args = Cli::parse();
-    let mut cmd = Cli::command();
-
-    if let Some(shell) = args.generate_shell_completions {
-        match shell.as_str() {
-            "bash" => print_completions(Shell::Bash, &mut cmd),
-            "zsh" => print_completions(Shell::Zsh, &mut cmd),
-            "fish" => print_completions(Shell::Fish, &mut cmd),
-            _ => (),
-        }
-    }
-}
-
-fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
-    generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
+    /// Print zsh completions to stdout
+    #[clap(long = "generate-zsh-completions", hide = true)]
+    pub generate_zsh_completions: bool,
 }
 
 #[test]

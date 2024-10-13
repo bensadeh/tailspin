@@ -2,6 +2,8 @@
 
 ## 4.1.0
 
+- Updated shell completion commands names
+
 ## 4.0.0
 
 ### Overview
