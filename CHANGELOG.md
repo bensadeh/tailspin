@@ -3,6 +3,7 @@
 ## 4.1.0
 
 - Updated shell completion commands names
+- Use PathBuf instead of String for file paths
 
 ## 4.0.0
 

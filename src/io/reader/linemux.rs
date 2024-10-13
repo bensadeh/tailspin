@@ -4,6 +4,7 @@ use color_eyre::owo_colors::OwoColorize;
 use linemux::MuxedLines;
 use std::cmp::min;
 use std::io;
+use std::path::PathBuf;
 use terminal_size::{terminal_size, Height, Width};
 use tokio::sync::oneshot::Sender;
 
@@ -19,7 +20,7 @@ pub struct Linemux {
 
 impl Linemux {
     pub async fn get_reader_single(
-        file_path: String,
+        file_path: PathBuf,
         number_of_lines: usize,
         start_at_end: bool,
         mut reached_eof_tx: Option<Sender<()>>,
@@ -55,12 +56,10 @@ impl Linemux {
     }
 
     pub async fn get_reader_multiple(
-        folder_name: String,
-        file_paths: Vec<String>,
+        folder: PathBuf,
+        file_paths: Vec<PathBuf>,
         mut reached_eof_tx: Option<Sender<()>>,
     ) -> Box<dyn AsyncLineReader + Send> {
-        use std::path::Path;
-
         if let Some(reached_eof) = reached_eof_tx.take() {
             reached_eof
                 .send(())
@@ -73,10 +72,11 @@ impl Linemux {
             .iter()
             .enumerate()
             .map(|(index, path)| {
-                let file_name = Path::new(path)
+                let file_name = path
                     .file_name()
-                    .and_then(|name| name.to_str())
-                    .unwrap_or(path);
+                    .expect("Could not get file name")
+                    .to_str()
+                    .expect("Could not convert file name to string");
 
                 if index == file_paths.len() - 1 {
                     format!("         └─ {}", file_name.bold())
@@ -87,6 +87,11 @@ impl Linemux {
             .collect::<Vec<_>>()
             .join("\n");
 
+        let folder_name = folder
+            .file_name()
+            .expect("Could not get folder name")
+            .to_str()
+            .expect("Could not convert folder name to string");
         let separator = get_separator();
         let dimmed_separator = separator.dimmed();
         let startup_message = format!(

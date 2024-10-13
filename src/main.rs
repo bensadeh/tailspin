@@ -26,7 +26,8 @@ async fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    let config = config::create_config_or_exit_early(&cli);
+    // let config = config::create_config_or_exit_early(&cli);
+    let config = config::create_config(&cli)?;
 
     let highlighter_groups = groups::get_highlighter_groups(&cli.enable, &cli.disable)?;
 

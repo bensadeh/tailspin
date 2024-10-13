@@ -2,14 +2,14 @@ use crate::cli::Cli;
 use color_eyre::owo_colors::OwoColorize;
 use std::fs;
 use std::fs::{DirEntry, File};
-use std::io::{stdin, BufRead, IsTerminal};
-use std::path::Path;
-use std::process::exit;
+use std::io::{self, stdin, IsTerminal, Read};
+use std::path::{Path, PathBuf};
+use thiserror::Error;
 
 enum InputType {
     Stdin,
     Command(String),
-    FileOrFolder(String),
+    FileOrFolder(PathBuf),
 }
 
 enum PathType {
@@ -17,20 +17,7 @@ enum PathType {
     Folder,
 }
 
-pub fn create_config_or_exit_early(args: &Cli) -> Config {
-    match create_config(args) {
-        Ok(c) => c,
-        Err(e) => {
-            match e.exit_code {
-                OK => println!("{}", e.message),
-                _ => eprintln!("{}", e.message),
-            }
-            exit(e.exit_code);
-        }
-    }
-}
-
-fn create_config(args: &Cli) -> Result<Config, Error> {
+pub fn create_config(args: &Cli) -> Result<Config, ConfigError> {
     let has_data_from_stdin = !stdin().is_terminal();
 
     validate_input(
@@ -58,44 +45,33 @@ fn validate_input(
     has_data_from_stdin: bool,
     has_file_or_folder_input: bool,
     has_follow_command_input: bool,
-) -> Result<(), Error> {
+) -> Result<(), ConfigError> {
     if !has_data_from_stdin && !has_file_or_folder_input && !has_follow_command_input {
-        return Err(Error {
-            exit_code: OK,
-            message: format!("Missing filename ({} for help)", "tspin --help".magenta()),
-        });
+        return Err(ConfigError::MissingFilename("tspin --help".magenta().to_string()));
     }
 
     if has_file_or_folder_input && has_follow_command_input {
-        return Err(Error {
-            exit_code: MISUSE_SHELL_BUILTIN,
-            message: format!("Cannot read from both file and {}", "--listen-command".magenta()),
-        });
+        return Err(ConfigError::CannotReadBothFileAndListenCommand(
+            "--listen-command".magenta().to_string(),
+        ));
     }
 
     Ok(())
 }
 
-fn determine_input_type(args: &Cli, has_data_from_stdin: bool) -> Result<InputType, Error> {
+fn determine_input_type(args: &Cli, has_data_from_stdin: bool) -> Result<InputType, ConfigError> {
     if has_data_from_stdin {
-        return Ok(InputType::Stdin);
+        Ok(InputType::Stdin)
+    } else if let Some(command) = &args.listen_command {
+        Ok(InputType::Command(command.clone()))
+    } else if let Some(path) = &args.file_or_folder_path {
+        Ok(InputType::FileOrFolder(PathBuf::from(path)))
+    } else {
+        Err(ConfigError::CouldNotDetermineInputType)
     }
-
-    if let Some(command) = &args.listen_command {
-        return Ok(InputType::Command(command.clone()));
-    }
-
-    if let Some(path) = &args.file_or_folder_path {
-        return Ok(InputType::FileOrFolder(path.clone()));
-    }
-
-    Err(Error {
-        exit_code: GENERAL_ERROR,
-        message: "Could not determine input type".to_string(),
-    })
 }
 
-fn get_input(input_type: InputType) -> Result<Input, Error> {
+fn get_input(input_type: InputType) -> Result<Input, ConfigError> {
     match input_type {
         InputType::Stdin => Ok(Input::Stdin),
         InputType::Command(cmd) => Ok(Input::Command(cmd)),
@@ -105,24 +81,22 @@ fn get_input(input_type: InputType) -> Result<Input, Error> {
 
 const fn get_output(has_data_from_stdin: bool, is_print_flag: bool, suppress_output: bool) -> Output {
     if suppress_output {
-        return Output::Suppress;
+        Output::Suppress
+    } else if has_data_from_stdin || is_print_flag {
+        Output::Stdout
+    } else {
+        Output::TempFile
     }
-
-    if has_data_from_stdin || is_print_flag {
-        return Output::Stdout;
-    }
-
-    Output::TempFile
 }
 
-fn determine_input(path: String) -> Result<Input, Error> {
+fn determine_input(path: PathBuf) -> Result<Input, ConfigError> {
     match check_path_type(&path)? {
         PathType::File => {
-            let line_count = count_lines(&path);
+            let line_count = count_lines(&path)?;
             Ok(Input::File(PathAndLineCount { path, line_count }))
         }
         PathType::Folder => {
-            let mut paths = list_files_in_directory(Path::new(&path))?;
+            let mut paths = list_files_in_directory(&path)?;
             paths.sort();
 
             Ok(Input::Folder(FolderInfo {
@@ -133,52 +107,36 @@ fn determine_input(path: String) -> Result<Input, Error> {
     }
 }
 
-fn check_path_type<P: AsRef<Path>>(path: P) -> Result<PathType, Error> {
-    let metadata = fs::metadata(path.as_ref()).map_err(|_| Error {
-        exit_code: GENERAL_ERROR,
-        message: format!("{}: No such file or directory", path.as_ref().display().red()),
-    })?;
+fn check_path_type(path: &Path) -> Result<PathType, ConfigError> {
+    let metadata = fs::metadata(path).map_err(|_| ConfigError::NoSuchFileOrDirectory(path.display().to_string()))?;
 
     if metadata.is_file() {
         Ok(PathType::File)
     } else if metadata.is_dir() {
         Ok(PathType::Folder)
     } else {
-        Err(Error {
-            exit_code: GENERAL_ERROR,
-            message: "Path is neither a file nor a directory".into(),
-        })
+        Err(ConfigError::PathNotFileNorDirectory)
     }
 }
 
 const fn should_follow(follow: bool, has_follow_command: bool, input: &Input) -> bool {
-    if has_follow_command {
-        return true;
+    if has_follow_command || matches!(input, Input::Folder(_)) {
+        true
+    } else {
+        follow
     }
-
-    if matches!(input, Input::Folder(_)) {
-        return true;
-    }
-
-    follow
 }
 
-fn list_files_in_directory(path: &Path) -> Result<Vec<String>, Error> {
+fn list_files_in_directory(path: &Path) -> Result<Vec<PathBuf>, ConfigError> {
     if !path.is_dir() {
-        return Err(Error {
-            exit_code: GENERAL_ERROR,
-            message: "Path is not a directory".into(),
-        });
+        return Err(ConfigError::PathNotDirectory);
     }
 
     fs::read_dir(path)
-        .map_err(|_| Error {
-            exit_code: GENERAL_ERROR,
-            message: "Unable to read directory".into(),
-        })?
+        .map_err(|_| ConfigError::UnableToReadDirectory)?
         .filter_map(Result::ok)
         .filter(is_normal_file)
-        .map(entry_to_string)
+        .map(|entry| Ok(entry.path()))
         .collect()
 }
 
@@ -192,31 +150,41 @@ fn is_normal_file(entry: &DirEntry) -> bool {
             .unwrap_or(false)
 }
 
-fn entry_to_string(entry: DirEntry) -> Result<String, Error> {
-    entry
-        .path()
-        .to_str()
-        .ok_or(Error {
-            exit_code: GENERAL_ERROR,
-            message: "Non-UTF8 filename".into(),
-        })
-        .map(|s| s.to_string())
+fn count_lines<P: AsRef<Path>>(file_path: P) -> Result<usize, ConfigError> {
+    let file = File::open(file_path)?;
+    let mut reader = io::BufReader::new(file);
+
+    let mut count = 0;
+    let mut buffer = [0; 8192]; // 8 KB buffer
+    loop {
+        let bytes_read = reader.read(&mut buffer)?;
+        if bytes_read == 0 {
+            break;
+        }
+        count += buffer[..bytes_read].iter().filter(|&&c| c == b'\n').count();
+    }
+
+    Ok(count)
 }
 
-fn count_lines<P: AsRef<Path>>(file_path: P) -> usize {
-    let file = File::open(file_path).expect("Could not open file");
-    let reader = std::io::BufReader::new(file);
-
-    reader.lines().count()
-}
-
-pub const OK: i32 = 0;
-pub const GENERAL_ERROR: i32 = 1;
-pub const MISUSE_SHELL_BUILTIN: i32 = 2;
-
-pub struct Error {
-    pub exit_code: i32,
-    pub message: String,
+#[derive(Debug, Error)]
+pub enum ConfigError {
+    #[error("Missing filename ({0} for help)")]
+    MissingFilename(String),
+    #[error("Cannot read from both file and {0}")]
+    CannotReadBothFileAndListenCommand(String),
+    #[error("Could not determine input type")]
+    CouldNotDetermineInputType,
+    #[error("{0}: No such file or directory")]
+    NoSuchFileOrDirectory(String),
+    #[error("Path is neither a file nor a directory")]
+    PathNotFileNorDirectory,
+    #[error("Path is not a directory")]
+    PathNotDirectory,
+    #[error("Unable to read directory")]
+    UnableToReadDirectory,
+    #[error("I/O Error: {0}")]
+    Io(#[from] io::Error),
 }
 
 pub struct Config {
@@ -227,13 +195,13 @@ pub struct Config {
 }
 
 pub struct PathAndLineCount {
-    pub path: String,
+    pub path: PathBuf,
     pub line_count: usize,
 }
 
 pub struct FolderInfo {
-    pub folder_name: String,
-    pub file_paths: Vec<String>,
+    pub folder_name: PathBuf,
+    pub file_paths: Vec<PathBuf>,
 }
 
 pub enum Input {
