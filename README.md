@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                                         
+#                                                                                                                                                                                                                                                                                                                            
 
 <p align="center">
 A log file highlighter
@@ -270,6 +270,14 @@ separator = { fg = "white" }
 name = { fg = "green" }
 separator = { fg = "red" }
 id = { fg = "yellow" }
+
+[json]
+key = { fg = "yellow" }
+quote_token = { fg = "yellow", faint = true }
+curly_bracket = { faint = true }
+square_bracket = { faint = true }
+comma = { faint = true }
+colon = { faint = true }
 ```
 
 </details>
