@@ -25,5 +25,5 @@ pub fn generate_shell_completions_or_continue() {
 }
 
 fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
-    generate(gen, cmd, "tspin", &mut io::stdout());
+    generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
 }
