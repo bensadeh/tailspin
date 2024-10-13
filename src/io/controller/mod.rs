@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use tokio::io;
 
+use crate::config::{Config, Input, Output};
 use crate::io::presenter::empty::NoPresenter;
 use crate::io::presenter::less::Less;
 use crate::io::presenter::Present;
@@ -12,7 +13,6 @@ use crate::io::writer::dummy::NoWriter;
 use crate::io::writer::stdout::StdoutWriter;
 use crate::io::writer::temp_file::TempFile;
 use crate::io::writer::AsyncLineWriter;
-use crate::types::{Config, Input, Output};
 use tokio::sync::oneshot::Sender;
 
 pub struct Io {

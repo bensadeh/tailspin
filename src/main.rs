@@ -5,7 +5,6 @@ mod config;
 mod highlighter_builder;
 mod io;
 mod theme;
-mod types;
 
 use crate::cli::keywords::get_keywords_from_cli;
 use crate::cli::{completions, Cli};
