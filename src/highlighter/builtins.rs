@@ -33,7 +33,7 @@ fn builtin_keywords() -> Vec<KeywordConfig> {
 
     let rest_keywords = vec![
         KeywordConfig {
-            words: vec!["GET".to_string()],
+            words: vec!["GET".to_string(), "PROPFIND".to_string()],
             style: Style::new().fg(Color::Black).on(Color::Green),
         },
         KeywordConfig {

@@ -61,6 +61,7 @@ https://api.example.org/v1/users/123/edit?param=true&flag=false
 
 # HTTP Methods
 User with IP 192.168.1.105 initiated a GET request for /about/us
+PROPFIND /path/to/ressource/ HTTP/1.1" 207 4471 "-" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36"
 A POST request by 192.168.1.106 to /api/create-account failed
 Received a PUT operation on /api/v1/users/update-profile
 During routine checks at 14:13:40, a PATCH request was detected
