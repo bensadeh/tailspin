@@ -1,8 +1,6 @@
 # Changelog
+
 ## 4.1.0
-
-
-
 
 ## 4.0.0
 
@@ -10,7 +8,7 @@
 
 This release contains several new feature and breaking changes. From a user perspective, the most notable change is the
 addition of a `JSON` highlighter. From a developer's perspective, the highlighting engine powering `tailspin` has been
-decoupled and extracted into a separate library called `[manifold](https://github.com/bensadeh/manifold)`.
+decoupled and extracted into a separate library called [`manifold`](https://github.com/bensadeh/manifold).
 
 `manifold` will still be used internally by `tailspin`, but it will also be available as a standalone library for other
 projects to use.
@@ -23,6 +21,8 @@ projects to use.
 
 ### Breaking changes:
 
+- `tailspin` will now look for `theme.toml` instead of `config.toml` for the configuration file
+- Enabling and disabling highlight groups is now done from the command line instead of in the toml file
 - Removed the `border` from the style from the keyword styling. Instead, the border will be enabled implicitly by
   setting a background color for the keyword.
 - Removed date highlighting for formats like `Aug 14` and `Sun Dec 14` etc. (Can be re-enabled by adding a custom

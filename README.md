@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                                     
+#                                                                                                                                                                                                                                                                                                                         
 
 <p align="center">
 A log file highlighter
@@ -199,8 +199,8 @@ Styles have the following shape:
 style = { fg = "color", bg = "color", italic = false, bold = false, underline = false }
 ```
 
-To edit the different highlight groups, include them in your `config.toml` file. For example, to edit the `date`
-highlight group, add the following to your `config.toml`:
+To edit the different highlight groups, include them in your `theme.toml` file. For example, to edit the `date`
+highlight group, add the following to your `theme.toml`:
 
 ```toml
 [date]
@@ -226,7 +226,6 @@ style = { fg = "red", italic = true }
 [[keywords]]
 words = ['GET']
 style = { fg = "black", bg = "green" }
-border = true
 
 [url]
 http = { fg = "red", faint = true }
@@ -277,14 +276,17 @@ id = { fg = "yellow" }
 
 ### Disabling Highlight Groups
 
-To disable a highlight group, set the `disabled` field for that group to true:
+To individually disable or enable highlight groups, use the `--enable` and `--disable` flags:
 
-```toml
-[date]
-disabled = true
+```console
+# Enable only the url highlight group, disabling the rest
+tspin application.log --enable=url
+
+# Disable the numbers highlight group, keeping the rest
+tspin application.log --disable=numbers
 ```
 
-### Adding Keywords via config.toml
+### Adding Keywords via theme.toml
 
 To add custom keywords, either include them in the list of keywords or add new entries:
 
