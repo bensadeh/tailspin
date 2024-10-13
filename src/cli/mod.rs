@@ -2,6 +2,7 @@ pub mod completions;
 pub mod keywords;
 
 use clap::{Parser, ValueEnum};
+use std::path::PathBuf;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub enum HighlighterGroup {
@@ -24,7 +25,7 @@ pub enum HighlighterGroup {
 pub struct Cli {
     /// Path to file or folder
     #[clap(name = "FILE", value_hint = clap::ValueHint::AnyPath)]
-    pub file_or_folder_path: Option<String>,
+    pub file_or_folder_path: Option<PathBuf>,
 
     /// Follow the contents of a file
     #[clap(short = 'f', long = "follow")]
