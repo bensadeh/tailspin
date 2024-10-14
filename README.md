@@ -191,7 +191,7 @@ newline entries which arrive after the initial start.
 
 ### Overview
 
-Create `config.toml` in `~/.config/tailspin` to customize highlight groups.
+Create a `theme.toml` in `~/.config/tailspin` to customize highlight groups.
 
 Styles have the following shape:
 
