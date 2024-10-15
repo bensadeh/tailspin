@@ -1,5 +1,6 @@
 use crate::cli::HighlighterGroup;
 use std::fmt::Debug;
+use miette::Diagnostic;
 use thiserror::Error;
 use HighlighterConfigNew::*;
 
@@ -110,7 +111,7 @@ pub const fn determine_highlighter_type_new(
     Mismatch
 }
 
-#[derive(Error, Debug)]
+#[derive(Debug, Error, Diagnostic)]
 pub enum ConfigError {
     #[error("cannot both enable and disable highlighters")]
     ConflictEnableDisable,

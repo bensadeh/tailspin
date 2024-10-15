@@ -25,10 +25,10 @@ async fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    let config = config::create_config(&cli).into_diagnostic()?;
-    let theme = reader::parse_theme(cli.config_path.clone()).into_diagnostic()?;
+    let config = config::create_config(&cli)?;
+    let theme = reader::parse_theme(cli.config_path.clone())?;
     let keywords_from_cli = get_keywords_from_cli(&cli);
-    let highlighter_groups = groups::get_highlighter_groups(&cli.enable, &cli.disable).into_diagnostic()?;
+    let highlighter_groups = groups::get_highlighter_groups(&cli.enable, &cli.disable)?;
 
     let highlighter =
         highlighter::get_highlighter(highlighter_groups, theme, keywords_from_cli, cli.no_builtin_keywords)

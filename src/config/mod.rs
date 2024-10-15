@@ -1,4 +1,5 @@
 use crate::cli::Cli;
+use miette::Diagnostic;
 use owo_colors::OwoColorize;
 use std::fs;
 use std::fs::{DirEntry, File};
@@ -167,7 +168,7 @@ fn count_lines<P: AsRef<Path>>(file_path: P) -> Result<usize, ConfigError> {
     Ok(count)
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, Diagnostic)]
 pub enum ConfigError {
     #[error("Missing filename ({0} for help)")]
     MissingFilename(String),
