@@ -1,7 +1,7 @@
 use crate::cli::HighlighterGroup;
 use std::fmt::Debug;
 use thiserror::Error;
-use HighlighterConfigNew::*;
+use HighlighterConfigNew::{AllHighlightersEnabled, Mismatch, SomeHighlightersDisabled, SomeHighlightersEnabled};
 
 pub enum HighlighterConfigNew {
     AllHighlightersEnabled,
