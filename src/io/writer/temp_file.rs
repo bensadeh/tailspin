@@ -1,6 +1,6 @@
 use crate::io::writer::AsyncLineWriter;
 use async_trait::async_trait;
-use color_eyre::owo_colors::OwoColorize;
+use owo_colors::OwoColorize;
 use rand::random;
 use std::path::PathBuf;
 use tempfile::TempDir;

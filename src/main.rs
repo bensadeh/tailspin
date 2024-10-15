@@ -12,27 +12,27 @@ use crate::io::controller::get_io_and_presenter;
 use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
 use crate::io::writer::AsyncLineWriter;
-use color_eyre::eyre::Result;
 use highlighter::groups;
 use inlet_manifold::Highlighter;
+use miette::{IntoDiagnostic, Result};
 use rayon::iter::IntoParallelIterator;
 use theme::reader;
 use tokio::sync::oneshot;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    color_eyre::install()?;
     completions::generate_shell_completions_or_continue();
 
     let cli = Cli::parse();
 
-    let config = config::create_config(&cli)?;
-    let theme = reader::parse_theme(cli.config_path.clone())?;
+    let config = config::create_config(&cli).into_diagnostic()?;
+    let theme = reader::parse_theme(cli.config_path.clone()).into_diagnostic()?;
     let keywords_from_cli = get_keywords_from_cli(&cli);
-    let highlighter_groups = groups::get_highlighter_groups(&cli.enable, &cli.disable)?;
+    let highlighter_groups = groups::get_highlighter_groups(&cli.enable, &cli.disable).into_diagnostic()?;
 
     let highlighter =
-        highlighter::get_highlighter(highlighter_groups, theme, keywords_from_cli, cli.no_builtin_keywords)?;
+        highlighter::get_highlighter(highlighter_groups, theme, keywords_from_cli, cli.no_builtin_keywords)
+            .into_diagnostic()?;
 
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
     let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;

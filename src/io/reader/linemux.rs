@@ -1,7 +1,7 @@
 use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
-use color_eyre::owo_colors::OwoColorize;
 use linemux::MuxedLines;
+use owo_colors::OwoColorize;
 use std::cmp::min;
 use std::io;
 use std::path::PathBuf;
