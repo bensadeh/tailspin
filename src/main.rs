@@ -14,7 +14,7 @@ use crate::io::reader::AsyncLineReader;
 use crate::io::writer::AsyncLineWriter;
 use highlighter::groups;
 use inlet_manifold::Highlighter;
-use miette::{IntoDiagnostic, Result};
+use miette::Result;
 use rayon::iter::IntoParallelIterator;
 use theme::reader;
 use tokio::sync::oneshot;
@@ -31,8 +31,7 @@ async fn main() -> Result<()> {
     let highlighter_groups = groups::get_highlighter_groups(&cli.enable, &cli.disable)?;
 
     let highlighter =
-        highlighter::get_highlighter(highlighter_groups, theme, keywords_from_cli, cli.no_builtin_keywords)
-            .into_diagnostic()?;
+        highlighter::get_highlighter(highlighter_groups, theme, keywords_from_cli, cli.no_builtin_keywords)?;
 
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
     let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;

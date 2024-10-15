@@ -1,6 +1,6 @@
 use crate::cli::HighlighterGroup;
-use std::fmt::Debug;
 use miette::Diagnostic;
+use std::fmt::Debug;
 use thiserror::Error;
 use HighlighterConfigNew::*;
 

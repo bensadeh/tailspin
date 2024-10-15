@@ -50,8 +50,8 @@ fn get_config_dir() -> Result<PathBuf, ThemeError> {
 pub enum ThemeError {
     #[error("could not read the TOML file: {0}")]
     Read(#[source] io::Error),
-    #[error("could not parse the TOML file: {0}")]
-    Parsing(#[source] toml::de::Error),
+    #[error(transparent)]
+    Parsing(#[from] toml::de::Error),
     #[error("could not find the TOML file")]
     FileNotFound,
     #[error("could not determine the home environment: {0}")]

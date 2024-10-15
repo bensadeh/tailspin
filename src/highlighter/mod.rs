@@ -6,13 +6,15 @@ use crate::highlighter::groups::HighlighterGroups;
 use crate::theme::Theme;
 use inlet_manifold::highlighter::HighlightBuilder;
 use inlet_manifold::*;
+use miette::Diagnostic;
+use thiserror::Error;
 
 pub fn get_highlighter(
     highlighter_groups: HighlighterGroups,
     theme: Theme,
     keyword_configs_from_cli: Vec<KeywordConfig>,
     disable_builtin_keywords: bool,
-) -> Result<Highlighter, Error> {
+) -> Result<Highlighter, HighlighterError> {
     let mut builder = Highlighter::builder();
 
     if highlighter_groups.json {
@@ -71,7 +73,11 @@ pub fn get_highlighter(
         builder.with_quote_highlighter(theme.quotes);
     }
 
-    builder.build()
+    builder.build().map_err(|e| match e {
+        Error::RegexErrors(errors) => {
+            HighlighterError::RegexErrors(errors.into_iter().map(WrappedRegexError::from).collect())
+        }
+    })
 }
 
 fn add_keywords(
@@ -91,3 +97,14 @@ fn add_keywords(
 
     builder.with_keyword_highlighter(keywords);
 }
+
+#[derive(Debug, Error, Diagnostic)]
+pub enum HighlighterError {
+    #[error("Multiple regex errors occurred")]
+    #[diagnostic(code(error::regex))]
+    RegexErrors(#[related] Vec<WrappedRegexError>),
+}
+
+#[derive(Debug, Error, Diagnostic)]
+#[error(transparent)]
+pub struct WrappedRegexError(#[from] regex::Error);

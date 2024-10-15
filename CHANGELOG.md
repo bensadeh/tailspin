@@ -4,6 +4,7 @@
 
 - Updated shell completion commands names
 - Use PathBuf instead of String for file paths
+- Added miette for prettier error messages
 
 ## 4.0.0
 
