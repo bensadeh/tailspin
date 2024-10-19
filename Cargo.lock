@@ -384,9 +384,8 @@ dependencies = [
 
 [[package]]
 name = "inlet_manifold"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a330435135d0569d3394ddc1929ee9e902bdbf415858189450fa7fb5eace59a"
+version = "0.2.0"
+source = "git+https://github.com/bensadeh/manifold?branch=main#e7393cc2ed7d8881cb07c4eb3c8c3dfc841eb396"
 dependencies = [
  "nu-ansi-term",
  "regex",

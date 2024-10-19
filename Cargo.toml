@@ -21,7 +21,7 @@ async-trait = "0.1.83"
 clap = { version = "4.5.19", features = ["derive"] }
 clap_complete = "4.5.32"
 ctrlc = "3.4.5"
-inlet_manifold = "0.1.2"
+inlet_manifold = { git = "https://github.com/bensadeh/manifold", branch = "main" }
 linemux = "0.3.0"
 miette = { version = "7.2.0", features = ["fancy"] }
 nu-ansi-term = "0.50.1"
