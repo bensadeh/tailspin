@@ -2,7 +2,7 @@ use crate::cli::HighlighterGroup;
 use miette::Diagnostic;
 use std::fmt::Debug;
 use thiserror::Error;
-use HighlighterConfigNew::*;
+use HighlighterConfigNew::{AllHighlightersEnabled, Mismatch, SomeHighlightersDisabled, SomeHighlightersEnabled};
 
 pub enum HighlighterConfigNew {
     AllHighlightersEnabled,
