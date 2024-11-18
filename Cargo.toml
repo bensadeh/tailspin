@@ -18,8 +18,8 @@ missing-const-for-fn = "warn"
 
 [dependencies]
 async-trait = "0.1.83"
-clap = { version = "4.5.19", features = ["derive"] }
-clap_complete = "4.5.37"
+clap = { version = "4.5.21", features = ["derive"] }
+clap_complete = "4.5.38"
 ctrlc = "3.4.5"
 inlet_manifold = { git = "https://github.com/bensadeh/manifold", branch = "main" }
 linemux = "0.3.0"
@@ -30,7 +30,7 @@ owo-colors = "4.1.0"
 rand = "0.8.5"
 rayon = "1.10.0"
 regex = "1.11.1"
-serde = { version = "1.0.213", features = ["derive"] }
+serde = { version = "1.0.215", features = ["derive"] }
 shellexpand = "3.1.0"
 tempfile = "3.14.0"
 terminal_size = "0.4.0"
