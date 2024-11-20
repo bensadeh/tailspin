@@ -87,6 +87,9 @@ pkgin install tailspin
 
 # FreeBSD
 pkg install tailspin
+
+# Windows
+scoop install tailspin
 ```
 
 ### From Source
