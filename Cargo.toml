@@ -30,10 +30,10 @@ owo-colors = "4.1.0"
 rand = "0.8.5"
 rayon = "1.10.0"
 regex = "1.11.1"
-serde = { version = "1.0.215", features = ["derive"] }
+serde = { version = "1.0.216", features = ["derive"] }
 shellexpand = "3.1.0"
 tempfile = "3.14.0"
 terminal_size = "0.4.1"
-thiserror = "2.0.6"
+thiserror = "2.0.7"
 tokio = { version = "1.42.0", features = ["full"] }
 toml = "0.8.19"
