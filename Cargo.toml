@@ -17,7 +17,7 @@ name = "tspin"
 missing-const-for-fn = "warn"
 
 [dependencies]
-async-trait = "0.1.83"
+async-trait = "0.1.84"
 clap = { version = "4.5.23", features = ["derive"] }
 clap_complete = "4.5.40"
 ctrlc = "3.4.5"
@@ -32,7 +32,7 @@ rayon = "1.10.0"
 regex = "1.11.1"
 serde = { version = "1.0.217", features = ["derive"] }
 shellexpand = "3.1.0"
-tempfile = "3.14.0"
+tempfile = "3.15.0"
 terminal_size = "0.4.1"
 thiserror = "2.0.9"
 tokio = { version = "1.42.0", features = ["full"] }
