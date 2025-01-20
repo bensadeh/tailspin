@@ -385,7 +385,7 @@ dependencies = [
 [[package]]
 name = "inlet_manifold"
 version = "0.2.0"
-source = "git+https://github.com/bensadeh/manifold?branch=main#d4141337cdba2f949ee2021bf5be0b22da8c3a85"
+source = "git+https://github.com/bensadeh/manifold?branch=main#7d0473aa632abb92dc0ab79cd966baada703005c"
 dependencies = [
  "nu-ansi-term",
  "regex",
@@ -860,9 +860,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.134"
+version = "1.0.137"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d00f4175c42ee48b15416f6193a959ba3a0d67fc699a0db9ad12df9f83991c7d"
+checksum = "930cfb6e6abf99298aaad7d29abbef7a9999a9a8806a40088f55f0dcec03146b"
 dependencies = [
  "indexmap",
  "itoa",
