@@ -18,7 +18,7 @@ missing-const-for-fn = "warn"
 
 [dependencies]
 async-trait = "0.1.85"
-clap = { version = "4.5.26", features = ["derive"] }
+clap = { version = "4.5.27", features = ["derive"] }
 clap_complete = "4.5.42"
 ctrlc = "3.4.5"
 inlet_manifold = { git = "https://github.com/bensadeh/manifold", branch = "main" }
