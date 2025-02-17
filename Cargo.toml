@@ -18,7 +18,7 @@ missing-const-for-fn = "warn"
 
 [dependencies]
 async-trait = "0.1.86"
-clap = { version = "4.5.28", features = ["derive"] }
+clap = { version = "4.5.29", features = ["derive"] }
 clap_complete = "4.5.44"
 ctrlc = "3.4.5"
 inlet_manifold = { git = "https://github.com/bensadeh/manifold", branch = "main" }
@@ -32,7 +32,7 @@ rayon = "1.10.0"
 regex = "1.11.1"
 serde = { version = "1.0.217", features = ["derive"] }
 shellexpand = "3.1.0"
-tempfile = "3.16.0"
+tempfile = "3.17.0"
 terminal_size = "0.4.1"
 thiserror = "2.0.11"
 tokio = { version = "1.43.0", features = ["full"] }
