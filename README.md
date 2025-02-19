@@ -216,7 +216,7 @@ Expand the section below to see the default config for the highlight groups:
 <summary>Default highlight groups settings</summary>
 
 ```toml
-[date]
+[dates]
 date = { fg = "magenta" }
 time = { fg = "blue" }
 zone = { fg = "red" }
@@ -230,7 +230,7 @@ style = { fg = "red", italic = true }
 words = ['GET']
 style = { fg = "black", bg = "green" }
 
-[url]
+[urls]
 http = { fg = "red", faint = true }
 https = { fg = "green", faint = true }
 host = { fg = "blue", faint = true }
@@ -239,10 +239,10 @@ query_params_key = { fg = "magenta" }
 query_params_value = { fg = "cyan" }
 symbols = { fg = "red" }
 
-[number]
+[numbers]
 style = { fg = "cyan" }
 
-[ip]
+[ip_addresses]
 number = { fg = "blue", italic = true }
 letter = { fg = "magenta", italic = true }
 separator = { fg = "red" }
@@ -251,25 +251,25 @@ separator = { fg = "red" }
 style = { fg = "yellow" }
 token = '"'
 
-[path]
+[paths]
 segment = { fg = "green", italic = true }
 separator = { fg = "yellow" }
 
-[uuid]
+[uuids]
 number = { fg = "blue", italic = true }
 letter = { fg = "magenta", italic = true }
 separator = { fg = "red" }
 
-[pointer]
+[pointers]
 number = { fg = "blue", italic = true }
 letter = { fg = "magenta", italic = true }
 separator = { fg = "red" }
 
-[key_value]
+[key_value_pairs]
 key = { faint = true }
 separator = { fg = "white" }
 
-[process]
+[processes]
 name = { fg = "green" }
 separator = { fg = "red" }
 id = { fg = "yellow" }
@@ -329,7 +329,7 @@ specify a regex and a style to be applied to the matched text.
 It supports one capture group `()`. When found, it will apply the style to the captured text.
 
 ```toml
-[[regexps]]
+[[regexes]]
 regex = 'Started (.*)\.'
 style = { fg = "red" }
 ```
