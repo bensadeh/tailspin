@@ -1,6 +1,6 @@
 use crate::cli::Cli;
 use clap::{Command, CommandFactory, Parser};
-use clap_complete::{generate, Generator, Shell};
+use clap_complete::{Generator, Shell, generate};
 use std::io;
 use std::process::exit;
 
@@ -24,6 +24,6 @@ pub fn generate_shell_completions_or_continue() {
     }
 }
 
-fn print_completions<G: Generator>(gen: G, cmd: &mut Command) {
-    generate(gen, cmd, cmd.get_name().to_string(), &mut io::stdout());
+fn print_completions<G: Generator>(generator: G, cmd: &mut Command) {
+    generate(generator, cmd, cmd.get_name().to_string(), &mut io::stdout());
 }
