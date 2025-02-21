@@ -43,7 +43,7 @@ fn get_config_dir() -> Result<PathBuf, ThemeError> {
         .iter()
         .find_map(|&var| env::var(var).ok())
         .map(|dir| PathBuf::from(shellexpand::tilde(&dir).into_owned()))
-        .ok_or_else(|| ThemeError::HomeEnvironment(env::VarError::NotPresent))
+        .ok_or(ThemeError::HomeEnvironment(env::VarError::NotPresent))
 }
 
 #[derive(Debug, Error, Diagnostic)]
