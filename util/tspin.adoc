@@ -39,7 +39,7 @@ Always true if using stdin.
 
 *--config-path* _CONFIG_PATH_::
 Specify the path to a custom configuration file.
-Defaults to _XDG_CONFIG_HOME/tailspin/config.toml_ or _~/.config/tailspin/config.toml_ if not set.
+Defaults to _XDG_CONFIG_HOME/tailspin/theme.toml_ or _~/.config/tailspin/theme.toml_ if not set.
 
 *-c, --listen-command* _COMMAND_::
 Continuously listen to the stdout of the provided command.

@@ -15,18 +15,17 @@ _tspin() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
-'--config-path=[Provide a custom path to a configuration file]:CONFIG_PATH: ' \
-'(-f --follow)-c+[Capture the output (stdout) of a command and view it in \`less\`]:LISTEN_COMMAND: ' \
-'(-f --follow)--listen-command=[Capture the output (stdout) of a command and view it in \`less\`]:LISTEN_COMMAND: ' \
-'*--words-red=[Highlight the provided words in red]:WORDS_RED: ' \
-'*--words-green=[Highlight the provided words in green]:WORDS_GREEN: ' \
-'*--words-yellow=[Highlight the provided words in yellow]:WORDS_YELLOW: ' \
-'*--words-blue=[Highlight the provided words in blue]:WORDS_BLUE: ' \
-'*--words-magenta=[Highlight the provided words in magenta]:WORDS_MAGENTA: ' \
-'*--words-cyan=[Highlight the provided words in cyan]:WORDS_CYAN: ' \
+'--config-path=[Provide a custom path to a configuration file]:CONFIG_PATH:_default' \
+'(-f --follow)-c+[Capture the output (stdout) of a command and view it in \`less\`]:LISTEN_COMMAND:_default' \
+'(-f --follow)--listen-command=[Capture the output (stdout) of a command and view it in \`less\`]:LISTEN_COMMAND:_default' \
+'*--words-red=[Highlight the provided words in red]:WORDS_RED:_default' \
+'*--words-green=[Highlight the provided words in green]:WORDS_GREEN:_default' \
+'*--words-yellow=[Highlight the provided words in yellow]:WORDS_YELLOW:_default' \
+'*--words-blue=[Highlight the provided words in blue]:WORDS_BLUE:_default' \
+'*--words-magenta=[Highlight the provided words in magenta]:WORDS_MAGENTA:_default' \
+'*--words-cyan=[Highlight the provided words in cyan]:WORDS_CYAN:_default' \
 '*--enable=[Enable specific highlighters]:ENABLE:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
 '*--disable=[Disable specific highlighters]:DISABLE:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
-'--hidden-generate-shell-completions=[Print completions to stdout]:GENERATE_SHELL_COMPLETIONS: ' \
 '-f[Follow the contents of a file]' \
 '--follow[Follow the contents of a file]' \
 '-e[Start at the end of the file]' \
@@ -35,6 +34,9 @@ _tspin() {
 '--print[Print the output to stdout]' \
 '--no-builtin-keywords[Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)]' \
 '--suppress-output[Suppress all output (for debugging and benchmarking)]' \
+'--generate-bash-completions[Print bash completions to stdout]' \
+'--generate-fish-completions[Print fish completions to stdout]' \
+'--generate-zsh-completions[Print zsh completions to stdout]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

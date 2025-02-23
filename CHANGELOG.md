@@ -3,9 +3,11 @@
 ## 4.1.0
 
 - Updated shell completion commands names
-- Use PathBuf instead of String for file paths
+- Use `PathBuf` instead of String for file paths
 - Added `miette` for prettier error messages
 - Bump Rust edition to 2024
+- Fixed a bug in the config parser where it would fallback on looking for the theme in `~/tailspin/theme.toml`
+  instead of `~/.config/tailspin/theme.toml` if `XDG_CONFIG_HOME` is unset
 
 ## 4.0.0
 

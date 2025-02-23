@@ -1,34 +1,42 @@
 use crate::theme::{Theme, TomlTheme};
 use miette::Diagnostic;
 use std::env;
+use std::env::VarError;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 use thiserror::Error;
 
 pub fn parse_theme(custom_config_path: Option<String>) -> Result<Theme, ThemeError> {
-    let config_source = match custom_config_path {
-        Some(path) => ThemeConfigPath::Custom(PathBuf::from(path)),
-        None => ThemeConfigPath::Default(get_config_dir()?.join("tailspin").join("theme.toml")),
-    };
+    if let Some(custom) = custom_config_path {
+        let path = PathBuf::from(custom);
+        let toml_theme = read_and_parse_toml(&path)?;
+        return Ok(Theme::from(toml_theme));
+    }
 
-    let toml_theme = match config_source {
-        ThemeConfigPath::Custom(ref path) => read_and_parse_toml(path)?,
-        ThemeConfigPath::Default(ref path) => match read_and_parse_toml(path) {
-            Ok(theme) => theme,
-            Err(ThemeError::FileNotFound) => TomlTheme::default(),
-            Err(e) => return Err(e),
-        },
+    let default_path = get_config_dir()?.join("tailspin").join("theme.toml");
+
+    let toml_theme = match read_and_parse_toml(&default_path) {
+        Ok(theme) => theme,
+        Err(ThemeError::FileNotFound) => TomlTheme::default(),
+        Err(e) => return Err(e),
     };
 
     Ok(Theme::from(toml_theme))
 }
 
-enum ThemeConfigPath {
-    Custom(PathBuf),
-    Default(PathBuf),
+fn get_config_dir() -> Result<PathBuf, ThemeError> {
+    expand_var_os("XDG_CONFIG_HOME")
+        .or_else(|| expand_var_os("HOME").map(|home| home.join(".config")))
+        .or_else(|| expand_var_os("USERPROFILE"))
+        .ok_or(ThemeError::HomeEnvironment(VarError::NotPresent))
 }
 
+fn expand_var_os(key: &str) -> Option<PathBuf> {
+    env::var_os(key)
+        .and_then(|os_str| os_str.into_string().ok())
+        .map(|s| shellexpand::tilde(&s).into_owned().into())
+}
 fn read_and_parse_toml(path: &Path) -> Result<TomlTheme, ThemeError> {
     let content = fs::read_to_string(path).map_err(|err| match err.kind() {
         io::ErrorKind::NotFound => ThemeError::FileNotFound,
@@ -38,22 +46,17 @@ fn read_and_parse_toml(path: &Path) -> Result<TomlTheme, ThemeError> {
     toml::from_str::<TomlTheme>(&content).map_err(ThemeError::Parsing)
 }
 
-fn get_config_dir() -> Result<PathBuf, ThemeError> {
-    ["XDG_CONFIG_HOME", "HOME", "USERPROFILE"]
-        .iter()
-        .find_map(|&var| env::var(var).ok())
-        .map(|dir| PathBuf::from(shellexpand::tilde(&dir).into_owned()))
-        .ok_or(ThemeError::HomeEnvironment(env::VarError::NotPresent))
-}
-
 #[derive(Debug, Error, Diagnostic)]
 pub enum ThemeError {
     #[error("could not read the TOML file: {0}")]
     Read(#[source] io::Error),
+
     #[error(transparent)]
     Parsing(#[from] toml::de::Error),
+
     #[error("could not find the TOML file")]
     FileNotFound,
+
     #[error("could not determine the home environment: {0}")]
-    HomeEnvironment(#[source] env::VarError),
+    HomeEnvironment(#[source] VarError),
 }
