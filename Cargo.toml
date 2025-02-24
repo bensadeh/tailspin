@@ -24,7 +24,7 @@ ctrlc = "3.4.5"
 inlet_manifold = { git = "https://github.com/bensadeh/manifold", branch = "main" }
 linemux = "0.3.0"
 miette = { version = "7.5.0", features = ["fancy"] }
-owo-colors = "4.1.0"
+owo-colors = "4.2.0"
 rand = "0.9.0"
 rayon = "1.10.0"
 regex = "1.11.1"
