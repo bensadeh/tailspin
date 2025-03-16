@@ -6,8 +6,9 @@
 - Use `PathBuf` instead of String for file paths
 - Added `miette` for prettier error messages
 - Bump Rust edition to 2024
-- Fixed a bug in the config parser where it would fallback on looking for the theme in `~/tailspin/theme.toml`
+- Fixed a bug in the config parser where it would fall back on looking for the theme in `~/tailspin/theme.toml`
   instead of `~/.config/tailspin/theme.toml` if `XDG_CONFIG_HOME` is unset
+- Fixed a bug where `tailspin` would crash reading files with one line
 
 ## 4.0.0
 

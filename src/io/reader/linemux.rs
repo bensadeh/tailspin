@@ -2,7 +2,6 @@ use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use linemux::MuxedLines;
 use owo_colors::OwoColorize;
-use std::cmp::min;
 use std::io;
 use std::path::PathBuf;
 use terminal_size::{terminal_size, Height, Width};
@@ -42,7 +41,7 @@ impl Linemux {
                 .expect("Could not add file to linemux");
         }
 
-        let bucket_size = min(number_of_lines - 1, 10000);
+        let bucket_size = number_of_lines.saturating_sub(1).clamp(1, 10000);
 
         Box::new(Self {
             startup_message: None,
@@ -146,11 +145,7 @@ impl Linemux {
             }
         }
 
-        if bucket.is_empty() {
-            Ok(None)
-        } else {
-            Ok(Some(bucket))
-        }
+        if bucket.is_empty() { Ok(None) } else { Ok(Some(bucket)) }
     }
 
     async fn read_line_by_line(&mut self) -> io::Result<Option<Vec<String>>> {
