@@ -1,10 +1,10 @@
 use crate::cli::Cli;
 use clap::{Command, CommandFactory, Parser};
-use clap_complete::{Generator, Shell, generate};
+use clap_complete::{generate, Generator, Shell};
 use std::io;
 use std::process::exit;
 
-pub fn generate_shell_completions_or_continue() {
+pub fn generate_shell_completions_and_exit_or_continue() {
     let cli = Cli::parse();
     let mut cmd = Cli::command();
 

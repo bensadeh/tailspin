@@ -20,9 +20,9 @@ use theme::reader;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    completions::generate_shell_completions_or_continue();
+    completions::generate_shell_completions_and_exit_or_continue();
 
-    let cli = Cli::parse();
+    let cli = Cli::try_parse().into_diagnostic()?;
 
     let config = config::create_config(&cli)?;
     let theme = reader::parse_theme(cli.config_path.clone())?;
