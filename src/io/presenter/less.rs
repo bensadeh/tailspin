@@ -1,7 +1,7 @@
 use crate::io::presenter::Present;
-use miette::Result;
+use ctrlc::Error;
+use miette::{miette, IntoDiagnostic, WrapErr};
 use std::process::Command;
-use std::{io, process};
 
 pub struct Less {
     file_path: String,
@@ -15,34 +15,31 @@ impl Less {
 }
 
 impl Present for Less {
-    fn present(&self) -> Result<()> {
-        pass_ctrl_c_events_to_child_process();
+    fn present(&self) -> miette::Result<()> {
+        pass_ctrl_c_events_to_child_process()
+            .into_diagnostic()
+            .wrap_err("Failed to set Ctrl-C handler")?;
 
         let args = get_args(self.follow);
-        let result = Command::new("less")
+        let status = Command::new("less")
             .env("LESSSECURE", "1")
-            .args(args.as_slice())
-            .arg(self.file_path.clone())
-            .status();
+            .args(&args)
+            .arg(&self.file_path)
+            .status()
+            .into_diagnostic()
+            .wrap_err("Failed to execute 'less' command")?;
 
-        match result {
-            Ok(_) => Ok(()),
-            Err(err) => {
-                if err.kind() == io::ErrorKind::NotFound {
-                    eprintln!("'less' command not found. Please ensure it is installed and on your PATH.");
-                } else {
-                    eprintln!("Failed to run less: {}", err);
-                }
-                process::exit(1);
-            }
-        }
+        status
+            .success()
+            .then_some(())
+            .ok_or_else(|| miette!("The 'less' command exited with a non-zero status: {}", status))
     }
 }
 
-fn pass_ctrl_c_events_to_child_process() {
-    // Without this handling, pressing Ctrl + C causes tailspin to exit
-    // immediately instead of passing the signal down to the child process (less)
-    ctrlc::set_handler(|| {}).expect("Error setting Ctrl-C handler");
+fn pass_ctrl_c_events_to_child_process() -> Result<(), Error> {
+    // Without this, pressing Ctrl + C causes tailspin to exit immediately
+    // instead of passing the signal down to the child process (less)
+    ctrlc::set_handler(|| {})
 }
 
 fn get_args(follow: bool) -> Vec<String> {
