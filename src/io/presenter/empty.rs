@@ -1,3 +1,5 @@
+use miette::Result;
+
 use crate::io::presenter::Present;
 
 pub struct NoPresenter {}
@@ -9,7 +11,7 @@ impl NoPresenter {
 }
 
 impl Present for NoPresenter {
-    fn present(&self) {
-        // no-op
+    fn present(&self) -> Result<()> {
+        Ok(())
     }
 }

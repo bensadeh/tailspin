@@ -1,4 +1,5 @@
 use crate::io::presenter::Present;
+use miette::Result;
 use std::process::Command;
 use std::{io, process};
 
@@ -14,7 +15,7 @@ impl Less {
 }
 
 impl Present for Less {
-    fn present(&self) {
+    fn present(&self) -> Result<()> {
         pass_ctrl_c_events_to_child_process();
 
         let args = get_args(self.follow);
@@ -25,7 +26,7 @@ impl Present for Less {
             .status();
 
         match result {
-            Ok(_) => {}
+            Ok(_) => Ok(()),
             Err(err) => {
                 if err.kind() == io::ErrorKind::NotFound {
                     eprintln!("'less' command not found. Please ensure it is installed and on your PATH.");

@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use miette::Result;
 use tokio::io;
 
 use crate::config::{Config, Input, Output};
@@ -87,7 +88,7 @@ impl AsyncLineWriter for Io {
 }
 
 impl Present for Presenter {
-    fn present(&self) {
+    fn present(&self) -> Result<()> {
         self.presenter.present()
     }
 }

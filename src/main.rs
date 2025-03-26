@@ -46,7 +46,7 @@ async fn main() -> Result<()> {
         .into_diagnostic()
         .wrap_err("Failed to receive EOF signal from oneshot channel")?;
 
-    presenter.present();
+    presenter.present()?;
 
     Ok(())
 }
