@@ -16,6 +16,11 @@ use crate::io::writer::temp_file::TempFile;
 use crate::io::writer::AsyncLineWriter;
 use tokio::sync::oneshot::Sender;
 
+pub struct Io {
+    reader: Reader,
+    writer: Writer,
+}
+
 pub enum Reader {
     Linemux(Linemux),
     Stdin(StdinReader),
@@ -31,11 +36,6 @@ pub enum PresenterImpl {
     Less(Less),
     CustomPager(CustomPager),
     NoPresenter(NoPresenter),
-}
-
-pub struct Io {
-    reader: Reader,
-    writer: Writer,
 }
 
 pub struct Presenter {
