@@ -1,12 +1,12 @@
-use miette::Result;
-
+use crate::io::controller::PresenterImpl;
 use crate::io::presenter::Present;
+use miette::Result;
 
 pub struct NoPresenter {}
 
 impl NoPresenter {
-    pub fn get_presenter() -> Box<dyn Present + Send> {
-        Box::new(Self {})
+    pub const fn get_presenter() -> PresenterImpl {
+        PresenterImpl::NoPresenter(Self {})
     }
 }
 

@@ -1,3 +1,4 @@
+use crate::io::controller::Reader;
 use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use linemux::MuxedLines;
@@ -16,12 +17,12 @@ pub struct Linemux {
 }
 
 impl Linemux {
-    pub async fn get_reader_single(
+    pub async fn get_reader(
         file_path: PathBuf,
         number_of_lines: usize,
         start_at_end: bool,
         mut reached_eof_tx: Option<Sender<()>>,
-    ) -> Box<dyn AsyncLineReader + Send> {
+    ) -> Reader {
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
         if start_at_end {
@@ -41,7 +42,7 @@ impl Linemux {
 
         let bucket_size = number_of_lines.saturating_sub(1).clamp(1, 10000);
 
-        Box::new(Self {
+        Reader::Linemux(Self {
             startup_message: None,
             number_of_lines: Some(number_of_lines),
             bucket_size,

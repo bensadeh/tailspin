@@ -16,13 +16,30 @@ use crate::io::writer::temp_file::TempFile;
 use crate::io::writer::AsyncLineWriter;
 use tokio::sync::oneshot::Sender;
 
+pub enum Reader {
+    Linemux(Linemux),
+    Stdin(StdinReader),
+    Command(CommandReader),
+}
+
+pub enum Writer {
+    TempFile(TempFile),
+    Stdout(StdoutWriter),
+}
+
+pub enum PresenterImpl {
+    Less(Less),
+    CustomPager(CustomPager),
+    NoPresenter(NoPresenter),
+}
+
 pub struct Io {
-    reader: Box<dyn AsyncLineReader + Send>,
-    writer: Box<dyn AsyncLineWriter + Send>,
+    reader: Reader,
+    writer: Writer,
 }
 
 pub struct Presenter {
-    presenter: Box<dyn Present + Send>,
+    presenter: PresenterImpl,
 }
 
 pub async fn get_io_and_presenter(config: Config, reached_eof_tx: Option<Sender<()>>) -> (Io, Presenter) {
@@ -32,24 +49,17 @@ pub async fn get_io_and_presenter(config: Config, reached_eof_tx: Option<Sender<
     (Io { reader, writer }, Presenter { presenter })
 }
 
-async fn get_reader(
-    input: Input,
-    start_at_end: bool,
-    reached_eof_tx: Option<Sender<()>>,
-) -> Box<dyn AsyncLineReader + Send> {
+async fn get_reader(input: Input, start_at_end: bool, reached_eof_tx: Option<Sender<()>>) -> Reader {
     match input {
         Input::File(file_info) => {
-            Linemux::get_reader_single(file_info.path, file_info.line_count, start_at_end, reached_eof_tx).await
+            Linemux::get_reader(file_info.path, file_info.line_count, start_at_end, reached_eof_tx).await
         }
         Input::Stdin => StdinReader::get_reader(reached_eof_tx),
         Input::Command(cmd) => CommandReader::get_reader(cmd, reached_eof_tx).await,
     }
 }
 
-async fn get_writer_and_presenter(
-    output: Output,
-    follow: bool,
-) -> (Box<dyn AsyncLineWriter + Send>, Box<dyn Present + Send>) {
+async fn get_writer_and_presenter(output: Output, follow: bool) -> (Writer, PresenterImpl) {
     match output {
         Output::Less => {
             let result = TempFile::get_writer_result().await;

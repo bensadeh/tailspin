@@ -1,3 +1,4 @@
+use crate::io::controller::Reader;
 use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use tokio::io;
@@ -10,8 +11,8 @@ pub struct StdinReader {
 }
 
 impl StdinReader {
-    pub fn get_reader(reached_eof_tx: Option<Sender<()>>) -> Box<dyn AsyncLineReader + Send> {
-        Box::new(StdinReader {
+    pub fn get_reader(reached_eof_tx: Option<Sender<()>>) -> Reader {
+        Reader::Stdin(StdinReader {
             reader: BufReader::new(tokio::io::stdin()),
             reached_eof_tx,
         })

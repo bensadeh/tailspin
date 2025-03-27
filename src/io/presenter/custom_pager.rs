@@ -1,3 +1,4 @@
+use crate::io::controller::PresenterImpl;
 use crate::io::presenter::Present;
 use miette::{miette, IntoDiagnostic, WrapErr};
 use shell_words::split;
@@ -9,8 +10,8 @@ pub struct CustomPager {
 }
 
 impl CustomPager {
-    pub fn get_presenter(temp_file: String, command: String) -> Box<dyn Present + Send> {
-        Box::new(Self { temp_file, command })
+    pub const fn get_presenter(temp_file: String, command: String) -> PresenterImpl {
+        PresenterImpl::CustomPager(Self { temp_file, command })
     }
 }
 

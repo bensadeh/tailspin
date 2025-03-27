@@ -1,3 +1,4 @@
+use crate::io::controller::Reader;
 use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use std::process::Stdio;
@@ -11,10 +12,7 @@ pub struct CommandReader {
 }
 
 impl CommandReader {
-    pub async fn get_reader(
-        command: String,
-        mut reached_eof_tx: Option<Sender<()>>,
-    ) -> Box<dyn AsyncLineReader + Send> {
+    pub async fn get_reader(command: String, mut reached_eof_tx: Option<Sender<()>>) -> Reader {
         if let Some(reached_eof) = reached_eof_tx.take() {
             reached_eof
                 .send(())
@@ -34,7 +32,7 @@ impl CommandReader {
 
         let reader = BufReader::new(stdout);
 
-        Box::new(CommandReader { reader })
+        Reader::Command(CommandReader { reader })
     }
 
     async fn read_bytes_until_newline(&mut self) -> io::Result<Vec<u8>> {

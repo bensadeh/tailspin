@@ -1,3 +1,4 @@
+use crate::io::controller::PresenterImpl;
 use crate::io::presenter::Present;
 use miette::{miette, IntoDiagnostic, WrapErr};
 use std::process::Command;
@@ -8,8 +9,8 @@ pub struct Less {
 }
 
 impl Less {
-    pub fn get_presenter(file_path: String, follow: bool) -> Box<dyn Present + Send> {
-        Box::new(Self { file_path, follow })
+    pub const fn get_presenter(file_path: String, follow: bool) -> PresenterImpl {
+        PresenterImpl::Less(Self { file_path, follow })
     }
 }
 

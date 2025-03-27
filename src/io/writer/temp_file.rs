@@ -1,3 +1,4 @@
+use crate::io::controller::Writer;
 use crate::io::writer::AsyncLineWriter;
 use async_trait::async_trait;
 use owo_colors::OwoColorize;
@@ -14,7 +15,7 @@ pub struct TempFile {
 }
 
 pub struct TempFileWriterResult {
-    pub writer: Box<dyn AsyncLineWriter + Send>,
+    pub writer: Writer,
     pub temp_file_path: String,
 }
 
@@ -28,7 +29,7 @@ impl TempFile {
             .to_owned();
 
         TempFileWriterResult {
-            writer: Box::new(TempFile {
+            writer: Writer::TempFile(TempFile {
                 _temp_dir: temp_dir,
                 temp_file_writer,
             }),
