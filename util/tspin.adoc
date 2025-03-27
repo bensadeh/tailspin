@@ -61,6 +61,13 @@ Cannot be used with _--enable=[HIGHLIGHT_GROUP]_.
 *--no-builtin-keywords*::
 Disables the highlighting of all builtin keyword groups (booleans, severity and REST).
 
+== ENVIRONMENT VARIABLES
+
+*TAILSPIN_PAGER*::
+Set the _TAILSPIN_PAGER_ environment variable to override the default pager.
+The command must include the string _[FILE]_ which will be replaced with the file path internally.
+For example, _"ov -f [FILE]"_.
+
 == SEE ALSO
 
 *less*(1), *tail*(1)

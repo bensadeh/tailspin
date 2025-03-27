@@ -2,12 +2,12 @@
 .\"     Title: tspin
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.23
-.\"      Date: 2025-02-23
+.\"      Date: 2025-03-27
 .\"    Manual: tailspin
-.\"    Source: tailspin 4.1.0
+.\"    Source: tailspin 5.0.0
 .\"  Language: English
 .\"
-.TH "TSPIN" "1" "2025-02-23" "tailspin 4.1.0" "tailspin"
+.TH "TSPIN" "1" "2025-03-27" "tailspin 5.0.0" "tailspin"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -90,6 +90,15 @@ Cannot be used with \fI\-\-enable=[HIGHLIGHT_GROUP]\fP.
 .RS 4
 Disables the highlighting of all builtin keyword groups (booleans, severity and REST).
 .RE
+.SH "ENVIRONMENT VARIABLES"
+.sp
+\fBTAILSPIN_PAGER\fP
+.RS 4
+Set the \fITAILSPIN_PAGER\fP environment variable to override the default pager.
+The command must include the string \fI[FILE]\fP which will be replaced with the file path internally.
+.RE
+.sp
+For example, \fI"ov \-f [FILE]"\fP.
 .SH "SEE ALSO"
 .sp
 \fBless\fP(1), \fBtail\fP(1)

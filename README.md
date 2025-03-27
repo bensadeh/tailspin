@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                                            
+#                                                                                                                                                                                                                                                                                                                                   
 
 <p align="center">
 A log file highlighter
@@ -402,6 +402,17 @@ only lines with **ERROR**.
 To only show lines containing either `ERROR` or `WARN`, use a regular expression: `&\(ERROR\|WARN\)`.
 
 To clear the filter, use <kbd>&</kbd> with no pattern.
+
+### Custom pagers
+
+Set the `TAILSPIN_PAGER` environment variable to override the default pager.
+The command must include the string **[FILE]** which will be replaced with the file path internally.
+
+For example:
+
+```console
+TAILSPIN_PAGER="ov -f [FILE]" tspin example-logs/example1
+```
 
 ## Settings
 
