@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                                                   
+#                                                                                                                                                                                                                                                                                                                                    
 
 <p align="center">
 A log file highlighter
@@ -30,7 +30,6 @@ A log file highlighter
 * [Usage](#usage)
 * [Installing](#installing)
 * [Highlight Groups](#highlight-groups)
-* [Watching folders](#watching-folders)
 * [Customizing Highlight Groups](#customizing-highlight-groups)
 * [Working with `stdin` and `stdout`](#working-with-stdin-and-stdout)
 * [Using the pager `less`](#using-the-pager-less)
@@ -177,18 +176,6 @@ Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `P
 <p align="center">
   <img src="assets/examples/processes.png" width="600"/>
 </p>
-
-## Watching folders
-
-`tailspin` can listen for newline entries in a given folder. Watching folders is useful for monitoring log files that
-are rotated.
-
-<p align="center">
-  <img src="assets/examples/folder.png" width="600"/>
-</p>
-
-When watching folders, `tailspin` will start in follow mode (abort with <kbd>Ctrl + C</kbd>) and will only print
-newline entries which arrive after the initial start.
 
 ## Customizing Highlight Groups
 

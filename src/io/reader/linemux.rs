@@ -1,10 +1,8 @@
 use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use linemux::MuxedLines;
-use owo_colors::OwoColorize;
 use std::io;
 use std::path::PathBuf;
-use terminal_size::{terminal_size, Height, Width};
 use tokio::sync::oneshot::Sender;
 
 pub struct Linemux {
@@ -54,67 +52,6 @@ impl Linemux {
         })
     }
 
-    pub async fn get_reader_multiple(
-        folder: PathBuf,
-        file_paths: Vec<PathBuf>,
-        mut reached_eof_tx: Option<Sender<()>>,
-    ) -> Box<dyn AsyncLineReader + Send> {
-        if let Some(reached_eof) = reached_eof_tx.take() {
-            reached_eof
-                .send(())
-                .expect("Failed sending EOF signal to oneshot channel");
-        }
-
-        let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
-
-        let file_list = file_paths
-            .iter()
-            .enumerate()
-            .map(|(index, path)| {
-                let file_name = path
-                    .file_name()
-                    .expect("Could not get file name")
-                    .to_str()
-                    .expect("Could not convert file name to string");
-
-                if index == file_paths.len() - 1 {
-                    format!("         └─ {}", file_name.bold())
-                } else {
-                    format!("         ├─ {}", file_name.bold())
-                }
-            })
-            .collect::<Vec<_>>()
-            .join("\n");
-
-        let folder_name = folder
-            .file_name()
-            .expect("Could not get folder name")
-            .to_str()
-            .expect("Could not convert folder name to string");
-        let separator = get_separator();
-        let dimmed_separator = separator.dimmed();
-        let startup_message = format!(
-            "Watching {} \n{}\n{}\n",
-            folder_name.green(),
-            file_list,
-            dimmed_separator
-        );
-
-        for file_path in file_paths {
-            lines.add_file(&file_path).await.expect("Could not add file to linemux");
-        }
-
-        Box::new(Self {
-            startup_message: Some(startup_message),
-            number_of_lines: None,
-            bucket_size: 1,
-            current_line: 0,
-            reached_eof_tx,
-            reached_eof: true,
-            lines,
-        })
-    }
-
     fn send_eof_signal(&mut self) {
         if let Some(reached_eof) = self.reached_eof_tx.take() {
             self.reached_eof = true;
@@ -157,15 +94,6 @@ impl Linemux {
         let next_line = line.line().to_owned();
 
         Ok(Some(vec![next_line]))
-    }
-}
-
-fn get_separator() -> String {
-    let size = terminal_size();
-    if let Some((Width(w), Height(_h))) = size {
-        "▁".repeat(w as usize)
-    } else {
-        "".to_string()
     }
 }
 

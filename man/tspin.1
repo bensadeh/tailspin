@@ -31,7 +31,7 @@
 tspin \- A log file highlighter
 .SH "SYNOPSIS"
 .sp
-\fBtspin\fP [\fIOPTION\fP]... [\fIFILE\fP|\fIFOLDER\fP]...
+\fBtspin\fP [\fIOPTION\fP]... [\fIFILE\fP]...
 .SH "DESCRIPTION"
 .sp
 tailspin is a command line tool that highlights log files.
@@ -40,13 +40,12 @@ tailspin is a command line tool that highlights log files.
 \fB\-f, \-\-follow\fP
 .RS 4
 Follow (tail) the contents of the file.
-Always true if opening a folder or using the \fI\-\-follow\-command\fP flag.
+Always true when using the \fI\-\-follow\-command\fP flag.
 .RE
 .sp
 \fB\-e, \-\-start\-at\-end\fP
 .RS 4
 Start at the end of the file.
-Always true if opening a folder.
 .RE
 .sp
 \fB\-p, \-\-print\fP
@@ -96,9 +95,8 @@ Disables the highlighting of all builtin keyword groups (booleans, severity and 
 .RS 4
 Set the \fITAILSPIN_PAGER\fP environment variable to override the default pager.
 The command must include the string \fI[FILE]\fP which will be replaced with the file path internally.
-.RE
-.sp
 For example, \fI"ov \-f [FILE]"\fP.
+.RE
 .SH "SEE ALSO"
 .sp
 \fBless\fP(1), \fBtail\fP(1)

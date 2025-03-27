@@ -10,6 +10,7 @@
   instead of `~/.config/tailspin/theme.toml` if `XDG_CONFIG_HOME` is unset
 - Fixed a bug where `tailspin` would crash reading files with one line
 - Added support for using custom pagers
+- Removed support for watching folders
 
 ## 4.0.0
 

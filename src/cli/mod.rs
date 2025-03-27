@@ -23,9 +23,9 @@ pub enum HighlighterGroup {
 #[command(name = "tspin")]
 #[command(author, version, about)]
 pub struct Cli {
-    /// Path to file or folder
-    #[clap(name = "FILE", value_hint = clap::ValueHint::AnyPath)]
-    pub file_or_folder_path: Option<PathBuf>,
+    /// Filepath
+    #[clap(name = "FILE", value_hint = clap::ValueHint::FilePath)]
+    pub file_path: Option<PathBuf>,
 
     /// Follow the contents of a file
     #[clap(short = 'f', long = "follow")]

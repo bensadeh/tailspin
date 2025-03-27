@@ -33,7 +33,6 @@ _tspin() {
 '-p[Print the output to stdout]' \
 '--print[Print the output to stdout]' \
 '--no-builtin-keywords[Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)]' \
-'--suppress-output[Suppress all output (for debugging and benchmarking)]' \
 '--generate-bash-completions[Print bash completions to stdout]' \
 '--generate-fish-completions[Print fish completions to stdout]' \
 '--generate-zsh-completions[Print zsh completions to stdout]' \
@@ -41,7 +40,7 @@ _tspin() {
 '--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
-'::FILE -- Path to file or folder:_files' \
+'::FILE -- Filepath:_files' \
 && ret=0
 }
 
