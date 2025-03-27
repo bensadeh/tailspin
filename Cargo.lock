@@ -386,7 +386,7 @@ dependencies = [
 [[package]]
 name = "inlet_manifold"
 version = "0.2.0"
-source = "git+https://github.com/bensadeh/manifold?branch=main#a1dcca4d19c0ccecb783798cb80f97814314ca04"
+source = "git+https://github.com/bensadeh/manifold?branch=main#b75ff0834cd731958fffccc95ee399b9dcccb300"
 dependencies = [
  "nu-ansi-term",
  "regex",
@@ -621,9 +621,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.21.1"
+version = "1.21.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d75b0bedcc4fe52caa0e03d9f1151a323e4aa5e2d78ba3580400cd3c9e2bc4bc"
+checksum = "c2806eaa3524762875e21c3dcd057bc4b7bfa01ce4da8d46be1cd43649e1cc6b"
 
 [[package]]
 name = "option-ext"
