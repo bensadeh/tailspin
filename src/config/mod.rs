@@ -35,7 +35,6 @@ pub enum Output {
     Less,
     CustomPager(String),
     Stdout,
-    Suppress,
 }
 
 #[derive(Debug, Error, Diagnostic)]
@@ -68,7 +67,7 @@ pub fn create_config(args: &Cli) -> Result<Config, ConfigError> {
     )?;
 
     let input = get_input(args, has_data_from_stdin)?;
-    let output = get_output(has_data_from_stdin, args.to_stdout, args.suppress_output);
+    let output = get_output(has_data_from_stdin, args.to_stdout);
     let follow = should_follow(args.follow, args.listen_command.is_some(), &input);
 
     Ok(Config {
@@ -110,10 +109,8 @@ fn get_input(args: &Cli, has_data_from_stdin: bool) -> Result<Input, ConfigError
     }
 }
 
-fn get_output(has_data_from_stdin: bool, to_stdout: bool, suppress_output: bool) -> Output {
-    if suppress_output {
-        Output::Suppress
-    } else if let Ok(var) = env::var("TAILSPIN_PAGER") {
+fn get_output(has_data_from_stdin: bool, to_stdout: bool) -> Output {
+    if let Ok(var) = env::var("TAILSPIN_PAGER") {
         Output::CustomPager(var)
     } else if has_data_from_stdin || to_stdout {
         Output::Stdout

@@ -1,4 +1,3 @@
-pub mod dummy;
 pub mod stdout;
 pub mod temp_file;
 

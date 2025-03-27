@@ -83,10 +83,6 @@ pub struct Cli {
     #[clap(long = "no-builtin-keywords")]
     pub no_builtin_keywords: bool,
 
-    /// Suppress all output (for debugging and benchmarking)
-    #[clap(long = "suppress-output", hide = true)]
-    pub suppress_output: bool,
-
     /// Print bash completions to stdout
     #[clap(long = "generate-bash-completions", hide = true)]
     pub generate_bash_completions: bool,

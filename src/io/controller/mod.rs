@@ -11,7 +11,6 @@ use crate::io::reader::command::CommandReader;
 use crate::io::reader::linemux::Linemux;
 use crate::io::reader::stdin::StdinReader;
 use crate::io::reader::AsyncLineReader;
-use crate::io::writer::dummy::NoWriter;
 use crate::io::writer::stdout::StdoutWriter;
 use crate::io::writer::temp_file::TempFile;
 use crate::io::writer::AsyncLineWriter;
@@ -67,12 +66,6 @@ async fn get_writer_and_presenter(
         }
         Output::Stdout => {
             let writer = StdoutWriter::init();
-            let presenter = NoPresenter::get_presenter();
-
-            (writer, presenter)
-        }
-        Output::Suppress => {
-            let writer = NoWriter::init();
             let presenter = NoPresenter::get_presenter();
 
             (writer, presenter)
