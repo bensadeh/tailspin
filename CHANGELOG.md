@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.1.0
+## 5.0.0
 
 - Updated shell completion commands names
 - Use `PathBuf` instead of String for file paths
@@ -9,6 +9,7 @@
 - Fixed a bug in the config parser where it would fall back on looking for the theme in `~/tailspin/theme.toml`
   instead of `~/.config/tailspin/theme.toml` if `XDG_CONFIG_HOME` is unset
 - Fixed a bug where `tailspin` would crash reading files with one line
+- Added support for using custom pagers
 
 ## 4.0.0
 

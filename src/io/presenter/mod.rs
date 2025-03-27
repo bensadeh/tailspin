@@ -1,5 +1,6 @@
 use miette::Result;
 
+pub mod custom_pager;
 pub mod empty;
 pub mod less;
 

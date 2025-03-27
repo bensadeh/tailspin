@@ -1,10 +1,10 @@
 use crate::cli::Cli;
 use miette::Diagnostic;
 use owo_colors::OwoColorize;
-use std::fs;
 use std::fs::{DirEntry, File};
 use std::io::{self, stdin, IsTerminal, Read};
 use std::path::{Path, PathBuf};
+use std::{env, fs};
 use thiserror::Error;
 
 pub struct Config {
@@ -32,7 +32,8 @@ pub enum Input {
 }
 
 pub enum Output {
-    TempFile,
+    Less,
+    CustomPager(String),
     Stdout,
     Suppress,
 }
@@ -109,13 +110,15 @@ fn get_input(args: &Cli, has_data_from_stdin: bool) -> Result<Input, ConfigError
     }
 }
 
-const fn get_output(has_data_from_stdin: bool, to_stdout: bool, suppress_output: bool) -> Output {
+fn get_output(has_data_from_stdin: bool, to_stdout: bool, suppress_output: bool) -> Output {
     if suppress_output {
         Output::Suppress
+    } else if let Ok(var) = env::var("TAILSPIN_PAGER") {
+        Output::CustomPager(var)
     } else if has_data_from_stdin || to_stdout {
         Output::Stdout
     } else {
-        Output::TempFile
+        Output::Less
     }
 }
 

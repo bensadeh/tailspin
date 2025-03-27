@@ -3,6 +3,7 @@ use miette::Result;
 use tokio::io;
 
 use crate::config::{Config, Input, Output};
+use crate::io::presenter::custom_pager::CustomPager;
 use crate::io::presenter::empty::NoPresenter;
 use crate::io::presenter::less::Less;
 use crate::io::presenter::Present;
@@ -52,9 +53,15 @@ async fn get_writer_and_presenter(
     follow: bool,
 ) -> (Box<dyn AsyncLineWriter + Send>, Box<dyn Present + Send>) {
     match output {
-        Output::TempFile => {
+        Output::Less => {
             let result = TempFile::get_writer_result().await;
             let presenter = Less::get_presenter(result.temp_file_path, follow);
+
+            (result.writer, presenter)
+        }
+        Output::CustomPager(cmd) => {
+            let result = TempFile::get_writer_result().await;
+            let presenter = CustomPager::get_presenter(result.temp_file_path, cmd);
 
             (result.writer, presenter)
         }

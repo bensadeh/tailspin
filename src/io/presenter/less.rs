@@ -1,5 +1,4 @@
 use crate::io::presenter::Present;
-use ctrlc::Error;
 use miette::{miette, IntoDiagnostic, WrapErr};
 use std::process::Command;
 
@@ -16,7 +15,9 @@ impl Less {
 
 impl Present for Less {
     fn present(&self) -> miette::Result<()> {
-        pass_ctrl_c_events_to_child_process()
+        // Without this, pressing Ctrl + C causes tailspin to exit immediately
+        // instead of passing the signal down to the child process (less)
+        ctrlc::set_handler(|| {})
             .into_diagnostic()
             .wrap_err("Failed to set Ctrl-C handler")?;
 
@@ -34,12 +35,6 @@ impl Present for Less {
             .then_some(())
             .ok_or_else(|| miette!("The 'less' command exited with a non-zero status: {}", status))
     }
-}
-
-fn pass_ctrl_c_events_to_child_process() -> Result<(), Error> {
-    // Without this, pressing Ctrl + C causes tailspin to exit immediately
-    // instead of passing the signal down to the child process (less)
-    ctrlc::set_handler(|| {})
 }
 
 fn get_args(follow: bool) -> Vec<String> {
