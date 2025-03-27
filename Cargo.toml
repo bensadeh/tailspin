@@ -32,7 +32,6 @@ serde = { version = "1.0.219", features = ["derive"] }
 shell-words = "1.1.0"
 shellexpand = "3.1.0"
 tempfile = "3.19.1"
-terminal_size = "0.4.2"
 thiserror = "2.0.12"
 tokio = { version = "1.44.0", features = ["full"] }
 toml = "0.8.20"

@@ -992,7 +992,6 @@ dependencies = [
  "shell-words",
  "shellexpand",
  "tempfile",
- "terminal_size",
  "thiserror 2.0.12",
  "tokio",
  "toml",
