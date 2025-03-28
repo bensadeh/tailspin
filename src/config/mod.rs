@@ -7,11 +7,9 @@ use std::path::{Path, PathBuf};
 use std::{env, fs};
 use thiserror::Error;
 
-pub struct Config {
+pub struct InputOutputConfig {
     pub input: Input,
     pub output: Output,
-    pub follow: bool,
-    pub start_at_end: bool,
 }
 
 pub struct PathAndLineCount {
@@ -26,9 +24,17 @@ pub enum Input {
 }
 
 pub enum Output {
-    Less,
-    CustomPager(String),
+    Less(LessOptions),
+    CustomPager(CustomPagerOptions),
     Stdout,
+}
+
+pub struct LessOptions {
+    pub follow: bool,
+}
+
+pub struct CustomPagerOptions {
+    pub command: String,
 }
 
 #[derive(Debug, Error, Diagnostic)]
@@ -52,7 +58,7 @@ pub enum ConfigError {
     Io(#[from] io::Error),
 }
 
-pub fn create_config(args: &Arguments) -> Result<Config, ConfigError> {
+pub fn get_input_output_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError> {
     let has_data_from_stdin = !stdin().is_terminal();
 
     validate_input(
@@ -62,15 +68,14 @@ pub fn create_config(args: &Arguments) -> Result<Config, ConfigError> {
     )?;
 
     let input = get_input(args, has_data_from_stdin)?;
-    let output = get_output(has_data_from_stdin, args.to_stdout);
-    let follow = should_follow(args.follow, args.listen_command.is_some());
+    let output = get_output(
+        has_data_from_stdin,
+        args.to_stdout,
+        args.follow,
+        args.listen_command.is_some(),
+    );
 
-    Ok(Config {
-        input,
-        output,
-        follow,
-        start_at_end: args.start_at_end,
-    })
+    Ok(InputOutputConfig { input, output })
 }
 
 fn validate_input(
@@ -104,13 +109,15 @@ fn get_input(args: &Arguments, has_data_from_stdin: bool) -> Result<Input, Confi
     }
 }
 
-fn get_output(has_data_from_stdin: bool, to_stdout: bool) -> Output {
+fn get_output(has_data_from_stdin: bool, to_stdout: bool, follow: bool, has_listen_command: bool) -> Output {
     if let Ok(var) = env::var("TAILSPIN_PAGER") {
-        Output::CustomPager(var)
+        Output::CustomPager(CustomPagerOptions { command: var })
     } else if has_data_from_stdin || to_stdout {
         Output::Stdout
     } else {
-        Output::Less
+        let follow = if has_listen_command { true } else { follow };
+
+        Output::Less(LessOptions { follow })
     }
 }
 
@@ -127,10 +134,6 @@ fn process_path_input(path: PathBuf) -> Result<Input, ConfigError> {
     let line_count = count_lines(&path)?;
 
     Ok(Input::File(PathAndLineCount { path, line_count }))
-}
-
-const fn should_follow(follow_flag: bool, has_command: bool) -> bool {
-    if has_command { true } else { follow_flag }
 }
 
 fn count_lines<P: AsRef<Path>>(file_path: P) -> Result<usize, ConfigError> {

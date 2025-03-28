@@ -24,12 +24,10 @@ _tspin() {
 '*--words-blue=[Highlight the provided words in blue]:WORDS_BLUE:_default' \
 '*--words-magenta=[Highlight the provided words in magenta]:WORDS_MAGENTA:_default' \
 '*--words-cyan=[Highlight the provided words in cyan]:WORDS_CYAN:_default' \
-'*--enable=[Enable specific highlighters]:ENABLE:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
-'*--disable=[Disable specific highlighters]:DISABLE:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
+'*--enable=[Enable specific highlighters]:ENABLED_HIGHLIGHTERS:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
+'*--disable=[Disable specific highlighters]:DISABLED_HIGHLIGHTERS:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
 '-f[Follow the contents of a file]' \
 '--follow[Follow the contents of a file]' \
-'-e[Start at the end of the file]' \
-'--start-at-end[Start at the end of the file]' \
 '-p[Print the output to stdout]' \
 '--print[Print the output to stdout]' \
 '--no-builtin-keywords[Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)]' \

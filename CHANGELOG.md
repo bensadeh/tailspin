@@ -1,8 +1,8 @@
 # Changelog
+
 ## 5.1.0
 
-
-
+- Removed the `start-at-end` flag
 
 ## 5.0.0
 

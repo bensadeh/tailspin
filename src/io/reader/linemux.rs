@@ -17,28 +17,13 @@ pub struct Linemux {
 }
 
 impl Linemux {
-    pub async fn get_reader(
-        file_path: PathBuf,
-        number_of_lines: usize,
-        start_at_end: bool,
-        mut reached_eof_tx: Option<Sender<()>>,
-    ) -> Reader {
+    pub async fn get_reader(file_path: PathBuf, number_of_lines: usize, reached_eof_tx: Option<Sender<()>>) -> Reader {
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
-        if start_at_end {
-            lines.add_file(&file_path).await.expect("Could not add file to linemux");
-
-            if let Some(reached_eof) = reached_eof_tx.take() {
-                reached_eof
-                    .send(())
-                    .expect("Failed sending EOF signal to oneshot channel");
-            }
-        } else {
-            lines
-                .add_file_from_start(&file_path)
-                .await
-                .expect("Could not add file to linemux");
-        }
+        lines
+            .add_file_from_start(&file_path)
+            .await
+            .expect("Could not add file to linemux");
 
         let bucket_size = number_of_lines.saturating_sub(1).clamp(1, 10000);
 

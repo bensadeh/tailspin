@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                                                    
+#                                                                                                                                                                                                                                                                                                                                     
 
 <p align="center">
 A log file highlighter
@@ -405,7 +405,6 @@ TAILSPIN_PAGER="ov -f [FILE]" tspin example-logs/example1
 
 ```console
 -f, --follow                     Follow the contents of the file
--e, --start-at-end               Start at the end of the file
 -p, --print                      Print the output to stdout
 -c, --listen-command '[CMD]'     Listen the output (stdout) of the provided command
     --config-path [PATH]         Use the configuration file from the provided path

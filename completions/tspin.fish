@@ -29,7 +29,6 @@ ip-addresses\t''
 processes\t''
 json\t''"
 complete -c tspin -s f -l follow -d 'Follow the contents of a file'
-complete -c tspin -s e -l start-at-end -d 'Start at the end of the file'
 complete -c tspin -s p -l print -d 'Print the output to stdout'
 complete -c tspin -l no-builtin-keywords -d 'Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)'
 complete -c tspin -l generate-bash-completions -d 'Print bash completions to stdout'

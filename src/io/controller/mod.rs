@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use miette::Result;
 use tokio::io;
 
-use crate::config::{Config, Input, Output};
+use crate::config::{Input, InputOutputConfig, Output};
 use crate::io::presenter::custom_pager::CustomPager;
 use crate::io::presenter::empty::NoPresenter;
 use crate::io::presenter::less::Less;
@@ -42,34 +42,32 @@ pub struct Presenter {
     presenter: PresenterImpl,
 }
 
-pub async fn get_io_and_presenter(config: Config, reached_eof_tx: Option<Sender<()>>) -> (Io, Presenter) {
-    let reader = get_reader(config.input, config.start_at_end, reached_eof_tx).await;
-    let (writer, presenter) = get_writer_and_presenter(config.output, config.follow).await;
+pub async fn get_io_and_presenter(config: InputOutputConfig, reached_eof_tx: Option<Sender<()>>) -> (Io, Presenter) {
+    let reader = get_reader(config.input, reached_eof_tx).await;
+    let (writer, presenter) = get_writer_and_presenter(config.output).await;
 
     (Io { reader, writer }, Presenter { presenter })
 }
 
-async fn get_reader(input: Input, start_at_end: bool, reached_eof_tx: Option<Sender<()>>) -> Reader {
+async fn get_reader(input: Input, reached_eof_tx: Option<Sender<()>>) -> Reader {
     match input {
-        Input::File(file_info) => {
-            Linemux::get_reader(file_info.path, file_info.line_count, start_at_end, reached_eof_tx).await
-        }
+        Input::File(file_info) => Linemux::get_reader(file_info.path, file_info.line_count, reached_eof_tx).await,
         Input::Stdin => StdinReader::get_reader(reached_eof_tx),
         Input::Command(cmd) => CommandReader::get_reader(cmd, reached_eof_tx).await,
     }
 }
 
-async fn get_writer_and_presenter(output: Output, follow: bool) -> (Writer, PresenterImpl) {
+async fn get_writer_and_presenter(output: Output) -> (Writer, PresenterImpl) {
     match output {
-        Output::Less => {
+        Output::Less(opts) => {
             let result = TempFile::get_writer_result().await;
-            let presenter = Less::get_presenter(result.temp_file_path, follow);
+            let presenter = Less::get_presenter(result.temp_file_path, opts.follow);
 
             (result.writer, presenter)
         }
         Output::CustomPager(cmd) => {
             let result = TempFile::get_writer_result().await;
-            let presenter = CustomPager::get_presenter(result.temp_file_path, cmd);
+            let presenter = CustomPager::get_presenter(result.temp_file_path, cmd.command);
 
             (result.writer, presenter)
         }

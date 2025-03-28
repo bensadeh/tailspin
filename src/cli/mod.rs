@@ -25,10 +25,6 @@ pub struct Arguments {
     #[clap(short = 'f', long = "follow")]
     pub follow: bool,
 
-    /// Start at the end of the file
-    #[clap(short = 'e', long = "start-at-end")]
-    pub start_at_end: bool,
-
     /// Print the output to stdout
     #[clap(short = 'p', long = "print")]
     pub to_stdout: bool,
