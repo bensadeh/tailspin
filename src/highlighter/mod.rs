@@ -1,10 +1,8 @@
-mod builtins;
+pub mod builtins;
 pub mod groups;
 
-use crate::highlighter::builtins::get_builtin_keywords;
 use crate::highlighter::groups::HighlighterGroups;
 use crate::theme::Theme;
-use inlet_manifold::highlighter::HighlightBuilder;
 use inlet_manifold::*;
 use miette::Diagnostic;
 use thiserror::Error;
@@ -12,8 +10,7 @@ use thiserror::Error;
 pub fn get_highlighter(
     highlighter_groups: HighlighterGroups,
     theme: Theme,
-    keyword_configs_from_cli: Vec<KeywordConfig>,
-    disable_builtin_keywords: bool,
+    keywords: Vec<KeywordConfig>,
 ) -> Result<Highlighter, HighlighterError> {
     let mut builder = Highlighter::builder();
 
@@ -58,12 +55,7 @@ pub fn get_highlighter(
         builder.with_number_highlighter(theme.numbers);
     }
 
-    add_keywords(
-        theme.keywords,
-        keyword_configs_from_cli,
-        disable_builtin_keywords,
-        &mut builder,
-    );
+    builder.with_keyword_highlighter(keywords);
 
     for regex in theme.regexes {
         builder.with_regex_highlighter(regex);
@@ -78,24 +70,6 @@ pub fn get_highlighter(
             HighlighterError::RegexErrors(errors.into_iter().map(WrappedRegexError::from).collect())
         }
     })
-}
-
-fn add_keywords(
-    keywords_from_toml: Vec<KeywordConfig>,
-    keyword_from_cli: Vec<KeywordConfig>,
-    disable_builtin_keywords: bool,
-    builder: &mut HighlightBuilder,
-) {
-    let builtin_keywords = get_builtin_keywords(disable_builtin_keywords);
-
-    let keywords = vec![]
-        .into_iter()
-        .chain(builtin_keywords)
-        .chain(keywords_from_toml)
-        .chain(keyword_from_cli)
-        .collect();
-
-    builder.with_keyword_highlighter(keywords);
 }
 
 #[derive(Debug, Error, Diagnostic)]

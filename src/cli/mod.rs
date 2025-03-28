@@ -3,15 +3,15 @@ mod keywords;
 
 use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
 use crate::cli::keywords::get_keywords_from_cli;
+use crate::config::{get_io_config, Input, Output};
+use crate::highlighter::builtins::get_builtin_keywords;
+use crate::highlighter::groups;
+use crate::highlighter::groups::HighlighterGroups;
+use crate::theme::{reader, Theme};
 use clap::{Parser, ValueEnum};
 use inlet_manifold::KeywordConfig;
 use miette::{IntoDiagnostic, Result};
 use std::path::PathBuf;
-
-pub struct Cli {
-    pub args: Arguments,
-    pub keyword_config: Vec<KeywordConfig>,
-}
 
 #[derive(Parser)]
 #[command(name = "tspin")]
@@ -101,15 +101,39 @@ pub enum HighlighterGroup {
     Json,
 }
 
-pub fn get_cli() -> Result<Cli> {
-    let cli = Arguments::try_parse().into_diagnostic()?;
-    let keyword_config = get_keywords_from_cli(&cli);
+pub struct FullConfig {
+    pub input: Input,
+    pub output: Output,
+    pub theme: Theme,
+    pub highlighter_groups: HighlighterGroups,
+    pub keywords: Vec<KeywordConfig>,
+}
 
+pub fn get_config() -> Result<FullConfig> {
+    let cli = Arguments::try_parse().into_diagnostic()?;
     generate_shell_completions_and_exit_or_continue(&cli);
 
-    Ok(Cli {
-        args: cli,
-        keyword_config,
+    let io_config = get_io_config(&cli)?;
+    let highlighter_groups = groups::get_highlighter_groups(&cli.enabled_highlighters, &cli.disabled_highlighters)?;
+
+    let theme = reader::parse_theme(&cli.config_path)?;
+    let keywords_builtin = get_builtin_keywords(cli.no_builtin_keywords);
+    let keywords_from_toml = theme.keywords.clone();
+    let keywords_from_cli = get_keywords_from_cli(&cli);
+
+    let keywords = vec![]
+        .into_iter()
+        .chain(keywords_builtin)
+        .chain(keywords_from_toml)
+        .chain(keywords_from_cli)
+        .collect();
+
+    Ok(FullConfig {
+        input: io_config.input,
+        output: io_config.output,
+        theme,
+        highlighter_groups,
+        keywords,
     })
 }
 

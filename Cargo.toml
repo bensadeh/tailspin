@@ -17,11 +17,11 @@ name = "tspin"
 missing-const-for-fn = "warn"
 
 [dependencies]
-async-trait = "0.1.87"
+async-trait = "0.1.88"
 clap = { version = "4.5.34", features = ["derive"] }
 clap_complete = "4.5.47"
 ctrlc = "3.4.5"
-inlet_manifold = "0.1.4"
+inlet_manifold = "0.2.0"
 linemux = "0.3.0"
 miette = { version = "7.5.0", features = ["fancy"] }
 owo-colors = "4.2.0"

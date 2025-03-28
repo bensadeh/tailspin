@@ -8,33 +8,20 @@ mod highlighter;
 mod io;
 mod theme;
 
-use crate::cli::get_cli;
+use crate::cli::get_config;
 use crate::io::controller::get_io_and_presenter;
 use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
 use crate::io::writer::AsyncLineWriter;
-use highlighter::groups;
 use inlet_manifold::Highlighter;
-use theme::reader;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let cli = get_cli()?;
-
-    let io_config = config::get_input_output_config(&cli.args)?;
-    let theme = reader::parse_theme(cli.args.config_path)?;
-    let highlighter_groups =
-        groups::get_highlighter_groups(&cli.args.enabled_highlighters, &cli.args.disabled_highlighters)?;
-
-    let highlighter = highlighter::get_highlighter(
-        highlighter_groups,
-        theme,
-        cli.keyword_config,
-        cli.args.no_builtin_keywords,
-    )?;
+    let config = get_config()?;
+    let highlighter = highlighter::get_highlighter(config.highlighter_groups, config.theme, config.keywords)?;
 
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
-    let (io, presenter) = get_io_and_presenter(io_config, Some(reached_eof_tx)).await;
+    let (io, presenter) = get_io_and_presenter(config.input, config.output, Some(reached_eof_tx)).await;
 
     tokio::spawn(async move {
         process_lines(io, highlighter).await?;

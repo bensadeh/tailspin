@@ -7,9 +7,9 @@ use std::io;
 use std::path::{Path, PathBuf};
 use thiserror::Error;
 
-pub fn parse_theme(custom_config_path: Option<PathBuf>) -> Result<Theme, ThemeError> {
+pub fn parse_theme(custom_config_path: &Option<PathBuf>) -> Result<Theme, ThemeError> {
     if let Some(path) = custom_config_path {
-        let toml_theme = read_and_parse_toml(&path)?;
+        let toml_theme = read_and_parse_toml(path)?;
         return Ok(Theme::from(toml_theme));
     }
 

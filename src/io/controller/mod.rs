@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use miette::Result;
 use tokio::io;
 
-use crate::config::{Input, InputOutputConfig, Output};
+use crate::config::{Input, Output};
 use crate::io::presenter::custom_pager::CustomPager;
 use crate::io::presenter::empty::NoPresenter;
 use crate::io::presenter::less::Less;
@@ -42,9 +42,9 @@ pub struct Presenter {
     presenter: PresenterImpl,
 }
 
-pub async fn get_io_and_presenter(config: InputOutputConfig, reached_eof_tx: Option<Sender<()>>) -> (Io, Presenter) {
-    let reader = get_reader(config.input, reached_eof_tx).await;
-    let (writer, presenter) = get_writer_and_presenter(config.output).await;
+pub async fn get_io_and_presenter(input: Input, output: Output, reached_eof_tx: Option<Sender<()>>) -> (Io, Presenter) {
+    let reader = get_reader(input, reached_eof_tx).await;
+    let (writer, presenter) = get_writer_and_presenter(output).await;
 
     (Io { reader, writer }, Presenter { presenter })
 }

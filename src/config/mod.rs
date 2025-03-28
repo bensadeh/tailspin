@@ -58,7 +58,7 @@ pub enum ConfigError {
     Io(#[from] io::Error),
 }
 
-pub fn get_input_output_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError> {
+pub fn get_io_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError> {
     let has_data_from_stdin = !stdin().is_terminal();
 
     validate_input(
