@@ -31,7 +31,7 @@ pub struct Arguments {
 
     /// Provide a custom path to a configuration file
     #[clap(long = "config-path")]
-    pub config_path: Option<String>,
+    pub config_path: Option<PathBuf>,
 
     /// Capture the output (stdout) of a command and view it in `less`
     #[clap(short = 'c', long = "listen-command", conflicts_with = "follow")]
