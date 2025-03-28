@@ -22,7 +22,7 @@ async fn main() -> Result<()> {
     let cli = get_cli()?;
 
     let io_config = config::get_input_output_config(&cli.args)?;
-    let theme = reader::parse_theme(cli.args.config_path.clone())?;
+    let theme = reader::parse_theme(cli.args.config_path)?;
     let highlighter_groups =
         groups::get_highlighter_groups(&cli.args.enabled_highlighters, &cli.args.disabled_highlighters)?;
 
