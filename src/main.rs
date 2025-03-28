@@ -18,13 +18,12 @@ use inlet_manifold::Highlighter;
 #[tokio::main]
 async fn main() -> Result<()> {
     let config = get_config()?;
-    let highlighter = highlighter::get_highlighter(config.highlighter_groups, config.theme, config.keywords)?;
 
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
     let (io, presenter) = get_io_and_presenter(config.input, config.output, Some(reached_eof_tx)).await;
 
     tokio::spawn(async move {
-        process_lines(io, highlighter).await?;
+        process_lines(io, config.highlighter).await?;
 
         Ok::<(), Report>(())
     });

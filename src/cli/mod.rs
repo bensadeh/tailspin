@@ -4,12 +4,12 @@ mod keywords;
 use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
 use crate::cli::keywords::get_keywords_from_cli;
 use crate::config::{get_io_config, Input, Output};
+use crate::highlighter;
 use crate::highlighter::builtins::get_builtin_keywords;
 use crate::highlighter::groups;
-use crate::highlighter::groups::HighlighterGroups;
-use crate::theme::{reader, Theme};
+use crate::theme::reader;
 use clap::{Parser, ValueEnum};
-use inlet_manifold::KeywordConfig;
+use inlet_manifold::Highlighter;
 use miette::{IntoDiagnostic, Result};
 use std::path::PathBuf;
 
@@ -104,9 +104,7 @@ pub enum HighlighterGroup {
 pub struct FullConfig {
     pub input: Input,
     pub output: Output,
-    pub theme: Theme,
-    pub highlighter_groups: HighlighterGroups,
-    pub keywords: Vec<KeywordConfig>,
+    pub highlighter: Highlighter,
 }
 
 pub fn get_config() -> Result<FullConfig> {
@@ -128,12 +126,12 @@ pub fn get_config() -> Result<FullConfig> {
         .chain(keywords_from_cli)
         .collect();
 
+    let highlighter = highlighter::get_highlighter(highlighter_groups, theme, keywords)?;
+
     Ok(FullConfig {
         input: io_config.input,
         output: io_config.output,
-        theme,
-        highlighter_groups,
-        keywords,
+        highlighter,
     })
 }
 
