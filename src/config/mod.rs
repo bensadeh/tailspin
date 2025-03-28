@@ -1,4 +1,4 @@
-use crate::cli::Cli;
+use crate::cli::Arguments;
 use miette::Diagnostic;
 use owo_colors::OwoColorize;
 use std::fs::File;
@@ -52,7 +52,7 @@ pub enum ConfigError {
     Io(#[from] io::Error),
 }
 
-pub fn create_config(args: &Cli) -> Result<Config, ConfigError> {
+pub fn create_config(args: &Arguments) -> Result<Config, ConfigError> {
     let has_data_from_stdin = !stdin().is_terminal();
 
     validate_input(
@@ -91,7 +91,7 @@ fn validate_input(
     Ok(())
 }
 
-fn get_input(args: &Cli, has_data_from_stdin: bool) -> Result<Input, ConfigError> {
+fn get_input(args: &Arguments, has_data_from_stdin: bool) -> Result<Input, ConfigError> {
     if has_data_from_stdin {
         Ok(Input::Stdin)
     } else if let Some(command) = &args.listen_command {

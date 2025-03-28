@@ -1,7 +1,7 @@
-use crate::cli::Cli;
+use crate::cli::Arguments;
 use inlet_manifold::{Color, KeywordConfig, Style};
 
-pub fn get_keywords_from_cli(cli: &Cli) -> Vec<KeywordConfig> {
+pub fn get_keywords_from_cli(cli: &Arguments) -> Vec<KeywordConfig> {
     vec![]
         .into_iter()
         .chain(extract_keywords(&cli.words_red, Color::Red))

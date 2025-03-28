@@ -1,4 +1,3 @@
-use clap::Parser;
 use miette::{IntoDiagnostic, Report, Result, WrapErr};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use tokio::sync::oneshot;
@@ -9,7 +8,7 @@ mod highlighter;
 mod io;
 mod theme;
 
-use crate::cli::{completions, keywords::get_keywords_from_cli, Cli};
+use crate::cli::get_cli;
 use crate::io::controller::get_io_and_presenter;
 use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
@@ -20,20 +19,22 @@ use theme::reader;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    completions::generate_shell_completions_and_exit_or_continue();
+    let cli = get_cli()?;
 
-    let cli = Cli::try_parse().into_diagnostic()?;
+    let app_config = config::create_config(&cli.args)?;
+    let theme = reader::parse_theme(cli.args.config_path.clone())?;
+    let highlighter_groups =
+        groups::get_highlighter_groups(&cli.args.enabled_highlighters, &cli.args.disabled_highlighters)?;
 
-    let config = config::create_config(&cli)?;
-    let theme = reader::parse_theme(cli.config_path.clone())?;
-    let keywords_from_cli = get_keywords_from_cli(&cli);
-    let highlighter_groups = groups::get_highlighter_groups(&cli.enable, &cli.disable)?;
-
-    let highlighter =
-        highlighter::get_highlighter(highlighter_groups, theme, keywords_from_cli, cli.no_builtin_keywords)?;
+    let highlighter = highlighter::get_highlighter(
+        highlighter_groups,
+        theme,
+        cli.keyword_config,
+        cli.args.no_builtin_keywords,
+    )?;
 
     let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
-    let (io, presenter) = get_io_and_presenter(config, Some(reached_eof_tx)).await;
+    let (io, presenter) = get_io_and_presenter(app_config, Some(reached_eof_tx)).await;
 
     tokio::spawn(async move {
         process_lines(io, highlighter).await?;

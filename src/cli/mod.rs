@@ -1,28 +1,22 @@
-pub mod completions;
-pub mod keywords;
+mod completions;
+mod keywords;
 
+use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
+use crate::cli::keywords::get_keywords_from_cli;
 use clap::{Parser, ValueEnum};
+use inlet_manifold::KeywordConfig;
+use miette::{IntoDiagnostic, Result};
 use std::path::PathBuf;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-pub enum HighlighterGroup {
-    Numbers,
-    Urls,
-    Pointers,
-    Dates,
-    Paths,
-    Quotes,
-    KeyValuePairs,
-    Uuids,
-    IpAddresses,
-    Processes,
-    Json,
+pub struct Cli {
+    pub args: Arguments,
+    pub keyword_config: Vec<KeywordConfig>,
 }
 
 #[derive(Parser)]
 #[command(name = "tspin")]
 #[command(author, version, about)]
-pub struct Cli {
+pub struct Arguments {
     /// Filepath
     #[clap(name = "FILE", value_hint = clap::ValueHint::FilePath)]
     pub file_path: Option<PathBuf>,
@@ -73,11 +67,11 @@ pub struct Cli {
 
     /// Enable specific highlighters
     #[clap(long = "enable", value_enum, use_value_delimiter = true)]
-    pub enable: Vec<HighlighterGroup>,
+    pub enabled_highlighters: Vec<HighlighterGroup>,
 
     /// Disable specific highlighters
     #[clap(long = "disable", value_enum, use_value_delimiter = true)]
-    pub disable: Vec<HighlighterGroup>,
+    pub disabled_highlighters: Vec<HighlighterGroup>,
 
     /// Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)
     #[clap(long = "no-builtin-keywords")]
@@ -96,8 +90,35 @@ pub struct Cli {
     pub generate_zsh_completions: bool,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum HighlighterGroup {
+    Numbers,
+    Urls,
+    Pointers,
+    Dates,
+    Paths,
+    Quotes,
+    KeyValuePairs,
+    Uuids,
+    IpAddresses,
+    Processes,
+    Json,
+}
+
+pub fn get_cli() -> Result<Cli> {
+    let cli = Arguments::try_parse().into_diagnostic()?;
+    let keyword_config = get_keywords_from_cli(&cli);
+
+    generate_shell_completions_and_exit_or_continue(&cli);
+
+    Ok(Cli {
+        args: cli,
+        keyword_config,
+    })
+}
+
 #[test]
 fn verify_app() {
     use clap::CommandFactory;
-    Cli::command().debug_assert()
+    Arguments::command().debug_assert()
 }
