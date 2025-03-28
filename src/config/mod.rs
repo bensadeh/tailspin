@@ -39,11 +39,11 @@ pub struct CustomPagerOptions {
 
 #[derive(Debug, Error, Diagnostic)]
 pub enum ConfigError {
-    #[error("Missing filename ({0} for help)")]
-    MissingFilename(String),
+    #[error("Missing filename ({} for help)", "tspin --help".magenta().to_string())]
+    MissingFilename,
 
-    #[error("Cannot read from both file and {0}")]
-    CannotReadBothFileAndListenCommand(String),
+    #[error("Cannot read from both file and {}", "--listen-command".magenta().to_string())]
+    CannotReadBothFileAndListenCommand,
 
     #[error("Could not determine input type")]
     CouldNotDetermineInputType,
@@ -78,19 +78,17 @@ pub fn get_io_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError>
     Ok(InputOutputConfig { input, output })
 }
 
-fn validate_input(
+const fn validate_input(
     has_data_from_stdin: bool,
     has_file_input: bool,
     has_follow_command_input: bool,
 ) -> Result<(), ConfigError> {
     if !has_data_from_stdin && !has_file_input && !has_follow_command_input {
-        return Err(ConfigError::MissingFilename("tspin --help".magenta().to_string()));
+        return Err(ConfigError::MissingFilename);
     }
 
     if has_file_input && has_follow_command_input {
-        return Err(ConfigError::CannotReadBothFileAndListenCommand(
-            "--listen-command".magenta().to_string(),
-        ));
+        return Err(ConfigError::CannotReadBothFileAndListenCommand);
     }
 
     Ok(())
