@@ -2,14 +2,36 @@
 
 ## 5.0.0
 
-- Updated shell completion commands names
-- Use `PathBuf` instead of String for file paths
-- Added `miette` for prettier error messages
-- Bump Rust edition to 2024
+This is a relatively small update with one breaking change, namely the removal of the ability to watch folders. It's
+never fun to remove features from `tailspin` that users enjoy and use, however as the tool grows, it has become more
+important for me to focus on the core functionality of `tailspin` which is highlighting.
+
+I hope that I've made `tailspin` modular and extensible so that user are able to script and extend `tailspin` to
+alleviate this change.
+
+On a lighter note, I've added support for custom pagers. This means that you can now use `tailspin` with your favorite
+pager, for example `ov` or `minus`.
+
+### New features:
+
+- Added support for using custom pagers
+
+### Bugfixes:
+
 - Fixed a bug in the config parser where it would fall back on looking for the theme in `~/tailspin/theme.toml`
   instead of `~/.config/tailspin/theme.toml` if `XDG_CONFIG_HOME` is unset
 - Fixed a bug where `tailspin` would crash reading files with one line
-- Added support for using custom pagers
+
+### Under the hood:
+
+- Use `PathBuf` instead of String for file paths
+- Updated shell completion commands names
+- Added `miette` for prettier error messages
+- Removed unnecessary use of `Box`
+- Bump Rust edition to 2024
+
+### Breaking changes:
+
 - Removed support for watching folders
 
 ## 4.0.0
