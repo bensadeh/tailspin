@@ -39,10 +39,10 @@ pub struct CustomPagerOptions {
 
 #[derive(Debug, Error, Diagnostic)]
 pub enum ConfigError {
-    #[error("Missing filename ({} for help)", "tspin --help".magenta().to_string())]
+    #[error("Missing filename ({} for help)", "tspin --help".magenta())]
     MissingFilename,
 
-    #[error("Cannot read from both file and {}", "--listen-command".magenta().to_string())]
+    #[error("Cannot read from both file and {}", "--listen-command".magenta())]
     CannotReadBothFileAndListenCommand,
 
     #[error("Could not determine input type")]
