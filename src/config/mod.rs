@@ -49,6 +49,7 @@ pub enum ConfigError {
     CouldNotDetermineInputType,
 
     #[error("{0}: No such file or directory")]
+    #[diagnostic(severity(Warning))]
     NoSuchFileOrDirectory(String),
 
     #[error("Path is not a file")]
@@ -96,31 +97,38 @@ const fn validate_input(
 
 fn get_input(args: &Arguments, has_data_from_stdin: bool) -> Result<Input, ConfigError> {
     if has_data_from_stdin {
-        Ok(Input::Stdin)
-    } else if let Some(command) = &args.listen_command {
-        Ok(Input::Command(command.clone()))
-    } else if let Some(path) = &args.file_path {
-        process_path_input(path.into())
-    } else {
-        Err(ConfigError::CouldNotDetermineInputType)
+        return Ok(Input::Stdin);
     }
+
+    if let Some(command) = &args.listen_command {
+        return Ok(Input::Command(command.clone()));
+    }
+
+    if let Some(path) = &args.file_path {
+        return process_path_input(path.into());
+    }
+
+    Err(ConfigError::CouldNotDetermineInputType)
 }
 
 fn get_output(has_data_from_stdin: bool, to_stdout: bool, follow: bool, has_listen_command: bool) -> Output {
     if let Ok(var) = env::var("TAILSPIN_PAGER") {
-        Output::CustomPager(CustomPagerOptions { command: var })
-    } else if has_data_from_stdin || to_stdout {
-        Output::Stdout
-    } else {
-        let follow = if has_listen_command { true } else { follow };
-
-        Output::Less(LessOptions { follow })
+        return Output::CustomPager(CustomPagerOptions { command: var });
     }
+
+    if has_data_from_stdin || to_stdout {
+        return Output::Stdout;
+    }
+
+    let follow_mode = if has_listen_command { true } else { follow };
+
+    Output::Less(LessOptions { follow: follow_mode })
 }
 
 fn process_path_input(path: PathBuf) -> Result<Input, ConfigError> {
     if !path.exists() {
-        return Err(ConfigError::NoSuchFileOrDirectory(path.display().to_string()));
+        let path_colored = path.display().yellow().to_string();
+        return Err(ConfigError::NoSuchFileOrDirectory(path_colored));
     }
 
     let metadata = fs::metadata(&path)?;
