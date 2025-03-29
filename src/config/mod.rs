@@ -99,9 +99,8 @@ fn get_input(args: &Arguments, has_data_from_stdin: bool) -> Result<Input, Confi
         Ok(Input::Stdin)
     } else if let Some(command) = &args.listen_command {
         Ok(Input::Command(command.clone()))
-    } else if let Some(path_str) = &args.file_path {
-        let path = PathBuf::from(path_str);
-        process_path_input(path)
+    } else if let Some(path) = &args.file_path {
+        process_path_input(path.into())
     } else {
         Err(ConfigError::CouldNotDetermineInputType)
     }
