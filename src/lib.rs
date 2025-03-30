@@ -1,4 +1,4 @@
-pub mod highlighter;
+mod highlighter;
 
 pub use highlighter::{
     config::*,
