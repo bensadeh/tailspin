@@ -1,8 +1,8 @@
 mod core;
 
 pub use core::{
-    core::Highlighter,
     error::Error,
+    highlighter::Highlighter,
     style::{Color, Style},
 };
 

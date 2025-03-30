@@ -14,8 +14,8 @@ use crate::core::highlighters::unix_path::UnixPathHighlighter;
 use crate::core::highlighters::unix_process::UnixProcessHighlighter;
 use crate::core::highlighters::url::UrlHighlighter;
 use crate::core::highlighters::uuid::UuidHighlighter;
-use crate::core::normalizer::normalize_keyword_configs;
-use crate::core::split_and_apply::apply_only_to_unhighlighted;
+use crate::core::utils::normalizer::normalize_keyword_configs;
+use crate::core::utils::split_and_apply::apply_only_to_unhighlighted;
 use crate::Error;
 use std::sync::Arc;
 

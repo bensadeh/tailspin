@@ -1,7 +1,7 @@
 use nu_ansi_term::Style as NuStyle;
 
 use crate::core::config::QuotesConfig;
-use crate::core::core::Highlight;
+use crate::core::highlighter::Highlight;
 use crate::core::highlighters::quote::State::{InsideQuote, OutsideQuote};
 use crate::Style;
 

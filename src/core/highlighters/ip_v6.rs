@@ -1,5 +1,5 @@
 use crate::core::config::IpV6Config;
-use crate::core::core::Highlight;
+use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
 use std::net::Ipv6Addr;

@@ -1,11 +1,10 @@
-pub mod core;
 pub mod error;
+pub mod highlighter;
 pub mod style;
 
 pub mod config;
 mod highlighters;
-mod normalizer;
-mod split_and_apply;
+mod utils;
 
 #[cfg(test)]
 mod tests {

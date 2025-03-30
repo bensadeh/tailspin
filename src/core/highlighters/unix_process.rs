@@ -1,5 +1,5 @@
 use crate::core::config::UnixProcessConfig;
-use crate::core::core::Highlight;
+use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex};
 
