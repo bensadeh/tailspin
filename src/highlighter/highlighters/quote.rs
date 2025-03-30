@@ -1,8 +1,9 @@
 use nu_ansi_term::Style as NuStyle;
 
+use crate::highlighter::config::QuotesConfig;
 use crate::highlighter::core::Highlight;
 use crate::highlighter::highlighters::quote::State::{InsideQuote, OutsideQuote};
-use crate::{QuotesConfig, Style};
+use crate::Style;
 
 const RESET: &str = "\x1b[0m";
 

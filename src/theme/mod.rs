@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use tailspin::config::*;
 use tailspin::*;
 
 mod mappers;

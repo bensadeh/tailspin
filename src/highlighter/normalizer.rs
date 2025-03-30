@@ -1,4 +1,5 @@
-use crate::{KeywordConfig, Style};
+use crate::highlighter::config::KeywordConfig;
+use crate::Style;
 use std::collections::HashMap;
 
 pub fn normalize_keyword_configs(configs: Vec<KeywordConfig>) -> Vec<KeywordConfig> {

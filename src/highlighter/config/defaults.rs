@@ -1,7 +1,5 @@
-use crate::{
-    Color, DateTimeConfig, IpV4Config, IpV6Config, JsonConfig, KeyValueConfig, NumberConfig, PointerConfig,
-    QuotesConfig, Style, UnixPathConfig, UnixProcessConfig, UrlConfig, UuidConfig,
-};
+use crate::highlighter::config::*;
+use crate::Color;
 
 impl Default for NumberConfig {
     fn default() -> Self {

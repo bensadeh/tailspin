@@ -1,9 +1,8 @@
-pub mod config;
 pub mod core;
-pub mod defaults;
 pub mod error;
 pub mod style;
 
+pub mod config;
 mod highlighters;
 mod normalizer;
 mod split_and_apply;

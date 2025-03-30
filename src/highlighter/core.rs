@@ -1,8 +1,4 @@
-use crate::{
-    DateTimeConfig, Error, IpV4Config, IpV6Config, KeyValueConfig, KeywordConfig, NumberConfig, PointerConfig,
-    QuotesConfig, RegexConfig, UnixPathConfig, UnixProcessConfig, UrlConfig, UuidConfig,
-};
-
+use crate::highlighter::config::*;
 use crate::highlighter::highlighters::date_dash::DateDashHighlighter;
 use crate::highlighter::highlighters::date_time::TimeHighlighter;
 use crate::highlighter::highlighters::ip_v4::IpV4Highlighter;
@@ -20,7 +16,7 @@ use crate::highlighter::highlighters::url::UrlHighlighter;
 use crate::highlighter::highlighters::uuid::UuidHighlighter;
 use crate::highlighter::normalizer::normalize_keyword_configs;
 use crate::highlighter::split_and_apply::apply_only_to_unhighlighted;
-use crate::JsonConfig;
+use crate::Error;
 use std::sync::Arc;
 
 pub trait Highlight: Sync + Send {

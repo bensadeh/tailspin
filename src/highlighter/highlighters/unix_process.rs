@@ -1,8 +1,7 @@
+use crate::highlighter::config::UnixProcessConfig;
+use crate::highlighter::core::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex};
-
-use crate::highlighter::core::Highlight;
-use crate::UnixProcessConfig;
 
 pub struct UnixProcessHighlighter {
     regex: Regex,

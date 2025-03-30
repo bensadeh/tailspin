@@ -4,6 +4,7 @@ pub mod groups;
 use crate::highlighter_builder::groups::HighlighterGroups;
 use crate::theme::Theme;
 use miette::Diagnostic;
+use tailspin::config::KeywordConfig;
 use tailspin::*;
 use thiserror::Error;
 

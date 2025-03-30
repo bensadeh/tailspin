@@ -1,5 +1,5 @@
+use crate::highlighter::config::DateTimeConfig;
 use crate::highlighter::core::Highlight;
-use crate::DateTimeConfig;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
 

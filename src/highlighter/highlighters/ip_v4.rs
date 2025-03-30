@@ -1,5 +1,5 @@
+use crate::highlighter::config::IpV4Config;
 use crate::highlighter::core::Highlight;
-use crate::IpV4Config;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
 
@@ -60,7 +60,6 @@ impl Highlight for IpV4Highlighter {
 mod tests {
     use super::*;
     use crate::highlighter::tests::escape_code_converter::ConvertEscapeCodes;
-    use crate::IpV4Config;
     use crate::{Color, Style};
 
     #[test]

@@ -1,4 +1,5 @@
-use tailspin::{Color, KeywordConfig, Style};
+use tailspin::config::KeywordConfig;
+use tailspin::{Color, Style};
 
 pub fn get_builtin_keywords(disable_builtin_keywords: bool) -> Vec<KeywordConfig> {
     match disable_builtin_keywords {

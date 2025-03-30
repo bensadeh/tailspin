@@ -1,5 +1,5 @@
+use crate::highlighter::config::JsonConfig;
 use crate::highlighter::core::Highlight;
-use crate::JsonConfig;
 use nu_ansi_term::Style as NuStyle;
 use serde_json::Value;
 use std::fmt::Write;

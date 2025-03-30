@@ -1,5 +1,5 @@
+use crate::highlighter::config::DateTimeConfig;
 use crate::highlighter::core::Highlight;
-use crate::DateTimeConfig;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex};
 
@@ -65,6 +65,7 @@ impl Highlight for TimeHighlighter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::highlighter::config::DateTimeConfig;
     use crate::highlighter::tests::escape_code_converter::ConvertEscapeCodes;
     use crate::{Color, Style};
 

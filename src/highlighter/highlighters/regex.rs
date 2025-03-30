@@ -1,5 +1,5 @@
+use crate::highlighter::config::RegexConfig;
 use crate::highlighter::core::Highlight;
-use crate::RegexConfig;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex};
 

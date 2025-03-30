@@ -1,5 +1,7 @@
 use crate::Style;
 
+pub mod defaults;
+
 pub struct NumberConfig {
     pub style: Style,
 }

@@ -1,8 +1,7 @@
+use crate::highlighter::config::NumberConfig;
+use crate::highlighter::core::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
-
-use crate::highlighter::core::Highlight;
-use crate::NumberConfig;
 
 pub struct NumberHighlighter {
     regex: Regex,
