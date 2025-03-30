@@ -14,17 +14,17 @@ use crate::core::highlighters::unix_path::UnixPathHighlighter;
 use crate::core::highlighters::unix_process::UnixProcessHighlighter;
 use crate::core::highlighters::url::UrlHighlighter;
 use crate::core::highlighters::uuid::UuidHighlighter;
+use crate::core::highlighters::StaticHighlight;
 use crate::core::utils::normalizer::normalize_keyword_configs;
 use crate::core::utils::split_and_apply::apply_only_to_unhighlighted;
 use crate::Error;
-use std::sync::Arc;
 
-pub trait Highlight: Sync + Send {
+pub trait Highlight {
     fn apply(&self, input: &str) -> String;
 }
 
 pub struct Highlighter {
-    highlighters: Vec<Arc<dyn Highlight>>,
+    highlighters: Vec<StaticHighlight>,
 }
 
 impl Highlighter {
@@ -34,14 +34,14 @@ impl Highlighter {
         }
     }
 
-    pub fn builder() -> HighlightBuilder {
+    pub const fn builder() -> HighlightBuilder {
         HighlightBuilder {
             highlighters: Vec::new(),
             regex_errors: Vec::new(),
         }
     }
 
-    fn with_highlighters(mut self, highlighters: Vec<Arc<dyn Highlight>>) -> Self {
+    fn with_highlighters(mut self, highlighters: Vec<StaticHighlight>) -> Self {
         self.highlighters = highlighters;
 
         self
@@ -81,72 +81,73 @@ impl Default for Highlighter {
 }
 
 pub struct HighlightBuilder {
-    highlighters: Vec<Arc<dyn Highlight>>,
+    highlighters: Vec<StaticHighlight>,
     regex_errors: Vec<regex::Error>,
 }
 
 impl HighlightBuilder {
     pub fn with_number_highlighter(&mut self, config: NumberConfig) -> &mut Self {
-        self.try_add_highlighter(NumberHighlighter::new(config));
+        self.try_add_highlighter(NumberHighlighter::new(config).map(StaticHighlight::Number));
         self
     }
 
     pub fn with_uuid_highlighter(&mut self, config: UuidConfig) -> &mut Self {
-        self.try_add_highlighter(UuidHighlighter::new(config));
+        self.try_add_highlighter(UuidHighlighter::new(config).map(StaticHighlight::Uuid));
         self
     }
 
     pub fn with_unix_path_highlighter(&mut self, config: UnixPathConfig) -> &mut Self {
-        self.try_add_highlighter(UnixPathHighlighter::new(config));
+        self.try_add_highlighter(UnixPathHighlighter::new(config).map(StaticHighlight::UnixPath));
         self
     }
 
     pub fn with_unix_process_highlighter(&mut self, config: UnixProcessConfig) -> &mut Self {
-        self.try_add_highlighter(UnixProcessHighlighter::new(config));
+        self.try_add_highlighter(UnixProcessHighlighter::new(config).map(StaticHighlight::UnixProcess));
         self
     }
 
     pub fn with_key_value_highlighter(&mut self, config: KeyValueConfig) -> &mut Self {
-        self.try_add_highlighter(KeyValueHighlighter::new(config))
+        self.try_add_highlighter(KeyValueHighlighter::new(config).map(StaticHighlight::KeyValue));
+        self
     }
 
     pub fn with_date_time_highlighters(&mut self, config: DateTimeConfig) -> &mut Self {
-        self.try_add_highlighter(TimeHighlighter::new(config))
-            .try_add_highlighter(DateDashHighlighter::new(config))
+        self.try_add_highlighter(TimeHighlighter::new(config).map(StaticHighlight::Time))
+            .try_add_highlighter(DateDashHighlighter::new(config).map(StaticHighlight::DateDash))
     }
 
     pub fn with_ip_v6_highlighter(&mut self, config: IpV6Config) -> &mut Self {
-        self.try_add_highlighter(IpV6Highlighter::new(config));
+        self.try_add_highlighter(IpV6Highlighter::new(config).map(StaticHighlight::IpV6));
         self
     }
 
     pub fn with_ip_v4_highlighter(&mut self, config: IpV4Config) -> &mut Self {
-        self.try_add_highlighter(IpV4Highlighter::new(config));
+        self.try_add_highlighter(IpV4Highlighter::new(config).map(StaticHighlight::IpV4));
         self
     }
 
     pub fn with_url_highlighter(&mut self, config: UrlConfig) -> &mut Self {
-        self.try_add_highlighter(UrlHighlighter::new(config));
+        self.try_add_highlighter(UrlHighlighter::new(config).map(StaticHighlight::Url));
         self
     }
 
     pub fn with_pointer_highlighter(&mut self, config: PointerConfig) -> &mut Self {
-        self.try_add_highlighter(PointerHighlighter::new(config));
+        self.try_add_highlighter(PointerHighlighter::new(config).map(StaticHighlight::Pointer));
         self
     }
 
     pub fn with_regex_highlighter(&mut self, config: RegexConfig) -> &mut Self {
-        self.try_add_highlighter(RegexpHighlighter::new(config));
+        self.try_add_highlighter(RegexpHighlighter::new(config).map(StaticHighlight::Regexp));
         self
     }
 
     pub fn with_quote_highlighter(&mut self, config: QuotesConfig) -> &mut Self {
-        self.try_add_highlighter(Ok(QuoteHighlighter::new(config)));
+        self.try_add_highlighter(Ok(StaticHighlight::Quote(QuoteHighlighter::new(config))));
         self
     }
 
     pub fn with_json_highlighter(&mut self, config: JsonConfig) -> &mut Self {
-        self.try_add_highlighter(Ok(JsonHighlighter::new(config)));
+        self.try_add_highlighter(Ok(StaticHighlight::Json(JsonHighlighter::new(config))));
         self
     }
 
@@ -157,7 +158,7 @@ impl HighlightBuilder {
             let highlighter = KeywordHighlighter::new(keyword_config);
 
             match highlighter {
-                Ok(h) => self.highlighters.push(Arc::new(h)),
+                Ok(h) => self.highlighters.push(StaticHighlight::Keyword(h)),
                 Err(e) => self.regex_errors.push(e),
             }
         }
@@ -165,9 +166,9 @@ impl HighlightBuilder {
         self
     }
 
-    fn try_add_highlighter<T: Highlight + 'static>(&mut self, highlighter: Result<T, regex::Error>) -> &mut Self {
+    fn try_add_highlighter(&mut self, highlighter: Result<StaticHighlight, regex::Error>) -> &mut Self {
         match highlighter {
-            Ok(h) => self.highlighters.push(Arc::new(h)),
+            Ok(h) => self.highlighters.push(h),
             Err(e) => self.regex_errors.push(e),
         }
 
