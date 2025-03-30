@@ -1,5 +1,5 @@
 use crate::cli::Arguments;
-use inlet_manifold::{Color, KeywordConfig, Style};
+use tailspin::{Color, KeywordConfig, Style};
 
 pub fn get_keywords_from_cli(cli: &Arguments) -> Vec<KeywordConfig> {
     vec![]

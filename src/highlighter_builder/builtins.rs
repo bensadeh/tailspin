@@ -1,4 +1,4 @@
-use inlet_manifold::{Color, KeywordConfig, Style};
+use tailspin::{Color, KeywordConfig, Style};
 
 pub fn get_builtin_keywords(disable_builtin_keywords: bool) -> Vec<KeywordConfig> {
     match disable_builtin_keywords {

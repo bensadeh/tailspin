@@ -9,9 +9,9 @@ use crate::highlighter_builder::builtins::get_builtin_keywords;
 use crate::highlighter_builder::groups;
 use crate::theme::reader;
 use clap::{Parser, ValueEnum};
-use inlet_manifold::Highlighter;
 use miette::{IntoDiagnostic, Result};
 use std::path::PathBuf;
+use tailspin::Highlighter;
 
 #[derive(Parser)]
 #[command(name = "tspin")]

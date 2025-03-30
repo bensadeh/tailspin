@@ -384,18 +384,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "inlet_manifold"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7bf8e106a03986d7b19829e1d0927372e4e8bea0c1bec05e521ca9a4663c9328"
-dependencies = [
- "nu-ansi-term",
- "regex",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "inotify"
 version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -982,14 +970,15 @@ dependencies = [
  "clap",
  "clap_complete",
  "ctrlc",
- "inlet_manifold",
  "linemux",
  "miette",
+ "nu-ansi-term",
  "owo-colors",
  "rand",
  "rayon",
  "regex",
  "serde",
+ "serde_json",
  "shell-words",
  "shellexpand",
  "tempfile",

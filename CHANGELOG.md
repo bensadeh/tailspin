@@ -3,6 +3,7 @@
 ## 5.1.0
 
 - Removed the `start-at-end` flag
+- Merge the `inlet_manifold` crate back into `tailspin` (`tailspin` is now the name of both the cli and the crate)
 
 ## 5.0.0
 

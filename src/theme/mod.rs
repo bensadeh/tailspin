@@ -1,5 +1,5 @@
-use inlet_manifold::*;
 use serde::Deserialize;
+use tailspin::*;
 
 mod mappers;
 pub mod reader;

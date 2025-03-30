@@ -3,8 +3,8 @@ pub mod groups;
 
 use crate::highlighter_builder::groups::HighlighterGroups;
 use crate::theme::Theme;
-use inlet_manifold::*;
 use miette::Diagnostic;
+use tailspin::*;
 use thiserror::Error;
 
 pub fn get_highlighter(

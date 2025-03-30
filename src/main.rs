@@ -1,5 +1,6 @@
 use miette::{IntoDiagnostic, Report, Result, WrapErr};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use tailspin::Highlighter;
 use tokio::sync::oneshot;
 
 mod cli;
@@ -13,7 +14,6 @@ use crate::io::controller::get_io_and_presenter;
 use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
 use crate::io::writer::AsyncLineWriter;
-use inlet_manifold::Highlighter;
 
 #[tokio::main]
 async fn main() -> Result<()> {
