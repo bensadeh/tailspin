@@ -1,4 +1,4 @@
-use crate::highlighter::config::*;
+use crate::core::config::*;
 use crate::Color;
 
 impl Default for NumberConfig {

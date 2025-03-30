@@ -1,4 +1,4 @@
-use crate::highlighter::core::Highlight;
+use crate::core::core::Highlight;
 use std::cmp::min;
 use std::sync::Arc;
 

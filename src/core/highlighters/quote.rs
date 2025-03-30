@@ -1,8 +1,8 @@
 use nu_ansi_term::Style as NuStyle;
 
-use crate::highlighter::config::QuotesConfig;
-use crate::highlighter::core::Highlight;
-use crate::highlighter::highlighters::quote::State::{InsideQuote, OutsideQuote};
+use crate::core::config::QuotesConfig;
+use crate::core::core::Highlight;
+use crate::core::highlighters::quote::State::{InsideQuote, OutsideQuote};
 use crate::Style;
 
 const RESET: &str = "\x1b[0m";
@@ -95,7 +95,7 @@ enum State {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::highlighter::tests::escape_code_converter::{ConvertEscapeCodes, ConvertHighlightCodes};
+    use crate::core::tests::escape_code_converter::{ConvertEscapeCodes, ConvertHighlightCodes};
     use crate::{Color, Style};
 
     #[test]

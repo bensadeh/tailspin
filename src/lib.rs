@@ -1,11 +1,11 @@
-mod highlighter;
+mod core;
 
-pub use highlighter::{
+pub use core::{
     core::Highlighter,
     error::Error,
     style::{Color, Style},
 };
 
 pub mod config {
-    pub use super::highlighter::config::*;
+    pub use super::core::config::*;
 }

@@ -1,5 +1,5 @@
-use crate::highlighter::config::JsonConfig;
-use crate::highlighter::core::Highlight;
+use crate::core::config::JsonConfig;
+use crate::core::core::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use serde_json::Value;
 use std::fmt::Write;
@@ -103,7 +103,7 @@ impl Highlight for JsonHighlighter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::highlighter::tests::escape_code_converter::ConvertEscapeCodes;
+    use crate::core::tests::escape_code_converter::ConvertEscapeCodes;
     use crate::{Color, Style};
 
     #[test]

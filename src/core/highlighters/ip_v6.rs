@@ -1,5 +1,5 @@
-use crate::highlighter::config::IpV6Config;
-use crate::highlighter::core::Highlight;
+use crate::core::config::IpV6Config;
+use crate::core::core::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
 use std::net::Ipv6Addr;
@@ -57,7 +57,7 @@ impl Highlight for IpV6Highlighter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::highlighter::tests::escape_code_converter::ConvertEscapeCodes;
+    use crate::core::tests::escape_code_converter::ConvertEscapeCodes;
     use crate::{Color, Style};
 
     #[test]

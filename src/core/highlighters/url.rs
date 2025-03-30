@@ -1,5 +1,5 @@
-use crate::highlighter::config::UrlConfig;
-use crate::highlighter::core::Highlight;
+use crate::core::config::UrlConfig;
+use crate::core::core::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
 
@@ -88,7 +88,7 @@ impl Highlight for UrlHighlighter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::highlighter::tests::escape_code_converter::ConvertEscapeCodes;
+    use crate::core::tests::escape_code_converter::ConvertEscapeCodes;
     use crate::{Color, Style};
 
     #[test]
