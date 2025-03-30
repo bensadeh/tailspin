@@ -4,7 +4,7 @@ use tokio::sync::oneshot;
 
 mod cli;
 mod config;
-mod highlighter;
+mod highlighter_builder;
 mod io;
 mod theme;
 

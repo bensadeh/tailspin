@@ -1,7 +1,7 @@
 pub mod builtins;
 pub mod groups;
 
-use crate::highlighter::groups::HighlighterGroups;
+use crate::highlighter_builder::groups::HighlighterGroups;
 use crate::theme::Theme;
 use inlet_manifold::*;
 use miette::Diagnostic;

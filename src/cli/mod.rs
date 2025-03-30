@@ -4,9 +4,9 @@ mod keywords;
 use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
 use crate::cli::keywords::get_keywords_from_cli;
 use crate::config::{get_io_config, Input, Output};
-use crate::highlighter;
-use crate::highlighter::builtins::get_builtin_keywords;
-use crate::highlighter::groups;
+use crate::highlighter_builder;
+use crate::highlighter_builder::builtins::get_builtin_keywords;
+use crate::highlighter_builder::groups;
 use crate::theme::reader;
 use clap::{Parser, ValueEnum};
 use inlet_manifold::Highlighter;
@@ -126,7 +126,7 @@ pub fn get_config() -> Result<FullConfig> {
         .chain(keywords_from_cli)
         .collect();
 
-    let highlighter = highlighter::get_highlighter(highlighter_groups, theme, keywords)?;
+    let highlighter = highlighter_builder::get_highlighter(highlighter_groups, theme, keywords)?;
 
     Ok(FullConfig {
         input: io_config.input,
