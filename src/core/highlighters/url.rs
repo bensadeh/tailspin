@@ -2,6 +2,7 @@ use crate::core::config::UrlConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
+use std::borrow::Cow;
 
 pub struct UrlHighlighter {
     url_regex: Regex,
@@ -38,8 +39,8 @@ impl UrlHighlighter {
 }
 
 impl Highlight for UrlHighlighter {
-    fn apply(&self, input: &str) -> String {
-        let highlighted = self.url_regex.replace_all(input, |caps: &Captures<'_>| {
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.url_regex.replace_all(input, |caps: &Captures<'_>| {
             let mut output = String::new();
 
             if let Some(protocol) = caps.name("protocol") {
@@ -79,9 +80,7 @@ impl Highlight for UrlHighlighter {
             }
 
             output
-        });
-
-        highlighted.into_owned()
+        })
     }
 }
 
@@ -121,7 +120,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }

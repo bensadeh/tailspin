@@ -14,6 +14,7 @@ use crate::core::highlighters::unix_path::UnixPathHighlighter;
 use crate::core::highlighters::unix_process::UnixProcessHighlighter;
 use crate::core::highlighters::url::UrlHighlighter;
 use crate::core::highlighters::uuid::UuidHighlighter;
+use std::borrow::Cow;
 
 pub mod date_dash;
 pub mod date_time;
@@ -50,7 +51,7 @@ pub enum StaticHighlight {
 }
 
 impl Highlight for StaticHighlight {
-    fn apply(&self, input: &str) -> String {
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         match self {
             StaticHighlight::DateDash(h) => h.apply(input),
             StaticHighlight::Time(h) => h.apply(input),

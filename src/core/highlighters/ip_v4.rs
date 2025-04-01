@@ -2,6 +2,7 @@ use crate::core::config::IpV4Config;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
+use std::borrow::Cow;
 
 pub struct IpV4Highlighter {
     regex: Regex,
@@ -34,25 +35,23 @@ impl IpV4Highlighter {
 }
 
 impl Highlight for IpV4Highlighter {
-    fn apply(&self, input: &str) -> String {
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         let segment = &self.number;
         let separator = &self.separator;
         let highlight_groups = [
             segment, separator, segment, separator, segment, separator, segment, separator, segment,
         ];
 
-        self.regex
-            .replace_all(input, |caps: &Captures<'_>| {
-                let mut output = String::new();
-                for (group, cap) in caps.iter().enumerate().skip(1) {
-                    if let Some(cap) = cap {
-                        let color = highlight_groups[group - 1];
-                        output.push_str(&format!("{}", color.paint(cap.as_str())));
-                    }
+        self.regex.replace_all(input, |caps: &Captures<'_>| {
+            let mut output = String::new();
+            for (group, cap) in caps.iter().enumerate().skip(1) {
+                if let Some(cap) = cap {
+                    let color = highlight_groups[group - 1];
+                    output.push_str(&format!("{}", color.paint(cap.as_str())));
                 }
-                output
-            })
-            .to_string()
+            }
+            output
+        })
     }
 }
 
@@ -88,7 +87,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }

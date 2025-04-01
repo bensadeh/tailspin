@@ -2,6 +2,7 @@ use crate::core::config::UnixProcessConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex};
+use std::borrow::Cow;
 
 pub struct UnixProcessHighlighter {
     regex: Regex,
@@ -24,27 +25,25 @@ impl UnixProcessHighlighter {
 }
 
 impl Highlight for UnixProcessHighlighter {
-    fn apply(&self, input: &str) -> String {
-        self.regex
-            .replace_all(input, |captures: &regex::Captures| {
-                let process_name = captures
-                    .name("process_name")
-                    .map(|p| format!("{}", self.name.paint(p.as_str())))
-                    .unwrap_or_default();
-                let process_num = captures
-                    .name("process_id")
-                    .map(|n| format!("{}", self.id.paint(n.as_str())))
-                    .unwrap_or_default();
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.regex.replace_all(input, |captures: &regex::Captures| {
+            let process_name = captures
+                .name("process_name")
+                .map(|p| format!("{}", self.name.paint(p.as_str())))
+                .unwrap_or_default();
+            let process_num = captures
+                .name("process_id")
+                .map(|n| format!("{}", self.id.paint(n.as_str())))
+                .unwrap_or_default();
 
-                format!(
-                    "{}{}{}{}",
-                    process_name,
-                    self.bracket.paint("["),
-                    process_num,
-                    self.bracket.paint("]")
-                )
-            })
-            .to_string()
+            format!(
+                "{}{}{}{}",
+                process_name,
+                self.bracket.paint("["),
+                process_num,
+                self.bracket.paint("]")
+            )
+        })
     }
 }
 
@@ -77,7 +76,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }

@@ -2,6 +2,7 @@ use crate::core::config::JsonConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use serde_json::Value;
+use std::borrow::Cow;
 use std::fmt::Write;
 
 pub struct JsonHighlighter {
@@ -87,16 +88,16 @@ impl JsonHighlighter {
 }
 
 impl Highlight for JsonHighlighter {
-    fn apply(&self, input: &str) -> String {
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         let json_value: Value = match serde_json::from_str(input) {
             Ok(value) => value,
-            Err(_) => return input.to_string(),
+            Err(_) => return Cow::Borrowed(input),
         };
 
         let mut output = String::new();
         self.format_json(&json_value, &mut output);
 
-        output
+        Cow::Owned(output)
     }
 }
 
@@ -132,7 +133,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }

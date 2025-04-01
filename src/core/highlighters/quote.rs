@@ -1,4 +1,5 @@
 use nu_ansi_term::Style as NuStyle;
+use std::borrow::Cow;
 
 use crate::core::config::QuotesConfig;
 use crate::core::highlighter::Highlight;
@@ -31,11 +32,13 @@ fn ansi_color_code_without_reset(style: Style) -> String {
 }
 
 impl Highlight for QuoteHighlighter {
-    fn apply(&self, input: &str) -> String {
-        let quotes_count = input.chars().filter(|&ch| ch == self.quotes_token).count();
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        let quotes_count = input
+            .chars()
+            .fold(0, |acc, ch| acc + (ch == self.quotes_token) as usize);
 
-        if quotes_count % 2 != 0 {
-            return input.to_string();
+        if quotes_count == 0 || quotes_count % 2 != 0 {
+            return Cow::Borrowed(input);
         }
 
         let mut state = OutsideQuote;
@@ -48,24 +51,28 @@ impl Highlight for QuoteHighlighter {
                     potential_reset_code,
                 } => {
                     if ch == self.quotes_token {
+                        // End of a quoted segment: insert the closing quote and reset.
                         output.push(ch);
                         output.push_str(RESET);
                         state = OutsideQuote;
                         continue;
                     }
 
+                    // Accumulate characters to see if we are matching a reset sequence.
                     potential_reset_code.push(ch);
                     if potential_reset_code.as_str() == RESET {
                         output.push_str(potential_reset_code);
                         output.push_str(color);
                         potential_reset_code.clear();
                     } else if !RESET.starts_with(potential_reset_code.as_str()) {
+                        // The accumulated characters do not form the reset code.
                         output.push_str(potential_reset_code);
                         potential_reset_code.clear();
                     }
                 }
                 OutsideQuote => {
                     if ch == self.quotes_token {
+                        // Start of a quoted segment: insert the color code and the quote.
                         output.push_str(&self.color);
                         output.push(ch);
                         state = InsideQuote {
@@ -74,13 +81,12 @@ impl Highlight for QuoteHighlighter {
                         };
                         continue;
                     }
-
                     output.push(ch);
                 }
-            };
+            }
         }
 
-        output
+        Cow::Owned(output)
     }
 }
 
@@ -118,7 +124,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 
@@ -134,7 +140,7 @@ mod tests {
 
         let actual = highlighter.apply(input.as_str());
 
-        assert_eq!(actual.convert_escape_codes(), expected);
+        assert_eq!(actual.to_string().convert_escape_codes(), expected);
     }
 
     #[test]
@@ -149,6 +155,6 @@ mod tests {
 
         let actual = highlighter.apply(input);
 
-        assert_eq!(actual.convert_escape_codes(), expected);
+        assert_eq!(actual.to_string().convert_escape_codes(), expected);
     }
 }

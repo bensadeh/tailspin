@@ -2,6 +2,7 @@ use crate::core::config::KeyValueConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
+use std::borrow::Cow;
 
 pub struct KeyValueHighlighter {
     regex: Regex,
@@ -22,22 +23,20 @@ impl KeyValueHighlighter {
 }
 
 impl Highlight for KeyValueHighlighter {
-    fn apply(&self, input: &str) -> String {
-        self.regex
-            .replace_all(input, |captures: &Captures| {
-                let space_or_start = captures.name("space_or_start").map(|s| s.as_str()).unwrap_or_default();
-                let key = captures
-                    .name("key")
-                    .map(|k| format!("{}", self.key.paint(k.as_str())))
-                    .unwrap_or_default();
-                let equals_sign = captures
-                    .name("equals")
-                    .map(|e| format!("{}", self.separator.paint(e.as_str())))
-                    .unwrap_or_default();
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.regex.replace_all(input, |captures: &Captures| {
+            let space_or_start = captures.name("space_or_start").map(|s| s.as_str()).unwrap_or_default();
+            let key = captures
+                .name("key")
+                .map(|k| format!("{}", self.key.paint(k.as_str())))
+                .unwrap_or_default();
+            let equals_sign = captures
+                .name("equals")
+                .map(|e| format!("{}", self.separator.paint(e.as_str())))
+                .unwrap_or_default();
 
-                format!("{}{}{}", space_or_start, key, equals_sign)
-            })
-            .to_string()
+            format!("{}{}{}", space_or_start, key, equals_sign)
+        })
     }
 }
 
@@ -62,7 +61,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }

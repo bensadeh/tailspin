@@ -2,6 +2,7 @@ use crate::core::config::IpV6Config;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
+use std::borrow::Cow;
 use std::net::Ipv6Addr;
 
 pub struct IpV6Highlighter {
@@ -25,7 +26,7 @@ impl IpV6Highlighter {
 }
 
 impl Highlight for IpV6Highlighter {
-    fn apply(&self, input: &str) -> String {
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         self.regex
             .replace_all(input, |caps: &Captures<'_>| match caps[1].parse::<Ipv6Addr>() {
                 Ok(_ip) => {
@@ -50,7 +51,6 @@ impl Highlight for IpV6Highlighter {
                 }
                 Err(_err) => caps[1].to_string(),
             })
-            .to_string()
     }
 }
 
@@ -93,7 +93,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }

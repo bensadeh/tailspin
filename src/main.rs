@@ -45,7 +45,7 @@ async fn process_lines<T: AsyncLineReader + AsyncLineWriter + Unpin + Send>(
     while let Ok(Some(line)) = io.next_line_batch().await {
         let highlighted_lines = line
             .into_par_iter()
-            .map(|line| highlighter.apply(line.as_str()))
+            .map(|line| highlighter.apply(line.as_str()).to_string())
             .collect::<Vec<_>>()
             .join("\n");
 

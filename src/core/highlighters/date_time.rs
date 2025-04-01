@@ -2,6 +2,7 @@ use crate::core::config::DateTimeConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex};
+use std::borrow::Cow;
 
 pub struct TimeHighlighter {
     regex: Regex,
@@ -33,32 +34,30 @@ impl TimeHighlighter {
 }
 
 impl Highlight for TimeHighlighter {
-    fn apply(&self, input: &str) -> String {
-        self.regex
-            .replace_all(input, |caps: &regex::Captures<'_>| {
-                let paint_and_stringify = |name: &str, style: &NuStyle| {
-                    caps.name(name)
-                        .map(|m| style.paint(m.as_str()).to_string())
-                        .unwrap_or_default()
-                };
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.regex.replace_all(input, |caps: &regex::Captures<'_>| {
+            let paint_and_stringify = |name: &str, style: &NuStyle| {
+                caps.name(name)
+                    .map(|m| style.paint(m.as_str()).to_string())
+                    .unwrap_or_default()
+            };
 
-                let parts = [
-                    ("T", &self.zone),
-                    ("hours", &self.time),
-                    ("colon1", &self.separator),
-                    ("minutes", &self.time),
-                    ("colon2", &self.separator),
-                    ("seconds", &self.time),
-                    ("frac_sep", &self.separator),
-                    ("frac_digits", &self.time),
-                    ("tz", &self.zone),
-                ];
+            let parts = [
+                ("T", &self.zone),
+                ("hours", &self.time),
+                ("colon1", &self.separator),
+                ("minutes", &self.time),
+                ("colon2", &self.separator),
+                ("seconds", &self.time),
+                ("frac_sep", &self.separator),
+                ("frac_digits", &self.time),
+                ("tz", &self.zone),
+            ];
 
-                parts.iter().fold(String::new(), |acc, (name, style)| {
-                    acc + &paint_and_stringify(name, style)
-                })
+            parts.iter().fold(String::new(), |acc, (name, style)| {
+                acc + &paint_and_stringify(name, style)
             })
-            .to_string()
+        })
     }
 }
 
@@ -114,7 +113,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }

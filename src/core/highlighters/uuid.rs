@@ -2,6 +2,7 @@ use crate::core::config::UuidConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
+use std::borrow::Cow;
 
 pub struct UuidHighlighter {
     regex: Regex,
@@ -36,20 +37,18 @@ impl UuidHighlighter {
 }
 
 impl Highlight for UuidHighlighter {
-    fn apply(&self, input: &str) -> String {
-        self.regex
-            .replace_all(input, |caps: &Captures<'_>| {
-                caps[0]
-                    .chars()
-                    .map(|c| match c {
-                        '0'..='9' => format!("{}", self.number.paint(c.to_string())),
-                        'a'..='f' | 'A'..='F' => format!("{}", self.letter.paint(c.to_string())),
-                        '-' => format!("{}", self.dash.paint(c.to_string())),
-                        _ => c.to_string(),
-                    })
-                    .collect::<String>()
-            })
-            .to_string()
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.regex.replace_all(input, |caps: &Captures<'_>| {
+            caps[0]
+                .chars()
+                .map(|c| match c {
+                    '0'..='9' => format!("{}", self.number.paint(c.to_string())),
+                    'a'..='f' | 'A'..='F' => format!("{}", self.letter.paint(c.to_string())),
+                    '-' => format!("{}", self.dash.paint(c.to_string())),
+                    _ => c.to_string(),
+                })
+                .collect::<String>()
+        })
     }
 }
 
@@ -82,7 +81,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }

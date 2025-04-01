@@ -2,6 +2,7 @@ use crate::core::config::DateTimeConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
+use std::borrow::Cow;
 
 pub struct DateDashHighlighter {
     regex_yyyy_xx_xx: Regex,
@@ -53,20 +54,30 @@ impl DateDashHighlighter {
         }
     }
 
-    fn apply_regexes(&self, input: &str, regexes: &[&Regex]) -> String {
-        regexes.iter().fold(input.to_string(), |acc, regex| {
-            regex
-                .replace_all(&acc, |caps: &Captures<'_>| {
-                    self.highlight_date(caps).unwrap_or_else(|| caps[0].to_string())
-                })
-                .to_string()
-        })
+    fn apply_regexes<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        let mut changed = false;
+
+        let res1 = self.regex_yyyy_xx_xx.replace_all(input, |caps: &Captures<'_>| {
+            changed = true;
+            self.highlight_date(caps).unwrap_or_else(|| caps[0].to_string())
+        });
+
+        let res2 = self.regex_xx_xx_yyyy.replace_all(res1.as_ref(), |caps: &Captures<'_>| {
+            changed = true;
+            self.highlight_date(caps).unwrap_or_else(|| caps[0].to_string())
+        });
+
+        if changed {
+            Cow::Owned(res2.into_owned())
+        } else {
+            Cow::Borrowed(input)
+        }
     }
 }
 
 impl Highlight for DateDashHighlighter {
-    fn apply(&self, input: &str) -> String {
-        self.apply_regexes(input, &[&self.regex_yyyy_xx_xx, &self.regex_xx_xx_yyyy])
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.apply_regexes(input)
     }
 }
 
@@ -111,7 +122,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }

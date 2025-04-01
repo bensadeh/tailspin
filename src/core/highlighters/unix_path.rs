@@ -2,6 +2,7 @@ use crate::core::config::UnixPathConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
+use std::borrow::Cow;
 
 pub struct UnixPathHighlighter {
     regex: Regex,
@@ -28,41 +29,39 @@ impl UnixPathHighlighter {
 }
 
 impl Highlight for UnixPathHighlighter {
-    fn apply(&self, input: &str) -> String {
-        self.regex
-            .replace_all(input, |caps: &Captures<'_>| {
-                let path = &caps["path"];
-                let chars: Vec<_> = path.chars().collect();
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.regex.replace_all(input, |caps: &Captures<'_>| {
+            let path = &caps["path"];
+            let chars: Vec<_> = path.chars().collect();
 
-                // Check if path starts with a valid character and not a double slash
-                if !(chars[0] == '/' || chars[0] == '~' || (chars[0] == '.' && chars.len() > 1 && chars[1] == '/'))
-                    || (chars[0] == '/' && chars.len() > 1 && chars[1] == '/')
-                {
-                    return path.to_string();
-                }
+            // Check if path starts with a valid character and not a double slash
+            if !(chars[0] == '/' || chars[0] == '~' || (chars[0] == '.' && chars.len() > 1 && chars[1] == '/'))
+                || (chars[0] == '/' && chars.len() > 1 && chars[1] == '/')
+            {
+                return path.to_string();
+            }
 
-                let mut output = String::new();
-                let mut current_segment = String::new();
-                for &char in &chars {
-                    match char {
-                        '/' => {
-                            if !current_segment.is_empty() {
-                                output.push_str(&self.segment.paint(&current_segment).to_string());
-                                current_segment.clear();
-                            }
-                            output.push_str(&self.separator.paint(char.to_string()).to_string());
+            let mut output = String::new();
+            let mut current_segment = String::new();
+            for &char in &chars {
+                match char {
+                    '/' => {
+                        if !current_segment.is_empty() {
+                            output.push_str(&self.segment.paint(&current_segment).to_string());
+                            current_segment.clear();
                         }
-                        _ => current_segment.push(char),
+                        output.push_str(&self.separator.paint(char.to_string()).to_string());
                     }
+                    _ => current_segment.push(char),
                 }
+            }
 
-                if !current_segment.is_empty() {
-                    output.push_str(&self.segment.paint(&current_segment).to_string());
-                }
+            if !current_segment.is_empty() {
+                output.push_str(&self.segment.paint(&current_segment).to_string());
+            }
 
-                output
-            })
-            .to_string()
+            output
+        })
     }
 }
 
@@ -90,7 +89,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }

@@ -1,26 +1,64 @@
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::StaticHighlight;
+use std::borrow::Cow;
 use std::cmp::min;
 
 const FOUR_KB: usize = 4 * 1024; // 4 KiB
 
-/// Applies a given function to the unhighlighted parts of an input string, preserving any existing highlighting.
-pub fn apply_only_to_unhighlighted(input: &str, highlighter: &StaticHighlight) -> String {
-    let chunks = split_into_chunks(input);
-    let mut result = allocate_string(input);
+#[derive(Default)]
+pub struct FoldState<'a> {
+    /// Holds the new string once a change is detected.
+    result: Option<String>,
+    /// The number of bytes processed without change.
+    processed: usize,
+    /// The original input, used for copying the unchanged prefix.
+    input: &'a str,
+}
 
-    for chunk in chunks {
-        match chunk {
-            Chunk::NotHighlighted(text) => {
-                result.push_str(&highlighter.apply(text));
-            }
-            Chunk::AlreadyHighlighted(text) => {
-                result.push_str(text);
-            }
+impl FoldState<'_> {
+    fn update(&mut self, text: &str) {
+        match self.result {
+            Some(ref mut buf) => buf.push_str(text),
+            None => self.processed += text.len(),
         }
     }
 
-    result
+    fn update_owned(&mut self, new_text: &str) {
+        match self.result {
+            None => {
+                let mut buf = allocate_string(self.input);
+                buf.push_str(&self.input[..self.processed]);
+                buf.push_str(new_text);
+                self.result = Some(buf);
+            }
+            Some(_) => self.result.as_mut().unwrap().push_str(new_text),
+        }
+    }
+}
+
+pub fn apply_only_to_unhighlighted<'a>(input: &'a str, highlighter: &StaticHighlight) -> Cow<'a, str> {
+    let initial_state = FoldState {
+        input,
+        ..FoldState::default()
+    };
+
+    split_into_chunks(input)
+        .iter()
+        .fold(initial_state, |mut state, chunk| {
+            match chunk {
+                Chunk::AlreadyHighlighted(text) => state.update(text),
+                Chunk::NotHighlighted(text) => {
+                    let transformed = highlighter.apply(text);
+                    match transformed {
+                        Cow::Borrowed(new_text) => state.update(new_text),
+                        Cow::Owned(new_text) => state.update_owned(&new_text),
+                    }
+                }
+            }
+            state
+        })
+        .result
+        .map_or(Cow::Borrowed(input), Cow::Owned)
 }
 
 fn allocate_string(input: &str) -> String {

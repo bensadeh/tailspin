@@ -18,9 +18,10 @@ use crate::core::highlighters::StaticHighlight;
 use crate::core::utils::normalizer::normalize_keyword_configs;
 use crate::core::utils::split_and_apply::apply_only_to_unhighlighted;
 use crate::Error;
+use std::borrow::Cow;
 
-pub trait Highlight {
-    fn apply(&self, input: &str) -> String;
+pub trait Highlight: Sync + Send {
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str>;
 }
 
 pub struct Highlighter {
@@ -47,10 +48,16 @@ impl Highlighter {
         self
     }
 
-    pub fn apply(&self, input: &str) -> String {
-        self.highlighters.iter().fold(input.to_owned(), |acc, highlighter| {
-            apply_only_to_unhighlighted(&acc, highlighter)
-        })
+    pub fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.highlighters
+            .iter()
+            .fold(Cow::Borrowed(input), |acc, highlighter| match acc {
+                Cow::Borrowed(s) => apply_only_to_unhighlighted(s, highlighter),
+                Cow::Owned(s) => match apply_only_to_unhighlighted(&s, highlighter) {
+                    Cow::Borrowed(_) => Cow::Owned(s),
+                    Cow::Owned(new_s) => Cow::Owned(new_s),
+                },
+            })
     }
 }
 

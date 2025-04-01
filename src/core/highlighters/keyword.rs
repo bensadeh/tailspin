@@ -2,6 +2,7 @@ use crate::core::config::KeywordConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
+use std::borrow::Cow;
 
 pub struct KeywordHighlighter {
     regex: Regex,
@@ -27,7 +28,7 @@ impl KeywordHighlighter {
 }
 
 impl Highlight for KeywordHighlighter {
-    fn apply(&self, input: &str) -> String {
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         self.regex
             .replace_all(input, |caps: &Captures<'_>| match self.style.background {
                 None => {
@@ -38,7 +39,6 @@ impl Highlight for KeywordHighlighter {
                     format!("{}", self.style.paint(capture_with_extra_padding))
                 }
             })
-            .to_string()
     }
 }
 
@@ -67,7 +67,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 
@@ -90,7 +90,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }

@@ -2,6 +2,7 @@ use crate::core::config::PointerConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex};
+use std::borrow::Cow;
 
 pub struct PointerHighlighter {
     regex: Regex,
@@ -41,43 +42,41 @@ impl PointerHighlighter {
 }
 
 impl Highlight for PointerHighlighter {
-    fn apply(&self, input: &str) -> String {
-        self.regex
-            .replace_all(input, |caps: &Captures<'_>| {
-                let prefix = caps.name("prefix").or_else(|| caps.name("prefix64")).unwrap().as_str();
-                let first_half = caps
-                    .name("first_half")
-                    .or_else(|| caps.name("first_half64"))
-                    .unwrap()
-                    .as_str();
-                let formatted_prefix = prefix
-                    .chars()
-                    .map(|c| highlight_char(c, self.number, self.x, self.letter))
-                    .collect::<String>();
-                let formatted_first_half = first_half
-                    .chars()
-                    .map(|c| highlight_char(c, self.number, self.x, self.letter))
-                    .collect::<String>();
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.regex.replace_all(input, |caps: &Captures<'_>| {
+            let prefix = caps.name("prefix").or_else(|| caps.name("prefix64")).unwrap().as_str();
+            let first_half = caps
+                .name("first_half")
+                .or_else(|| caps.name("first_half64"))
+                .unwrap()
+                .as_str();
+            let formatted_prefix = prefix
+                .chars()
+                .map(|c| highlight_char(c, self.number, self.x, self.letter))
+                .collect::<String>();
+            let formatted_first_half = first_half
+                .chars()
+                .map(|c| highlight_char(c, self.number, self.x, self.letter))
+                .collect::<String>();
 
-                caps.name("second_half").map_or_else(
-                    || format!("{}{}", formatted_prefix, formatted_first_half),
-                    |second_half| {
-                        let formatted_second_half = second_half
-                            .as_str()
-                            .chars()
-                            .map(|c| highlight_char(c, self.number, self.x, self.letter))
-                            .collect::<String>();
-                        format!(
-                            "{}{}{}{}",
-                            formatted_prefix,
-                            formatted_first_half,
-                            self.separator.paint(self.separator_token.to_string()),
-                            formatted_second_half
-                        )
-                    },
-                )
-            })
-            .to_string()
+            caps.name("second_half").map_or_else(
+                || format!("{}{}", formatted_prefix, formatted_first_half),
+                |second_half| {
+                    let formatted_second_half = second_half
+                        .as_str()
+                        .chars()
+                        .map(|c| highlight_char(c, self.number, self.x, self.letter))
+                        .collect::<String>();
+                    format!(
+                        "{}{}{}{}",
+                        formatted_prefix,
+                        formatted_first_half,
+                        self.separator.paint(self.separator_token.to_string()),
+                        formatted_second_half
+                    )
+                },
+            )
+        })
     }
 }
 
@@ -121,7 +120,7 @@ mod tests {
 
         for (input, expected) in cases {
             let actual = highlighter.apply(input);
-            assert_eq!(expected, actual.convert_escape_codes());
+            assert_eq!(expected, actual.to_string().convert_escape_codes());
         }
     }
 }
