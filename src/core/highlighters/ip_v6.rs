@@ -14,7 +14,7 @@ pub struct IpV6Highlighter {
 
 impl IpV6Highlighter {
     pub fn new(config: IpV6Config) -> Result<Self, Error> {
-        let regex = Regex::new(r#"([0-9a-fA-F\:\.]{3,})(?:(/)(\d{1,3}))?"#)?;
+        let regex = Regex::new(r#"([0-9a-fA-F:.]{3,})(?:(/)(\d{1,3}))?"#)?;
 
         Ok(Self {
             regex,
