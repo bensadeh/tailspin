@@ -49,15 +49,13 @@ impl Highlighter {
     }
 
     pub fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        self.highlighters
-            .iter()
-            .fold(Cow::Borrowed(input), |acc, highlighter| match acc {
-                Cow::Borrowed(s) => apply_only_to_unhighlighted(s, highlighter),
-                Cow::Owned(s) => match apply_only_to_unhighlighted(&s, highlighter) {
-                    Cow::Borrowed(_) => Cow::Owned(s),
-                    Cow::Owned(new_s) => Cow::Owned(new_s),
-                },
-            })
+        self.highlighters.iter().fold(
+            Cow::Borrowed(input),
+            |acc, highlighter| match apply_only_to_unhighlighted(&acc, highlighter) {
+                Cow::Borrowed(_) => acc,
+                Cow::Owned(modified) => Cow::Owned(modified),
+            },
+        )
     }
 }
 
