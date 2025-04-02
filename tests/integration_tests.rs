@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use tailspin::config::*;
 use tailspin::*;
 
@@ -24,6 +25,24 @@ fn default_constructor_should_not_panic() {
     let result = std::panic::catch_unwind(Highlighter::default);
 
     assert!(result.is_ok(), "Default constructor should never fail");
+}
+
+#[test]
+fn no_highlights_should_return_reference_to_the_input_str() {
+    let highlighter = Highlighter::default();
+    let input = "Nothing will be highlighted in this string";
+
+    let output = highlighter.apply(input);
+
+    match output {
+        Cow::Borrowed(s) => {
+            assert!(
+                std::ptr::eq(s, input),
+                "Expected borrowed reference to equal input reference"
+            );
+        }
+        Cow::Owned(_) => panic!("Expected a borrowed reference, got owned"),
+    }
 }
 
 #[test]
