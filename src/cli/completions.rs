@@ -1,6 +1,6 @@
 use crate::cli::Arguments;
 use clap::{Command, CommandFactory};
-use clap_complete::{generate, Generator, Shell};
+use clap_complete::{Generator, Shell, generate};
 use std::io;
 use std::process::exit;
 

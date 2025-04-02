@@ -1,4 +1,6 @@
+use crate::Error;
 use crate::core::config::*;
+use crate::core::highlighters::StaticHighlight;
 use crate::core::highlighters::date_dash::DateDashHighlighter;
 use crate::core::highlighters::date_time::TimeHighlighter;
 use crate::core::highlighters::ip_v4::IpV4Highlighter;
@@ -14,10 +16,8 @@ use crate::core::highlighters::unix_path::UnixPathHighlighter;
 use crate::core::highlighters::unix_process::UnixProcessHighlighter;
 use crate::core::highlighters::url::UrlHighlighter;
 use crate::core::highlighters::uuid::UuidHighlighter;
-use crate::core::highlighters::StaticHighlight;
 use crate::core::utils::normalizer::normalize_keyword_configs;
 use crate::core::utils::split_and_apply::apply_only_to_unhighlighted;
-use crate::Error;
 use std::borrow::Cow;
 
 pub trait Highlight: Sync + Send {

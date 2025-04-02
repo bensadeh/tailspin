@@ -3,17 +3,17 @@ use miette::Result;
 use tokio::io;
 
 use crate::config::{Input, Output};
+use crate::io::presenter::Present;
 use crate::io::presenter::custom_pager::CustomPager;
 use crate::io::presenter::empty::NoPresenter;
 use crate::io::presenter::less::Less;
-use crate::io::presenter::Present;
+use crate::io::reader::AsyncLineReader;
 use crate::io::reader::command::CommandReader;
 use crate::io::reader::linemux::Linemux;
 use crate::io::reader::stdin::StdinReader;
-use crate::io::reader::AsyncLineReader;
+use crate::io::writer::AsyncLineWriter;
 use crate::io::writer::stdout::StdoutWriter;
 use crate::io::writer::temp_file::TempFile;
-use crate::io::writer::AsyncLineWriter;
 use tokio::sync::oneshot::Sender;
 
 pub struct Io {

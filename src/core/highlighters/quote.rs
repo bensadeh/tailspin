@@ -1,10 +1,10 @@
 use nu_ansi_term::Style as NuStyle;
 use std::borrow::Cow;
 
+use crate::Style;
 use crate::core::config::QuotesConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::quote::State::{InsideQuote, OutsideQuote};
-use crate::Style;
 
 const RESET: &str = "\x1b[0m";
 

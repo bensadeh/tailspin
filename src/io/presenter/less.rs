@@ -1,6 +1,6 @@
 use crate::io::controller::PresenterImpl;
 use crate::io::presenter::Present;
-use miette::{miette, IntoDiagnostic, WrapErr};
+use miette::{IntoDiagnostic, WrapErr, miette};
 use std::process::Command;
 
 pub struct Less {

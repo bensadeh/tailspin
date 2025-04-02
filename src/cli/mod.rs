@@ -3,7 +3,7 @@ mod keywords;
 
 use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
 use crate::cli::keywords::get_keywords_from_cli;
-use crate::config::{get_io_config, Input, Output};
+use crate::config::{Input, Output, get_io_config};
 use crate::highlighter_builder;
 use crate::highlighter_builder::builtins::get_builtin_keywords;
 use crate::highlighter_builder::groups;

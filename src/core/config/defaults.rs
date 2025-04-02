@@ -1,5 +1,5 @@
-use crate::core::config::*;
 use crate::Color;
+use crate::core::config::*;
 
 impl Default for NumberConfig {
     fn default() -> Self {

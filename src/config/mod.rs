@@ -2,7 +2,7 @@ use crate::cli::Arguments;
 use miette::Diagnostic;
 use owo_colors::OwoColorize;
 use std::fs::File;
-use std::io::{self, stdin, IsTerminal, Read};
+use std::io::{self, IsTerminal, Read, stdin};
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 use thiserror::Error;
