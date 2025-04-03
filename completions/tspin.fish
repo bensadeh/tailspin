@@ -1,4 +1,4 @@
-complete -c tspin -l config-path -d 'Provide a custom path to a configuration file' -r
+complete -c tspin -l config-path -d 'Provide a custom path to a configuration file' -r -F
 complete -c tspin -s c -l listen-command -d 'Capture the output (stdout) of a command and view it in `less`' -r
 complete -c tspin -l words-red -d 'Highlight the provided words in red' -r
 complete -c tspin -l words-green -d 'Highlight the provided words in green' -r

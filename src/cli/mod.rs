@@ -9,7 +9,7 @@ use crate::highlighter_builder::builtins::get_builtin_keywords;
 use crate::highlighter_builder::groups;
 use crate::theme::reader;
 use clap::{Parser, ValueEnum};
-use miette::{IntoDiagnostic, Result};
+use miette::Result;
 use std::path::PathBuf;
 use tailspin::Highlighter;
 
@@ -108,7 +108,8 @@ pub struct FullConfig {
 }
 
 pub fn get_config() -> Result<FullConfig> {
-    let cli = Arguments::try_parse().into_diagnostic()?;
+    let cli = Arguments::parse();
+
     generate_shell_completions_and_exit_or_continue(&cli);
 
     let io_config = get_io_config(&cli)?;

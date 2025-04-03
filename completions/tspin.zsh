@@ -15,7 +15,7 @@ _tspin() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
-'--config-path=[Provide a custom path to a configuration file]:CONFIG_PATH:_default' \
+'--config-path=[Provide a custom path to a configuration file]:CONFIG_PATH:_files' \
 '(-f --follow)-c+[Capture the output (stdout) of a command and view it in \`less\`]:LISTEN_COMMAND:_default' \
 '(-f --follow)--listen-command=[Capture the output (stdout) of a command and view it in \`less\`]:LISTEN_COMMAND:_default' \
 '*--words-red=[Highlight the provided words in red]:WORDS_RED:_default' \

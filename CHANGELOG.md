@@ -2,9 +2,9 @@
 
 ## 5.1.0
 
-- Removed the `start-at-end` flag
 - Merged the `inlet_manifold` crate back into `tailspin` (`tailspin` is now the name of both the cli and the crate)
 - Changed the `apply` trait to return `Cow<'a, str>` instead of `String`
+- Removed the `start-at-end` flag
 
 ## 5.0.0
 
