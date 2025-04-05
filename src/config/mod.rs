@@ -116,11 +116,11 @@ fn get_output(args: &Arguments, input: &Input) -> Output {
 fn process_path_input(path: PathBuf) -> Result<Input, ConfigError> {
     if !path.exists() {
         let path_colored = path.display().yellow().to_string();
+
         return Err(ConfigError::NoSuchFileOrDirectory(path_colored));
     }
 
-    let metadata = fs::metadata(&path)?;
-    if !metadata.is_file() {
+    if !fs::metadata(&path)?.is_file() {
         return Err(ConfigError::PathNotFile);
     }
 
