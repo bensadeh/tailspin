@@ -1,6 +1,7 @@
 use crate::cli::Arguments;
 use miette::Diagnostic;
 use owo_colors::OwoColorize;
+use std::cmp::PartialEq;
 use std::fs::File;
 use std::io::{self, IsTerminal, Read, stdin};
 use std::path::{Path, PathBuf};
@@ -12,11 +13,13 @@ pub struct InputOutputConfig {
     pub output: Output,
 }
 
+#[derive(PartialEq, Eq, Ord, PartialOrd)]
 pub struct PathAndLineCount {
     pub path: PathBuf,
     pub line_count: usize,
 }
 
+#[derive(Ord, PartialOrd, Eq, PartialEq)]
 pub enum Input {
     File(PathAndLineCount),
     Command(String),
@@ -60,42 +63,23 @@ pub enum ConfigError {
 }
 
 pub fn get_io_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError> {
-    let has_data_from_stdin = !stdin().is_terminal();
-
-    validate_input(
-        has_data_from_stdin,
-        args.file_path.is_some(),
-        args.listen_command.is_some(),
-    )?;
-
-    let input = get_input(args, has_data_from_stdin)?;
-    let output = get_output(
-        has_data_from_stdin,
-        args.to_stdout,
-        args.follow,
-        args.listen_command.is_some(),
-    );
+    let input = get_input(args)?;
+    let output = get_output(args, &input);
 
     Ok(InputOutputConfig { input, output })
 }
 
-const fn validate_input(
-    has_data_from_stdin: bool,
-    has_file_input: bool,
-    has_follow_command_input: bool,
-) -> Result<(), ConfigError> {
-    if !has_data_from_stdin && !has_file_input && !has_follow_command_input {
+fn get_input(args: &Arguments) -> Result<Input, ConfigError> {
+    let has_data_from_stdin = !stdin().is_terminal();
+
+    if !has_data_from_stdin && args.file_path.is_none() && args.listen_command.is_none() {
         return Err(ConfigError::MissingFilename);
     }
 
-    if has_file_input && has_follow_command_input {
+    if args.file_path.is_some() && args.listen_command.is_some() {
         return Err(ConfigError::CannotReadBothFileAndListenCommand);
     }
 
-    Ok(())
-}
-
-fn get_input(args: &Arguments, has_data_from_stdin: bool) -> Result<Input, ConfigError> {
     if has_data_from_stdin {
         return Ok(Input::Stdin);
     }
@@ -111,16 +95,20 @@ fn get_input(args: &Arguments, has_data_from_stdin: bool) -> Result<Input, Confi
     Err(ConfigError::CouldNotDetermineInputType)
 }
 
-fn get_output(has_data_from_stdin: bool, to_stdout: bool, follow: bool, has_listen_command: bool) -> Output {
+fn get_output(args: &Arguments, input: &Input) -> Output {
     if let Ok(var) = env::var("TAILSPIN_PAGER") {
         return Output::CustomPager(CustomPagerOptions { command: var });
     }
 
-    if has_data_from_stdin || to_stdout {
+    if *input == Input::Stdin || args.to_stdout {
         return Output::Stdout;
     }
 
-    let follow_mode = if has_listen_command { true } else { follow };
+    let follow_mode = if args.listen_command.is_some() {
+        true
+    } else {
+        args.follow
+    };
 
     Output::Less(LessOptions { follow: follow_mode })
 }
