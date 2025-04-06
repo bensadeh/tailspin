@@ -1,11 +1,26 @@
 use crate::io::presenter::Present;
-use miette::{IntoDiagnostic, WrapErr, miette};
+use miette::{Diagnostic, Result};
 use std::path::PathBuf;
 use std::process::Command;
+use thiserror::Error;
 
 pub struct Less {
     path: PathBuf,
     follow: bool,
+}
+
+#[derive(Debug, Error, Diagnostic)]
+pub enum LessError {
+    #[error(transparent)]
+    CtrlCError(#[from] ctrlc::Error),
+
+    #[error("Failed to execute 'less' command")]
+    #[diagnostic(code(less::command_spawn))]
+    CommandSpawn(#[source] std::io::Error),
+
+    #[error("The 'less' command exited with non-zero status: {0}")]
+    #[diagnostic(code(less::non_zero_exit))]
+    NonZeroExit(std::process::ExitStatus),
 }
 
 impl Less {
@@ -15,12 +30,8 @@ impl Less {
 }
 
 impl Present for Less {
-    fn present(&self) -> miette::Result<()> {
-        // Without this, pressing Ctrl + C causes tailspin to exit immediately
-        // instead of passing the signal down to the child process (less)
-        ctrlc::set_handler(|| {})
-            .into_diagnostic()
-            .wrap_err("Failed to set Ctrl-C handler")?;
+    fn present(&self) -> Result<()> {
+        ctrlc::set_handler(|| {}).map_err(LessError::CtrlCError)?;
 
         let args = get_args(self.follow);
         let status = Command::new("less")
@@ -28,13 +39,11 @@ impl Present for Less {
             .args(&args)
             .arg(&self.path)
             .status()
-            .into_diagnostic()
-            .wrap_err("Failed to execute 'less' command")?;
+            .map_err(LessError::CommandSpawn)?;
 
-        status
-            .success()
-            .then_some(())
-            .ok_or_else(|| miette!("The 'less' command exited with a non-zero status: {}", status))
+        status.success().then_some(()).ok_or(LessError::NonZeroExit(status))?;
+
+        Ok(())
     }
 }
 
