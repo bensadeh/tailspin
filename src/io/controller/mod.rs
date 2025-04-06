@@ -60,16 +60,16 @@ async fn get_reader(input: Input, reached_eof_tx: Option<Sender<()>>) -> Reader 
 async fn get_writer_and_presenter(output: Output) -> (Writer, PresenterImpl) {
     match output {
         Output::Less(opts) => {
-            let result = TempFile::get_writer_result().await;
-            let presenter = Less::get_presenter(result.temp_file_path, opts.follow);
+            let temp_file = TempFile::new().await;
+            let less = Less::new(temp_file.path.clone(), opts.follow);
 
-            (result.writer, presenter)
+            (Writer::TempFile(temp_file), PresenterImpl::Less(less))
         }
         Output::CustomPager(cmd) => {
-            let result = TempFile::get_writer_result().await;
-            let presenter = CustomPager::get_presenter(result.temp_file_path, cmd.command);
+            let temp_file = TempFile::new().await;
+            let custom_pager = CustomPager::new(temp_file.path.clone(), cmd.command);
 
-            (result.writer, presenter)
+            (Writer::TempFile(temp_file), PresenterImpl::CustomPager(custom_pager))
         }
         Output::Stdout => {
             let writer = StdoutWriter::init();

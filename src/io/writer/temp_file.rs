@@ -1,4 +1,3 @@
-use crate::io::controller::Writer;
 use crate::io::writer::AsyncLineWriter;
 use async_trait::async_trait;
 use owo_colors::OwoColorize;
@@ -10,30 +9,19 @@ use tokio::io;
 use tokio::io::{AsyncWriteExt, BufWriter};
 
 pub struct TempFile {
+    pub path: PathBuf,
     _temp_dir: TempDir,
-    temp_file_writer: BufWriter<File>,
-}
-
-pub struct TempFileWriterResult {
-    pub writer: Writer,
-    pub temp_file_path: String,
+    file_writer: BufWriter<File>,
 }
 
 impl TempFile {
-    pub async fn get_writer_result() -> TempFileWriterResult {
-        let (temp_dir, temp_file_path, temp_file_writer) = create_temp_file().await;
+    pub async fn new() -> Self {
+        let (_temp_dir, temp_file_path, temp_file_writer) = create_temp_file().await;
 
-        let temp_file_path_string = temp_file_path
-            .to_str()
-            .expect("Could not get path to temp file")
-            .to_owned();
-
-        TempFileWriterResult {
-            writer: Writer::TempFile(TempFile {
-                _temp_dir: temp_dir,
-                temp_file_writer,
-            }),
-            temp_file_path: temp_file_path_string,
+        TempFile {
+            _temp_dir,
+            path: temp_file_path,
+            file_writer: temp_file_writer,
         }
     }
 }
@@ -43,12 +31,12 @@ impl AsyncLineWriter for TempFile {
     async fn write_line(&mut self, line: &str) -> io::Result<()> {
         let line_with_newline = format!("{}\n", line);
 
-        let write_result = self.temp_file_writer.write_all(line_with_newline.as_bytes()).await;
+        let write_result = self.file_writer.write_all(line_with_newline.as_bytes()).await;
         if let Err(e) = write_result {
             println!("Error writing to temp file: {}", e.yellow());
         }
 
-        let flush_result = self.temp_file_writer.flush().await;
+        let flush_result = self.file_writer.flush().await;
         if let Err(e) = flush_result {
             println!("Error flushing temp file: {}", e.yellow());
         }

@@ -1,16 +1,16 @@
-use crate::io::controller::PresenterImpl;
 use crate::io::presenter::Present;
 use miette::{IntoDiagnostic, WrapErr, miette};
+use std::path::PathBuf;
 use std::process::Command;
 
 pub struct Less {
-    file_path: String,
+    path: PathBuf,
     follow: bool,
 }
 
 impl Less {
-    pub const fn get_presenter(file_path: String, follow: bool) -> PresenterImpl {
-        PresenterImpl::Less(Self { file_path, follow })
+    pub const fn new(path: PathBuf, follow: bool) -> Self {
+        Self { path, follow }
     }
 }
 
@@ -26,7 +26,7 @@ impl Present for Less {
         let status = Command::new("less")
             .env("LESSSECURE", "1")
             .args(&args)
-            .arg(&self.file_path)
+            .arg(&self.path)
             .status()
             .into_diagnostic()
             .wrap_err("Failed to execute 'less' command")?;
