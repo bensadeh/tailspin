@@ -1,4 +1,4 @@
-use crate::io::controller::PresenterImpl;
+use crate::io::controller::Presenter;
 use miette::Result;
 
 pub mod custom_pager;
@@ -9,12 +9,12 @@ pub trait Present: Send {
     fn present(&self) -> Result<()>;
 }
 
-impl Present for PresenterImpl {
+impl Present for Presenter {
     fn present(&self) -> Result<()> {
         match self {
-            PresenterImpl::Less(p) => p.present(),
-            PresenterImpl::CustomPager(p) => p.present(),
-            PresenterImpl::NoPresenter(p) => p.present(),
+            Presenter::Less(p) => p.present(),
+            Presenter::CustomPager(p) => p.present(),
+            Presenter::None(p) => p.present(),
         }
     }
 }

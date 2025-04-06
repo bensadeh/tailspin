@@ -9,8 +9,8 @@ use std::{env, fs};
 use thiserror::Error;
 
 pub struct InputOutputConfig {
-    pub input: Input,
-    pub output: Output,
+    pub source: Source,
+    pub output_target: OutputTarget,
 }
 
 #[derive(PartialEq, Eq, Ord, PartialOrd)]
@@ -20,13 +20,13 @@ pub struct PathAndLineCount {
 }
 
 #[derive(Ord, PartialOrd, Eq, PartialEq)]
-pub enum Input {
+pub enum Source {
     File(PathAndLineCount),
     Command(String),
     Stdin,
 }
 
-pub enum Output {
+pub enum OutputTarget {
     Less(LessOptions),
     CustomPager(CustomPagerOptions),
     Stdout,
@@ -66,10 +66,13 @@ pub fn get_io_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError>
     let input = get_input(args)?;
     let output = get_output(args, &input);
 
-    Ok(InputOutputConfig { input, output })
+    Ok(InputOutputConfig {
+        source: input,
+        output_target: output,
+    })
 }
 
-fn get_input(args: &Arguments) -> Result<Input, ConfigError> {
+fn get_input(args: &Arguments) -> Result<Source, ConfigError> {
     let has_data_from_stdin = !stdin().is_terminal();
 
     if !has_data_from_stdin && args.file_path.is_none() && args.listen_command.is_none() {
@@ -81,11 +84,11 @@ fn get_input(args: &Arguments) -> Result<Input, ConfigError> {
     }
 
     if has_data_from_stdin {
-        return Ok(Input::Stdin);
+        return Ok(Source::Stdin);
     }
 
     if let Some(command) = &args.listen_command {
-        return Ok(Input::Command(command.clone()));
+        return Ok(Source::Command(command.clone()));
     }
 
     if let Some(path) = &args.file_path {
@@ -95,13 +98,13 @@ fn get_input(args: &Arguments) -> Result<Input, ConfigError> {
     Err(ConfigError::CouldNotDetermineInputType)
 }
 
-fn get_output(args: &Arguments, input: &Input) -> Output {
+fn get_output(args: &Arguments, input: &Source) -> OutputTarget {
     if let Ok(var) = env::var("TAILSPIN_PAGER") {
-        return Output::CustomPager(CustomPagerOptions { command: var });
+        return OutputTarget::CustomPager(CustomPagerOptions { command: var });
     }
 
-    if *input == Input::Stdin || args.to_stdout {
-        return Output::Stdout;
+    if *input == Source::Stdin || args.to_stdout {
+        return OutputTarget::Stdout;
     }
 
     let follow_mode = if args.listen_command.is_some() {
@@ -110,10 +113,10 @@ fn get_output(args: &Arguments, input: &Input) -> Output {
         args.follow
     };
 
-    Output::Less(LessOptions { follow: follow_mode })
+    OutputTarget::Less(LessOptions { follow: follow_mode })
 }
 
-fn process_path_input(path: PathBuf) -> Result<Input, ConfigError> {
+fn process_path_input(path: PathBuf) -> Result<Source, ConfigError> {
     if !path.exists() {
         let path_colored = path.display().yellow().to_string();
 
@@ -126,7 +129,7 @@ fn process_path_input(path: PathBuf) -> Result<Input, ConfigError> {
 
     let line_count = count_lines(&path)?;
 
-    Ok(Input::File(PathAndLineCount { path, line_count }))
+    Ok(Source::File(PathAndLineCount { path, line_count }))
 }
 
 fn count_lines<P: AsRef<Path>>(file_path: P) -> Result<usize, ConfigError> {

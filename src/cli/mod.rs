@@ -3,7 +3,7 @@ mod keywords;
 
 use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
 use crate::cli::keywords::get_keywords_from_cli;
-use crate::config::{Input, Output, get_io_config};
+use crate::config::{OutputTarget, Source, get_io_config};
 use crate::highlighter_builder;
 use crate::highlighter_builder::builtins::get_builtin_keywords;
 use crate::highlighter_builder::groups;
@@ -102,8 +102,8 @@ pub enum HighlighterGroup {
 }
 
 pub struct FullConfig {
-    pub input: Input,
-    pub output: Output,
+    pub source: Source,
+    pub output_target: OutputTarget,
     pub highlighter: Highlighter,
 }
 
@@ -130,8 +130,8 @@ pub fn get_config() -> Result<FullConfig> {
     let highlighter = highlighter_builder::get_highlighter(highlighter_groups, theme, keywords)?;
 
     Ok(FullConfig {
-        input: io_config.input,
-        output: io_config.output,
+        source: io_config.source,
+        output_target: io_config.output_target,
         highlighter,
     })
 }

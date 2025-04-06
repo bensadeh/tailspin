@@ -1,12 +1,12 @@
-use crate::io::controller::PresenterImpl;
+use crate::io::controller::Presenter;
 use crate::io::presenter::Present;
 use miette::Result;
 
 pub struct NoPresenter {}
 
 impl NoPresenter {
-    pub const fn get_presenter() -> PresenterImpl {
-        PresenterImpl::NoPresenter(Self {})
+    pub const fn get_presenter() -> Presenter {
+        Presenter::None(Self {})
     }
 }
 

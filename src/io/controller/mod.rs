@@ -1,24 +1,17 @@
-use async_trait::async_trait;
-use miette::Result;
-use tokio::io;
-
-use crate::config::{Input, Output};
-use crate::io::presenter::Present;
+use crate::config::{OutputTarget, Source};
 use crate::io::presenter::custom_pager::CustomPager;
 use crate::io::presenter::empty::NoPresenter;
 use crate::io::presenter::less::Less;
-use crate::io::reader::AsyncLineReader;
 use crate::io::reader::command::CommandReader;
 use crate::io::reader::linemux::Linemux;
 use crate::io::reader::stdin::StdinReader;
-use crate::io::writer::AsyncLineWriter;
 use crate::io::writer::stdout::StdoutWriter;
 use crate::io::writer::temp_file::TempFile;
 use tokio::sync::oneshot::Sender;
 
 pub struct Io {
-    reader: Reader,
-    writer: Writer,
+    pub reader: Reader,
+    pub writer: Writer,
 }
 
 pub enum Reader {
@@ -32,70 +25,50 @@ pub enum Writer {
     Stdout(StdoutWriter),
 }
 
-pub enum PresenterImpl {
+pub enum Presenter {
     Less(Less),
     CustomPager(CustomPager),
-    NoPresenter(NoPresenter),
+    None(NoPresenter),
 }
 
-pub struct Presenter {
-    presenter: PresenterImpl,
-}
-
-pub async fn get_io_and_presenter(input: Input, output: Output, reached_eof_tx: Option<Sender<()>>) -> (Io, Presenter) {
+pub async fn get_io_and_presenter(
+    input: Source,
+    output: OutputTarget,
+    reached_eof_tx: Option<Sender<()>>,
+) -> (Io, Presenter) {
     let reader = get_reader(input, reached_eof_tx).await;
     let (writer, presenter) = get_writer_and_presenter(output).await;
 
-    (Io { reader, writer }, Presenter { presenter })
+    (Io { reader, writer }, presenter)
 }
 
-async fn get_reader(input: Input, reached_eof_tx: Option<Sender<()>>) -> Reader {
+async fn get_reader(input: Source, reached_eof_tx: Option<Sender<()>>) -> Reader {
     match input {
-        Input::File(file_info) => Linemux::get_reader(file_info.path, file_info.line_count, reached_eof_tx).await,
-        Input::Stdin => StdinReader::get_reader(reached_eof_tx),
-        Input::Command(cmd) => CommandReader::get_reader(cmd, reached_eof_tx).await,
+        Source::File(file_info) => Linemux::get_reader(file_info.path, file_info.line_count, reached_eof_tx).await,
+        Source::Stdin => StdinReader::get_reader(reached_eof_tx),
+        Source::Command(cmd) => CommandReader::get_reader(cmd, reached_eof_tx).await,
     }
 }
 
-async fn get_writer_and_presenter(output: Output) -> (Writer, PresenterImpl) {
+async fn get_writer_and_presenter(output: OutputTarget) -> (Writer, Presenter) {
     match output {
-        Output::Less(opts) => {
+        OutputTarget::Less(opts) => {
             let temp_file = TempFile::new().await;
             let less = Less::new(temp_file.path.clone(), opts.follow);
 
-            (Writer::TempFile(temp_file), PresenterImpl::Less(less))
+            (Writer::TempFile(temp_file), Presenter::Less(less))
         }
-        Output::CustomPager(cmd) => {
+        OutputTarget::CustomPager(cmd) => {
             let temp_file = TempFile::new().await;
             let custom_pager = CustomPager::new(temp_file.path.clone(), cmd.command);
 
-            (Writer::TempFile(temp_file), PresenterImpl::CustomPager(custom_pager))
+            (Writer::TempFile(temp_file), Presenter::CustomPager(custom_pager))
         }
-        Output::Stdout => {
+        OutputTarget::Stdout => {
             let writer = StdoutWriter::init();
             let presenter = NoPresenter::get_presenter();
 
             (writer, presenter)
         }
-    }
-}
-
-#[async_trait]
-impl AsyncLineReader for Io {
-    async fn next_line_batch(&mut self) -> io::Result<Option<Vec<String>>> {
-        self.reader.next_line_batch().await
-    }
-}
-
-#[async_trait]
-impl AsyncLineWriter for Io {
-    async fn write_line(&mut self, line: &str) -> io::Result<()> {
-        self.writer.write_line(line).await
-    }
-}
-
-impl Present for Presenter {
-    fn present(&self) -> Result<()> {
-        self.presenter.present()
     }
 }
