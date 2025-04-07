@@ -1,8 +1,8 @@
 # Changelog
+
 ## 5.2.0
 
-
-
+- Give a warning if user is trying to read from file while also piping to `stdin`
 
 ## 5.1.0
 

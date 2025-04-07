@@ -23,6 +23,7 @@ clap_complete = "4.5.47"
 ctrlc = "3.4.6"
 linemux = "0.3.0"
 miette = { version = "7.5.0", features = ["fancy"] }
+nix = { version = "0.29.0", features = ["poll"] }
 nu-ansi-term = "0.50.1"
 owo-colors = "4.2.0"
 rand = "0.9.0"
