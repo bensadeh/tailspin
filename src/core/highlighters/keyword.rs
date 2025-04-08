@@ -18,7 +18,7 @@ impl KeywordHighlighter {
             .collect::<Vec<_>>()
             .join("|");
 
-        let regex = Regex::new(&format!(r"\b({})\b", keyword_pattern))?;
+        let regex = Regex::new(&format!(r"\b(?:{})\b", keyword_pattern))?;
 
         Ok(Self {
             regex,
