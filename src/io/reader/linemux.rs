@@ -7,9 +7,7 @@ use std::path::PathBuf;
 use tokio::sync::oneshot::Sender;
 
 pub struct Linemux {
-    startup_message: Option<String>,
     number_of_lines: Option<usize>,
-    bucket_size: usize,
     current_line: usize,
     reached_eof_tx: Option<Sender<()>>,
     reached_eof: bool,
@@ -25,12 +23,8 @@ impl Linemux {
             .await
             .expect("Could not add file to linemux");
 
-        let bucket_size = number_of_lines.saturating_sub(1).clamp(1, 10000);
-
         Reader::Linemux(Self {
-            startup_message: None,
             number_of_lines: Some(number_of_lines),
-            bucket_size,
             current_line: 0,
             reached_eof_tx,
             reached_eof: false,
@@ -50,21 +44,19 @@ impl Linemux {
 
     async fn read_lines_until_eof(&mut self) -> io::Result<Option<Vec<String>>> {
         let mut bucket = Vec::new();
-        let number_of_lines = self.number_of_lines.expect("Number of lines not set");
+        let total_lines = self.number_of_lines.expect("Number of lines not set");
 
-        while bucket.len() < self.bucket_size {
+        while bucket.len() < total_lines {
             let line = match self.lines.next_line().await {
                 Ok(Some(line)) => line,
                 _ => break,
             };
 
-            let next_line = line.line().to_owned();
-            bucket.push(next_line);
+            bucket.push(line.line().to_owned());
             self.current_line += 1;
 
-            if self.current_line >= number_of_lines {
+            if self.current_line >= total_lines {
                 self.send_eof_signal();
-                self.bucket_size = 1;
             }
         }
 
@@ -86,10 +78,6 @@ impl Linemux {
 #[async_trait]
 impl AsyncLineReader for Linemux {
     async fn next_line_batch(&mut self) -> io::Result<Option<Vec<String>>> {
-        if let Some(custom_message) = self.startup_message.take() {
-            return Ok(Some(vec![custom_message]));
-        }
-
         match self.reached_eof {
             true => self.read_line_by_line().await,
             false => self.read_lines_until_eof().await,
