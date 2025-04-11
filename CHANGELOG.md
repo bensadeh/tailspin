@@ -5,6 +5,7 @@
 ### CLI
 
 - Give a warning if user is trying to read from file while also piping to `stdin`
+- Extract End Of File (EOF) signaling logic
 
 ### Crate
 

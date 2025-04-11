@@ -1,16 +1,16 @@
-use miette::{IntoDiagnostic, Report, Result, WrapErr};
+use miette::{IntoDiagnostic, Report, Result};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use tailspin::Highlighter;
-use tokio::sync::oneshot;
 
 mod cli;
 mod config;
+mod eof_signal;
 mod highlighter_builder;
 mod io;
 mod theme;
 
 use crate::cli::get_config;
-use crate::io::controller::{Io, get_io_and_presenter};
+use crate::io::controller::{Io, get_io_and_presenter_and_eof_receiver};
 use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
 use crate::io::writer::AsyncLineWriter;
@@ -19,8 +19,8 @@ use crate::io::writer::AsyncLineWriter;
 async fn main() -> Result<()> {
     let config = get_config()?;
 
-    let (reached_eof_tx, reached_eof_rx) = oneshot::channel::<()>();
-    let (io, presenter) = get_io_and_presenter(config.source, config.output_target, Some(reached_eof_tx)).await;
+    let (io, presenter, eof_signal_receiver) =
+        get_io_and_presenter_and_eof_receiver(config.source, config.output_target).await;
 
     tokio::spawn(async move {
         process_lines(io, config.highlighter).await?;
@@ -28,10 +28,7 @@ async fn main() -> Result<()> {
         Ok::<(), Report>(())
     });
 
-    reached_eof_rx
-        .await
-        .into_diagnostic()
-        .wrap_err("Failed to receive EOF signal from oneshot channel")?;
+    eof_signal_receiver.wait().await?;
 
     presenter.present()?;
 

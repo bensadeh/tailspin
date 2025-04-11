@@ -1,20 +1,20 @@
+use crate::eof_signal::EofSignalSender;
 use crate::io::controller::Reader;
 use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use tokio::io;
 use tokio::io::{AsyncBufReadExt, BufReader, Stdin};
-use tokio::sync::oneshot::Sender;
 
 pub struct StdinReader {
     reader: BufReader<Stdin>,
-    reached_eof_tx: Option<Sender<()>>,
+    reached_eof_tx: Option<EofSignalSender>,
 }
 
 impl StdinReader {
-    pub fn get_reader(reached_eof_tx: Option<Sender<()>>) -> Reader {
+    pub fn get_reader(eof_signal_sender: EofSignalSender) -> Reader {
         Reader::Stdin(StdinReader {
             reader: BufReader::new(tokio::io::stdin()),
-            reached_eof_tx,
+            reached_eof_tx: Some(eof_signal_sender),
         })
     }
 
@@ -39,10 +39,8 @@ impl StdinReader {
     }
 
     fn send_eof_signal(&mut self) {
-        if let Some(reached_eof) = self.reached_eof_tx.take() {
-            reached_eof
-                .send(())
-                .expect("Failed sending EOF signal to oneshot channel");
+        if let Some(sender) = self.reached_eof_tx.take() {
+            sender.send().expect("Failed sending EOF signal to oneshot channel");
         }
     }
 }

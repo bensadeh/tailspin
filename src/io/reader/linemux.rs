@@ -1,21 +1,21 @@
+use crate::eof_signal::EofSignalSender;
 use crate::io::controller::Reader;
 use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use linemux::MuxedLines;
 use std::io;
 use std::path::PathBuf;
-use tokio::sync::oneshot::Sender;
 
 pub struct Linemux {
     number_of_lines: Option<usize>,
     current_line: usize,
-    reached_eof_tx: Option<Sender<()>>,
+    eof_signal_sender: Option<EofSignalSender>,
     reached_eof: bool,
     lines: MuxedLines,
 }
 
 impl Linemux {
-    pub async fn get_reader(file_path: PathBuf, number_of_lines: usize, reached_eof_tx: Option<Sender<()>>) -> Reader {
+    pub async fn get_reader(file_path: PathBuf, number_of_lines: usize, eof_signal_sender: EofSignalSender) -> Reader {
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
         lines
@@ -26,20 +26,10 @@ impl Linemux {
         Reader::Linemux(Self {
             number_of_lines: Some(number_of_lines),
             current_line: 0,
-            reached_eof_tx,
+            eof_signal_sender: Some(eof_signal_sender),
             reached_eof: false,
             lines,
         })
-    }
-
-    fn send_eof_signal(&mut self) {
-        if let Some(reached_eof) = self.reached_eof_tx.take() {
-            self.reached_eof = true;
-
-            reached_eof
-                .send(())
-                .expect("Failed sending EOF signal to oneshot channel");
-        }
     }
 
     async fn read_lines_until_eof(&mut self) -> io::Result<Option<Vec<String>>> {
@@ -61,6 +51,14 @@ impl Linemux {
         }
 
         if bucket.is_empty() { Ok(None) } else { Ok(Some(bucket)) }
+    }
+
+    fn send_eof_signal(&mut self) {
+        if let Some(sender) = self.eof_signal_sender.take() {
+            self.reached_eof = true;
+
+            sender.send().expect("Failed sending EOF signal to oneshot channel");
+        }
     }
 
     async fn read_line_by_line(&mut self) -> io::Result<Option<Vec<String>>> {
