@@ -1,4 +1,4 @@
-use crate::eof_signal::EofSignalSender;
+use crate::eof_signal::InitialReadCompleteSender;
 use crate::io::controller::Reader;
 use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
@@ -7,14 +7,14 @@ use tokio::io::{AsyncBufReadExt, BufReader, Stdin};
 
 pub struct StdinReader {
     reader: BufReader<Stdin>,
-    eof_signal_sender: EofSignalSender,
+    initial_read_complete_sender: InitialReadCompleteSender,
 }
 
 impl StdinReader {
-    pub fn get_reader(eof_signal_sender: EofSignalSender) -> Reader {
+    pub fn get_reader(initial_read_complete_sender: InitialReadCompleteSender) -> Reader {
         Reader::Stdin(StdinReader {
             reader: BufReader::new(tokio::io::stdin()),
-            eof_signal_sender,
+            initial_read_complete_sender,
         })
     }
 
@@ -39,7 +39,7 @@ impl StdinReader {
     }
 
     fn send_eof_signal(&mut self) {
-        self.eof_signal_sender
+        self.initial_read_complete_sender
             .send()
             .expect("Failed sending EOF signal to oneshot channel");
     }

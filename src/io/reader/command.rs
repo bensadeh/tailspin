@@ -1,4 +1,4 @@
-use crate::eof_signal::EofSignalSender;
+use crate::eof_signal::InitialReadCompleteSender;
 use crate::io::controller::Reader;
 use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
@@ -12,7 +12,7 @@ pub struct CommandReader {
 }
 
 impl CommandReader {
-    pub async fn get_reader(command: String, mut reached_eof_tx: EofSignalSender) -> Reader {
+    pub async fn get_reader(command: String, mut reached_eof_tx: InitialReadCompleteSender) -> Reader {
         reached_eof_tx
             .send()
             .expect("Failed sending EOF signal to oneshot channel");

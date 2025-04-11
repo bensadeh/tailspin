@@ -18,14 +18,14 @@ use crate::io::writer::AsyncLineWriter;
 #[tokio::main]
 async fn main() -> Result<()> {
     let config = get_config()?;
-    let (io, presenter, eof_signal_receiver) = initialize_io(config.source, config.output_target).await;
+    let (io, presenter, initial_read_complete_sender) = initialize_io(config.source, config.output_target).await;
 
     let line_processing = tokio::spawn(async move {
         process_lines(io, config.highlighter).await?;
         Ok::<(), Report>(())
     });
 
-    eof_signal_receiver.wait().await?;
+    initial_read_complete_sender.wait().await?;
 
     let presenter_task = tokio::spawn(async move { presenter.present() });
 

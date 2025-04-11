@@ -2,45 +2,45 @@ use miette::Diagnostic;
 use thiserror::Error;
 use tokio::sync::oneshot;
 
-pub fn eof_signal_channel() -> (EofSignalSender, EofSignalReceiver) {
+pub fn initial_read_complete_channel() -> (InitialReadCompleteSender, InitialReadCompleteReceiver) {
     let (tx, rx) = oneshot::channel();
-    (EofSignalSender::new(tx), EofSignalReceiver::new(rx))
+    (InitialReadCompleteSender::new(tx), InitialReadCompleteReceiver::new(rx))
 }
 
 #[derive(Debug)]
-pub struct EofSignalReceiver(oneshot::Receiver<()>);
+pub struct InitialReadCompleteReceiver(oneshot::Receiver<()>);
 
 #[derive(Debug, Diagnostic, Error)]
-#[error("Failed to receive End Of File (EOF) signal")]
-#[diagnostic(help("Ensure the IO task completes correctly and sends the EOF signal."))]
-pub struct EofSignalRecvError(#[source] oneshot::error::RecvError);
+#[error("Failed to receive initial-read-complete signal")]
+#[diagnostic(help("Ensure the IO task completes correctly and signals initial read completion."))]
+pub struct InitialReadCompleteRecvError(#[source] oneshot::error::RecvError);
 
-impl EofSignalReceiver {
+impl InitialReadCompleteReceiver {
     pub const fn new(receiver: oneshot::Receiver<()>) -> Self {
-        EofSignalReceiver(receiver)
+        InitialReadCompleteReceiver(receiver)
     }
 
-    pub async fn wait(self) -> Result<(), EofSignalRecvError> {
-        self.0.await.map_err(EofSignalRecvError)
+    pub async fn wait(self) -> Result<(), InitialReadCompleteRecvError> {
+        self.0.await.map_err(InitialReadCompleteRecvError)
     }
 }
 
 #[derive(Debug)]
-pub struct EofSignalSender(Option<oneshot::Sender<()>>);
+pub struct InitialReadCompleteSender(Option<oneshot::Sender<()>>);
 
 #[derive(Debug, Diagnostic, Error)]
-#[error("Failed to send End Of File (EOF) signal")]
-#[diagnostic(help("The EOF receiver was dropped early. Ensure the receiver remains alive until EOF is signaled."))]
-pub struct EofSignalSendError;
+#[error("Failed to send initial-read-complete signal")]
+#[diagnostic(help("The receiver was dropped early. Ensure it remains alive until initial read completes."))]
+pub struct InitialReadCompleteSendError;
 
-impl EofSignalSender {
+impl InitialReadCompleteSender {
     pub const fn new(sender: oneshot::Sender<()>) -> Self {
-        EofSignalSender(Some(sender))
+        InitialReadCompleteSender(Some(sender))
     }
 
-    pub fn send(&mut self) -> Result<(), EofSignalSendError> {
+    pub fn send(&mut self) -> Result<(), InitialReadCompleteSendError> {
         match self.0.take() {
-            Some(sender) => sender.send(()).map_err(|_| EofSignalSendError),
+            Some(sender) => sender.send(()).map_err(|_| InitialReadCompleteSendError),
             None => Ok(()),
         }
     }

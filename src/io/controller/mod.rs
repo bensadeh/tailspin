@@ -1,5 +1,5 @@
 use crate::config::{OutputTarget, Source};
-use crate::eof_signal::{EofSignalReceiver, EofSignalSender, eof_signal_channel};
+use crate::eof_signal::{InitialReadCompleteReceiver, InitialReadCompleteSender, initial_read_complete_channel};
 use crate::io::presenter::custom_pager::CustomPager;
 use crate::io::presenter::empty::NoPresenter;
 use crate::io::presenter::less::Less;
@@ -31,20 +31,20 @@ pub enum Presenter {
     None(NoPresenter),
 }
 
-pub async fn initialize_io(input: Source, output: OutputTarget) -> (Io, Presenter, EofSignalReceiver) {
-    let (eof_signal_sender, eof_signal_receiver) = eof_signal_channel();
+pub async fn initialize_io(input: Source, output: OutputTarget) -> (Io, Presenter, InitialReadCompleteReceiver) {
+    let (irc_sender, irc_receiver) = initial_read_complete_channel();
 
-    let reader = get_reader(input, eof_signal_sender).await;
+    let reader = get_reader(input, irc_sender).await;
     let (writer, presenter) = get_writer_and_presenter(output).await;
 
-    (Io { reader, writer }, presenter, eof_signal_receiver)
+    (Io { reader, writer }, presenter, irc_receiver)
 }
 
-async fn get_reader(input: Source, eof_signal_sender: EofSignalSender) -> Reader {
+async fn get_reader(input: Source, irc_sender: InitialReadCompleteSender) -> Reader {
     match input {
-        Source::File(file_info) => Linemux::get_reader(file_info.path, file_info.line_count, eof_signal_sender).await,
-        Source::Stdin => StdinReader::get_reader(eof_signal_sender),
-        Source::Command(cmd) => CommandReader::get_reader(cmd, eof_signal_sender).await,
+        Source::File(file_info) => Linemux::get_reader(file_info.path, file_info.line_count, irc_sender).await,
+        Source::Stdin => StdinReader::get_reader(irc_sender),
+        Source::Command(cmd) => CommandReader::get_reader(cmd, irc_sender).await,
     }
 }
 

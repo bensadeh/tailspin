@@ -1,4 +1,4 @@
-use crate::eof_signal::EofSignalSender;
+use crate::eof_signal::InitialReadCompleteSender;
 use crate::io::controller::Reader;
 use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
@@ -9,13 +9,17 @@ use std::path::PathBuf;
 pub struct Linemux {
     number_of_lines: Option<usize>,
     current_line: usize,
-    eof_signal_sender: EofSignalSender,
+    initial_read_complete_sender: InitialReadCompleteSender,
     reached_eof: bool,
     lines: MuxedLines,
 }
 
 impl Linemux {
-    pub async fn get_reader(file_path: PathBuf, number_of_lines: usize, eof_signal_sender: EofSignalSender) -> Reader {
+    pub async fn get_reader(
+        file_path: PathBuf,
+        number_of_lines: usize,
+        irc_sender: InitialReadCompleteSender,
+    ) -> Reader {
         let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
 
         lines
@@ -26,7 +30,7 @@ impl Linemux {
         Reader::Linemux(Self {
             number_of_lines: Some(number_of_lines),
             current_line: 0,
-            eof_signal_sender,
+            initial_read_complete_sender: irc_sender,
             reached_eof: false,
             lines,
         })
@@ -56,7 +60,7 @@ impl Linemux {
     fn send_eof_signal(&mut self) {
         self.reached_eof = true;
 
-        self.eof_signal_sender
+        self.initial_read_complete_sender
             .send()
             .expect("Failed sending EOF signal to oneshot channel");
     }
