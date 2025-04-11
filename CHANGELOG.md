@@ -2,10 +2,15 @@
 
 ## 5.2.0
 
+### CLI
+
 - Give a warning if user is trying to read from file while also piping to `stdin`
-- Better grouping of submodules in the `tailspin` crate
-- Add rustdoc to all public types in`tailspin` crate
-- Simplify error handling in `tailspin` crate by only returning the first regexp error
+
+### Crate
+
+- Better grouping of submodules
+- Add rustdoc to all public types
+- Simplify error handling by only returning the first regexp error
 
 ## 5.1.0
 
