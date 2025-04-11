@@ -7,10 +7,11 @@
 //!
 //! #
 //!
-//! `tailspin` is a log file highlighter. This crate exposes the [`Highlighter`](crate::Highlighter) type,
+//! `tailspin` is a log file highlighter. This crate exposes the [`Highlighter`] type,
 //! allowing you to programmatically apply the same pattern-driven highlighting used by the CLI.
 //!
-//! In order to configure the highlighter, use the[`Highlighter`](crate::HighlighterBuilder)
+//! In order to configure the highlighter, use the [`HighlighterBuilder`]. Otherwise, use
+//! [`Highlighter::default()`](crate::Highlighter::default) for reasonable defaults.
 //!
 //!
 //! ## Example
