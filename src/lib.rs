@@ -53,10 +53,7 @@
 
 mod core;
 
-pub use core::{
-    error::Error,
-    highlighter::{Highlighter, HighlighterBuilder},
-};
+pub use core::highlighter::{Error, Highlighter, HighlighterBuilder};
 
 /// Configuration support for custom highlighting themes and regex rules.
 pub mod config {

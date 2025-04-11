@@ -3,16 +3,14 @@ pub mod groups;
 
 use crate::highlighter_builder::groups::HighlighterGroups;
 use crate::theme::Theme;
-use miette::Diagnostic;
 use tailspin::config::KeywordConfig;
 use tailspin::*;
-use thiserror::Error;
 
 pub fn get_highlighter(
     highlighter_groups: HighlighterGroups,
     theme: Theme,
     keywords: Vec<KeywordConfig>,
-) -> Result<Highlighter, HighlighterError> {
+) -> Result<Highlighter, Error> {
     let mut builder = Highlighter::builder();
 
     if highlighter_groups.json {
@@ -66,20 +64,5 @@ pub fn get_highlighter(
         builder.with_quote_highlighter(theme.quotes);
     }
 
-    builder.build().map_err(|e| match e {
-        Error::RegexErrors(errors) => {
-            HighlighterError::RegexErrors(errors.into_iter().map(WrappedRegexError::from).collect())
-        }
-    })
+    builder.build()
 }
-
-#[derive(Debug, Error, Diagnostic)]
-pub enum HighlighterError {
-    #[error("Multiple regex errors occurred")]
-    #[diagnostic(code(error::regex))]
-    RegexErrors(#[related] Vec<WrappedRegexError>),
-}
-
-#[derive(Debug, Error, Diagnostic)]
-#[error(transparent)]
-pub struct WrappedRegexError(#[from] regex::Error);

@@ -1,4 +1,3 @@
-use crate::Error;
 use crate::core::config::*;
 use crate::core::highlighters::StaticHighlight;
 use crate::core::highlighters::date_dash::DateDashHighlighter;
@@ -18,11 +17,9 @@ use crate::core::highlighters::url::UrlHighlighter;
 use crate::core::highlighters::uuid::UuidHighlighter;
 use crate::core::utils::normalizer::normalize_keyword_configs;
 use crate::core::utils::split_and_apply::apply_only_to_unhighlighted;
+use miette::Diagnostic;
 use std::borrow::Cow;
-
-pub trait Highlight: Sync + Send {
-    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str>;
-}
+use thiserror::Error;
 
 /// A regex-based log highlighter.
 ///
@@ -30,6 +27,17 @@ pub trait Highlight: Sync + Send {
 /// returning highlighted output with ANSI colors.
 pub struct Highlighter {
     highlighters: Vec<StaticHighlight>,
+}
+
+pub trait Highlight: Sync + Send {
+    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str>;
+}
+
+#[derive(Debug, Error, Diagnostic)]
+pub enum Error {
+    #[error("Regex error: {0}")]
+    #[diagnostic(help("Verify that your regex pattern is valid."))]
+    RegexError(#[from] regex::Error),
 }
 
 impl Highlighter {
@@ -43,7 +51,7 @@ impl Highlighter {
     pub const fn builder() -> HighlighterBuilder {
         HighlighterBuilder {
             highlighters: Vec::new(),
-            regex_errors: Vec::new(),
+            first_regex_error: None,
         }
     }
 
@@ -92,7 +100,7 @@ impl Default for Highlighter {
 /// Builder for configuring a [`Highlighter`].
 pub struct HighlighterBuilder {
     highlighters: Vec<StaticHighlight>,
-    regex_errors: Vec<regex::Error>,
+    first_regex_error: Option<regex::Error>,
 }
 
 impl HighlighterBuilder {
@@ -181,9 +189,13 @@ impl HighlighterBuilder {
         for keyword_config in normalized_keyword_configs {
             let highlighter = KeywordHighlighter::new(keyword_config);
 
+            if self.first_regex_error.is_some() {
+                continue;
+            }
+
             match highlighter {
                 Ok(h) => self.highlighters.push(StaticHighlight::Keyword(h)),
-                Err(e) => self.regex_errors.push(e),
+                Err(e) => self.first_regex_error = Some(e),
             }
         }
 
@@ -192,16 +204,21 @@ impl HighlighterBuilder {
 
     /// Finalizes the builder and returns a configured [`Highlighter`].
     pub fn build(self) -> Result<Highlighter, Error> {
-        match self.regex_errors.is_empty() {
-            true => Ok(Highlighter::new().with_highlighters(self.highlighters)),
-            false => Err(Error::RegexErrors(self.regex_errors)),
+        if let Some(err) = self.first_regex_error {
+            Err(Error::RegexError(err))
+        } else {
+            Ok(Highlighter::new().with_highlighters(self.highlighters))
         }
     }
 
     fn try_add_highlighter(&mut self, highlighter: Result<StaticHighlight, regex::Error>) -> &mut Self {
+        if self.first_regex_error.is_some() {
+            return self;
+        }
+
         match highlighter {
             Ok(h) => self.highlighters.push(h),
-            Err(e) => self.regex_errors.push(e),
+            Err(e) => self.first_regex_error = Some(e),
         }
         self
     }
