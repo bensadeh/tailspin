@@ -1,4 +1,3 @@
-#![allow(missing_docs)]
 //! <p align="center">
 //!   <a href="https://github.com/bensadeh/tailspin">
 //!     <img src="https://raw.githubusercontent.com/bensadeh/tailspin/main/assets/tailspin.png" alt="tailspin logo" width="250" />

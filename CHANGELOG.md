@@ -4,6 +4,7 @@
 
 - Give a warning if user is trying to read from file while also piping to `stdin`
 - Better grouping of submodules in the `tailspin` crate
+- Add rustdoc to all public types in`tailspin` crate
 
 ## 5.1.0
 

@@ -24,6 +24,22 @@ pub trait Highlight: Sync + Send {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str>;
 }
 
+/// A regex-based log highlighter.
+///
+/// `Highlighter` applies a set of configured regex-based highlighters to text inputs,
+/// returning highlighted output with ANSI colors.
+///
+/// Construct a default instance using [`Highlighter::default()`] or use the [`HighlighterBuilder`]
+/// to configure custom highlighting rules.
+///
+/// # Examples
+///
+/// ```rust
+/// use tailspin::Highlighter;
+///
+/// let highlighter = Highlighter::default();
+/// let result = highlighter.apply("2024-04-11 INFO Starting server");
+/// ```
 pub struct Highlighter {
     highlighters: Vec<StaticHighlight>,
 }
@@ -85,6 +101,13 @@ impl Default for Highlighter {
     }
 }
 
+/// Builder type for configuring a [`Highlighter`].
+///
+/// Allows specifying which types of patterns (e.g., dates, numbers, IP addresses)
+/// should be highlighted and how they are styled.
+///
+/// Use the provided methods like [`with_number_highlighter`](HighlighterBuilder::with_number_highlighter)
+/// to customize the highlighter before calling [`build`](HighlighterBuilder::build).
 pub struct HighlighterBuilder {
     highlighters: Vec<StaticHighlight>,
     regex_errors: Vec<regex::Error>,

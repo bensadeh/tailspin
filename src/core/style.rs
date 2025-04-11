@@ -1,6 +1,20 @@
 use nu_ansi_term::{Color as NuColor, Style as NuStyle};
 use serde::Deserialize;
 
+/// Defines the styling attributes for highlighted text.
+///
+/// Allows setting foreground (`fg`) and background (`bg`) colors as well as
+/// text attributes like bold, italic, faint, and underline.
+///
+/// Use the provided builder methods for convenient configuration.
+///
+/// # Examples
+///
+/// ```rust
+/// use tailspin::style::{Style, Color};
+///
+/// let style = Style::default().fg(Color::Blue).bold();
+/// ```
 #[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy, Default, Deserialize)]
 pub struct Style {
     #[serde(default)]
@@ -50,6 +64,17 @@ impl Style {
     }
 }
 
+/// Available ANSI colors for terminal output.
+///
+/// Includes standard and bright variants.
+///
+/// # Examples
+///
+/// ```rust
+/// use tailspin::style::Color;
+///
+/// let cyan = Color::Cyan;
+/// ```
 #[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy, Default, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Color {
