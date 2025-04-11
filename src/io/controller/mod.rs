@@ -31,10 +31,7 @@ pub enum Presenter {
     None(NoPresenter),
 }
 
-pub async fn get_io_and_presenter_and_eof_receiver(
-    input: Source,
-    output: OutputTarget,
-) -> (Io, Presenter, EofSignalReceiver) {
+pub async fn initialize_io(input: Source, output: OutputTarget) -> (Io, Presenter, EofSignalReceiver) {
     let (eof_signal_sender, eof_signal_receiver) = eof_signal_channel();
 
     let reader = get_reader(input, eof_signal_sender).await;

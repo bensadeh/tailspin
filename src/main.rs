@@ -10,7 +10,7 @@ mod io;
 mod theme;
 
 use crate::cli::get_config;
-use crate::io::controller::{Io, get_io_and_presenter_and_eof_receiver};
+use crate::io::controller::{Io, initialize_io};
 use crate::io::presenter::Present;
 use crate::io::reader::AsyncLineReader;
 use crate::io::writer::AsyncLineWriter;
@@ -19,8 +19,7 @@ use crate::io::writer::AsyncLineWriter;
 async fn main() -> Result<()> {
     let config = get_config()?;
 
-    let (io, presenter, eof_signal_receiver) =
-        get_io_and_presenter_and_eof_receiver(config.source, config.output_target).await;
+    let (io, presenter, eof_signal_receiver) = initialize_io(config.source, config.output_target).await;
 
     tokio::spawn(async move {
         process_lines(io, config.highlighter).await?;
