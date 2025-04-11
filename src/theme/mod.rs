@@ -1,6 +1,6 @@
 use serde::Deserialize;
 use tailspin::config::*;
-use tailspin::*;
+use tailspin::style::Style;
 
 mod mappers;
 pub mod reader;

@@ -1,5 +1,5 @@
-use crate::Style;
 use crate::core::config::KeywordConfig;
+use crate::style::Style;
 use std::collections::HashMap;
 
 pub fn normalize_keyword_configs(configs: Vec<KeywordConfig>) -> Vec<KeywordConfig> {
@@ -29,7 +29,7 @@ pub fn normalize_keyword_configs(configs: Vec<KeywordConfig>) -> Vec<KeywordConf
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Color::*;
+    use crate::style::{Color, Style};
     use std::default::Default;
 
     #[test]
@@ -38,7 +38,7 @@ mod tests {
             KeywordConfig {
                 words: vec!["hello".to_string(), "world".to_string()],
                 style: Style {
-                    fg: Some(Red),
+                    fg: Some(Color::Red),
                     bold: true,
                     ..Style::default()
                 },
@@ -46,7 +46,7 @@ mod tests {
             KeywordConfig {
                 words: vec!["foo".to_string(), "bar".to_string()],
                 style: Style {
-                    fg: Some(Red),
+                    fg: Some(Color::Red),
                     bold: true,
                     ..Style::default()
                 },
@@ -54,7 +54,7 @@ mod tests {
             KeywordConfig {
                 words: vec!["baz".to_string()],
                 style: Style {
-                    fg: Some(Green),
+                    fg: Some(Color::Green),
                     underline: true,
                     ..Style::default()
                 },
@@ -70,7 +70,7 @@ mod tests {
                     "world".to_string(),
                 ],
                 style: Style {
-                    fg: Some(Red),
+                    fg: Some(Color::Red),
                     bold: true,
                     ..Style::default()
                 },
@@ -78,7 +78,7 @@ mod tests {
             KeywordConfig {
                 words: vec!["baz".to_string()],
                 style: Style {
-                    fg: Some(Green),
+                    fg: Some(Color::Green),
                     underline: true,
                     ..Style::default()
                 },
@@ -102,17 +102,17 @@ mod tests {
         let configs = vec![
             KeywordConfig {
                 words: vec!["error".to_string()],
-                style: Style::new().fg(Red),
+                style: Style::new().fg(Color::Red),
             },
             KeywordConfig {
                 words: vec!["null".to_string()],
-                style: Style::new().fg(Red),
+                style: Style::new().fg(Color::Red),
             },
         ];
 
         let expected = vec![KeywordConfig {
             words: vec!["error".to_string(), "null".to_string()],
-            style: Style::new().fg(Red),
+            style: Style::new().fg(Color::Red),
         }];
 
         let normalized_configs = normalize_keyword_configs(configs);
@@ -125,7 +125,7 @@ mod tests {
             KeywordConfig {
                 words: vec!["error".to_string()],
                 style: Style {
-                    fg: Some(Red),
+                    fg: Some(Color::Red),
                     bold: true,
                     ..Style::default()
                 },
@@ -133,7 +133,7 @@ mod tests {
             KeywordConfig {
                 words: vec!["null".to_string()],
                 style: Style {
-                    fg: Some(Red),
+                    fg: Some(Color::Red),
                     italic: true,
                     ..Style::default()
                 },
@@ -144,7 +144,7 @@ mod tests {
             KeywordConfig {
                 words: vec!["null".to_string()],
                 style: Style {
-                    fg: Some(Red),
+                    fg: Some(Color::Red),
                     italic: true,
                     ..Style::default()
                 },
@@ -152,7 +152,7 @@ mod tests {
             KeywordConfig {
                 words: vec!["error".to_string()],
                 style: Style {
-                    fg: Some(Red),
+                    fg: Some(Color::Red),
                     bold: true,
                     ..Style::default()
                 },
@@ -168,7 +168,7 @@ mod tests {
         let configs = vec![KeywordConfig {
             words: vec!["unique".to_string()],
             style: Style {
-                fg: Some(Blue),
+                fg: Some(Color::Blue),
                 italic: true,
                 ..Style::default()
             },
@@ -177,7 +177,7 @@ mod tests {
         let expected = vec![KeywordConfig {
             words: vec!["unique".to_string()],
             style: Style {
-                fg: Some(Blue),
+                fg: Some(Color::Blue),
                 italic: true,
                 ..Style::default()
             },

@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 use tailspin::config::*;
+use tailspin::style::{Color, Style};
 use tailspin::*;
 
 mod utils;

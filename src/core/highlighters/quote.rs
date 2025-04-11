@@ -1,10 +1,10 @@
 use nu_ansi_term::Style as NuStyle;
 use std::borrow::Cow;
 
-use crate::Style;
 use crate::core::config::QuotesConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::quote::State::{InsideQuote, OutsideQuote};
+use crate::style::Style;
 
 const RESET: &str = "\x1b[0m";
 
@@ -102,7 +102,7 @@ enum State {
 mod tests {
     use super::*;
     use crate::core::tests::escape_code_converter::{ConvertEscapeCodes, ConvertHighlightCodes};
-    use crate::{Color, Style};
+    use crate::style::{Color, Style};
 
     #[test]
     fn test_multiple() {

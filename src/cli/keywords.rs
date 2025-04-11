@@ -1,6 +1,6 @@
 use crate::cli::Arguments;
 use tailspin::config::KeywordConfig;
-use tailspin::{Color, Style};
+use tailspin::style::{Color, Style};
 
 pub fn get_keywords_from_cli(cli: &Arguments) -> Vec<KeywordConfig> {
     vec![]

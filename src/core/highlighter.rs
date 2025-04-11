@@ -35,8 +35,8 @@ impl Highlighter {
         }
     }
 
-    pub const fn builder() -> HighlightBuilder {
-        HighlightBuilder {
+    pub const fn builder() -> HighlighterBuilder {
+        HighlighterBuilder {
             highlighters: Vec::new(),
             regex_errors: Vec::new(),
         }
@@ -85,12 +85,12 @@ impl Default for Highlighter {
     }
 }
 
-pub struct HighlightBuilder {
+pub struct HighlighterBuilder {
     highlighters: Vec<StaticHighlight>,
     regex_errors: Vec<regex::Error>,
 }
 
-impl HighlightBuilder {
+impl HighlighterBuilder {
     pub fn with_number_highlighter(&mut self, config: NumberConfig) -> &mut Self {
         self.try_add_highlighter(NumberHighlighter::new(config).map(StaticHighlight::Number));
         self

@@ -88,7 +88,7 @@ impl Highlight for UrlHighlighter {
 mod tests {
     use super::*;
     use crate::core::tests::escape_code_converter::ConvertEscapeCodes;
-    use crate::{Color, Style};
+    use crate::style::{Color, Style};
 
     #[test]
     fn test_url_highlighter() {
