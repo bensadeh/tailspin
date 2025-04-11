@@ -26,7 +26,7 @@ impl EofSignalReceiver {
 }
 
 #[derive(Debug)]
-pub struct EofSignalSender(oneshot::Sender<()>);
+pub struct EofSignalSender(Option<oneshot::Sender<()>>);
 
 #[derive(Debug, Diagnostic, Error)]
 #[error("Failed to send End Of File (EOF) signal")]
@@ -35,10 +35,13 @@ pub struct EofSignalSendError;
 
 impl EofSignalSender {
     pub const fn new(sender: oneshot::Sender<()>) -> Self {
-        EofSignalSender(sender)
+        EofSignalSender(Some(sender))
     }
 
-    pub fn send(self) -> Result<(), EofSignalSendError> {
-        self.0.send(()).map_err(|_| EofSignalSendError)
+    pub fn send(&mut self) -> Result<(), EofSignalSendError> {
+        match self.0.take() {
+            Some(sender) => sender.send(()).map_err(|_| EofSignalSendError),
+            None => Ok(()),
+        }
     }
 }

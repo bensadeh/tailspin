@@ -7,14 +7,14 @@ use tokio::io::{AsyncBufReadExt, BufReader, Stdin};
 
 pub struct StdinReader {
     reader: BufReader<Stdin>,
-    reached_eof_tx: Option<EofSignalSender>,
+    eof_signal_sender: EofSignalSender,
 }
 
 impl StdinReader {
     pub fn get_reader(eof_signal_sender: EofSignalSender) -> Reader {
         Reader::Stdin(StdinReader {
             reader: BufReader::new(tokio::io::stdin()),
-            reached_eof_tx: Some(eof_signal_sender),
+            eof_signal_sender,
         })
     }
 
@@ -39,9 +39,9 @@ impl StdinReader {
     }
 
     fn send_eof_signal(&mut self) {
-        if let Some(sender) = self.reached_eof_tx.take() {
-            sender.send().expect("Failed sending EOF signal to oneshot channel");
-        }
+        self.eof_signal_sender
+            .send()
+            .expect("Failed sending EOF signal to oneshot channel");
     }
 }
 

@@ -12,7 +12,7 @@ pub struct CommandReader {
 }
 
 impl CommandReader {
-    pub async fn get_reader(command: String, reached_eof_tx: EofSignalSender) -> Reader {
+    pub async fn get_reader(command: String, mut reached_eof_tx: EofSignalSender) -> Reader {
         reached_eof_tx
             .send()
             .expect("Failed sending EOF signal to oneshot channel");

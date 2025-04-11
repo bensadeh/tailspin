@@ -9,7 +9,7 @@ use std::path::PathBuf;
 pub struct Linemux {
     number_of_lines: Option<usize>,
     current_line: usize,
-    eof_signal_sender: Option<EofSignalSender>,
+    eof_signal_sender: EofSignalSender,
     reached_eof: bool,
     lines: MuxedLines,
 }
@@ -26,7 +26,7 @@ impl Linemux {
         Reader::Linemux(Self {
             number_of_lines: Some(number_of_lines),
             current_line: 0,
-            eof_signal_sender: Some(eof_signal_sender),
+            eof_signal_sender,
             reached_eof: false,
             lines,
         })
@@ -54,11 +54,11 @@ impl Linemux {
     }
 
     fn send_eof_signal(&mut self) {
-        if let Some(sender) = self.eof_signal_sender.take() {
-            self.reached_eof = true;
+        self.reached_eof = true;
 
-            sender.send().expect("Failed sending EOF signal to oneshot channel");
-        }
+        self.eof_signal_sender
+            .send()
+            .expect("Failed sending EOF signal to oneshot channel");
     }
 
     async fn read_line_by_line(&mut self) -> io::Result<Option<Vec<String>>> {
