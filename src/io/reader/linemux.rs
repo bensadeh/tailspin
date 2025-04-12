@@ -1,9 +1,9 @@
 use crate::eof_signal::InitialReadCompleteSender;
 use crate::io::controller::Reader;
-use crate::io::reader::{AsyncLineReader, ReaderError};
+use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
 use linemux::MuxedLines;
-use miette::Result;
+use miette::{Context, IntoDiagnostic, Result};
 use std::path::PathBuf;
 
 pub struct Linemux {
@@ -41,7 +41,12 @@ impl Linemux {
         let total_lines = self.number_of_lines.expect("Number of lines not set");
 
         while bucket.len() < total_lines {
-            let next_line = self.lines.next_line().await.map_err(ReaderError::IoError)?;
+            let next_line = self
+                .lines
+                .next_line()
+                .await
+                .into_diagnostic()
+                .wrap_err("Could not read next line")?;
 
             let line = match next_line {
                 Some(line) => line.line().to_string(),
@@ -69,11 +74,16 @@ impl Linemux {
     }
 
     async fn read_line_by_line(&mut self) -> Result<Option<Vec<String>>> {
-        let next_line_maybe = self.lines.next_line().await.map_err(ReaderError::IoError)?;
+        let next_line = self
+            .lines
+            .next_line()
+            .await
+            .into_diagnostic()
+            .wrap_err("Could not read next line")?;
 
-        match next_line_maybe {
+        match next_line {
             None => Ok(None),
-            Some(next_line) => Ok(Some(vec![next_line.line().to_string()])),
+            Some(line) => Ok(Some(vec![line.line().to_string()])),
         }
     }
 }

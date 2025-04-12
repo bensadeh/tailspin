@@ -1,8 +1,8 @@
 use crate::eof_signal::InitialReadCompleteSender;
 use crate::io::controller::Reader;
-use crate::io::reader::{AsyncLineReader, ReaderError};
+use crate::io::reader::AsyncLineReader;
 use async_trait::async_trait;
-use miette::Result;
+use miette::{Context, IntoDiagnostic, Result};
 use tokio::io;
 use tokio::io::{AsyncBufReadExt, BufReader, Stdin};
 
@@ -38,21 +38,20 @@ impl StdinReader {
 
         buf
     }
-
-    fn send_eof_signal(&mut self) {
-        self.initial_read_complete_sender
-            .send()
-            .expect("Failed sending EOF signal to oneshot channel");
-    }
 }
 
 #[async_trait]
 impl AsyncLineReader for StdinReader {
     async fn next_line_batch(&mut self) -> Result<Option<Vec<String>>> {
-        let buffer = self.read_bytes_until_newline().await.map_err(ReaderError::IoError)?;
+        let buffer = self
+            .read_bytes_until_newline()
+            .await
+            .into_diagnostic()
+            .wrap_err("Could not read from stdin")?;
 
         if buffer.is_empty() {
-            self.send_eof_signal();
+            self.initial_read_complete_sender.send()?;
+
             return Ok(None);
         }
 

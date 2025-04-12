@@ -4,9 +4,7 @@ pub mod stdin;
 
 use crate::io::controller::Reader;
 use async_trait::async_trait;
-use miette::{Diagnostic, Result};
-use thiserror::Error;
-use tokio::io;
+use miette::Result;
 
 #[async_trait]
 pub trait AsyncLineReader {
@@ -22,10 +20,4 @@ impl AsyncLineReader for Reader {
             Reader::Command(r) => r.next_line_batch().await,
         }
     }
-}
-
-#[derive(Debug, Error, Diagnostic)]
-pub enum ReaderError {
-    #[error("Error reading stream")]
-    IoError(#[source] io::Error),
 }

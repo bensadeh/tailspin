@@ -49,7 +49,7 @@ async fn process_lines(mut io: Io, highlighter: Highlighter) -> Result<()> {
             .collect::<Vec<_>>()
             .join("\n");
 
-        io.writer.write_line(&highlighted_lines).await.into_diagnostic()?;
+        io.writer.write_line(&highlighted_lines).await?;
     }
 
     Ok(())
