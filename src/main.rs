@@ -1,4 +1,4 @@
-use miette::{IntoDiagnostic, Report, Result};
+use miette::{IntoDiagnostic, Result};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use tailspin::Highlighter;
 
