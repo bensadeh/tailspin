@@ -1,7 +1,8 @@
 use crate::eof_signal::InitialReadCompleteSender;
 use crate::io::controller::Reader;
-use crate::io::reader::AsyncLineReader;
+use crate::io::reader::{AsyncLineReader, ReaderError};
 use async_trait::async_trait;
+use miette::Result;
 use tokio::io;
 use tokio::io::{AsyncBufReadExt, BufReader, Stdin};
 
@@ -47,8 +48,8 @@ impl StdinReader {
 
 #[async_trait]
 impl AsyncLineReader for StdinReader {
-    async fn next_line_batch(&mut self) -> io::Result<Option<Vec<String>>> {
-        let buffer = self.read_bytes_until_newline().await?;
+    async fn next_line_batch(&mut self) -> Result<Option<Vec<String>>> {
+        let buffer = self.read_bytes_until_newline().await.map_err(ReaderError::IoError)?;
 
         if buffer.is_empty() {
             self.send_eof_signal();

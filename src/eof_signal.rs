@@ -1,4 +1,4 @@
-use miette::Diagnostic;
+use miette::{Diagnostic, Result};
 use thiserror::Error;
 use tokio::sync::oneshot;
 
@@ -20,8 +20,10 @@ impl InitialReadCompleteReceiver {
         InitialReadCompleteReceiver(receiver)
     }
 
-    pub async fn wait(self) -> Result<(), InitialReadCompleteRecvError> {
-        self.0.await.map_err(InitialReadCompleteRecvError)
+    pub async fn wait(self) -> Result<()> {
+        self.0.await.map_err(InitialReadCompleteRecvError)?;
+
+        Ok(())
     }
 }
 
@@ -38,9 +40,9 @@ impl InitialReadCompleteSender {
         InitialReadCompleteSender(Some(sender))
     }
 
-    pub fn send(&mut self) -> Result<(), InitialReadCompleteSendError> {
+    pub fn send(&mut self) -> Result<()> {
         match self.0.take() {
-            Some(sender) => sender.send(()).map_err(|_| InitialReadCompleteSendError),
+            Some(sender) => Ok(sender.send(()).map_err(|_| InitialReadCompleteSendError)?),
             None => Ok(()),
         }
     }

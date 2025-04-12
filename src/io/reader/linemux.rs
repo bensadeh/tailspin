@@ -1,9 +1,9 @@
 use crate::eof_signal::InitialReadCompleteSender;
 use crate::io::controller::Reader;
-use crate::io::reader::AsyncLineReader;
+use crate::io::reader::{AsyncLineReader, ReaderError};
 use async_trait::async_trait;
 use linemux::MuxedLines;
-use std::io;
+use miette::Result;
 use std::path::PathBuf;
 
 pub struct Linemux {
@@ -36,50 +36,51 @@ impl Linemux {
         })
     }
 
-    async fn read_lines_until_eof(&mut self) -> io::Result<Option<Vec<String>>> {
+    async fn read_lines_until_eof(&mut self) -> Result<Option<Vec<String>>> {
         let mut bucket = Vec::new();
         let total_lines = self.number_of_lines.expect("Number of lines not set");
 
         while bucket.len() < total_lines {
-            let line = match self.lines.next_line().await {
-                Ok(Some(line)) => line,
+            let next_line = self.lines.next_line().await.map_err(ReaderError::IoError)?;
+
+            let line = match next_line {
+                Some(line) => line.line().to_string(),
                 _ => break,
             };
 
-            bucket.push(line.line().to_owned());
+            bucket.push(line);
             self.current_line += 1;
 
             if self.current_line >= total_lines {
-                self.send_eof_signal();
+                self.send_eof_signal()?;
             }
         }
 
-        if bucket.is_empty() { Ok(None) } else { Ok(Some(bucket)) }
+        match bucket.is_empty() {
+            true => Ok(None),
+            false => Ok(Some(bucket)),
+        }
     }
 
-    fn send_eof_signal(&mut self) {
+    fn send_eof_signal(&mut self) -> Result<()> {
         self.reached_eof = true;
 
-        self.initial_read_complete_sender
-            .send()
-            .expect("Failed sending EOF signal to oneshot channel");
+        self.initial_read_complete_sender.send()
     }
 
-    async fn read_line_by_line(&mut self) -> io::Result<Option<Vec<String>>> {
-        let line = match self.lines.next_line().await {
-            Ok(Some(line)) => line,
-            _ => return Ok(None),
-        };
+    async fn read_line_by_line(&mut self) -> Result<Option<Vec<String>>> {
+        let next_line_maybe = self.lines.next_line().await.map_err(ReaderError::IoError)?;
 
-        let next_line = line.line().to_owned();
-
-        Ok(Some(vec![next_line]))
+        match next_line_maybe {
+            None => Ok(None),
+            Some(next_line) => Ok(Some(vec![next_line.line().to_string()])),
+        }
     }
 }
 
 #[async_trait]
 impl AsyncLineReader for Linemux {
-    async fn next_line_batch(&mut self) -> io::Result<Option<Vec<String>>> {
+    async fn next_line_batch(&mut self) -> Result<Option<Vec<String>>> {
         match self.reached_eof {
             true => self.read_line_by_line().await,
             false => self.read_lines_until_eof().await,
