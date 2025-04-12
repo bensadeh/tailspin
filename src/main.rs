@@ -20,10 +20,7 @@ async fn main() -> Result<()> {
     let config = get_config()?;
     let (io, presenter, initial_read_complete_sender) = initialize_io(config.source, config.output_target).await;
 
-    let line_processing = tokio::spawn(async move {
-        process_lines(io, config.highlighter).await?;
-        Ok::<(), Report>(())
-    });
+    let read_write_apply_task = tokio::spawn(async move { read_write_and_apply(io, config.highlighter).await });
 
     initial_read_complete_sender.wait().await?;
 
@@ -33,7 +30,7 @@ async fn main() -> Result<()> {
         res = presenter_task => {
             res.into_diagnostic()??;
         },
-        res = line_processing => {
+        res = read_write_apply_task => {
             res.into_diagnostic()??;
         }
     }
@@ -41,7 +38,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn process_lines(mut io: Io, highlighter: Highlighter) -> Result<()> {
+async fn read_write_and_apply(mut io: Io, highlighter: Highlighter) -> Result<()> {
     while let Some(line_batch) = io.reader.next_line_batch().await? {
         let highlighted_lines = line_batch
             .into_par_iter()
