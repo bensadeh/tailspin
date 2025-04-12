@@ -45,6 +45,7 @@ pub struct CustomPagerOptions {
 #[derive(Debug, Error, Diagnostic)]
 pub enum ConfigError {
     #[error("Missing filename ({} for help)", "tspin --help".magenta())]
+    #[diagnostic(severity(Warning))]
     MissingFilename,
 
     #[error("Cannot read from both file and {}", "--listen-command".magenta())]
