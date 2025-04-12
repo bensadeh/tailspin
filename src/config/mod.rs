@@ -49,10 +49,6 @@ pub enum ConfigError {
     #[error("Cannot read from both file and {}", "--listen-command".magenta())]
     CannotReadBothFileAndListenCommand,
 
-    #[error("Detected input from both {} and from {}", "stdin".magenta(), "file".yellow())]
-    #[diagnostic(severity(Warning))]
-    AmbiguousInput,
-
     #[error("Could not determine input type")]
     CouldNotDetermineInputType,
 
@@ -85,8 +81,8 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
         return Err(ConfigError::CannotReadBothFileAndListenCommand);
     }
 
-    if args.file_path.is_some() && std_in_has_data {
-        return Err(ConfigError::AmbiguousInput);
+    if let Some(path) = &args.file_path {
+        return process_path_input(path.into());
     }
 
     if std_in_has_data {
@@ -95,10 +91,6 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
 
     if let Some(command) = &args.listen_command {
         return Ok(Source::Command(command.clone()));
-    }
-
-    if let Some(path) = &args.file_path {
-        return process_path_input(path.into());
     }
 
     Err(ConfigError::CouldNotDetermineInputType)
