@@ -42,8 +42,8 @@ async fn main() -> Result<()> {
 }
 
 async fn process_lines(mut io: Io, highlighter: Highlighter) -> Result<()> {
-    while let Ok(Some(line)) = io.reader.next_line_batch().await {
-        let highlighted_lines = line
+    while let Some(line_batch) = io.reader.next_line_batch().await? {
+        let highlighted_lines = line_batch
             .into_par_iter()
             .map(|line| highlighter.apply(line.as_str()).to_string())
             .collect::<Vec<_>>()
