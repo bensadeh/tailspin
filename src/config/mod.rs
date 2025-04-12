@@ -12,7 +12,7 @@ use thiserror::Error;
 
 pub struct InputOutputConfig {
     pub source: Source,
-    pub output_target: OutputTarget,
+    pub target: Target,
 }
 
 #[derive(PartialEq, Eq, Ord, PartialOrd)]
@@ -28,7 +28,7 @@ pub enum Source {
     Stdin,
 }
 
-pub enum OutputTarget {
+pub enum Target {
     Less(LessOptions),
     CustomPager(CustomPagerOptions),
     Stdout,
@@ -70,16 +70,13 @@ pub enum ConfigError {
 }
 
 pub fn get_io_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError> {
-    let input = get_input(args)?;
-    let output = get_output(args, &input);
+    let source = get_source(args)?;
+    let target = get_target(args, &source);
 
-    Ok(InputOutputConfig {
-        source: input,
-        output_target: output,
-    })
+    Ok(InputOutputConfig { source, target })
 }
 
-fn get_input(args: &Arguments) -> Result<Source, ConfigError> {
+fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
     let std_in_has_data = stdin_has_data();
 
     if !std_in_has_data && args.file_path.is_none() && args.listen_command.is_none() {
@@ -122,13 +119,13 @@ fn stdin_has_data() -> bool {
     }
 }
 
-fn get_output(args: &Arguments, input: &Source) -> OutputTarget {
+fn get_target(args: &Arguments, input: &Source) -> Target {
     if let Ok(var) = env::var("TAILSPIN_PAGER") {
-        return OutputTarget::CustomPager(CustomPagerOptions { command: var });
+        return Target::CustomPager(CustomPagerOptions { command: var });
     }
 
     if *input == Source::Stdin || args.to_stdout {
-        return OutputTarget::Stdout;
+        return Target::Stdout;
     }
 
     let follow_mode = if args.listen_command.is_some() {
@@ -137,7 +134,7 @@ fn get_output(args: &Arguments, input: &Source) -> OutputTarget {
         args.follow
     };
 
-    OutputTarget::Less(LessOptions { follow: follow_mode })
+    Target::Less(LessOptions { follow: follow_mode })
 }
 
 fn process_path_input(path: PathBuf) -> Result<Source, ConfigError> {
