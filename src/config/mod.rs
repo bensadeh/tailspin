@@ -1,11 +1,9 @@
 use crate::cli::Arguments;
 use miette::Diagnostic;
-use nix::poll::{PollFd, PollFlags, PollTimeout, poll};
 use owo_colors::OwoColorize;
 use std::cmp::PartialEq;
 use std::fs::File;
-use std::io::{self, Read, stdin};
-use std::os::fd::AsFd;
+use std::io::{self, IsTerminal, Read, stdin};
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 use thiserror::Error;
@@ -77,9 +75,9 @@ pub fn get_io_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError>
 }
 
 fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
-    let std_in_has_data = stdin_has_data();
+    let std_in_has_data = !stdin().is_terminal();
 
-    if !std_in_has_data && args.file_path.is_none() && args.listen_command.is_none() {
+    if args.file_path.is_none() && !std_in_has_data && args.listen_command.is_none() {
         return Err(ConfigError::MissingFilename);
     }
 
@@ -87,7 +85,7 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
         return Err(ConfigError::CannotReadBothFileAndListenCommand);
     }
 
-    if std_in_has_data && args.file_path.is_some() {
+    if args.file_path.is_some() && std_in_has_data {
         return Err(ConfigError::AmbiguousInput);
     }
 
@@ -104,19 +102,6 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
     }
 
     Err(ConfigError::CouldNotDetermineInputType)
-}
-
-fn stdin_has_data() -> bool {
-    let stdin = stdin();
-    let fd = stdin.as_fd();
-    let mut fds = [PollFd::new(fd, PollFlags::POLLIN)];
-    match poll(&mut fds, PollTimeout::ZERO) {
-        Ok(n) if n > 0 => fds[0]
-            .revents()
-            .unwrap_or(PollFlags::empty())
-            .contains(PollFlags::POLLIN),
-        _ => false,
-    }
 }
 
 fn get_target(args: &Arguments, input: &Source) -> Target {

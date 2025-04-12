@@ -1,8 +1,8 @@
 # Changelog
+
 ## 5.3.0
 
-
-
+- Use `stdin().is_terminal()` instead of `nix` crate to check if `stdin` is a terminal
 
 ## 5.2.0
 

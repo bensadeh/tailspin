@@ -972,7 +972,6 @@ dependencies = [
  "ctrlc",
  "linemux",
  "miette",
- "nix",
  "nu-ansi-term",
  "owo-colors",
  "rand",
