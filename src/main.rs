@@ -1,5 +1,5 @@
 use miette::{IntoDiagnostic, Result};
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use rayon::prelude::*;
 use tailspin::Highlighter;
 
 mod cli;
@@ -34,13 +34,13 @@ async fn main() -> Result<()> {
 
 async fn read_write_and_apply(mut io: Io, highlighter: Highlighter) -> Result<()> {
     while let Some(line_batch) = io.reader.next_line_batch().await? {
-        let highlighted_lines = line_batch
-            .into_par_iter()
-            .map(|line| highlighter.apply(line.as_str()).to_string())
+        let highlighted = line_batch
+            .par_iter()
+            .map(|line| highlighter.apply(line.as_str()))
             .collect::<Vec<_>>()
             .join("\n");
 
-        io.writer.write_line(&highlighted_lines).await?;
+        io.writer.write_line(&highlighted).await?;
     }
 
     Ok(())
