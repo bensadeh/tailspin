@@ -1,4 +1,4 @@
-use miette::{IntoDiagnostic, Result};
+use miette::{IntoDiagnostic, Result, miette};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use tailspin::Highlighter;
 
@@ -27,12 +27,8 @@ async fn main() -> Result<()> {
     let presenter_task = tokio::spawn(async move { presenter.present() });
 
     tokio::select! {
-        res = presenter_task => {
-            res.into_diagnostic()??;
-        },
-        res = read_write_apply_task => {
-            res.into_diagnostic()??;
-        }
+        res = presenter_task => res.into_diagnostic()??,
+        res = read_write_apply_task => res.into_diagnostic()??,
     }
 
     Ok(())
