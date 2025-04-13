@@ -1,6 +1,6 @@
-use crate::eof_signal::InitialReadCompleteSender;
+use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::Reader;
-use crate::io::reader::AsyncLineReader;
+use crate::io::reader::{AsyncLineReader, ReadType};
 use async_trait::async_trait;
 use miette::{Context, IntoDiagnostic, Result};
 use std::process::Stdio;
@@ -57,7 +57,7 @@ impl CommandReader {
 
 #[async_trait]
 impl AsyncLineReader for CommandReader {
-    async fn next_line_batch(&mut self) -> Result<Option<Vec<String>>> {
+    async fn next(&mut self) -> Result<ReadType> {
         let buffer = self
             .read_bytes_until_newline()
             .await
@@ -65,12 +65,12 @@ impl AsyncLineReader for CommandReader {
             .wrap_err("Could not read from stream")?;
 
         if buffer.is_empty() {
-            return Ok(None);
+            return Ok(ReadType::StreamEnded);
         }
 
         let buffer = Self::strip_newline_character(buffer);
         let line = String::from_utf8_lossy(&buffer).into_owned();
 
-        Ok(Some(vec![line]))
+        Ok(ReadType::SingleLine(line))
     }
 }

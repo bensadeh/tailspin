@@ -1,9 +1,9 @@
-use crate::eof_signal::InitialReadCompleteSender;
+use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::Reader;
-use crate::io::reader::AsyncLineReader;
+use crate::io::reader::{AsyncLineReader, ReadType};
 use async_trait::async_trait;
 use linemux::MuxedLines;
-use miette::{Context, IntoDiagnostic, Result};
+use miette::{Context, IntoDiagnostic, Result, miette};
 use std::path::PathBuf;
 
 pub struct Linemux {
@@ -36,7 +36,7 @@ impl Linemux {
         })
     }
 
-    async fn read_lines_until_eof(&mut self) -> Result<Option<Vec<String>>> {
+    async fn read_lines_until_eof(&mut self) -> Result<ReadType> {
         let mut bucket = Vec::new();
         let total_lines = self.number_of_lines.expect("Number of lines not set");
 
@@ -62,8 +62,8 @@ impl Linemux {
         }
 
         match bucket.is_empty() {
-            true => Ok(None),
-            false => Ok(Some(bucket)),
+            true => Err(miette!("Error batching line reads from file")),
+            false => Ok(ReadType::MultipleLines(bucket)),
         }
     }
 
@@ -73,24 +73,22 @@ impl Linemux {
         self.initial_read_complete_sender.send()
     }
 
-    async fn read_line_by_line(&mut self) -> Result<Option<Vec<String>>> {
+    async fn read_line_by_line(&mut self) -> Result<ReadType> {
         let next_line = self
             .lines
             .next_line()
             .await
             .into_diagnostic()
-            .wrap_err("Could not read next line")?;
+            .wrap_err("Could not read next line")?
+            .ok_or(miette!("next_line() should never return optional"))?;
 
-        match next_line {
-            None => Ok(None),
-            Some(line) => Ok(Some(vec![line.line().to_string()])),
-        }
+        Ok(ReadType::SingleLine(next_line.line().to_string()))
     }
 }
 
 #[async_trait]
 impl AsyncLineReader for Linemux {
-    async fn next_line_batch(&mut self) -> Result<Option<Vec<String>>> {
+    async fn next(&mut self) -> Result<ReadType> {
         match self.reached_eof {
             true => self.read_line_by_line().await,
             false => self.read_lines_until_eof().await,

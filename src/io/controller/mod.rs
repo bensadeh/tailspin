@@ -1,6 +1,6 @@
 use crate::cli::get_config;
 use crate::config::{Source, Target};
-use crate::eof_signal::{InitialReadCompleteReceiver, InitialReadCompleteSender, initial_read_complete_channel};
+use crate::initial_read::{InitialReadCompleteReceiver, InitialReadCompleteSender, initial_read_complete_channel};
 use crate::io::presenter::custom_pager::CustomPager;
 use crate::io::presenter::empty::NoPresenter;
 use crate::io::presenter::less::Less;

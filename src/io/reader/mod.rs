@@ -6,18 +6,24 @@ use crate::io::controller::Reader;
 use async_trait::async_trait;
 use miette::Result;
 
+pub enum ReadType {
+    StreamEnded,
+    SingleLine(String),
+    MultipleLines(Vec<String>),
+}
+
 #[async_trait]
 pub trait AsyncLineReader {
-    async fn next_line_batch(&mut self) -> Result<Option<Vec<String>>>;
+    async fn next(&mut self) -> Result<ReadType>;
 }
 
 #[async_trait]
 impl AsyncLineReader for Reader {
-    async fn next_line_batch(&mut self) -> Result<Option<Vec<String>>> {
+    async fn next(&mut self) -> Result<ReadType> {
         match self {
-            Reader::Linemux(r) => r.next_line_batch().await,
-            Reader::Stdin(r) => r.next_line_batch().await,
-            Reader::Command(r) => r.next_line_batch().await,
+            Reader::Linemux(r) => r.next().await,
+            Reader::Stdin(r) => r.next().await,
+            Reader::Command(r) => r.next().await,
         }
     }
 }
