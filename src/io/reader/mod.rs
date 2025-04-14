@@ -1,6 +1,7 @@
 pub mod command;
 pub mod linemux;
 pub mod stdin;
+mod utils;
 
 use crate::io::controller::Reader;
 use async_trait::async_trait;
