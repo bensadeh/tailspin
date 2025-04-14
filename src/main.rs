@@ -1,3 +1,7 @@
+use io::controller::{Io, initialize_io};
+use io::presenter::Present;
+use io::reader::{AsyncLineReader, ReadType};
+use io::writer::AsyncLineWriter;
 use miette::{IntoDiagnostic, Result};
 use rayon::prelude::*;
 use tailspin::Highlighter;
@@ -8,11 +12,6 @@ mod highlighter_builder;
 mod initial_read;
 mod io;
 mod theme;
-
-use crate::io::controller::{Io, initialize_io};
-use crate::io::presenter::Present;
-use crate::io::reader::{AsyncLineReader, ReadType};
-use crate::io::writer::AsyncLineWriter;
 
 #[tokio::main]
 async fn main() -> Result<()> {
