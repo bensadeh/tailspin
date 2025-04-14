@@ -19,21 +19,24 @@ impl Linemux {
         file_path: PathBuf,
         number_of_lines: usize,
         irc_sender: InitialReadCompleteSender,
-    ) -> Reader {
-        let mut lines = MuxedLines::new().expect("Could not instantiate linemux");
+    ) -> Result<Reader> {
+        let mut lines = MuxedLines::new()
+            .into_diagnostic()
+            .wrap_err("Could not instantiate linemux")?;
 
         lines
             .add_file_from_start(&file_path)
             .await
-            .expect("Could not add file to linemux");
+            .into_diagnostic()
+            .wrap_err("Could not add file to linemux")?;
 
-        Reader::Linemux(Self {
+        Ok(Reader::Linemux(Self {
             number_of_lines: Some(number_of_lines),
             current_line: 0,
             initial_read_complete_sender: irc_sender,
             reached_eof: false,
             lines,
-        })
+        }))
     }
 
     async fn read_lines_until_eof(&mut self) -> Result<ReadType> {
@@ -61,10 +64,7 @@ impl Linemux {
             }
         }
 
-        match bucket.is_empty() {
-            true => Err(miette!("Error batching line reads from file")),
-            false => Ok(ReadType::MultipleLines(bucket)),
-        }
+        Ok(ReadType::MultipleLines(bucket))
     }
 
     fn send_eof_signal(&mut self) -> Result<()> {

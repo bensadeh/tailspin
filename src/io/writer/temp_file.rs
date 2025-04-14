@@ -14,14 +14,14 @@ pub struct TempFile {
 }
 
 impl TempFile {
-    pub async fn new() -> Self {
-        let (_temp_dir, temp_file_path, temp_file_writer) = create_temp_file().await;
+    pub async fn new() -> Result<Self> {
+        let (_temp_dir, temp_file_path, temp_file_writer) = create_temp_file().await?;
 
-        TempFile {
+        Ok(TempFile {
             _temp_dir,
             path: temp_file_path,
             file_writer: temp_file_writer,
-        }
+        })
     }
 }
 
@@ -46,15 +46,21 @@ impl AsyncLineWriter for TempFile {
     }
 }
 
-async fn create_temp_file() -> (TempDir, PathBuf, BufWriter<File>) {
+async fn create_temp_file() -> Result<(TempDir, PathBuf, BufWriter<File>)> {
     let unique_id: u32 = random();
     let filename = format!("tailspin.temp.{}", unique_id);
 
-    let temp_dir = tempfile::tempdir().unwrap();
+    let temp_dir = tempfile::tempdir()
+        .into_diagnostic()
+        .wrap_err("Could not locate temporary directory")?;
 
     let temp_file_path = temp_dir.path().join(filename);
-    let output_file = File::create(&temp_file_path).await.unwrap();
+    let output_file = File::create(&temp_file_path)
+        .await
+        .into_diagnostic()
+        .wrap_err("Could not create temporary file")?;
+
     let output_writer = BufWriter::new(output_file);
 
-    (temp_dir, temp_file_path, output_writer)
+    Ok((temp_dir, temp_file_path, output_writer))
 }

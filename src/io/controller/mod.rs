@@ -38,39 +38,41 @@ pub async fn initialize_io() -> Result<(Io, Presenter, Highlighter, InitialReadC
     let config = get_config()?;
     let (irc_sender, irc_receiver) = initial_read_complete_channel();
 
-    let reader = get_reader(config.source, irc_sender).await;
-    let (writer, presenter) = get_writer_and_presenter(config.target).await;
+    let reader = get_reader(config.source, irc_sender).await?;
+    let (writer, presenter) = get_writer_and_presenter(config.target).await?;
 
     Ok((Io { reader, writer }, presenter, config.highlighter, irc_receiver))
 }
 
-async fn get_reader(input: Source, irc_sender: InitialReadCompleteSender) -> Reader {
-    match input {
-        Source::File(file_info) => Linemux::get_reader(file_info.path, file_info.line_count, irc_sender).await,
+async fn get_reader(input: Source, irc_sender: InitialReadCompleteSender) -> Result<Reader> {
+    let reader = match input {
+        Source::File(file_info) => Linemux::get_reader(file_info.path, file_info.line_count, irc_sender).await?,
         Source::Stdin => StdinReader::get_reader(irc_sender),
-        Source::Command(cmd) => CommandReader::get_reader(cmd, irc_sender).await,
-    }
+        Source::Command(cmd) => CommandReader::get_reader(cmd, irc_sender).await?,
+    };
+
+    Ok(reader)
 }
 
-async fn get_writer_and_presenter(output: Target) -> (Writer, Presenter) {
+async fn get_writer_and_presenter(output: Target) -> Result<(Writer, Presenter)> {
     match output {
         Target::Less(opts) => {
-            let temp_file = TempFile::new().await;
+            let temp_file = TempFile::new().await?;
             let less = Less::new(temp_file.path.clone(), opts.follow);
 
-            (Writer::TempFile(temp_file), Presenter::Less(less))
+            Ok((Writer::TempFile(temp_file), Presenter::Less(less)))
         }
         Target::CustomPager(cmd) => {
-            let temp_file = TempFile::new().await;
+            let temp_file = TempFile::new().await?;
             let custom_pager = CustomPager::new(temp_file.path.clone(), cmd.command);
 
-            (Writer::TempFile(temp_file), Presenter::CustomPager(custom_pager))
+            Ok((Writer::TempFile(temp_file), Presenter::CustomPager(custom_pager)))
         }
         Target::Stdout => {
             let writer = StdoutWriter::init();
             let presenter = NoPresenter::get_presenter();
 
-            (writer, presenter)
+            Ok((writer, presenter))
         }
     }
 }

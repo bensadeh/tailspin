@@ -2,7 +2,7 @@ use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::Reader;
 use crate::io::reader::{AsyncLineReader, ReadType};
 use async_trait::async_trait;
-use miette::{Context, IntoDiagnostic, Result};
+use miette::{Context, IntoDiagnostic, Result, miette};
 use std::process::Stdio;
 use tokio::io;
 use tokio::io::{AsyncBufReadExt, BufReader};
@@ -13,10 +13,8 @@ pub struct CommandReader {
 }
 
 impl CommandReader {
-    pub async fn get_reader(command: String, mut reached_eof_tx: InitialReadCompleteSender) -> Reader {
-        reached_eof_tx
-            .send()
-            .expect("Failed sending EOF signal to oneshot channel");
+    pub async fn get_reader(command: String, mut reached_eof_tx: InitialReadCompleteSender) -> Result<Reader> {
+        reached_eof_tx.send()?;
 
         let trap_command = format!("trap '' INT; {}", command);
 
@@ -25,13 +23,16 @@ impl CommandReader {
             .arg(trap_command)
             .stdout(Stdio::piped())
             .spawn()
-            .expect("Could not spawn process");
+            .into_diagnostic()
+            .wrap_err("Could not spawn process")?;
 
-        let stdout = child.stdout.expect("Could not spawn child process");
+        let stdout = child
+            .stdout
+            .ok_or_else(|| miette!("Could not capture stdout of spawned process"))?;
 
         let reader = BufReader::new(stdout);
 
-        Reader::Command(CommandReader { reader })
+        Ok(Reader::Command(CommandReader { reader }))
     }
 
     async fn read_bytes_until_newline(&mut self) -> io::Result<Vec<u8>> {
