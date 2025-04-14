@@ -55,24 +55,26 @@ async fn get_reader(input: Source, irc_sender: InitialReadCompleteSender) -> Res
 }
 
 async fn get_writer_and_presenter(output: Target) -> Result<(Writer, Presenter)> {
-    match output {
+    let (writer, presenter) = match output {
         Target::Less(opts) => {
             let temp_file = TempFile::new().await?;
             let less = Less::new(temp_file.path.clone(), opts.follow);
 
-            Ok((Writer::TempFile(temp_file), Presenter::Less(less)))
+            (Writer::TempFile(temp_file), Presenter::Less(less))
         }
         Target::CustomPager(cmd) => {
             let temp_file = TempFile::new().await?;
             let custom_pager = CustomPager::new(temp_file.path.clone(), cmd.command);
 
-            Ok((Writer::TempFile(temp_file), Presenter::CustomPager(custom_pager)))
+            (Writer::TempFile(temp_file), Presenter::CustomPager(custom_pager))
         }
         Target::Stdout => {
             let writer = StdoutWriter::init();
             let presenter = NoPresenter::get_presenter();
 
-            Ok((writer, presenter))
+            (writer, presenter)
         }
-    }
+    };
+
+    Ok((writer, presenter))
 }
