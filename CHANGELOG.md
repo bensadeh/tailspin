@@ -1,8 +1,8 @@
 # Changelog
+
 ## 5.3.0
 
-
-
+- Enabled parallel processing of lines from `stdin`
 
 ## 5.2.1
 
