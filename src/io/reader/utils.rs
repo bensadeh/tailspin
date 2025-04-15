@@ -4,7 +4,6 @@ use tokio::io::{AsyncBufRead, AsyncBufReadExt};
 /// Reads all **currently available** complete lines from reader.
 /// If there’s no newline in the buffer, it will block until
 /// at least one newline is available (or until EOF).
-/// Leaves any incomplete trailing line in the buffer.
 pub async fn read_complete_lines<R>(reader: &mut R) -> Result<Vec<String>>
 where
     R: AsyncBufRead + Unpin,
