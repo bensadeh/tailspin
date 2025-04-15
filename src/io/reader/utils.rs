@@ -4,7 +4,7 @@ use tokio::io::{AsyncBufRead, AsyncBufReadExt};
 /// Reads all **currently available** complete lines from reader.
 /// If there’s no newline in the buffer, it will block until
 /// at least one newline is available (or until EOF).
-pub async fn read_complete_lines<R>(reader: &mut R) -> Result<Vec<String>>
+pub async fn read_available_lines<R>(reader: &mut R) -> Result<Vec<String>>
 where
     R: AsyncBufRead + Unpin,
 {
@@ -92,7 +92,7 @@ mod tests {
         let input = b"line 1\nline 2\nline 3\n";
         let mut reader = BufReader::new(&input[..]);
 
-        let lines = read_complete_lines(&mut reader).await.unwrap();
+        let lines = read_available_lines(&mut reader).await.unwrap();
 
         assert_eq!(lines, vec!["line 1", "line 2", "line 3"]);
     }
@@ -102,7 +102,7 @@ mod tests {
         let input = b"line 1\nline 2\nline 3";
         let mut reader = BufReader::new(&input[..]);
 
-        let lines = read_complete_lines(&mut reader).await.unwrap();
+        let lines = read_available_lines(&mut reader).await.unwrap();
 
         assert_eq!(lines, vec!["line 1", "line 2", "line 3"]);
     }
@@ -112,7 +112,7 @@ mod tests {
         let input = b"incomplete line without newline";
         let mut reader = BufReader::new(&input[..]);
 
-        let lines = read_complete_lines(&mut reader).await.unwrap();
+        let lines = read_available_lines(&mut reader).await.unwrap();
 
         assert_eq!(lines, vec!["incomplete line without newline"]);
     }
@@ -122,7 +122,7 @@ mod tests {
         let input = b"single complete line\n";
         let mut reader = BufReader::new(&input[..]);
 
-        let lines = read_complete_lines(&mut reader).await.unwrap();
+        let lines = read_available_lines(&mut reader).await.unwrap();
 
         assert_eq!(lines, vec!["single complete line"]);
     }
@@ -132,7 +132,7 @@ mod tests {
         let input = b"";
         let mut reader = BufReader::new(&input[..]);
 
-        let lines = read_complete_lines(&mut reader).await.unwrap();
+        let lines = read_available_lines(&mut reader).await.unwrap();
 
         assert!(lines.is_empty());
     }
@@ -143,7 +143,7 @@ mod tests {
         let custom_reader = PendingAfterInitialRead::new(input);
         let mut reader = BufReader::new(custom_reader);
 
-        let result = timeout(Duration::from_millis(100), read_complete_lines(&mut reader)).await;
+        let result = timeout(Duration::from_millis(100), read_available_lines(&mut reader)).await;
 
         assert!(result.is_err(), "Expected timeout because no newline or EOF is present");
     }
@@ -154,7 +154,7 @@ mod tests {
         let custom_reader = PendingAfterInitialRead::new(input);
         let mut reader = BufReader::new(custom_reader);
 
-        let result = timeout(Duration::from_millis(100), read_complete_lines(&mut reader)).await;
+        let result = timeout(Duration::from_millis(100), read_available_lines(&mut reader)).await;
         let lines = result.unwrap().unwrap();
 
         assert_eq!(lines, vec!["extract lines", " that are ready", " to be extracted"]);
