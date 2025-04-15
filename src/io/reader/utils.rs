@@ -47,7 +47,7 @@ enum PeekResult<'a> {
     MultipleNewlines(&'a [u8]),
 }
 
-async fn peek_buffer<'a, R>(reader: &'a mut R) -> Result<PeekResult<'a>>
+async fn peek_buffer<R>(reader: &mut R) -> Result<PeekResult>
 where
     R: AsyncBufRead + Unpin,
 {
