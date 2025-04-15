@@ -1,80 +1,75 @@
 use miette::{IntoDiagnostic, Result};
 use tokio::io::{AsyncBufRead, AsyncBufReadExt};
 
-/// Reads all **currently available** complete lines from reader.
-/// If there’s no newline in the buffer, it will block until
-/// at least one newline is available (or until EOF).
 pub async fn read_available_lines<R>(reader: &mut R) -> Result<Vec<String>>
 where
     R: AsyncBufRead + Unpin,
 {
-    let mut lines = Vec::new();
+    match peek_buffer(reader).await? {
+        PeekResult::Eof(buf) => {
+            let lines = parse_buffer(buf);
+            let buf_len = buf.len();
 
-    loop {
-        match check_buffer(reader).await? {
-            BufferState::Eof(buf) => {
-                if !buf.is_empty() {
-                    let leftover = String::from_utf8_lossy(buf).to_string();
-                    let buf_len = buf.len();
-                    reader.consume(buf_len);
-                    lines.push(leftover);
-                }
-                return Ok(lines);
+            reader.consume(buf_len);
+
+            Ok(lines)
+        }
+        PeekResult::SingleOrNoNewline => {
+            let mut line = String::new();
+            let bytes_read = reader.read_line(&mut line).await.into_diagnostic()?;
+            if bytes_read == 0 {
+                Ok(vec![])
+            } else {
+                Ok(vec![line.trim_end_matches('\n').to_string()])
             }
-            BufferState::NoNewline => {
-                if block_until_newline(reader).await? == 0 {
-                    return Ok(lines);
-                }
-            }
-            BufferState::HasNewline(buf) => {
-                let consumed = parse_lines(buf, &mut lines);
-                reader.consume(consumed);
-                return Ok(lines);
-            }
+        }
+        PeekResult::MultipleNewlines(buf) => {
+            let last_newline_pos = buf
+                .iter()
+                .enumerate()
+                .filter(|&(_, &b)| b == b'\n')
+                .map(|(pos, _)| pos)
+                .next_back()
+                .unwrap();
+
+            let consumed_buf = &buf[..=last_newline_pos];
+            let lines = parse_buffer(consumed_buf);
+            reader.consume(last_newline_pos + 1);
+
+            Ok(lines)
         }
     }
 }
 
-enum BufferState<'a> {
+enum PeekResult<'a> {
     Eof(&'a [u8]),
-    NoNewline,
-    HasNewline(&'a [u8]),
+    SingleOrNoNewline,
+    MultipleNewlines(&'a [u8]),
 }
 
-async fn check_buffer<'a, R>(reader: &'a mut R) -> Result<BufferState<'a>>
+async fn peek_buffer<'a, R>(reader: &'a mut R) -> Result<PeekResult<'a>>
 where
     R: AsyncBufRead + Unpin,
 {
     let buf = reader.fill_buf().await.into_diagnostic()?;
 
     if buf.is_empty() {
-        Ok(BufferState::Eof(buf))
-    } else if buf.contains(&b'\n') {
-        Ok(BufferState::HasNewline(buf))
-    } else {
-        Ok(BufferState::NoNewline)
+        return Ok(PeekResult::Eof(buf));
+    }
+
+    let newline_count = buf.iter().filter(|&&b| b == b'\n').count();
+
+    match newline_count {
+        0 | 1 => Ok(PeekResult::SingleOrNoNewline),
+        _ => Ok(PeekResult::MultipleNewlines(buf)),
     }
 }
 
-async fn block_until_newline<R>(reader: &mut R) -> Result<usize>
-where
-    R: AsyncBufRead + Unpin,
-{
-    let mut discard = Vec::new();
-
-    reader.read_until(b'\n', &mut discard).await.into_diagnostic()
-}
-
-fn parse_lines(buf: &[u8], lines: &mut Vec<String>) -> usize {
-    let mut consumed = 0;
-
-    while let Some(pos) = buf[consumed..].iter().position(|&b| b == b'\n') {
-        let line_bytes = &buf[consumed..consumed + pos];
-        lines.push(String::from_utf8_lossy(line_bytes).to_string());
-        consumed += pos + 1;
-    }
-
-    consumed
+fn parse_buffer(buf: &[u8]) -> Vec<String> {
+    buf.split(|&b| b == b'\n')
+        .filter(|line| !line.is_empty())
+        .map(|line| String::from_utf8_lossy(line).to_string())
+        .collect()
 }
 
 #[cfg(test)]
@@ -102,9 +97,13 @@ mod tests {
         let input = b"line 1\nline 2\nline 3";
         let mut reader = BufReader::new(&input[..]);
 
-        let lines = read_available_lines(&mut reader).await.unwrap();
+        let lines_first_read = read_available_lines(&mut reader).await.unwrap();
+        let lines_second_read = read_available_lines(&mut reader).await.unwrap();
 
-        assert_eq!(lines, vec!["line 1", "line 2", "line 3"]);
+        assert_eq!(
+            [lines_first_read, lines_second_read].concat(),
+            vec!["line 1", "line 2", "line 3"]
+        );
     }
 
     #[tokio::test]
