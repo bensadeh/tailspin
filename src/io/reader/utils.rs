@@ -12,53 +12,16 @@ where
     R: AsyncBufRead + Unpin,
 {
     match peek_buffer(reader).await? {
-        PeekResult::Eof(buf) => {
-            let lines = parse_buffer(buf);
-            let buf_len = buf.len();
-
-            reader.consume(buf_len);
-
-            if lines.is_empty() {
-                return Ok(ReadResult::Eof);
-            }
-
-            let first_line = lines
-                .first()
-                .ok_or_else(|| miette!("Reaching EOF should never yield more than one line"))?
-                .to_owned();
-
-            Ok(ReadResult::Line(first_line))
-        }
-        PeekResult::SingleOrNoNewline => {
-            let mut line = String::new();
-
-            reader.read_line(&mut line).await.into_diagnostic()?;
-            let trimmed_line = line.trim_end_matches('\n').to_string();
-
-            Ok(ReadResult::Line(trimmed_line))
-        }
-        PeekResult::MultipleNewlines(buf) => {
-            let last_newline_pos = buf
-                .iter()
-                .enumerate()
-                .filter(|&(_, &b)| b == b'\n')
-                .map(|(pos, _)| pos)
-                .next_back()
-                .unwrap();
-
-            let consumed_buf = &buf[..=last_newline_pos];
-            let lines = parse_buffer(consumed_buf);
-            reader.consume(last_newline_pos + 1);
-
-            Ok(ReadResult::Batch(lines))
-        }
+        PeekResult::Eof => handle_eof(reader).await,
+        PeekResult::SingleOrNoNewline => handle_single_or_no_newline(reader).await,
+        PeekResult::MultipleNewlines => handle_multiple_newlines(reader).await,
     }
 }
 
-enum PeekResult<'a> {
-    Eof(&'a [u8]),
+enum PeekResult {
+    Eof,
     SingleOrNoNewline,
-    MultipleNewlines(&'a [u8]),
+    MultipleNewlines,
 }
 
 async fn peek_buffer<R>(reader: &mut R) -> Result<PeekResult>
@@ -68,15 +31,57 @@ where
     let buf = reader.fill_buf().await.into_diagnostic()?;
 
     if buf.is_empty() {
-        return Ok(PeekResult::Eof(buf));
+        return Ok(PeekResult::Eof);
     }
 
-    let newline_count = buf.iter().filter(|&&b| b == b'\n').count();
-
-    match newline_count {
+    match buf.iter().filter(|&&b| b == b'\n').count() {
         0 | 1 => Ok(PeekResult::SingleOrNoNewline),
-        _ => Ok(PeekResult::MultipleNewlines(buf)),
+        _ => Ok(PeekResult::MultipleNewlines),
     }
+}
+
+async fn handle_eof<R>(reader: &mut R) -> Result<ReadResult>
+where
+    R: AsyncBufRead + Unpin,
+{
+    let buf = reader.fill_buf().await.into_diagnostic()?;
+    let buf_len = buf.len();
+    let lines = parse_buffer(buf);
+    reader.consume(buf_len);
+
+    match lines.len() {
+        0 => Ok(ReadResult::Eof),
+        1 => Ok(ReadResult::Line(lines[0].clone())),
+        _ => Err(miette!("EOF buffer should not contain multiple lines")),
+    }
+}
+
+async fn handle_single_or_no_newline<R>(reader: &mut R) -> Result<ReadResult>
+where
+    R: AsyncBufRead + Unpin,
+{
+    let mut line = String::new();
+    reader.read_line(&mut line).await.into_diagnostic()?;
+    let trimmed_line = line.trim_end_matches('\n').to_string();
+
+    Ok(ReadResult::Line(trimmed_line))
+}
+
+async fn handle_multiple_newlines<R>(reader: &mut R) -> Result<ReadResult>
+where
+    R: AsyncBufRead + Unpin,
+{
+    let buf = reader.fill_buf().await.into_diagnostic()?;
+
+    if let Some(last_newline_pos) = buf.iter().rposition(|&b| b == b'\n') {
+        let consumed_buf = &buf[..=last_newline_pos];
+        let lines = parse_buffer(consumed_buf);
+        reader.consume(last_newline_pos + 1);
+
+        return Ok(ReadResult::Batch(lines));
+    }
+
+    Err(miette!("Expected multiple newlines, but none found"))
 }
 
 fn parse_buffer(buf: &[u8]) -> Vec<String> {
