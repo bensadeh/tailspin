@@ -20,7 +20,7 @@ impl InitialReadCompleteReceiver {
         InitialReadCompleteReceiver(receiver)
     }
 
-    pub async fn wait(self) -> Result<()> {
+    pub async fn receive(self) -> Result<()> {
         self.0.await.map_err(InitialReadCompleteRecvError)?;
 
         Ok(())
