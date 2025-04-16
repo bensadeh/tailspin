@@ -1,6 +1,6 @@
 use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::Reader;
-use crate::io::reader::utils::read_lines;
+use crate::io::reader::utils::{ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, ReadType};
 use async_trait::async_trait;
 use miette::{Context, IntoDiagnostic, Result, miette};
@@ -39,12 +39,10 @@ impl CommandReader {
 #[async_trait]
 impl AsyncLineReader for CommandReader {
     async fn next(&mut self) -> Result<ReadType> {
-        let buffer = read_lines(&mut self.reader).await?;
-
-        if buffer.is_empty() {
-            return Ok(ReadType::StreamEnded);
-        }
-
-        Ok(ReadType::MultipleLines(buffer))
+        read_lines(&mut self.reader).await.map(|res| match res {
+            ReadResult::Eof => ReadType::StreamEnded,
+            ReadResult::Line(line) => ReadType::SingleLine(line),
+            ReadResult::Batch(lines) => ReadType::MultipleLines(lines),
+        })
     }
 }

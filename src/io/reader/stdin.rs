@@ -1,6 +1,6 @@
 use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::Reader;
-use crate::io::reader::utils::read_lines;
+use crate::io::reader::utils::{ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, ReadType};
 use async_trait::async_trait;
 use miette::Result;
@@ -23,14 +23,14 @@ impl StdinReader {
 #[async_trait]
 impl AsyncLineReader for StdinReader {
     async fn next(&mut self) -> Result<ReadType> {
-        let buffer = read_lines(&mut self.reader).await?;
+        match read_lines(&mut self.reader).await? {
+            ReadResult::Eof => {
+                self.initial_read_complete_sender.send()?;
 
-        if buffer.is_empty() {
-            self.initial_read_complete_sender.send()?;
-
-            return Ok(ReadType::StreamEnded);
+                Ok(ReadType::StreamEnded)
+            }
+            ReadResult::Line(line) => Ok(ReadType::SingleLine(line)),
+            ReadResult::Batch(lines) => Ok(ReadType::MultipleLines(lines)),
         }
-
-        Ok(ReadType::MultipleLines(buffer))
     }
 }
