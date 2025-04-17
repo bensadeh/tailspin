@@ -1,6 +1,6 @@
 use crate::cli::Arguments;
 use miette::Diagnostic;
-use owo_colors::OwoColorize;
+use nu_ansi_term::Color::{Magenta, Yellow};
 use std::cmp::PartialEq;
 use std::fs::File;
 use std::io::{self, IsTerminal, Read, stdin};
@@ -42,11 +42,11 @@ pub struct CustomPagerOptions {
 
 #[derive(Debug, Error, Diagnostic)]
 pub enum ConfigError {
-    #[error("Missing filename ({} for help)", "tspin --help".magenta())]
+    #[error("Missing filename ({} for help)", Magenta.paint("tspin --help").to_string())]
     #[diagnostic(severity(Warning))]
     MissingFilename,
 
-    #[error("Cannot read from both file and {}", "--listen-command".magenta())]
+    #[error("Cannot read from both file and {}", Magenta.paint("--listen-command").to_string())]
     CannotReadBothFileAndListenCommand,
 
     #[error("Could not determine input type")]
@@ -116,7 +116,8 @@ fn get_target(args: &Arguments, input: &Source) -> Target {
 
 fn process_path_input(path: PathBuf) -> Result<Source, ConfigError> {
     if !path.exists() {
-        let path_colored = path.display().yellow().to_string();
+        let path_display = path.display().to_string();
+        let path_colored = Yellow.paint(path_display).to_string();
 
         return Err(ConfigError::NoSuchFileOrDirectory(path_colored));
     }

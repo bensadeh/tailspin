@@ -974,7 +974,6 @@ dependencies = [
  "memchr",
  "miette",
  "nu-ansi-term",
- "owo-colors",
  "rand",
  "rayon",
  "regex",
