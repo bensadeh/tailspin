@@ -1,6 +1,8 @@
 use miette::{IntoDiagnostic, Result, miette};
 use tokio::io::{AsyncBufRead, AsyncBufReadExt};
 
+pub const BUFF_READER_CAPACITY: usize = 64 * 1024;
+
 pub enum ReadResult {
     Eof,
     Line(String),

@@ -1,6 +1,6 @@
 use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::Reader;
-use crate::io::reader::utils::{ReadResult, read_lines};
+use crate::io::reader::common::{BUFF_READER_CAPACITY, ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, ReadType};
 use async_trait::async_trait;
 use miette::Result;
@@ -8,15 +8,15 @@ use tokio::io::{BufReader, Stdin};
 
 pub struct StdinReader {
     reader: BufReader<Stdin>,
-    initial_read_complete_sender: InitialReadCompleteSender,
+    irc_sender: InitialReadCompleteSender,
 }
 
 impl StdinReader {
-    pub fn get_reader(initial_read_complete_sender: InitialReadCompleteSender) -> Reader {
-        Reader::Stdin(StdinReader {
-            reader: BufReader::new(tokio::io::stdin()),
-            initial_read_complete_sender,
-        })
+    pub fn get_reader(irc_sender: InitialReadCompleteSender) -> Reader {
+        let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, tokio::io::stdin());
+        let stdin_reader = StdinReader { reader, irc_sender };
+
+        Reader::Stdin(stdin_reader)
     }
 }
 
@@ -25,7 +25,7 @@ impl AsyncLineReader for StdinReader {
     async fn next(&mut self) -> Result<ReadType> {
         match read_lines(&mut self.reader).await? {
             ReadResult::Eof => {
-                self.initial_read_complete_sender.send()?;
+                self.irc_sender.send()?;
 
                 Ok(ReadType::StreamEnded)
             }

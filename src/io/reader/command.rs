@@ -1,6 +1,6 @@
 use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::Reader;
-use crate::io::reader::utils::{ReadResult, read_lines};
+use crate::io::reader::common::{BUFF_READER_CAPACITY, ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, ReadType};
 use async_trait::async_trait;
 use miette::{Context, IntoDiagnostic, Result, miette};
@@ -30,7 +30,7 @@ impl CommandReader {
             .stdout
             .ok_or_else(|| miette!("Could not capture stdout of spawned process"))?;
 
-        let reader = BufReader::new(stdout);
+        let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, stdout);
 
         Ok(Reader::Command(CommandReader { reader }))
     }
