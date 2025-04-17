@@ -971,6 +971,7 @@ dependencies = [
  "clap_complete",
  "ctrlc",
  "linemux",
+ "memchr",
  "miette",
  "nu-ansi-term",
  "owo-colors",

@@ -36,3 +36,4 @@ tempfile = "3.19.1"
 thiserror = "2.0.12"
 tokio = { version = "1.44.2", features = ["full"] }
 toml = "0.8.20"
+memchr = "2.7.4"
