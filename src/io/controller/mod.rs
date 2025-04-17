@@ -12,11 +12,6 @@ use crate::io::writer::temp_file::TempFile;
 use miette::Result;
 use tailspin::Highlighter;
 
-pub struct Io {
-    pub reader: Reader,
-    pub writer: Writer,
-}
-
 pub enum Reader {
     Linemux(Linemux),
     Stdin(StdinReader),
@@ -34,14 +29,14 @@ pub enum Presenter {
     None(NoPresenter),
 }
 
-pub async fn initialize_io() -> Result<(Io, Presenter, Highlighter, InitialReadCompleteReceiver)> {
+pub async fn initialize_io() -> Result<(Reader, Writer, Presenter, Highlighter, InitialReadCompleteReceiver)> {
     let config = get_config()?;
-    let (irc_sender, irc_receiver) = initial_read_complete_channel();
+    let (read_complete_sender, read_complete_receiver) = initial_read_complete_channel();
 
-    let reader = get_reader(config.source, irc_sender).await?;
+    let reader = get_reader(config.source, read_complete_sender).await?;
     let (writer, presenter) = get_writer_and_presenter(config.target).await?;
 
-    Ok((Io { reader, writer }, presenter, config.highlighter, irc_receiver))
+    Ok((reader, writer, presenter, config.highlighter, read_complete_receiver))
 }
 
 async fn get_reader(input: Source, irc_sender: InitialReadCompleteSender) -> Result<Reader> {
