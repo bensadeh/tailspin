@@ -3,6 +3,7 @@
 ## 5.3.0
 
 - Enabled parallel processing of lines from `stdin`
+- Fixed a bug where large log file would open before highlighting had been applied
 
 ## 5.2.1
 

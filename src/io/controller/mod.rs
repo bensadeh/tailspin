@@ -29,21 +29,35 @@ pub enum Presenter {
     None(NoPresenter),
 }
 
-pub async fn initialize_io() -> Result<(Reader, Writer, Presenter, Highlighter, InitialReadCompleteReceiver)> {
+pub async fn initialize_io() -> Result<(
+    Reader,
+    Writer,
+    Presenter,
+    Highlighter,
+    InitialReadCompleteSender,
+    InitialReadCompleteReceiver,
+)> {
     let config = get_config()?;
     let (read_complete_sender, read_complete_receiver) = initial_read_complete_channel();
 
-    let reader = get_reader(config.source, read_complete_sender).await?;
+    let reader = get_reader(config.source).await?;
     let (writer, presenter) = get_writer_and_presenter(config.target).await?;
 
-    Ok((reader, writer, presenter, config.highlighter, read_complete_receiver))
+    Ok((
+        reader,
+        writer,
+        presenter,
+        config.highlighter,
+        read_complete_sender,
+        read_complete_receiver,
+    ))
 }
 
-async fn get_reader(input: Source, irc_sender: InitialReadCompleteSender) -> Result<Reader> {
+async fn get_reader(input: Source) -> Result<Reader> {
     let reader = match input {
-        Source::File(file_info) => Linemux::get_reader(file_info.path, file_info.line_count, irc_sender).await?,
-        Source::Stdin => StdinReader::get_reader(irc_sender),
-        Source::Command(cmd) => CommandReader::get_reader(cmd, irc_sender).await?,
+        Source::File(file_info) => Linemux::get_reader(file_info.path, file_info.line_count).await?,
+        Source::Stdin => StdinReader::get_reader(),
+        Source::Command(cmd) => CommandReader::get_reader(cmd).await?,
     };
 
     Ok(reader)

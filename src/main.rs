@@ -1,3 +1,4 @@
+use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::{Reader, Writer};
 use io::controller::initialize_io;
 use io::presenter::Present;
@@ -17,11 +18,13 @@ mod theme;
 
 #[main]
 async fn main() -> Result<()> {
-    let (reader, writer, presenter, highlighter, initial_read_complete_receiver) = initialize_io().await?;
+    let (reader, writer, presenter, highlighter, initial_read_complete_sender, initial_read_complete_receiver) =
+        initialize_io().await?;
 
-    let read_write_highlight_task = spawn(async move { read_write_and_highlight(reader, writer, highlighter).await });
+    let read_write_highlight_task =
+        spawn(async move { read_write_and_highlight(reader, writer, highlighter, initial_read_complete_sender).await });
 
-    initial_read_complete_receiver.receive().await?;
+    let _ = initial_read_complete_receiver.receive().await;
 
     let presenter_task = spawn(async move { presenter.present() });
 
@@ -33,12 +36,21 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn read_write_and_highlight(mut reader: Reader, mut writer: Writer, highlighter: Highlighter) -> Result<()> {
+async fn read_write_and_highlight(
+    mut reader: Reader,
+    mut writer: Writer,
+    highlighter: Highlighter,
+    mut initial_read_signal: InitialReadCompleteSender,
+) -> Result<()> {
     loop {
         match reader.next().await? {
             ReadType::StreamEnded => return Ok(()),
             ReadType::SingleLine(line) => write_line(&mut writer, &highlighter, line.as_str()).await?,
             ReadType::MultipleLines(lines) => write_batch(&mut writer, &highlighter, lines).await?,
+            ReadType::InitialRead(lines) => {
+                write_batch(&mut writer, &highlighter, lines).await?;
+                initial_read_signal.send()?;
+            }
         }
     }
 }

@@ -11,6 +11,7 @@ pub enum ReadType {
     StreamEnded,
     SingleLine(String),
     MultipleLines(Vec<String>),
+    InitialRead(Vec<String>),
 }
 
 #[async_trait]

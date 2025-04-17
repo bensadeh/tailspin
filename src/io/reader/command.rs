@@ -1,4 +1,3 @@
-use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::Reader;
 use crate::io::reader::common::{BUFF_READER_CAPACITY, ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, ReadType};
@@ -13,8 +12,8 @@ pub struct CommandReader {
 }
 
 impl CommandReader {
-    pub async fn get_reader(command: String, mut reached_eof_tx: InitialReadCompleteSender) -> Result<Reader> {
-        reached_eof_tx.send()?;
+    pub async fn get_reader(command: String) -> Result<Reader> {
+        // reached_eof_tx.send()?;
 
         let trap_command = format!("trap '' INT; {}", command);
 

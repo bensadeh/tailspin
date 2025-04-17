@@ -1,4 +1,3 @@
-use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::Reader;
 use crate::io::reader::{AsyncLineReader, ReadType};
 use async_trait::async_trait;
@@ -9,17 +8,12 @@ use std::path::PathBuf;
 pub struct Linemux {
     number_of_lines: Option<usize>,
     current_line: usize,
-    initial_read_complete_sender: InitialReadCompleteSender,
     reached_eof: bool,
     lines: MuxedLines,
 }
 
 impl Linemux {
-    pub async fn get_reader(
-        file_path: PathBuf,
-        number_of_lines: usize,
-        irc_sender: InitialReadCompleteSender,
-    ) -> Result<Reader> {
+    pub async fn get_reader(file_path: PathBuf, number_of_lines: usize) -> Result<Reader> {
         let mut lines = MuxedLines::new()
             .into_diagnostic()
             .wrap_err("Could not instantiate linemux")?;
@@ -33,7 +27,6 @@ impl Linemux {
         Ok(Reader::Linemux(Self {
             number_of_lines: Some(number_of_lines),
             current_line: 0,
-            initial_read_complete_sender: irc_sender,
             reached_eof: false,
             lines,
         }))
@@ -58,20 +51,16 @@ impl Linemux {
 
             bucket.push(line);
             self.current_line += 1;
-
-            if self.current_line >= total_lines {
-                self.send_eof_signal()?;
-            }
         }
 
-        Ok(ReadType::MultipleLines(bucket))
+        Ok(ReadType::InitialRead(bucket))
     }
 
-    fn send_eof_signal(&mut self) -> Result<()> {
-        self.reached_eof = true;
-
-        self.initial_read_complete_sender.send()
-    }
+    // fn send_eof_signal(&mut self) -> Result<()> {
+    //     self.reached_eof = true;
+    //
+    //     self.initial_read_complete_sender.send()
+    // }
 
     async fn read_line_by_line(&mut self) -> Result<ReadType> {
         let next_line = self
