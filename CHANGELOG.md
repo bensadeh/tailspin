@@ -1,8 +1,8 @@
 # Changelog
+
 ## 5.4.0
 
-
-
+- Use UUID as temp file suffix instead of number
 
 ## 5.3.0
 

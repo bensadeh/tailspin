@@ -1,11 +1,11 @@
 use crate::io::writer::AsyncLineWriter;
 use async_trait::async_trait;
 use miette::{Context, IntoDiagnostic, Result};
-use rand::random;
 use std::path::PathBuf;
 use tempfile::TempDir;
 use tokio::fs::File;
 use tokio::io::{AsyncWriteExt, BufWriter};
+use uuid::Uuid;
 
 pub struct TempFile {
     pub path: PathBuf,
@@ -47,8 +47,7 @@ impl AsyncLineWriter for TempFile {
 }
 
 async fn create_temp_file() -> Result<(TempDir, PathBuf, BufWriter<File>)> {
-    let unique_id: u32 = random();
-    let filename = format!("tailspin.temp.{}", unique_id);
+    let filename = format!("tailspin.temp.{}", Uuid::new_v4());
 
     let temp_dir = tempfile::tempdir()
         .into_diagnostic()
