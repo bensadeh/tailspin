@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
     let read_write_highlight_task =
         spawn(async move { read_write_and_highlight(reader, writer, highlighter, initial_read_complete_sender).await });
 
-    let _ = initial_read_complete_receiver.receive().await;
+    initial_read_complete_receiver.receive().await?;
 
     let presenter_task = spawn(async move { presenter.present() });
 
@@ -44,9 +44,12 @@ async fn read_write_and_highlight(
 ) -> Result<()> {
     loop {
         match reader.next().await? {
-            ReadType::StreamEnded => return Ok(()),
             ReadType::SingleLine(line) => write_line(&mut writer, &highlighter, line.as_str()).await?,
             ReadType::MultipleLines(lines) => write_batch(&mut writer, &highlighter, lines).await?,
+            ReadType::StreamEnded => {
+                initial_read_signal.send()?;
+                return Ok(());
+            }
             ReadType::InitialRead(lines) => {
                 write_batch(&mut writer, &highlighter, lines).await?;
                 initial_read_signal.send()?;

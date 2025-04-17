@@ -22,11 +22,7 @@ impl StdinReader {
 impl AsyncLineReader for StdinReader {
     async fn next(&mut self) -> Result<ReadType> {
         match read_lines(&mut self.reader).await? {
-            ReadResult::Eof => {
-                // self.irc_sender.send()?;
-
-                Ok(ReadType::StreamEnded)
-            }
+            ReadResult::Eof => Ok(ReadType::StreamEnded),
             ReadResult::Line(line) => Ok(ReadType::SingleLine(line)),
             ReadResult::Batch(lines) => Ok(ReadType::MultipleLines(lines)),
         }

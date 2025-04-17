@@ -56,12 +56,6 @@ impl Linemux {
         Ok(ReadType::InitialRead(bucket))
     }
 
-    // fn send_eof_signal(&mut self) -> Result<()> {
-    //     self.reached_eof = true;
-    //
-    //     self.initial_read_complete_sender.send()
-    // }
-
     async fn read_line_by_line(&mut self) -> Result<ReadType> {
         let next_line = self
             .lines

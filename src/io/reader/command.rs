@@ -13,8 +13,6 @@ pub struct CommandReader {
 
 impl CommandReader {
     pub async fn get_reader(command: String) -> Result<Reader> {
-        // reached_eof_tx.send()?;
-
         let trap_command = format!("trap '' INT; {}", command);
 
         let child = AsyncCommand::new("sh")
