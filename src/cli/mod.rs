@@ -17,9 +17,14 @@ use std::path::PathBuf;
 use tailspin::Highlighter;
 
 #[derive(Parser)]
-#[command(name = "tspin")]
-#[command(author, version, about)]
-#[command(styles=get_styles())]
+#[command(
+    name = "tspin",
+    version,
+    about,
+    author,
+    styles = get_styles(),
+    max_term_width = 105,
+)]
 pub struct Arguments {
     /// Filepath
     #[clap(name = "FILE", value_hint = clap::ValueHint::FilePath)]

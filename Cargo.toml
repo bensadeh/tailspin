@@ -18,7 +18,7 @@ missing-const-for-fn = "warn"
 
 [dependencies]
 async-trait = "0.1.88"
-clap = { version = "4.5.36", features = ["derive"] }
+clap = { version = "4.5.36", features = ["derive", "wrap_help"] }
 clap_complete = "4.5.47"
 ctrlc = "3.4.6"
 linemux = "0.3.0"
@@ -30,7 +30,7 @@ regex = "1.11.1"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = { version = "1.0.140", features = ["preserve_order"] }
 shell-words = "1.1.0"
-shellexpand = "3.1.0"
+shellexpand = "3.1.1"
 tempfile = "3.19.1"
 thiserror = "2.0.12"
 tokio = { version = "1.44.2", features = ["full"] }
