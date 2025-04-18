@@ -3,6 +3,8 @@
 ## 5.4.0
 
 - Use UUID as temp file suffix instead of number
+- Print help screen if no arguments are passed
+- Added colors to the help screen
 
 ## 5.3.0
 

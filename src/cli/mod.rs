@@ -1,21 +1,25 @@
 mod completions;
 mod keywords;
+mod styles;
 
 use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
 use crate::cli::keywords::get_keywords_from_cli;
+use crate::cli::styles::get_styles;
 use crate::config::{Source, Target, get_io_config};
 use crate::highlighter_builder;
 use crate::highlighter_builder::builtins::get_builtin_keywords;
 use crate::highlighter_builder::groups;
 use crate::theme::reader;
-use clap::{Parser, ValueEnum};
-use miette::Result;
+use clap::{CommandFactory, Parser, ValueEnum};
+use miette::{IntoDiagnostic, Result};
+use std::io::{IsTerminal, stdin};
 use std::path::PathBuf;
 use tailspin::Highlighter;
 
 #[derive(Parser)]
 #[command(name = "tspin")]
 #[command(author, version, about)]
+#[command(styles=get_styles())]
 pub struct Arguments {
     /// Filepath
     #[clap(name = "FILE", value_hint = clap::ValueHint::FilePath)]
@@ -111,6 +115,13 @@ pub fn get_config() -> Result<FullConfig> {
     let cli = Arguments::parse();
 
     generate_shell_completions_and_exit_or_continue(&cli);
+
+    let std_in_has_no_data = stdin().is_terminal();
+    if cli.file_path.is_none() && cli.listen_command.is_none() && std_in_has_no_data {
+        Arguments::command().print_help().into_diagnostic()?;
+
+        std::process::exit(1);
+    }
 
     let io_config = get_io_config(&cli)?;
     let highlighter_groups = groups::get_highlighter_groups(&cli.enabled_highlighters, &cli.disabled_highlighters)?;
