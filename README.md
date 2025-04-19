@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                                                                 
+#                                                                                                                                                                                                                                                                                                                                                    
 
 <p align="center">
 A log file highlighter
@@ -409,9 +409,13 @@ TAILSPIN_PAGER="ov -f [FILE]" tspin example-logs/example1
                                  (e.g. `tspin --exec 'kubectl logs -f pod_name'`)
     --config-path=[PATH]         Use the configuration file from the provided path
     --pager=[CUSTOM_PAGER]       Set a custom pager
+                                 (e.g. `--pager="ov -f [FILE]"`)
     --highlight [COLOR]:[WORDS]  Highlight the provided comma-separated words in the specified color
+                                 (e.g. `--highlight red:ERROR,WARNING`)
     --enable [HIGHLIGHT_GROUP]   Enable one or more highlight groups, disabling the rest
+                                 (e.g. `--enable=keywords,urls`)
     --disable [HIGHLIGHT_GROUP]  Disable one or more highlight groups, enabling the rest
+                                 (e.g. `--disable=keywords,urls`)
     --disable-builtin-keywords   Disable the highlighting of booleans, nulls, log severities and common REST verbs
 ```
 

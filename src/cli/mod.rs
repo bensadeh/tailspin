@@ -66,12 +66,7 @@ pub struct Arguments {
     #[clap(long = "disable-builtin-keywords")]
     pub disable_builtin_keywords: bool,
 
-    /// Override the default pager command used by tspin.
-    ///
-    /// The provided command must include the placeholder `[FILE]`, which will be replaced with the file path internally.
-    ///
-    /// Example:
-    ///   tspin --pager="ov -f [FILE]" logfile.txt
+    /// Override the default pager command used by tspin. (e.g. `--pager="ov -f [FILE]"`)
     #[clap(long = "pager", env = "TAILSPIN_PAGER")]
     pub pager: Option<String>,
 
