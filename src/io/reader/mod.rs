@@ -9,6 +9,7 @@ use miette::Result;
 
 pub enum ReadType {
     StreamEnded,
+    StreamStarted,
     SingleLine(String),
     MultipleLines(Vec<String>),
     InitialRead(Vec<String>),

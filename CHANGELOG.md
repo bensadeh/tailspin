@@ -7,6 +7,7 @@
 - Merge all the `--words-red`, `--words-green`, etc. flags into a single `--highlight [COLOR]:[WORDS]` flag
 - Renamed `--no-builtin-keywords` to `--disable-builtin-keywords`
 - Added a --pager flag to override the default pager in addition to the env variable
+- Fixed a bug where --listen-command would never run the pager
 
 ## 5.3.0
 

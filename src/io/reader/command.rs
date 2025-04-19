@@ -9,6 +9,7 @@ use tokio::process::Command as AsyncCommand;
 
 pub struct CommandReader {
     reader: BufReader<tokio::process::ChildStdout>,
+    ready: bool,
 }
 
 impl CommandReader {
@@ -29,13 +30,19 @@ impl CommandReader {
 
         let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, stdout);
 
-        Ok(Reader::Command(CommandReader { reader }))
+        Ok(Reader::Command(CommandReader { reader, ready: false }))
     }
 }
 
 #[async_trait]
 impl AsyncLineReader for CommandReader {
     async fn next(&mut self) -> Result<ReadType> {
+        if !self.ready {
+            self.ready = !self.ready;
+
+            return Ok(ReadType::StreamStarted);
+        }
+
         read_lines(&mut self.reader).await.map(|res| match res {
             ReadResult::Eof => ReadType::StreamEnded,
             ReadResult::Line(line) => ReadType::SingleLine(line),

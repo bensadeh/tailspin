@@ -46,6 +46,7 @@ async fn read_write_and_highlight(
         match reader.next().await? {
             ReadType::SingleLine(line) => write_line(&mut writer, &highlighter, line.as_str()).await?,
             ReadType::MultipleLines(lines) => write_batch(&mut writer, &highlighter, lines).await?,
+            ReadType::StreamStarted => initial_read_signal.send()?,
             ReadType::StreamEnded => {
                 initial_read_signal.send()?;
                 return Ok(());
