@@ -2,12 +2,12 @@
 
 ## 5.4.0
 
-- Use UUID as temp file suffix instead of number
+- Use `UUID` as temp file suffix instead of number
 - Added colors to the help screen
 - Merge all the `--words-red`, `--words-green`, etc. flags into a single `--highlight [COLOR]:[WORDS]` flag
 - Renamed `--no-builtin-keywords` to `--disable-builtin-keywords`
-- Added a --pager flag to override the default pager in addition to the env variable
-- Fixed a bug where --listen-command would never run the pager
+- Added a `--pager` flag to override the default pager in addition to the env variable
+- Fixed a bug where `--listen-command` would never run the pager
 - Renamed `--listen-command` to `--exec`
 
 ## 5.3.0
