@@ -73,11 +73,11 @@ pub fn get_io_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError>
 fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
     let std_in_has_data = !stdin().is_terminal();
 
-    if args.file_path.is_none() && !std_in_has_data && args.listen_command.is_none() {
+    if args.file_path.is_none() && !std_in_has_data && args.exec.is_none() {
         return Err(ConfigError::MissingFilename);
     }
 
-    if args.file_path.is_some() && args.listen_command.is_some() {
+    if args.file_path.is_some() && args.exec.is_some() {
         return Err(ConfigError::CannotReadBothFileAndListenCommand);
     }
 
@@ -89,7 +89,7 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
         return Ok(Source::Stdin);
     }
 
-    if let Some(command) = &args.listen_command {
+    if let Some(command) = &args.exec {
         return Ok(Source::Command(command.clone()));
     }
 
@@ -105,11 +105,7 @@ fn get_target(args: &Arguments, input: &Source) -> Target {
         return Target::Stdout;
     }
 
-    let follow_mode = if args.listen_command.is_some() {
-        true
-    } else {
-        args.follow
-    };
+    let follow_mode = if args.exec.is_some() { true } else { args.follow };
 
     Target::Less(LessOptions { follow: follow_mode })
 }

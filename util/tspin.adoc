@@ -37,8 +37,8 @@ _--config-path_ *CONFIG_PATH*::
 Specify the path to a custom configuration file.
 Defaults to *XDG_CONFIG_HOME/tailspin/theme.toml* or *~/.config/tailspin/theme.toml* if not set.
 
-_-c, --listen-command_ *COMMAND*::
-Continuously listen to the stdout of the provided command.
+_-e, --exec_ *COMMAND*::
+Run command and view the output in a pager.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside _less_.
 
 +

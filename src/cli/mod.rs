@@ -44,9 +44,9 @@ pub struct Arguments {
     #[clap(long = "config-path")]
     pub config_path: Option<PathBuf>,
 
-    /// Capture the output (stdout) of a command and view it in `less`
-    #[clap(short = 'c', long = "listen-command", conflicts_with = "follow")]
-    pub listen_command: Option<String>,
+    /// Run command and view the output in a pager
+    #[clap(short = 'e', long = "exec")]
+    pub exec: Option<String>,
 
     /// Highlights in the form color:word1,word2
     ///
@@ -137,7 +137,7 @@ pub fn get_config() -> Result<FullConfig> {
     generate_shell_completions_and_exit_or_continue(&cli);
 
     let std_in_has_no_data = stdin().is_terminal();
-    if cli.file_path.is_none() && cli.listen_command.is_none() && std_in_has_no_data {
+    if cli.file_path.is_none() && cli.exec.is_none() && std_in_has_no_data {
         let style = Style::new().fg(nu_ansi_term::Color::Cyan);
         println!("Missing filename ({} for help)", style.paint("tspin --help"));
 

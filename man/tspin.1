@@ -55,9 +55,9 @@ Specify the path to a custom configuration file.
 Defaults to \fBXDG_CONFIG_HOME/tailspin/theme.toml\fP or \fB~/.config/tailspin/theme.toml\fP if not set.
 .RE
 .sp
-\fI\-c, \-\-listen\-command\fP \fBCOMMAND\fP
+\fI\-e, \-\-exec\fP \fBCOMMAND\fP
 .RS 4
-Continuously listen to the stdout of the provided command.
+Run command and view the output in a pager.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside \fIless\fP.
 .sp
 .B Example:

@@ -5,10 +5,10 @@ use async_trait::async_trait;
 use miette::{Context, IntoDiagnostic, Result, miette};
 use std::process::Stdio;
 use tokio::io::BufReader;
-use tokio::process::Command as AsyncCommand;
+use tokio::process::{ChildStdout, Command};
 
 pub struct CommandReader {
-    reader: BufReader<tokio::process::ChildStdout>,
+    reader: BufReader<ChildStdout>,
     ready: bool,
 }
 
@@ -16,7 +16,7 @@ impl CommandReader {
     pub async fn get_reader(command: String) -> Result<Reader> {
         let trap_command = format!("trap '' INT; {}", command);
 
-        let child = AsyncCommand::new("sh")
+        let child = Command::new("sh")
             .arg("-c")
             .arg(trap_command)
             .stdout(Stdio::piped())

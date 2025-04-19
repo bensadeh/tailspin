@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                                                           
+#                                                                                                                                                                                                                                                                                                                                                 
 
 <p align="center">
 A log file highlighter
@@ -405,7 +405,8 @@ TAILSPIN_PAGER="ov -f [FILE]" tspin example-logs/example1
 ```console
 -f, --follow                     Follow the contents of the file
 -p, --print                      Print the output to stdout
--c, --listen-command '[CMD]'     Listen the output (stdout) of the provided command
+-e, --exec '[CMD]'               Run command and view the output in a pager
+                                 (e.g. `tspin --exec 'kubectl logs -f pod_name'`)
     --config-path=[PATH]         Use the configuration file from the provided path
     --pager=[CUSTOM_PAGER]       Set a custom pager
     --highlight [COLOR]:[WORDS]  Highlight the provided comma-separated words in the specified color

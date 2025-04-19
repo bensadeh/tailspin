@@ -19,7 +19,7 @@ _tspin() {
 
     case "${cmd}" in
         tspin)
-            opts="-f -p -c -h -V --follow --print --config-path --listen-command --highlight --enable --disable --disable-builtin-keywords --generate-bash-completions --generate-fish-completions --generate-zsh-completions --help --version [FILE]"
+            opts="-f -p -e -h -V --follow --print --config-path --exec --highlight --enable --disable --disable-builtin-keywords --pager --generate-bash-completions --generate-fish-completions --generate-zsh-completions --help --version [FILE]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -29,11 +29,11 @@ _tspin() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                --listen-command)
+                --exec)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                -c)
+                -e)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
@@ -47,6 +47,10 @@ _tspin() {
                     ;;
                 --disable)
                     COMPREPLY=($(compgen -W "numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json" -- "${cur}"))
+                    return 0
+                    ;;
+                --pager)
+                    COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
                 *)

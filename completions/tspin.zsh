@@ -16,11 +16,12 @@ _tspin() {
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
 '--config-path=[Provide a custom path to a configuration file]:CONFIG_PATH:_files' \
-'(-f --follow)-c+[Capture the output (stdout) of a command and view it in \`less\`]:LISTEN_COMMAND:_default' \
-'(-f --follow)--listen-command=[Capture the output (stdout) of a command and view it in \`less\`]:LISTEN_COMMAND:_default' \
-'*--highlight=[Highlights in the form color\:word1,word2 \[possible values\: red, green, yellow, blue, magenta, cyan\]]:COLOR_WORD:_default' \
+'-e+[Run command and view the output in a pager]:EXEC:_default' \
+'--exec=[Run command and view the output in a pager]:EXEC:_default' \
+'*--highlight=[Highlights in the form color\:word1,word2]:COLOR_WORD:_default' \
 '*--enable=[Enable specific highlighters]:ENABLED_HIGHLIGHTERS:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
 '*--disable=[Disable specific highlighters]:DISABLED_HIGHLIGHTERS:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
+'--pager=[Override the default pager command used by tspin]:PAGER:_default' \
 '-f[Follow the contents of a file]' \
 '--follow[Follow the contents of a file]' \
 '-p[Print the output to stdout]' \
@@ -29,8 +30,8 @@ _tspin() {
 '--generate-bash-completions[Print bash completions to stdout]' \
 '--generate-fish-completions[Print fish completions to stdout]' \
 '--generate-zsh-completions[Print zsh completions to stdout]' \
-'-h[Print help]' \
-'--help[Print help]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
 '-V[Print version]' \
 '--version[Print version]' \
 '::FILE -- Filepath:_files' \

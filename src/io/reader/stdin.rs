@@ -3,7 +3,7 @@ use crate::io::reader::common::{BUFF_READER_CAPACITY, ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, ReadType};
 use async_trait::async_trait;
 use miette::Result;
-use tokio::io::{BufReader, Stdin};
+use tokio::io::{BufReader, Stdin, stdin};
 
 pub struct StdinReader {
     reader: BufReader<Stdin>,
@@ -11,7 +11,7 @@ pub struct StdinReader {
 
 impl StdinReader {
     pub fn get_reader() -> Reader {
-        let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, tokio::io::stdin());
+        let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, stdin());
         let stdin_reader = StdinReader { reader };
 
         Reader::Stdin(stdin_reader)
