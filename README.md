@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                                                                    
+#                                                                                                                                                                                                                                                                                                                                                                
 
 <p align="center">
 A log file highlighter
@@ -53,14 +53,14 @@ The binary name for `tailspin` is `tspin`.
 # Read from file and view in `less`
 tspin application.log
 
-# Read from file and print to stdout
-tspin application.log --print
+# Pipe something into `tspin` and print to stdout
+echo "hello null" | tspin
 
 # Read from stdin and print to stdout
-kubectl logs [pod name] --follow | tspin
+kubectl logs [pod_name] --follow | tspin
 
-# Capture the stdout of another command and view in `less`
-tspin --listen-command 'kubectl logs -f pod_name'
+# Run the provided command and view the output in `less`
+tspin --exec='kubectl logs -f pod_name'
 ``` 
 
 ## Installing
@@ -300,8 +300,13 @@ style = { fg = "red", italic = true }
 ### Adding Keywords from the command line
 
 Sometimes it is more convenient to add highlight groups on the fly without having to edit a TOML. To add highlights from
-the command line, use the `--words-[red|green|yellow|blue|magenta|cyan]` flag followed by a comma separated list
-of words to be highlighted.
+the command line, use the `--highlight` flag followed by a comma separated list of words to be highlighted.
+
+For example:
+
+```console
+tspin --highlight=red:error,fail --highlight=green:success,ok
+```
 
 <p align="center">
   <img src="assets/examples/otf.png" width="800"/>
@@ -405,16 +410,16 @@ TAILSPIN_PAGER="ov -f [FILE]" tspin example-logs/example1
 ```console
 -f, --follow                     Follow the contents of the file
 -p, --print                      Print the output to stdout
--e, --exec '[CMD]'               Run command and view the output in a pager
+-e, --exec='[CMD]'               Run command and view the output in a pager
                                  (e.g. `tspin --exec 'kubectl logs -f pod_name'`)
     --config-path=[PATH]         Use the configuration file from the provided path
     --pager=[CUSTOM_PAGER]       Set a custom pager
                                  (e.g. `--pager="ov -f [FILE]"`)
-    --highlight [COLOR]:[WORDS]  Highlight the provided comma-separated words in the specified color
+    --highlight=[COLOR]:[WORDS]  Highlight the provided comma-separated words in the specified color
                                  (e.g. `--highlight red:ERROR,WARNING`)
-    --enable [HIGHLIGHT_GROUP]   Enable one or more highlight groups, disabling the rest
+    --enable=[HIGHLIGHT_GROUP]   Enable one or more highlight groups, disabling the rest
                                  (e.g. `--enable=keywords,urls`)
-    --disable [HIGHLIGHT_GROUP]  Disable one or more highlight groups, enabling the rest
+    --disable=[HIGHLIGHT_GROUP]  Disable one or more highlight groups, enabling the rest
                                  (e.g. `--disable=keywords,urls`)
     --disable-builtin-keywords   Disable the highlighting of booleans, nulls, log severities and common REST verbs
 ```

@@ -21,7 +21,7 @@ _tspin() {
 '*--highlight=[Highlights in the form color\:word1,word2]:COLOR_WORD:_default' \
 '*--enable=[Enable specific highlighters]:ENABLED_HIGHLIGHTERS:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
 '*--disable=[Disable specific highlighters]:DISABLED_HIGHLIGHTERS:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
-'--pager=[Override the default pager command used by tspin]:PAGER:_default' \
+'--pager=[Override the default pager command used by tspin. (e.g. \`--pager="ov -f \[FILE\]"\`)]:PAGER:_default' \
 '-f[Follow the contents of a file]' \
 '--follow[Follow the contents of a file]' \
 '-p[Print the output to stdout]' \
