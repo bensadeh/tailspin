@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                                                        
+#                                                                                                                                                                                                                                                                                                                                           
 
 <p align="center">
 A log file highlighter
@@ -406,11 +406,12 @@ TAILSPIN_PAGER="ov -f [FILE]" tspin example-logs/example1
 -f, --follow                     Follow the contents of the file
 -p, --print                      Print the output to stdout
 -c, --listen-command '[CMD]'     Listen the output (stdout) of the provided command
-    --config-path [PATH]         Use the configuration file from the provided path
+    --config-path=[PATH]         Use the configuration file from the provided path
+    --pager=[CUSTOM_PAGER]       Set a custom pager
     --highlight [COLOR]:[WORDS]  Highlight the provided comma-separated words in the specified color
-    --enable=[HIGHLIGHT_GROUP]   Enable one or more highlight groups, disabling the rest
-    --disable=[HIGHLIGHT_GROUP]  Disable one or more highlight groups, enabling the rest
-    --disable-builtin-keywords        Disable the highlighting of booleans, nulls, log severities and common REST verbs
+    --enable [HIGHLIGHT_GROUP]   Enable one or more highlight groups, disabling the rest
+    --disable [HIGHLIGHT_GROUP]  Disable one or more highlight groups, enabling the rest
+    --disable-builtin-keywords   Disable the highlighting of booleans, nulls, log severities and common REST verbs
 ```
 
 

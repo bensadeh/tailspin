@@ -48,7 +48,9 @@ pub struct Arguments {
     #[clap(short = 'c', long = "listen-command", conflicts_with = "follow")]
     pub listen_command: Option<String>,
 
-    /// Highlights in the form color:word1,word2 [possible values: red, green, yellow, blue, magenta, cyan]
+    /// Highlights in the form color:word1,word2
+    ///
+    /// [possible values: red, green, yellow, blue, magenta, cyan]
     #[arg(long = "highlight", value_parser = parse_highlight)]
     pub color_word: Vec<(KeywordColor, Vec<String>)>,
 
@@ -63,6 +65,15 @@ pub struct Arguments {
     /// Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)
     #[clap(long = "disable-builtin-keywords")]
     pub disable_builtin_keywords: bool,
+
+    /// Override the default pager command used by tspin.
+    ///
+    /// The provided command must include the placeholder `[FILE]`, which will be replaced with the file path internally.
+    ///
+    /// Example:
+    ///   tspin --pager="ov -f [FILE]" logfile.txt
+    #[clap(long = "pager", env = "TAILSPIN_PAGER")]
+    pub pager: Option<String>,
 
     /// Print bash completions to stdout
     #[clap(long = "generate-bash-completions", hide = true)]

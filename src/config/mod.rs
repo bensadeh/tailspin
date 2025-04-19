@@ -2,10 +2,10 @@ use crate::cli::Arguments;
 use miette::Diagnostic;
 use nu_ansi_term::Color::{Magenta, Yellow};
 use std::cmp::PartialEq;
+use std::fs;
 use std::fs::File;
 use std::io::{self, IsTerminal, Read, stdin};
 use std::path::{Path, PathBuf};
-use std::{env, fs};
 use thiserror::Error;
 
 pub struct InputOutputConfig {
@@ -97,8 +97,8 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
 }
 
 fn get_target(args: &Arguments, input: &Source) -> Target {
-    if let Ok(var) = env::var("TAILSPIN_PAGER") {
-        return Target::CustomPager(CustomPagerOptions { command: var });
+    if let Some(var) = &args.pager {
+        return Target::CustomPager(CustomPagerOptions { command: var.into() });
     }
 
     if *input == Source::Stdin || args.to_stdout {
