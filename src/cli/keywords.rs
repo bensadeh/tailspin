@@ -1,25 +1,28 @@
-use crate::cli::Arguments;
+use crate::cli::{Arguments, KeywordColor};
 use tailspin::config::KeywordConfig;
 use tailspin::style::{Color, Style};
 
 pub fn get_keywords_from_cli(cli: &Arguments) -> Vec<KeywordConfig> {
-    vec![]
-        .into_iter()
-        .chain(extract_keywords(&cli.words_red, Color::Red))
-        .chain(extract_keywords(&cli.words_green, Color::Green))
-        .chain(extract_keywords(&cli.words_yellow, Color::Yellow))
-        .chain(extract_keywords(&cli.words_blue, Color::Blue))
-        .chain(extract_keywords(&cli.words_magenta, Color::Magenta))
-        .chain(extract_keywords(&cli.words_cyan, Color::Cyan))
+    cli.color_word
+        .iter()
+        .flat_map(|(color, words)| {
+            words.iter().map(move |word| KeywordConfig {
+                style: Style::new().fg(Color::from(*color)),
+                words: vec![word.clone()],
+            })
+        })
         .collect()
 }
 
-fn extract_keywords(words: &[String], color: Color) -> Vec<KeywordConfig> {
-    words
-        .iter()
-        .map(|word| KeywordConfig {
-            style: Style::new().fg(color),
-            words: vec![word.clone()],
-        })
-        .collect()
+impl From<KeywordColor> for Color {
+    fn from(value: KeywordColor) -> Self {
+        match value {
+            KeywordColor::Red => Self::Red,
+            KeywordColor::Green => Self::Green,
+            KeywordColor::Yellow => Self::Yellow,
+            KeywordColor::Blue => Self::Blue,
+            KeywordColor::Magenta => Self::Magenta,
+            KeywordColor::Cyan => Self::Cyan,
+        }
+    }
 }

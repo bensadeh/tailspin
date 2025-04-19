@@ -2,12 +2,12 @@
 .\"     Title: tspin
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.23
-.\"      Date: 2025-04-17
+.\"      Date: 2025-04-19
 .\"    Manual: tailspin
-.\"    Source: tailspin 5.3.0
+.\"    Source: tailspin 5.4.0
 .\"  Language: English
 .\"
-.TH "TSPIN" "1" "2025-04-17" "tailspin 5.3.0" "tailspin"
+.TH "TSPIN" "1" "2025-04-19" "tailspin 5.4.0" "tailspin"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -37,50 +37,73 @@ tspin \- A log file highlighter
 tailspin is a command line tool that highlights log files.
 .SH "OPTIONS"
 .sp
-\fB\-f, \-\-follow\fP
+\fI\-f, \-\-follow\fP
 .RS 4
 Follow (tail) the contents of the file.
 Always true when using the \fI\-\-follow\-command\fP flag.
 .RE
 .sp
-\fB\-p, \-\-print\fP
+\fI\-p, \-\-print\fP
 .RS 4
 Print the output to stdout instead of viewing the contents in the pager \fIless\fP.
 Always true if using stdin.
 .RE
 .sp
-\fB\-\-config\-path\fP \fICONFIG_PATH\fP
+\fI\-\-config\-path\fP \fBCONFIG_PATH\fP
 .RS 4
 Specify the path to a custom configuration file.
-Defaults to \fIXDG_CONFIG_HOME/tailspin/theme.toml\fP or \fI~/.config/tailspin/theme.toml\fP if not set.
+Defaults to \fBXDG_CONFIG_HOME/tailspin/theme.toml\fP or \fB~/.config/tailspin/theme.toml\fP if not set.
 .RE
 .sp
-\fB\-c, \-\-listen\-command\fP \fICOMMAND\fP
+\fI\-c, \-\-listen\-command\fP \fBCOMMAND\fP
 .RS 4
 Continuously listen to the stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside \fIless\fP.
+.sp
+.B Example:
+.br
+.sp
+.if n .RS 4
+.nf
+.fam C
+tspin \-\-listen\-command \*(Aqkubectl logs \-f pod_name\*(Aq
+.fam
+.fi
+.if n .RE
 .RE
 .sp
-\fB\-\-words\-[red|green|yellow|blue|magenta|cyan]\fP
+\fI\-\-highlight\fP \fBCOLOR1\fP:\fIword1,word2,...\fP \fBCOLOR2\fP:\fIword3,word4,...\fP
 .RS 4
-Highlight the provided comma separated words in the desired color.
+Highlight the provided comma\-separated words in the specified color.
+Possible colors are red, green, yellow, blue, magenta, and cyan.
+.sp
+.B Example:
+.br
+.sp
+.if n .RS 4
+.nf
+.fam C
+tspin logfile.txt \-\-highlight red:error,fail \-\-highlight green:success,ok
+.fam
+.fi
+.if n .RE
 .RE
 .sp
-\fB\-\-enable=[HIGHLIGHT_GROUP]\fP
+\fI\-\-enable=[HIGHLIGHT_GROUP]\fP
 .RS 4
 Disable all highlighting groups except the ones specified.
 Comma separated list of groups.
-Cannot be used with \fI\-\-disable=[HIGHLIGHT_GROUP]\fP.
+Cannot be used with \fB\-\-disable=[HIGHLIGHT_GROUP]\fP.
 .RE
 .sp
-\fB\-\-disable=[HIGHLIGHT_GROUP]\fP
+\fI\-\-disable=[HIGHLIGHT_GROUP]\fP
 .RS 4
 Disable the specified highlighting groups.
 Comma separated list of groups.
-Cannot be used with \fI\-\-enable=[HIGHLIGHT_GROUP]\fP.
+Cannot be used with \fB\-\-enable=[HIGHLIGHT_GROUP]\fP.
 .RE
 .sp
-\fB\-\-no\-builtin\-keywords\fP
+\fI\-\-disable\-builtin\-keywords\fP
 .RS 4
 Disables the highlighting of all builtin keyword groups (booleans, severity and REST).
 .RE

@@ -25,36 +25,49 @@ tailspin is a command line tool that highlights log files.
 
 == OPTIONS
 
-*-f, --follow*::
+_-f, --follow_::
 Follow (tail) the contents of the file.
 Always true when using the _--follow-command_ flag.
 
-*-p, --print*::
+_-p, --print_::
 Print the output to stdout instead of viewing the contents in the pager _less_.
 Always true if using stdin.
 
-*--config-path* _CONFIG_PATH_::
+_--config-path_ *CONFIG_PATH*::
 Specify the path to a custom configuration file.
-Defaults to _XDG_CONFIG_HOME/tailspin/theme.toml_ or _~/.config/tailspin/theme.toml_ if not set.
+Defaults to *XDG_CONFIG_HOME/tailspin/theme.toml* or *~/.config/tailspin/theme.toml* if not set.
 
-*-c, --listen-command* _COMMAND_::
+_-c, --listen-command_ *COMMAND*::
 Continuously listen to the stdout of the provided command.
 The command traps the interrupt signal to allow for cancelling and resuming follow mode while inside _less_.
 
-*--words-[red|green|yellow|blue|magenta|cyan]*::
-Highlight the provided comma separated words in the desired color.
++
+.Example:
+----
+tspin --listen-command 'kubectl logs -f pod_name'
+----
 
-*--enable=[HIGHLIGHT_GROUP]*::
+_--highlight_ *COLOR1*:__word1,word2,...__ *COLOR2*:__word3,word4,...__::
+Highlight the provided comma-separated words in the specified color.
+Possible colors are red, green, yellow, blue, magenta, and cyan.
+
++
+.Example:
+----
+tspin logfile.txt --highlight red:error,fail --highlight green:success,ok
+----
+
+_--enable=[HIGHLIGHT_GROUP]_::
 Disable all highlighting groups except the ones specified.
 Comma separated list of groups.
-Cannot be used with _--disable=[HIGHLIGHT_GROUP]_.
+Cannot be used with *--disable=[HIGHLIGHT_GROUP]*.
 
-*--disable=[HIGHLIGHT_GROUP]*::
+_--disable=[HIGHLIGHT_GROUP]_::
 Disable the specified highlighting groups.
 Comma separated list of groups.
-Cannot be used with _--enable=[HIGHLIGHT_GROUP]_.
+Cannot be used with *--enable=[HIGHLIGHT_GROUP]*.
 
-*--no-builtin-keywords*::
+_--disable-builtin-keywords_::
 Disables the highlighting of all builtin keyword groups (booleans, severity and REST).
 
 == ENVIRONMENT VARIABLES

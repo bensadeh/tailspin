@@ -10,8 +10,10 @@ use crate::highlighter_builder;
 use crate::highlighter_builder::builtins::get_builtin_keywords;
 use crate::highlighter_builder::groups;
 use crate::theme::reader;
-use clap::{CommandFactory, Parser, ValueEnum};
-use miette::{IntoDiagnostic, Result};
+use clap::{Parser, ValueEnum};
+use miette::Result;
+use nu_ansi_term::Style;
+use std::error::Error;
 use std::io::{IsTerminal, stdin};
 use std::path::PathBuf;
 use tailspin::Highlighter;
@@ -46,29 +48,9 @@ pub struct Arguments {
     #[clap(short = 'c', long = "listen-command", conflicts_with = "follow")]
     pub listen_command: Option<String>,
 
-    /// Highlight the provided words in red
-    #[clap(long = "words-red", use_value_delimiter = true)]
-    pub words_red: Vec<String>,
-
-    /// Highlight the provided words in green
-    #[clap(long = "words-green", use_value_delimiter = true)]
-    pub words_green: Vec<String>,
-
-    /// Highlight the provided words in yellow
-    #[clap(long = "words-yellow", use_value_delimiter = true)]
-    pub words_yellow: Vec<String>,
-
-    /// Highlight the provided words in blue
-    #[clap(long = "words-blue", use_value_delimiter = true)]
-    pub words_blue: Vec<String>,
-
-    /// Highlight the provided words in magenta
-    #[clap(long = "words-magenta", use_value_delimiter = true)]
-    pub words_magenta: Vec<String>,
-
-    /// Highlight the provided words in cyan
-    #[clap(long = "words-cyan", use_value_delimiter = true)]
-    pub words_cyan: Vec<String>,
+    /// Highlights in the form color:word1,word2 [possible values: red, green, yellow, blue, magenta, cyan]
+    #[arg(long = "highlight", value_parser = parse_highlight)]
+    pub color_word: Vec<(KeywordColor, Vec<String>)>,
 
     /// Enable specific highlighters
     #[clap(long = "enable", value_enum, use_value_delimiter = true)]
@@ -79,8 +61,8 @@ pub struct Arguments {
     pub disabled_highlighters: Vec<HighlighterGroup>,
 
     /// Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)
-    #[clap(long = "no-builtin-keywords")]
-    pub no_builtin_keywords: bool,
+    #[clap(long = "disable-builtin-keywords")]
+    pub disable_builtin_keywords: bool,
 
     /// Print bash completions to stdout
     #[clap(long = "generate-bash-completions", hide = true)]
@@ -93,6 +75,28 @@ pub struct Arguments {
     /// Print zsh completions to stdout
     #[clap(long = "generate-zsh-completions", hide = true)]
     pub generate_zsh_completions: bool,
+}
+
+fn parse_highlight(s: &str) -> Result<(KeywordColor, Vec<String>), Box<dyn Error + Send + Sync>> {
+    let (color_str, words_str) = s
+        .split_once(':')
+        .ok_or_else(|| format!("Expected format COLOR:word1,word2,... found `{}`", s))?;
+
+    let color = KeywordColor::from_str(color_str, true)?;
+
+    let words = words_str.split(',').map(str::to_owned).collect();
+
+    Ok((color, words))
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Hash)]
+pub enum KeywordColor {
+    Red,
+    Green,
+    Yellow,
+    Blue,
+    Magenta,
+    Cyan,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -123,16 +127,17 @@ pub fn get_config() -> Result<FullConfig> {
 
     let std_in_has_no_data = stdin().is_terminal();
     if cli.file_path.is_none() && cli.listen_command.is_none() && std_in_has_no_data {
-        Arguments::command().print_help().into_diagnostic()?;
+        let style = Style::new().fg(nu_ansi_term::Color::Cyan);
+        println!("Missing filename ({} for help)", style.paint("tspin --help"));
 
-        std::process::exit(1);
+        std::process::exit(0);
     }
 
     let io_config = get_io_config(&cli)?;
     let highlighter_groups = groups::get_highlighter_groups(&cli.enabled_highlighters, &cli.disabled_highlighters)?;
 
     let theme = reader::parse_theme(&cli.config_path)?;
-    let keywords_builtin = get_builtin_keywords(cli.no_builtin_keywords);
+    let keywords_builtin = get_builtin_keywords(cli.disable_builtin_keywords);
     let keywords_from_toml = theme.keywords.clone();
     let keywords_from_cli = get_keywords_from_cli(&cli);
 

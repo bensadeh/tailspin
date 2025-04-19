@@ -3,8 +3,9 @@
 ## 5.4.0
 
 - Use UUID as temp file suffix instead of number
-- Print help screen if no arguments are passed
 - Added colors to the help screen
+- Merge all the `--words-red`, `--words-green`, etc. flags into a single `--highlight [COLOR]:[WORDS]` flag
+- Renamed `--no-builtin-keywords` to `--disable-builtin-keywords`
 
 ## 5.3.0
 
