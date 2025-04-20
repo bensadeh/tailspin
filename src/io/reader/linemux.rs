@@ -10,10 +10,11 @@ pub struct Linemux {
     current_line: usize,
     reached_eof: bool,
     lines: MuxedLines,
+    keep_alive: bool,
 }
 
 impl Linemux {
-    pub async fn get_reader(file_path: PathBuf, number_of_lines: usize) -> Result<Reader> {
+    pub async fn get_reader(file_path: PathBuf, number_of_lines: usize, keep_alive: bool) -> Result<Reader> {
         let mut lines = MuxedLines::new()
             .into_diagnostic()
             .wrap_err("Could not instantiate linemux")?;
@@ -29,6 +30,7 @@ impl Linemux {
             current_line: 0,
             reached_eof: false,
             lines,
+            keep_alive,
         }))
     }
 
@@ -51,6 +53,12 @@ impl Linemux {
 
             bucket.push(line);
             self.current_line += 1;
+        }
+
+        self.reached_eof = true;
+
+        if self.keep_alive {
+            return Ok(ReadType::MultipleLines(bucket));
         }
 
         Ok(ReadType::InitialRead(bucket))

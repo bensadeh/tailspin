@@ -1,8 +1,9 @@
 # Changelog
-## 5.5.0
 
+## 5.4.1
 
-
+- Add support for both `--print` and `--follow` flags
+- Fixed a bug where EOF signal would not be set causing `tailspin` to pick up newline entries after program has been run
 
 ## 5.4.0
 

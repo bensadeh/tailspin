@@ -17,6 +17,7 @@ pub struct InputOutputConfig {
 pub struct PathAndLineCount {
     pub path: PathBuf,
     pub line_count: usize,
+    pub keep_alive: bool,
 }
 
 #[derive(Ord, PartialOrd, Eq, PartialEq)]
@@ -82,7 +83,7 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
     }
 
     if let Some(path) = &args.file_path {
-        return process_path_input(path.into());
+        return process_path_input(path.into(), args.follow);
     }
 
     if std_in_has_data {
@@ -110,7 +111,7 @@ fn get_target(args: &Arguments, input: &Source) -> Target {
     Target::Less(LessOptions { follow: follow_mode })
 }
 
-fn process_path_input(path: PathBuf) -> Result<Source, ConfigError> {
+fn process_path_input(path: PathBuf, keep_alive: bool) -> Result<Source, ConfigError> {
     if !path.exists() {
         let path_display = path.display().to_string();
         let path_colored = Yellow.paint(path_display).to_string();
@@ -124,7 +125,11 @@ fn process_path_input(path: PathBuf) -> Result<Source, ConfigError> {
 
     let line_count = count_lines(&path)?;
 
-    Ok(Source::File(PathAndLineCount { path, line_count }))
+    Ok(Source::File(PathAndLineCount {
+        path,
+        line_count,
+        keep_alive,
+    }))
 }
 
 fn count_lines<P: AsRef<Path>>(file_path: P) -> Result<usize, ConfigError> {
