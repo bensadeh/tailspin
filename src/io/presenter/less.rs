@@ -30,7 +30,7 @@ impl Less {
 }
 
 impl Present for Less {
-    fn present(&self) -> Result<()> {
+    async fn present(&self) -> Result<()> {
         ctrlc::set_handler(|| {}).map_err(LessError::CtrlCError)?;
 
         let args = get_args(self.follow);

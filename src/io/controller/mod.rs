@@ -2,8 +2,8 @@ use crate::cli::get_config;
 use crate::config::{Source, Target};
 use crate::initial_read::{InitialReadCompleteReceiver, InitialReadCompleteSender, initial_read_complete_channel};
 use crate::io::presenter::custom_pager::CustomPager;
-use crate::io::presenter::empty::NoPresenter;
 use crate::io::presenter::less::Less;
+use crate::io::presenter::stdout::StdoutPresenter;
 use crate::io::reader::command::CommandReader;
 use crate::io::reader::linemux::Linemux;
 use crate::io::reader::stdin::StdinReader;
@@ -26,7 +26,7 @@ pub enum Writer {
 pub enum Presenter {
     Less(Less),
     CustomPager(CustomPager),
-    None(NoPresenter),
+    StdOut(StdoutPresenter),
 }
 
 pub async fn initialize_io() -> Result<(
@@ -55,9 +55,9 @@ pub async fn initialize_io() -> Result<(
 
 async fn get_reader(input: Source) -> Result<Reader> {
     let reader = match input {
-        Source::File(file) => Linemux::get_reader(file.path, file.line_count, file.keep_alive).await?,
-        Source::Stdin => StdinReader::get_reader(),
-        Source::Command(cmd) => CommandReader::get_reader(cmd).await?,
+        Source::File(file) => Reader::Linemux(Linemux::new(file.path, file.line_count, file.keep_alive).await?),
+        Source::Stdin => Reader::Stdin(StdinReader::new()),
+        Source::Command(cmd) => Reader::Command(CommandReader::new(cmd).await?),
     };
 
     Ok(reader)
@@ -71,17 +71,17 @@ async fn get_writer_and_presenter(output: Target) -> Result<(Writer, Presenter)>
 
             (Writer::TempFile(temp_file), Presenter::Less(less))
         }
-        Target::CustomPager(cmd) => {
+        Target::CustomPager(opts) => {
             let temp_file = TempFile::new().await?;
-            let custom_pager = CustomPager::new(temp_file.path.clone(), cmd.command);
+            let custom_pager = CustomPager::new(temp_file.path.clone(), opts.command);
 
             (Writer::TempFile(temp_file), Presenter::CustomPager(custom_pager))
         }
         Target::Stdout => {
-            let writer = StdoutWriter::init();
-            let presenter = NoPresenter::get_presenter();
+            let writer = StdoutWriter::new();
+            let presenter = StdoutPresenter::new();
 
-            (writer, presenter)
+            (Writer::Stdout(writer), Presenter::StdOut(presenter))
         }
     };
 

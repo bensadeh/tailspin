@@ -2,7 +2,7 @@ use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::{Reader, Writer};
 use io::controller::initialize_io;
 use io::presenter::Present;
-use io::reader::{AsyncLineReader, ReadType};
+use io::reader::{AsyncLineReader, StreamEvent};
 use io::writer::AsyncLineWriter;
 use miette::{IntoDiagnostic, Result};
 use rayon::prelude::*;
@@ -21,16 +21,22 @@ async fn main() -> Result<()> {
     let (reader, writer, presenter, highlighter, initial_read_complete_sender, initial_read_complete_receiver) =
         initialize_io().await?;
 
-    let read_write_highlight_task =
+    let mut read_write_highlight_task =
         spawn(async move { read_write_and_highlight(reader, writer, highlighter, initial_read_complete_sender).await });
 
     initial_read_complete_receiver.receive().await?;
 
-    let presenter_task = spawn(async move { presenter.present() });
+    let mut presenter_task = spawn(async move { presenter.present().await });
 
     select! {
-        result = presenter_task => result.into_diagnostic()??,
-        result = read_write_highlight_task => result.into_diagnostic()??,
+        result = &mut presenter_task => {
+            read_write_highlight_task.abort();
+            result.into_diagnostic()??
+        },
+        result = &mut read_write_highlight_task => {
+            presenter_task.abort();
+            result.into_diagnostic()??
+        },
     }
 
     Ok(())
@@ -40,21 +46,14 @@ async fn read_write_and_highlight(
     mut reader: Reader,
     mut writer: Writer,
     highlighter: Highlighter,
-    mut initial_read_signal: InitialReadCompleteSender,
+    mut initial_read_complete: InitialReadCompleteSender,
 ) -> Result<()> {
     loop {
         match reader.next().await? {
-            ReadType::SingleLine(line) => write_line(&mut writer, &highlighter, line.as_str()).await?,
-            ReadType::MultipleLines(lines) => write_batch(&mut writer, &highlighter, lines).await?,
-            ReadType::StreamStarted => initial_read_signal.send()?,
-            ReadType::StreamEnded => {
-                initial_read_signal.send()?;
-                return Ok(());
-            }
-            ReadType::InitialRead(lines) => {
-                write_batch(&mut writer, &highlighter, lines).await?;
-                initial_read_signal.send()?;
-            }
+            StreamEvent::Started => initial_read_complete.send()?,
+            StreamEvent::Ended => return Ok(()),
+            StreamEvent::Line(line) => write_line(&mut writer, &highlighter, line.as_str()).await?,
+            StreamEvent::Lines(lines) => write_lines(&mut writer, &highlighter, lines).await?,
         }
     }
 }
@@ -62,19 +61,19 @@ async fn read_write_and_highlight(
 async fn write_line(writer: &mut Writer, highlighter: &Highlighter, line: &str) -> Result<()> {
     let highlighted = &highlighter.apply(line);
 
-    writer.write_line(highlighted).await?;
+    writer.write(highlighted).await?;
 
     Ok(())
 }
 
-async fn write_batch(writer: &mut Writer, highlighter: &Highlighter, lines: Vec<String>) -> Result<()> {
+async fn write_lines(writer: &mut Writer, highlighter: &Highlighter, lines: Vec<String>) -> Result<()> {
     let highlighted = lines
         .par_iter()
         .map(|line| highlighter.apply(line.as_str()))
         .collect::<Vec<_>>()
         .join("\n");
 
-    writer.write_line(&highlighted).await?;
+    writer.write(&highlighted).await?;
 
     Ok(())
 }

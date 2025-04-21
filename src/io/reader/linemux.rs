@@ -1,5 +1,5 @@
-use crate::io::controller::Reader;
-use crate::io::reader::{AsyncLineReader, ReadType};
+use crate::io::reader::StreamEvent::{Ended, Started};
+use crate::io::reader::{AsyncLineReader, StreamEvent};
 use async_trait::async_trait;
 use linemux::MuxedLines;
 use miette::{Context, IntoDiagnostic, Result, miette};
@@ -9,12 +9,13 @@ pub struct Linemux {
     number_of_lines: Option<usize>,
     current_line: usize,
     reached_eof: bool,
+    stream_started: bool,
     lines: MuxedLines,
     keep_alive: bool,
 }
 
 impl Linemux {
-    pub async fn get_reader(file_path: PathBuf, number_of_lines: usize, keep_alive: bool) -> Result<Reader> {
+    pub async fn new(file_path: PathBuf, number_of_lines: usize, keep_alive: bool) -> Result<Linemux> {
         let mut lines = MuxedLines::new()
             .into_diagnostic()
             .wrap_err("Could not instantiate linemux")?;
@@ -25,20 +26,21 @@ impl Linemux {
             .into_diagnostic()
             .wrap_err("Could not add file to linemux")?;
 
-        Ok(Reader::Linemux(Self {
+        Ok(Self {
             number_of_lines: Some(number_of_lines),
             current_line: 0,
             reached_eof: false,
-            lines,
+            stream_started: false,
             keep_alive,
-        }))
+            lines,
+        })
     }
 
-    async fn read_lines_until_eof(&mut self) -> Result<ReadType> {
-        let mut bucket = Vec::new();
+    async fn read_lines_until_eof(&mut self) -> Result<StreamEvent> {
+        let mut lines = Vec::new();
         let total_lines = self.number_of_lines.expect("Number of lines not set");
 
-        while bucket.len() < total_lines {
+        while lines.len() < total_lines {
             let next_line = self
                 .lines
                 .next_line()
@@ -51,20 +53,16 @@ impl Linemux {
                 _ => break,
             };
 
-            bucket.push(line);
+            lines.push(line);
             self.current_line += 1;
         }
 
         self.reached_eof = true;
 
-        if self.keep_alive {
-            return Ok(ReadType::MultipleLines(bucket));
-        }
-
-        Ok(ReadType::InitialRead(bucket))
+        Ok(StreamEvent::Lines(lines))
     }
 
-    async fn read_line_by_line(&mut self) -> Result<ReadType> {
+    async fn read_line_by_line(&mut self) -> Result<StreamEvent> {
         let next_line = self
             .lines
             .next_line()
@@ -73,13 +71,23 @@ impl Linemux {
             .wrap_err("Could not read next line")?
             .ok_or(miette!("next_line() should never return optional"))?;
 
-        Ok(ReadType::SingleLine(next_line.line().to_string()))
+        Ok(StreamEvent::Line(next_line.line().to_string()))
     }
 }
 
 #[async_trait]
 impl AsyncLineReader for Linemux {
-    async fn next(&mut self) -> Result<ReadType> {
+    async fn next(&mut self) -> Result<StreamEvent> {
+        if self.reached_eof && !self.stream_started {
+            self.stream_started = true;
+
+            return Ok(Started);
+        }
+
+        if self.reached_eof && !self.keep_alive {
+            return Ok(Ended);
+        }
+
         match self.reached_eof {
             true => self.read_line_by_line().await,
             false => self.read_lines_until_eof().await,
