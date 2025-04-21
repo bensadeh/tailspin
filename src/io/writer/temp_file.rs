@@ -27,7 +27,7 @@ impl TempFile {
 
 #[async_trait]
 impl AsyncLineWriter for TempFile {
-    async fn write_line(&mut self, line: &str) -> Result<()> {
+    async fn write(&mut self, line: &str) -> Result<()> {
         let line_with_newline = format!("{}\n", line);
 
         self.file_writer

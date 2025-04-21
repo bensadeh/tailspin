@@ -1,6 +1,5 @@
-use crate::io::controller::Reader;
 use crate::io::reader::common::{BUFF_READER_CAPACITY, ReadResult, read_lines};
-use crate::io::reader::{AsyncLineReader, ReadType};
+use crate::io::reader::{AsyncLineReader, StreamEvent};
 use async_trait::async_trait;
 use miette::{Context, IntoDiagnostic, Result, miette};
 use std::process::Stdio;
@@ -13,7 +12,7 @@ pub struct CommandReader {
 }
 
 impl CommandReader {
-    pub async fn get_reader(command: String) -> Result<Reader> {
+    pub async fn new(command: String) -> Result<CommandReader> {
         let trap_command = format!("trap '' INT; {}", command);
 
         let child = Command::new("sh")
@@ -30,23 +29,23 @@ impl CommandReader {
 
         let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, stdout);
 
-        Ok(Reader::Command(CommandReader { reader, ready: false }))
+        Ok(CommandReader { reader, ready: false })
     }
 }
 
 #[async_trait]
 impl AsyncLineReader for CommandReader {
-    async fn next(&mut self) -> Result<ReadType> {
+    async fn next(&mut self) -> Result<StreamEvent> {
         if !self.ready {
             self.ready = !self.ready;
 
-            return Ok(ReadType::StreamStarted);
+            return Ok(StreamEvent::Started);
         }
 
         read_lines(&mut self.reader).await.map(|res| match res {
-            ReadResult::Eof => ReadType::StreamEnded,
-            ReadResult::Line(line) => ReadType::SingleLine(line),
-            ReadResult::Batch(lines) => ReadType::MultipleLines(lines),
+            ReadResult::Eof => StreamEvent::Ended,
+            ReadResult::Line(line) => StreamEvent::Line(line),
+            ReadResult::Batch(lines) => StreamEvent::Lines(lines),
         })
     }
 }

@@ -1,5 +1,5 @@
 use crate::io::presenter::Present;
-use miette::{IntoDiagnostic, WrapErr, miette};
+use miette::{IntoDiagnostic, Result, WrapErr, miette};
 use shell_words::split;
 use std::path::PathBuf;
 use std::process::Command;
@@ -16,7 +16,7 @@ impl CustomPager {
 }
 
 impl Present for CustomPager {
-    fn present(&self) -> miette::Result<()> {
+    async fn present(&self) -> Result<()> {
         ctrlc::set_handler(|| {})
             .into_diagnostic()
             .wrap_err("Failed to set Ctrl-C handler")?;
