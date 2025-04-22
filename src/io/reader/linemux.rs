@@ -11,11 +11,11 @@ pub struct Linemux {
     reached_eof: bool,
     stream_started: bool,
     lines: MuxedLines,
-    keep_alive: bool,
+    terminate_after_first_read: bool,
 }
 
 impl Linemux {
-    pub async fn new(file_path: PathBuf, number_of_lines: usize, keep_alive: bool) -> Result<Linemux> {
+    pub async fn new(file_path: PathBuf, number_of_lines: usize, terminate_after_first_read: bool) -> Result<Linemux> {
         let mut lines = MuxedLines::new()
             .into_diagnostic()
             .wrap_err("Could not instantiate linemux")?;
@@ -31,7 +31,7 @@ impl Linemux {
             current_line: 0,
             reached_eof: false,
             stream_started: false,
-            keep_alive,
+            terminate_after_first_read,
             lines,
         })
     }
@@ -57,7 +57,7 @@ impl Linemux {
             self.current_line += 1;
         }
 
-        self.reached_eof = true;
+        // self.reached_eof = true;
 
         Ok(StreamEvent::Lines(lines))
     }
@@ -84,13 +84,17 @@ impl AsyncLineReader for Linemux {
             return Ok(Started);
         }
 
-        if self.reached_eof && !self.keep_alive {
+        if self.reached_eof && self.stream_started && self.terminate_after_first_read {
             return Ok(Ended);
         }
 
-        match self.reached_eof {
-            true => self.read_line_by_line().await,
-            false => self.read_lines_until_eof().await,
+        if !self.reached_eof {
+            let stream_event = self.read_lines_until_eof().await?;
+            self.reached_eof = true;
+
+            return Ok(stream_event);
         }
+
+        self.read_line_by_line().await
     }
 }
