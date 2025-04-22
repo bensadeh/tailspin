@@ -13,18 +13,18 @@ pub struct InputOutputConfig {
     pub target: Target,
 }
 
-#[derive(PartialEq, Eq, Ord, PartialOrd)]
-pub struct PathAndLineCount {
-    pub path: PathBuf,
-    pub line_count: usize,
-    pub keep_alive: bool,
-}
-
 #[derive(Ord, PartialOrd, Eq, PartialEq)]
 pub enum Source {
-    File(PathAndLineCount),
+    File(FileInfo),
     Command(String),
     Stdin,
+}
+
+#[derive(PartialEq, Eq, Ord, PartialOrd)]
+pub struct FileInfo {
+    pub path: PathBuf,
+    pub line_count: usize,
+    pub terminate_after_first_read: bool,
 }
 
 pub enum Target {
@@ -83,7 +83,8 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
     }
 
     if let Some(path) = &args.file_path {
-        return process_path_input(path.into(), args.follow);
+        let terminate_after_first_read = args.to_stdout && !args.follow;
+        return process_path_input(path.into(), terminate_after_first_read);
     }
 
     if std_in_has_data {
@@ -111,7 +112,7 @@ fn get_target(args: &Arguments, input: &Source) -> Target {
     Target::Less(LessOptions { follow: follow_mode })
 }
 
-fn process_path_input(path: PathBuf, keep_alive: bool) -> Result<Source, ConfigError> {
+fn process_path_input(path: PathBuf, terminate_after_first_read: bool) -> Result<Source, ConfigError> {
     if !path.exists() {
         let path_display = path.display().to_string();
         let path_colored = Yellow.paint(path_display).to_string();
@@ -125,10 +126,10 @@ fn process_path_input(path: PathBuf, keep_alive: bool) -> Result<Source, ConfigE
 
     let line_count = count_lines(&path)?;
 
-    Ok(Source::File(PathAndLineCount {
+    Ok(Source::File(FileInfo {
         path,
         line_count,
-        keep_alive,
+        terminate_after_first_read,
     }))
 }
 

@@ -18,8 +18,15 @@ mod theme;
 
 #[main]
 async fn main() -> Result<()> {
-    let (reader, writer, presenter, highlighter, initial_read_complete_sender, initial_read_complete_receiver) =
-        initialize_io().await?;
+    let (
+        reader,
+        writer,
+        presenter,
+        highlighter,
+        initial_read_complete_sender,
+        initial_read_complete_receiver,
+        _temp_dir,
+    ) = initialize_io().await?;
 
     let mut read_write_highlight_task =
         spawn(async move { read_write_and_highlight(reader, writer, highlighter, initial_read_complete_sender).await });
