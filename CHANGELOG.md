@@ -1,8 +1,8 @@
 # Changelog
-## 5.5.0
 
+## 5.4.2
 
-
+- Fixed a bug where the `--follow` would prevent the pager from starting
 
 ## 5.4.1
 
