@@ -40,19 +40,10 @@ impl Linemux {
         let mut lines = Vec::new();
 
         while lines.len() < self.number_of_lines {
-            let next_line = self
-                .lines
-                .next_line()
-                .await
-                .into_diagnostic()
-                .wrap_err("Could not read next line")?;
+            let next_line = self.next_line().await?;
 
-            let line = match next_line {
-                Some(line) => line.line().to_string(),
-                _ => break,
-            };
+            lines.push(next_line);
 
-            lines.push(line);
             self.current_line_count += 1;
         }
 
@@ -60,15 +51,23 @@ impl Linemux {
     }
 
     async fn read_line_by_line(&mut self) -> Result<StreamEvent> {
+        let next_line = self.next_line().await?;
+
+        Ok(StreamEvent::Line(next_line))
+    }
+
+    async fn next_line(&mut self) -> Result<String> {
         let next_line = self
             .lines
             .next_line()
             .await
             .into_diagnostic()
             .wrap_err("Could not read next line")?
-            .ok_or(miette!("next_line() should never return optional"))?;
+            .ok_or(miette!("next_line() from Linemux should never return optional"))?
+            .line()
+            .to_string();
 
-        Ok(StreamEvent::Line(next_line.line().to_string()))
+        Ok(next_line)
     }
 }
 
