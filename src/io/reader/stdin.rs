@@ -1,4 +1,4 @@
-use crate::io::reader::common::{BUFF_READER_CAPACITY, ReadResult, read_lines};
+use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, StreamEvent};
 use async_trait::async_trait;
 use miette::Result;

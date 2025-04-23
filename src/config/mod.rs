@@ -3,9 +3,8 @@ use miette::Diagnostic;
 use nu_ansi_term::Color::{Magenta, Yellow};
 use std::cmp::PartialEq;
 use std::fs;
-use std::fs::File;
-use std::io::{self, IsTerminal, Read, stdin};
-use std::path::{Path, PathBuf};
+use std::io::{self, IsTerminal, stdin};
+use std::path::PathBuf;
 use thiserror::Error;
 
 pub struct InputOutputConfig {
@@ -23,7 +22,6 @@ pub enum Source {
 #[derive(PartialEq, Eq, Ord, PartialOrd)]
 pub struct FileInfo {
     pub path: PathBuf,
-    pub line_count: usize,
     pub terminate_after_first_read: bool,
 }
 
@@ -124,29 +122,8 @@ fn process_path_input(path: PathBuf, terminate_after_first_read: bool) -> Result
         return Err(ConfigError::PathNotFile);
     }
 
-    let line_count = count_lines(&path)?;
-
     Ok(Source::File(FileInfo {
         path,
-        line_count,
         terminate_after_first_read,
     }))
-}
-
-fn count_lines<P: AsRef<Path>>(file_path: P) -> Result<usize, ConfigError> {
-    let file = File::open(file_path)?;
-    let mut reader = io::BufReader::new(file);
-
-    let mut count = 0;
-    let mut buffer = [0; 8192]; // 8 KB buffer
-
-    loop {
-        let bytes_read = reader.read(&mut buffer)?;
-        if bytes_read == 0 {
-            break;
-        }
-        count += buffer[..bytes_read].iter().filter(|&&c| c == b'\n').count();
-    }
-
-    Ok(count)
 }

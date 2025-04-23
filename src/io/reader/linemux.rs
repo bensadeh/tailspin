@@ -1,4 +1,5 @@
 use crate::io::reader::StreamEvent::{Ended, Started};
+use crate::io::reader::file_line_counter::count_lines;
 use crate::io::reader::{AsyncLineReader, StreamEvent};
 use async_trait::async_trait;
 use linemux::MuxedLines;
@@ -15,7 +16,9 @@ pub struct Linemux {
 }
 
 impl Linemux {
-    pub async fn new(file_path: PathBuf, number_of_lines: usize, terminate_after_first_read: bool) -> Result<Linemux> {
+    pub async fn new(file_path: PathBuf, terminate_after_first_read: bool) -> Result<Linemux> {
+        let number_of_lines = count_lines(file_path.as_path())?;
+
         let mut lines = MuxedLines::new()
             .into_diagnostic()
             .wrap_err("Could not instantiate linemux")?;
@@ -40,9 +43,11 @@ impl Linemux {
         let mut lines = Vec::new();
 
         while lines.len() < self.number_of_lines {
-            let next_line = self.next_line().await?;
-
-            lines.push(next_line);
+            if let Some(line) = self.next_line().await? {
+                lines.push(line);
+            } else {
+                break;
+            }
 
             self.current_line_count += 1;
         }
@@ -51,23 +56,22 @@ impl Linemux {
     }
 
     async fn read_line_by_line(&mut self) -> Result<StreamEvent> {
-        let next_line = self.next_line().await?;
-
-        Ok(StreamEvent::Line(next_line))
+        match self.next_line().await? {
+            None => Err(miette!("error")),
+            Some(next_line) => Ok(StreamEvent::Line(next_line)),
+        }
     }
 
-    async fn next_line(&mut self) -> Result<String> {
-        let next_line = self
+    #[inline(always)]
+    async fn next_line(&mut self) -> Result<Option<String>> {
+        let maybe_line = self
             .lines
             .next_line()
             .await
             .into_diagnostic()
-            .wrap_err("Could not read next line")?
-            .ok_or(miette!("next_line() from Linemux should never return optional"))?
-            .line()
-            .to_string();
+            .wrap_err("Could not read next line")?;
 
-        Ok(next_line)
+        Ok(maybe_line.map(|line| line.line().to_string()))
     }
 }
 
@@ -114,7 +118,7 @@ mod tests {
         writeln!(file, "line2").unwrap();
         writeln!(file, "line3").unwrap();
 
-        let mut linemux = Linemux::new(file_path.clone(), 2, false).await?;
+        let mut linemux = Linemux::new(file_path.clone(), false).await?;
 
         let event = linemux.next().await?;
         match event {
@@ -150,7 +154,7 @@ mod tests {
             let mut file = File::create(&file_path).unwrap();
             writeln!(file, "only_line").unwrap();
 
-            let mut linemux = Linemux::new(file_path.clone(), 1, true).await?;
+            let mut linemux = Linemux::new(file_path.clone(), true).await?;
 
             let first_event = linemux.next().await?;
             match first_event {
@@ -189,7 +193,7 @@ mod tests {
         writeln!(file, "initial1").into_diagnostic()?;
         writeln!(file, "initial2").into_diagnostic()?;
 
-        let mut linemux = Linemux::new(file_path.clone(), 2, false).await?;
+        let mut linemux = Linemux::new(file_path.clone(), false).await?;
         let event = linemux.next().await?;
         match event {
             Lines(lines) => {

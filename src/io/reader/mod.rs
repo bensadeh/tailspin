@@ -1,5 +1,6 @@
+mod buffer_line_counter;
 pub mod command;
-mod common;
+mod file_line_counter;
 pub mod linemux;
 pub mod stdin;
 

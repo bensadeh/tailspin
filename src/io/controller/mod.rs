@@ -62,9 +62,7 @@ pub async fn initialize_io() -> Result<(
 
 async fn get_reader(input: Source) -> Result<Reader> {
     let reader = match input {
-        Source::File(file) => {
-            Reader::Linemux(Linemux::new(file.path, file.line_count, file.terminate_after_first_read).await?)
-        }
+        Source::File(file) => Reader::Linemux(Linemux::new(file.path, file.terminate_after_first_read).await?),
         Source::Stdin => Reader::Stdin(StdinReader::new()),
         Source::Command(cmd) => Reader::Command(CommandReader::new(cmd).await?),
     };
