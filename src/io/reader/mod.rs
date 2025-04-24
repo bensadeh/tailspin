@@ -8,6 +8,7 @@ use crate::io::controller::Reader;
 use async_trait::async_trait;
 use miette::Result;
 
+#[derive(Debug)]
 pub enum StreamEvent {
     Started,
     Ended,

@@ -4,7 +4,7 @@ use crate::io::reader::{AsyncLineReader, StreamEvent};
 use async_trait::async_trait;
 use linemux::MuxedLines;
 use miette::{Context, IntoDiagnostic, Result, miette};
-use std::path::PathBuf;
+use std::path::Path;
 
 pub struct Linemux {
     number_of_lines: usize,
@@ -16,15 +16,15 @@ pub struct Linemux {
 }
 
 impl Linemux {
-    pub async fn new(file_path: PathBuf, terminate_after_first_read: bool) -> Result<Linemux> {
-        let number_of_lines = count_lines(file_path.as_path())?;
+    pub async fn new<P: AsRef<Path>>(file_path: P, terminate_after_first_read: bool) -> Result<Linemux> {
+        let number_of_lines = count_lines(file_path.as_ref())?;
 
         let mut lines = MuxedLines::new()
             .into_diagnostic()
             .wrap_err("Could not instantiate linemux")?;
 
         lines
-            .add_file_from_start(&file_path)
+            .add_file_from_start(file_path.as_ref())
             .await
             .into_diagnostic()
             .wrap_err("Could not add file to linemux")?;
@@ -118,14 +118,15 @@ mod tests {
         writeln!(file, "line2").unwrap();
         writeln!(file, "line3").unwrap();
 
-        let mut linemux = Linemux::new(file_path.clone(), false).await?;
+        let mut linemux = Linemux::new(file_path, false).await?;
 
         let event = linemux.next().await?;
         match event {
             Lines(lines) => {
-                assert_eq!(lines.len(), 2);
+                assert_eq!(lines.len(), 3);
                 assert_eq!(lines[0], "line1");
                 assert_eq!(lines[1], "line2");
+                assert_eq!(lines[2], "line3");
             }
             _ => panic!("Expected StreamEvent::Lines(...)"),
         }
@@ -136,11 +137,13 @@ mod tests {
             _ => panic!("Expected StreamEvent::Started"),
         }
 
-        let event = linemux.next().await?;
-        match event {
-            Line(line) => assert_eq!(line, "line3"),
-            _ => panic!("Expected StreamEvent::Line(...)"),
-        }
+        let result = timeout(Duration::from_millis(100), linemux.next()).await;
+
+        assert!(
+            result.is_err(),
+            "Entire file has been read, next() should not return anything: {:?}",
+            result
+        );
 
         Ok(())
     }
@@ -154,7 +157,7 @@ mod tests {
             let mut file = File::create(&file_path).unwrap();
             writeln!(file, "only_line").unwrap();
 
-            let mut linemux = Linemux::new(file_path.clone(), true).await?;
+            let mut linemux = Linemux::new(file_path, true).await?;
 
             let first_event = linemux.next().await?;
             match first_event {
@@ -193,7 +196,7 @@ mod tests {
         writeln!(file, "initial1").into_diagnostic()?;
         writeln!(file, "initial2").into_diagnostic()?;
 
-        let mut linemux = Linemux::new(file_path.clone(), false).await?;
+        let mut linemux = Linemux::new(file_path.as_path(), false).await?;
         let event = linemux.next().await?;
         match event {
             Lines(lines) => {

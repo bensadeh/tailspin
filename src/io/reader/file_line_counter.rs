@@ -15,7 +15,6 @@ pub fn count_lines<P: AsRef<Path>>(file_path: P) -> Result<usize> {
     let mut reader = BufReader::new(file);
     let mut count = 0usize;
 
-    // Read in chunks
     let mut buffer = [0u8; BUFF_CAPACITY];
     loop {
         let bytes_read = reader
