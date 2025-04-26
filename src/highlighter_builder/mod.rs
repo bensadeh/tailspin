@@ -17,6 +17,10 @@ pub fn get_highlighter(
         builder.with_json_highlighter(theme.json);
     }
 
+    for regex in theme.regexes {
+        builder.with_regex_highlighter(regex);
+    }
+
     if highlighter_groups.dates {
         builder.with_date_time_highlighters(theme.dates);
     }
@@ -55,10 +59,6 @@ pub fn get_highlighter(
     }
 
     builder.with_keyword_highlighter(keywords);
-
-    for regex in theme.regexes {
-        builder.with_regex_highlighter(regex);
-    }
 
     if highlighter_groups.quotes {
         builder.with_quote_highlighter(theme.quotes);

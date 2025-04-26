@@ -1,8 +1,8 @@
 # Changelog
+
 ## 5.5.0
 
-
-
+- Prioritize custom regex patterns over other highlighters
 
 ## 5.4.2
 
