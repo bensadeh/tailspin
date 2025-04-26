@@ -3,6 +3,7 @@
 ## 5.5.0
 
 - Prioritize custom regex patterns over other highlighters
+- IPv4 highlighter now only highlights valid IPv4 addresses
 
 ## 5.4.2
 
