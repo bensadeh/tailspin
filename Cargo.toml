@@ -19,7 +19,7 @@ missing-const-for-fn = "warn"
 [dependencies]
 async-trait = "0.1.88"
 clap = { version = "4.5.37", features = ["derive", "env", "wrap_help"] }
-clap_complete = "4.5.47"
+clap_complete = "4.5.48"
 ctrlc = "3.4.6"
 linemux = "0.3.0"
 memchr = "2.7.4"
@@ -34,5 +34,5 @@ shellexpand = "3.1.1"
 tempfile = "3.19.1"
 thiserror = "2.0.12"
 tokio = { version = "1.44.2", features = ["full"] }
-toml = "0.8.20"
+toml = "0.8.22"
 uuid = { version = "1.16.0", features = ["v4"] }
