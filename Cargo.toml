@@ -18,9 +18,9 @@ missing-const-for-fn = "warn"
 
 [dependencies]
 async-trait = "0.1.88"
-clap = { version = "4.5.37", features = ["derive", "env", "wrap_help"] }
-clap_complete = "4.5.48"
-ctrlc = "3.4.6"
+clap = { version = "4.5.38", features = ["derive", "env", "wrap_help"] }
+clap_complete = "4.5.50"
+ctrlc = "3.4.7"
 linemux = "0.3.0"
 memchr = "2.7.4"
 miette = { version = "7.6.0", features = ["fancy"] }
@@ -31,8 +31,8 @@ serde = { version = "1.0.219", features = ["derive"] }
 serde_json = { version = "1.0.140", features = ["preserve_order"] }
 shell-words = "1.1.0"
 shellexpand = "3.1.1"
-tempfile = "3.19.1"
+tempfile = "3.20.0"
 thiserror = "2.0.12"
-tokio = { version = "1.44.2", features = ["full"] }
+tokio = { version = "1.45.0", features = ["full"] }
 toml = "0.8.22"
 uuid = { version = "1.16.0", features = ["v4"] }
