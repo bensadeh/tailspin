@@ -101,14 +101,14 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
 }
 
 fn get_target(args: &Arguments, input: &Source) -> Result<Target, ConfigError> {
+    if *input == Source::Stdin || args.to_stdout {
+        return Ok(Target::Stdout);
+    }
+
     if let Some(command) = &args.pager {
         let custom_pager_options = split_custom_pager_command(command)?;
 
         return Ok(Target::CustomPager(custom_pager_options));
-    }
-
-    if *input == Source::Stdin || args.to_stdout {
-        return Ok(Target::Stdout);
     }
 
     let follow_mode = if args.exec.is_some() { true } else { args.follow };

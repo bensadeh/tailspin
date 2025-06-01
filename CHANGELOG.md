@@ -3,6 +3,7 @@
 ## 5.4.4
 
 - Add support for custom pager command in windows
+- Fixed a bug where custom pager command would incorrectly take precedence over the presenter mode
 
 ## 5.4.3
 
