@@ -1,8 +1,8 @@
 # Changelog
-## 5.5.0
 
+## 5.4.4
 
-
+- Add support for custom pager command in windows
 
 ## 5.4.3
 

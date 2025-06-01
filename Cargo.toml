@@ -1,6 +1,6 @@
 [package]
 name = "tailspin"
-version = "5.5.0"
+version = "5.4.4"
 edition = "2024"
 authors = ["Ben Sadeh"]
 description = "A log file highlighter"
@@ -15,8 +15,8 @@ name = "tspin"
 
 [dependencies]
 async-trait = "0.1.88"
-clap = { version = "4.5.38", features = ["derive", "env", "wrap_help"] }
-clap_complete = "4.5.50"
+clap = { version = "4.5.39", features = ["derive", "env", "wrap_help"] }
+clap_complete = "4.5.52"
 ctrlc = "3.4.7"
 linemux = "0.3.0"
 memchr = "2.7.4"
@@ -33,3 +33,4 @@ thiserror = "2.0.12"
 tokio = { version = "1.45.1", features = ["full"] }
 toml = "0.8.22"
 uuid = { version = "1.17.0", features = ["v4"] }
+winsplit = "0.1"

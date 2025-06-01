@@ -37,6 +37,7 @@ pub struct LessOptions {
 
 pub struct CustomPagerOptions {
     pub command: String,
+    pub args: Vec<String>,
 }
 
 #[derive(Debug, Error, Diagnostic)]
@@ -60,11 +61,14 @@ pub enum ConfigError {
 
     #[error("I/O Error: {0}")]
     Io(#[from] io::Error),
+
+    #[error("Could not parse custom pager command")]
+    CouldNotParseCustomPagerCommand,
 }
 
 pub fn get_io_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError> {
     let source = get_source(args)?;
-    let target = get_target(args, &source);
+    let target = get_target(args, &source)?;
 
     Ok(InputOutputConfig { source, target })
 }
@@ -96,18 +100,36 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
     Err(ConfigError::CouldNotDetermineInputType)
 }
 
-fn get_target(args: &Arguments, input: &Source) -> Target {
-    if let Some(var) = &args.pager {
-        return Target::CustomPager(CustomPagerOptions { command: var.into() });
+fn get_target(args: &Arguments, input: &Source) -> Result<Target, ConfigError> {
+    if let Some(command) = &args.pager {
+        let custom_pager_options = split_custom_pager_command(command)?;
+
+        return Ok(Target::CustomPager(custom_pager_options));
     }
 
     if *input == Source::Stdin || args.to_stdout {
-        return Target::Stdout;
+        return Ok(Target::Stdout);
     }
 
     let follow_mode = if args.exec.is_some() { true } else { args.follow };
 
-    Target::Less(LessOptions { follow: follow_mode })
+    Ok(Target::Less(LessOptions { follow: follow_mode }))
+}
+
+fn split_custom_pager_command(raw_command: &str) -> Result<CustomPagerOptions, ConfigError> {
+    let raw_args = if cfg!(windows) {
+        winsplit::split(raw_command)
+    } else {
+        shell_words::split(raw_command).unwrap_or_default()
+    };
+
+    let (command, args) = match raw_args.split_first() {
+        Some((first, rest)) if !rest.is_empty() => (first.to_string(), rest.to_vec()),
+        Some(_) => return Err(ConfigError::CouldNotParseCustomPagerCommand), // Command without args
+        None => return Err(ConfigError::CouldNotParseCustomPagerCommand),    // Empty args
+    };
+
+    Ok(CustomPagerOptions { command, args })
 }
 
 fn process_path_input(path: PathBuf, terminate_after_first_read: bool) -> Result<Source, ConfigError> {

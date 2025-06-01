@@ -1,8 +1,7 @@
 use crate::cli::get_config;
 use crate::config::{Source, Target};
 use crate::initial_read::{InitialReadCompleteReceiver, InitialReadCompleteSender, initial_read_complete_channel};
-use crate::io::presenter::custom_pager::CustomPager;
-use crate::io::presenter::less::Less;
+use crate::io::presenter::pager::{CustomPagerOptions, LessPagerOptions, Pager, PagerOptions};
 use crate::io::presenter::stdout::StdoutPresenter;
 use crate::io::reader::command::CommandReader;
 use crate::io::reader::linemux::Linemux;
@@ -29,8 +28,7 @@ pub enum Writer {
 }
 
 pub enum Presenter {
-    Less(Less),
-    CustomPager(CustomPager),
+    Pager(Pager),
     StdOut(StdoutPresenter),
 }
 
@@ -71,30 +69,38 @@ async fn get_reader(input: Source) -> Result<Reader> {
 }
 
 async fn get_writer_presenter_and_temp_dir(output: Target) -> Result<(Writer, Presenter, Option<TempDir>)> {
-    let (writer, presenter, temp_dir) = match output {
+    match output {
         Target::Less(opts) => {
-            let (temp_dir, path_buf, buf_writer) = create_temp_file().await?;
-            let temp_file = TempFile::new(buf_writer).await;
-            let less = Less::new(path_buf, opts.follow);
+            let less_pager_options = LessPagerOptions { follow: opts.follow };
+            let pager_opts = PagerOptions::Less(less_pager_options);
+            let (writer, presenter, temp_dir) = get_temp_file_and_pager(pager_opts).await?;
 
-            (Writer::TempFile(temp_file), Presenter::Less(less), Some(temp_dir))
+            Ok((writer, presenter, Some(temp_dir)))
         }
         Target::CustomPager(opts) => {
-            let (temp_dir, path_buf, buf_writer) = create_temp_file().await?;
-            let file = TempFile::new(buf_writer).await;
-            let pager = CustomPager::new(path_buf, opts.command);
+            let custom_pager_options = CustomPagerOptions {
+                command: opts.command,
+                args: opts.args,
+            };
+            let pager_options = PagerOptions::Custom(custom_pager_options);
+            let (writer, presenter, temp_dir) = get_temp_file_and_pager(pager_options).await?;
 
-            (Writer::TempFile(file), Presenter::CustomPager(pager), Some(temp_dir))
+            Ok((writer, presenter, Some(temp_dir)))
         }
-        Target::Stdout => {
-            let writer = StdoutWriter::new();
-            let presenter = StdoutPresenter::new();
+        Target::Stdout => Ok((
+            Writer::Stdout(StdoutWriter::new()),
+            Presenter::StdOut(StdoutPresenter::new()),
+            None,
+        )),
+    }
+}
 
-            (Writer::Stdout(writer), Presenter::StdOut(presenter), None)
-        }
-    };
+async fn get_temp_file_and_pager(pager_opts: PagerOptions) -> Result<(Writer, Presenter, TempDir)> {
+    let (temp_dir, path_buf, buf_writer) = create_temp_file().await?;
+    let temp_file = TempFile::new(buf_writer).await;
+    let pager = Pager::new(path_buf, pager_opts);
 
-    Ok((writer, presenter, temp_dir))
+    Ok((Writer::TempFile(temp_file), Presenter::Pager(pager), temp_dir))
 }
 
 async fn create_temp_file() -> Result<(TempDir, PathBuf, BufWriter<File>)> {
