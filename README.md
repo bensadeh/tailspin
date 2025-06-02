@@ -276,10 +276,10 @@ colon = { faint = true }
 To individually disable or enable highlight groups, use the `--enable` and `--disable` flags:
 
 ```console
-# Enable only the url highlight group, disabling the rest
+# Enable only the url highlight group, disable the rest
 tspin application.log --enable=url
 
-# Disable the numbers highlight group, keeping the rest
+# Disable the numbers highlight group, keep the rest
 tspin application.log --disable=numbers
 ```
 
@@ -343,10 +343,10 @@ kubectl logs -f pod_name | tspin
 
 ### Capturing the output of a command and viewing it in `less`
 
-To capture the output of a command and view it in `less`, use the `--listen-command` flag:
+To capture the output of a command and view it in `less`, use the `--exec` flag:
 
 ```console
-tspin --listen-command 'kubectl logs -f pod_name'
+tspin --exec 'kubectl logs -f pod_name'
 ```
 
 This will run the command `kubectl logs -f pod_name` in the background and pipe the output to `tailspin`. The output
