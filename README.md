@@ -65,6 +65,10 @@ tspin --exec='kubectl logs -f pod_name'
 
 ## Installing
 
+
+<details>
+<summary>Expand to view</summary>
+
 ### Package Managers
 
 ```console
@@ -101,6 +105,8 @@ Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `P
 > [!IMPORTANT]
 > When building from source, make sure that you are using the latest version
 > of [`less`](http://greenwoodsoftware.com/less/).
+
+</details>
 
 ## Highlight Groups
 
