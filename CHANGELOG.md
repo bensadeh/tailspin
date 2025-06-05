@@ -1,8 +1,8 @@
 # Changelog
-## 5.5.0
 
+## 5.4.5
 
-
+- Fixed a bug where newlines were filtered away when reading from stdin
 
 ## 5.4.4
 

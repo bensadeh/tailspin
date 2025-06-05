@@ -87,10 +87,18 @@ where
 }
 
 fn parse_buffer(buf: &[u8]) -> Vec<String> {
-    buf.split(|&b| b == b'\n')
-        .filter(|line| !line.is_empty())
-        .map(|line| String::from_utf8_lossy(line).to_string())
-        .collect()
+    let mut parts = buf
+        .split(|&b| b == b'\n')
+        .map(|slice| String::from_utf8_lossy(slice).to_string())
+        .collect::<Vec<String>>();
+
+    if let Some(last) = parts.last() {
+        if last.is_empty() {
+            parts.pop();
+        }
+    }
+
+    parts
 }
 
 #[cfg(test)]
@@ -110,6 +118,18 @@ mod tests {
 
         if let Ok(ReadResult::Batch(lines)) = read_lines(&mut reader).await {
             assert_eq!(lines, vec!["line 1", "line 2", "line 3"]);
+        } else {
+            panic!("Expected Ok(ReadResult::Batch), got something else");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_do_not_omit_empty_lines() {
+        let input = b"line 1\n\nline 3\n\n";
+        let mut reader = BufReader::new(&input[..]);
+
+        if let Ok(ReadResult::Batch(lines)) = read_lines(&mut reader).await {
+            assert_eq!(lines, vec!["line 1", "", "line 3", ""]);
         } else {
             panic!("Expected Ok(ReadResult::Batch), got something else");
         }
