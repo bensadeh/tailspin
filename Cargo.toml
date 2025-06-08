@@ -31,6 +31,6 @@ shellexpand = "3.1.1"
 tempfile = "3.20.0"
 thiserror = "2.0.12"
 tokio = { version = "1.45.1", features = ["full"] }
-toml = "0.8.22"
+toml = "0.8.23"
 uuid = { version = "1.17.0", features = ["v4"] }
 winsplit = "0.1"
