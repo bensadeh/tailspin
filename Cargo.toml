@@ -1,6 +1,6 @@
 [package]
 name = "tailspin"
-version = "5.4.5"
+version = "5.5.0"
 edition = "2024"
 authors = ["Ben Sadeh"]
 description = "A log file highlighter"
