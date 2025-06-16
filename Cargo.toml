@@ -15,11 +15,11 @@ name = "tspin"
 
 [dependencies]
 async-trait = "0.1.88"
-clap = { version = "4.5.39", features = ["derive", "env", "wrap_help"] }
-clap_complete = "4.5.52"
+clap = { version = "4.5.40", features = ["derive", "env", "wrap_help"] }
+clap_complete = "4.5.54"
 ctrlc = "3.4.7"
 linemux = "0.3.0"
-memchr = "2.7.4"
+memchr = "2.7.5"
 miette = { version = "7.6.0", features = ["fancy"] }
 nu-ansi-term = "0.50.1"
 rayon = "1.10.0"
