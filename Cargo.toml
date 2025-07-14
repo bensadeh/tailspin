@@ -15,8 +15,8 @@ name = "tspin"
 
 [dependencies]
 async-trait = "0.1.88"
-clap = { version = "4.5.40", features = ["derive", "env", "wrap_help"] }
-clap_complete = "4.5.54"
+clap = { version = "4.5.41", features = ["derive", "env", "wrap_help"] }
+clap_complete = "4.5.55"
 ctrlc = "3.4.7"
 linemux = "0.3.0"
 memchr = "2.7.5"
@@ -31,6 +31,6 @@ shellexpand = "3.1.1"
 tempfile = "3.20.0"
 thiserror = "2.0.12"
 tokio = { version = "1.46.1", features = ["full"] }
-toml = "0.8.23"
+toml = "0.9.2"
 uuid = { version = "1.17.0", features = ["v4"] }
 winsplit = "0.1"
