@@ -25,7 +25,7 @@ nu-ansi-term = "0.50.1"
 rayon = "1.10.0"
 regex = "1.11.1"
 serde = { version = "1.0.219", features = ["derive"] }
-serde_json = { version = "1.0.140", features = ["preserve_order"] }
+serde_json = { version = "1.0.141", features = ["preserve_order"] }
 shell-words = "1.1.0"
 shellexpand = "3.1.1"
 tempfile = "3.20.0"
