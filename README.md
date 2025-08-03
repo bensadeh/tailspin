@@ -2,7 +2,7 @@
   <img src="assets/tailspin.png" width="230"/>
 </p>
 
-#                                                                                                                                                                                                                                                                                                                                                                
+#                                                                                                                                                                                                                                                                                                                                                                  
 
 <p align="center">
 A log file highlighter
@@ -19,7 +19,7 @@ A log file highlighter
 - 🌈 Highlights numbers, dates, IP-addresses, UUIDs, URLs and more
 - ⚙️ All highlight groups are customizable
 - 🧬 Easy to integrate with other commands
-- 🔍 Uses `less` under the hood
+- 📦 Also available as a [crate](https://docs.rs/tailspin)
 
 #
 
@@ -64,7 +64,6 @@ tspin --exec='kubectl logs -f pod_name'
 ``` 
 
 ## Installing
-
 
 <details>
 <summary>Expand to view</summary>
