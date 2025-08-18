@@ -14,23 +14,23 @@ path = "src/main.rs"
 name = "tspin"
 
 [dependencies]
-async-trait = "0.1.88"
-clap = { version = "4.5.43", features = ["derive", "env", "wrap_help"] }
-clap_complete = "4.5.56"
+async-trait = "0.1.89"
+clap = { version = "4.5.45", features = ["derive", "env", "wrap_help"] }
+clap_complete = "4.5.57"
 ctrlc = "3.4.7"
 linemux = "0.3.0"
 memchr = "2.7.5"
 miette = { version = "7.6.0", features = ["fancy"] }
 nu-ansi-term = "0.50.1"
-rayon = "1.10.0"
+rayon = "1.11.0"
 regex = "1.11.1"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = { version = "1.0.142", features = ["preserve_order"] }
 shell-words = "1.1.0"
 shellexpand = "3.1.1"
 tempfile = "3.20.0"
-thiserror = "2.0.12"
+thiserror = "2.0.15"
 tokio = { version = "1.47.1", features = ["full"] }
 toml = "0.9.5"
-uuid = { version = "1.17.0", features = ["v4"] }
+uuid = { version = "1.18.0", features = ["v4"] }
 winsplit = "0.1"
