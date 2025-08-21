@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 use crate::initial_read::InitialReadCompleteSender;
 use crate::io::controller::{Reader, Writer};
 use io::controller::initialize_io;
@@ -27,9 +29,8 @@ async fn main() -> Result<()> {
         _temp_dir,
     ) = initialize_io().await?;
 
-    let mut read_write_highlight_task = tokio::spawn(async move {
-        read_write_and_highlight(reader, writer, highlighter, initial_read_complete_sender).await
-    });
+    let mut read_write_highlight_task =
+        tokio::spawn(async move { process_stream(reader, writer, highlighter, initial_read_complete_sender).await });
 
     initial_read_complete_receiver.receive().await?;
 
@@ -49,7 +50,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn read_write_and_highlight(
+async fn process_stream(
     mut reader: Reader,
     mut writer: Writer,
     highlighter: Highlighter,
@@ -66,9 +67,9 @@ async fn read_write_and_highlight(
 }
 
 async fn write_line(writer: &mut Writer, highlighter: &Highlighter, line: &str) -> Result<()> {
-    let highlighted = &highlighter.apply(line);
+    let highlighted = highlighter.apply(line);
 
-    writer.write(highlighted).await?;
+    writer.write(highlighted.as_ref()).await?;
 
     Ok(())
 }
