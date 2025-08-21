@@ -7,7 +7,6 @@ use io::writer::AsyncLineWriter;
 use miette::{IntoDiagnostic, Result};
 use rayon::prelude::*;
 use tailspin::Highlighter;
-use tokio::{main, select, spawn};
 
 mod cli;
 mod config;
@@ -16,7 +15,7 @@ mod initial_read;
 mod io;
 mod theme;
 
-#[main]
+#[tokio::main]
 async fn main() -> Result<()> {
     let (
         reader,
@@ -28,14 +27,15 @@ async fn main() -> Result<()> {
         _temp_dir,
     ) = initialize_io().await?;
 
-    let mut read_write_highlight_task =
-        spawn(async move { read_write_and_highlight(reader, writer, highlighter, initial_read_complete_sender).await });
+    let mut read_write_highlight_task = tokio::spawn(async move {
+        read_write_and_highlight(reader, writer, highlighter, initial_read_complete_sender).await
+    });
 
     initial_read_complete_receiver.receive().await?;
 
-    let mut presenter_task = spawn(async move { presenter.present().await });
+    let mut presenter_task = tokio::spawn(async move { presenter.present().await });
 
-    select! {
+    tokio::select! {
         result = &mut presenter_task => {
             read_write_highlight_task.abort();
             result.into_diagnostic()??
