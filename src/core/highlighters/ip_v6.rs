@@ -27,6 +27,10 @@ impl IpV6Highlighter {
 
 impl Highlight for IpV6Highlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        if !input.as_bytes().contains(&b':') {
+            return Cow::Borrowed(input);
+        }
+
         self.regex
             .replace_all(input, |caps: &Captures<'_>| match caps[1].parse::<Ipv6Addr>() {
                 Ok(_ip) => {
@@ -40,16 +44,14 @@ impl Highlight for IpV6Highlighter {
                         })
                         .collect::<String>();
 
-                    let slash = caps.get(2);
-                    let netmask = caps.get(3);
-                    if let (Some(slash), Some(netmask)) = (slash, netmask) {
+                    if let (Some(slash), Some(netmask)) = (caps.get(2), caps.get(3)) {
                         output.push_str(&self.separator.paint(slash.as_str()).to_string());
                         output.push_str(&self.number.paint(netmask.as_str()).to_string());
                     }
 
                     output
                 }
-                Err(_err) => caps[1].to_string(),
+                Err(_) => caps.get(0).map(|m| m.as_str()).unwrap_or("").to_string(),
             })
     }
 }
@@ -89,6 +91,7 @@ mod tests {
             ),
             ("Not ipv4: 192.168.0.1", "Not ipv4: 192.168.0.1"),
             ("11:47:39:850", "11:47:39:850"),
+            ("123/234/345/456", "123/234/345/456"),
         ];
 
         for (input, expected) in cases {

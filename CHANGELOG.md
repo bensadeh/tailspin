@@ -1,8 +1,8 @@
 # Changelog
+
 ## 5.5.0
 
-
-
+- Fixed a bug where the IPv6 highlighter would swallow parts of a matched, but invalid IPv6 address
 
 ## 5.4.5
 
