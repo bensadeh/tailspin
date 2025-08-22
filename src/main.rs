@@ -9,6 +9,7 @@ use io::writer::AsyncLineWriter;
 use miette::{IntoDiagnostic, Result};
 use rayon::prelude::*;
 use tailspin::Highlighter;
+use tokio::task::JoinHandle;
 
 mod cli;
 mod config;
@@ -19,35 +20,32 @@ mod theme;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let (
-        reader,
-        writer,
-        presenter,
-        highlighter,
-        initial_read_complete_sender,
-        initial_read_complete_receiver,
-        _temp_dir,
-    ) = initialize_io().await?;
+    let (reader, writer, presenter, highlighter, initial_read_complete_tx, initial_read_complete_rx, _temp_dir) =
+        initialize_io().await?;
 
-    let mut read_write_highlight_task =
-        tokio::spawn(async move { process_stream(reader, writer, highlighter, initial_read_complete_sender).await });
+    let mut process_stream_task = tokio::spawn(process_stream(reader, writer, highlighter, initial_read_complete_tx));
 
-    initial_read_complete_receiver.receive().await?;
+    initial_read_complete_rx.receive().await?;
 
     let mut presenter_task = tokio::spawn(async move { presenter.present().await });
 
     tokio::select! {
-        result = &mut presenter_task => {
-            read_write_highlight_task.abort();
-            result.into_diagnostic()??
+        presenter_result = &mut presenter_task => {
+            abort_and_drain(&mut process_stream_task).await;
+            presenter_result.into_diagnostic()??;
         },
-        result = &mut read_write_highlight_task => {
-            presenter_task.abort();
-            result.into_diagnostic()??
+        process_stream_result = &mut process_stream_task => {
+            abort_and_drain(&mut presenter_task).await;
+            process_stream_result.into_diagnostic()??;
         },
     }
 
     Ok(())
+}
+
+async fn abort_and_drain<T>(handle: &mut JoinHandle<T>) {
+    handle.abort();
+    let _drain = handle.await;
 }
 
 async fn process_stream(
@@ -69,7 +67,7 @@ async fn process_stream(
 async fn write_line(writer: &mut Writer, highlighter: &Highlighter, line: &str) -> Result<()> {
     let highlighted = highlighter.apply(line);
 
-    writer.write(highlighted.as_ref()).await?;
+    writer.write(&highlighted).await?;
 
     Ok(())
 }
