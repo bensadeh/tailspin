@@ -1,63 +1,108 @@
 use crate::core::config::DateTimeConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Error, Regex};
+use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
+use std::fmt::Write as _;
 
 pub struct TimeHighlighter {
     regex: Regex,
+    idx: Idx,
     time: NuStyle,
     zone: NuStyle,
     separator: NuStyle,
 }
 
+#[derive(Copy, Clone)]
+struct Idx {
+    t: usize,
+    hours: usize,
+    colon1: usize,
+    minutes: usize,
+    colon2: usize,
+    seconds: usize,
+    frac_sep: usize,
+    frac_digits: usize,
+    tz: usize,
+}
+
 impl TimeHighlighter {
     pub fn new(time_config: DateTimeConfig) -> Result<Self, Error> {
-        let regex = Regex::new(
-            r"(?x)
-            (?P<T>[T\s])?                              
+        let pattern = r"(?x)
+            (?P<T>[T\s])?
             (?P<hours>[01]?\d|2[0-3])(?P<colon1>:)
             (?P<minutes>[0-5]\d)(?P<colon2>:)
             (?P<seconds>[0-5]\d)
-            (?P<frac_sep>[.,:])?(?P<frac_digits>\d+)?  
-            (?P<tz>Z)?            
-            ",
-        )?;
+            (?P<frac_sep>[.,:])?(?P<frac_digits>\d+)?
+            (?P<tz>Z)?
+        ";
+
+        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
+
+        let mut name_to_idx = std::collections::HashMap::new();
+        for (i, name_opt) in regex.capture_names().enumerate() {
+            if let Some(name) = name_opt {
+                name_to_idx.insert(name.to_string(), i);
+            }
+        }
+        let idx = Idx {
+            t: name_to_idx["T"],
+            hours: name_to_idx["hours"],
+            colon1: name_to_idx["colon1"],
+            minutes: name_to_idx["minutes"],
+            colon2: name_to_idx["colon2"],
+            seconds: name_to_idx["seconds"],
+            frac_sep: name_to_idx["frac_sep"],
+            frac_digits: name_to_idx["frac_digits"],
+            tz: name_to_idx["tz"],
+        };
 
         Ok(Self {
             regex,
+            idx,
             time: time_config.time.into(),
             zone: time_config.zone.into(),
             separator: time_config.separator.into(),
         })
     }
+
+    #[inline]
+    fn write_part(buf: &mut String, caps: &Captures<'_>, i: usize, style: &NuStyle) {
+        if let Some(m) = caps.get(i) {
+            let _ = write!(buf, "{}", style.paint(m.as_str()));
+        }
+    }
 }
 
 impl Highlight for TimeHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        self.regex.replace_all(input, |caps: &regex::Captures<'_>| {
-            let paint_and_stringify = |name: &str, style: &NuStyle| {
-                caps.name(name)
-                    .map(|m| style.paint(m.as_str()).to_string())
-                    .unwrap_or_default()
-            };
+        let mut it = self.regex.captures_iter(input).peekable();
+        if it.peek().is_none() {
+            return Cow::Borrowed(input);
+        }
 
-            let parts = [
-                ("T", &self.zone),
-                ("hours", &self.time),
-                ("colon1", &self.separator),
-                ("minutes", &self.time),
-                ("colon2", &self.separator),
-                ("seconds", &self.time),
-                ("frac_sep", &self.separator),
-                ("frac_digits", &self.time),
-                ("tz", &self.zone),
-            ];
+        let mut out = String::with_capacity(input.len() + 32);
+        let mut last = 0usize;
 
-            parts.iter().fold(String::new(), |acc, (name, style)| {
-                acc + &paint_and_stringify(name, style)
-            })
-        })
+        for caps in self.regex.captures_iter(input) {
+            let m = caps.get(0).unwrap();
+            out.push_str(&input[last..m.start()]);
+
+            Self::write_part(&mut out, &caps, self.idx.t, &self.zone);
+            Self::write_part(&mut out, &caps, self.idx.hours, &self.time);
+            Self::write_part(&mut out, &caps, self.idx.colon1, &self.separator);
+            Self::write_part(&mut out, &caps, self.idx.minutes, &self.time);
+            Self::write_part(&mut out, &caps, self.idx.colon2, &self.separator);
+            Self::write_part(&mut out, &caps, self.idx.seconds, &self.time);
+            Self::write_part(&mut out, &caps, self.idx.frac_sep, &self.separator);
+            Self::write_part(&mut out, &caps, self.idx.frac_digits, &self.time);
+            Self::write_part(&mut out, &caps, self.idx.tz, &self.zone);
+
+            last = m.end();
+        }
+
+        out.push_str(&input[last..]);
+        Cow::Owned(out)
     }
 }
 
