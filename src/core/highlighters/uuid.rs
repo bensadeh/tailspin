@@ -1,7 +1,7 @@
 use crate::core::config::UuidConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex};
+use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct UuidHighlighter {
@@ -13,7 +13,7 @@ pub struct UuidHighlighter {
 
 impl UuidHighlighter {
     pub fn new(config: UuidConfig) -> Result<Self, Error> {
-        const UUID_REGEX: &str = r"(?x)       # Enable comments and whitespace insensitivity
+        let pattern = r"(?x)       # Enable comments and whitespace insensitivity
             \b[0-9a-fA-F]{8}\b    # Match first segment of UUID
             -                     # Match separator
             \b[0-9a-fA-F]{4}\b    # Match second segment of UUID
@@ -25,7 +25,7 @@ impl UuidHighlighter {
             \b[0-9a-fA-F]{12}\b   # Match last segment of UUID
             ";
 
-        let regex = Regex::new(UUID_REGEX)?;
+        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
 
         Ok(Self {
             regex,
