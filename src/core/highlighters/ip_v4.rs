@@ -1,7 +1,7 @@
 use crate::core::config::IpV4Config;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex};
+use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct IpV4Highlighter {
@@ -19,9 +19,10 @@ impl IpV4Highlighter {
             (?P<o4>\d{1,3})
             (?:/(?P<mask>\d{1,2}))?
             \b";
+        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
 
         Ok(Self {
-            regex: Regex::new(pattern)?,
+            regex,
             segment_style: config.number.into(),
             separator_style: config.separator.into(),
         })
