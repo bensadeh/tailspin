@@ -1,7 +1,7 @@
 use crate::core::config::UrlConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex};
+use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct UrlHighlighter {
@@ -18,11 +18,19 @@ pub struct UrlHighlighter {
 
 impl UrlHighlighter {
     pub fn new(config: UrlConfig) -> Result<Self, Error> {
-        let url_regex = Regex::new(
-            r"(?P<protocol>http|https)(:)(//)(?P<host>[^:/\n\s]+)(?P<path>[/a-zA-Z0-9\-_.]*)?(?P<query>\?[^#\n ]*)?",
-        )?;
+        let url_pattern = r"(?x)
+            (?P<protocol>https?) (:) (//)
+            (?P<host>[A-Za-z0-9._\-]+)
+            (?P<path>(?:/[A-Za-z0-9._~\-/%+]*)?)            # common URL-safe chars
+            (?P<query>\?[A-Za-z0-9._~\-/%+&=;,@!*'()?:]*)?  # include &= and friends";
+        let url_regex = RegexBuilder::new(url_pattern).unicode(false).build()?;
 
-        let query_params_regex = Regex::new(r"(?P<delimiter>[?&])(?P<key>[^=]*)(?P<equal>=)(?P<value>[^&]*)")?;
+        let query_params_pattern = r"(?x)
+            (?P<delimiter>[?&])
+            (?P<key>   [A-Za-z0-9._~\-+%]*)   # allow common URL-safe chars
+            (?P<equal> =)
+            (?P<value> [A-Za-z0-9._~\-+%]*)";
+        let query_params_regex = RegexBuilder::new(query_params_pattern).unicode(false).build()?;
 
         Ok(Self {
             url_regex,
