@@ -1,7 +1,7 @@
 use crate::core::config::KeyValueConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex};
+use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct KeyValueHighlighter {
@@ -12,7 +12,8 @@ pub struct KeyValueHighlighter {
 
 impl KeyValueHighlighter {
     pub fn new(config: KeyValueConfig) -> Result<Self, Error> {
-        let regex = Regex::new(r"(?P<space_or_start>(^)|\s)(?P<key>\w+\b)(?P<equals>=)")?;
+        let pattern = r"(?P<space_or_start>(^)|\s)(?P<key>\w+\b)(?P<equals>=)";
+        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
 
         Ok(Self {
             regex,
