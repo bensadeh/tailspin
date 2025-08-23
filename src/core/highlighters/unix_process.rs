@@ -1,7 +1,7 @@
 use crate::core::config::UnixProcessConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Error, Regex};
+use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct UnixProcessHighlighter {
@@ -13,7 +13,8 @@ pub struct UnixProcessHighlighter {
 
 impl UnixProcessHighlighter {
     pub fn new(config: UnixProcessConfig) -> Result<Self, Error> {
-        let regex = Regex::new(r"(?P<process_name>\([^)]+\)|[\w/-]+)\[(?P<process_id>\d+)]")?;
+        let pattern = r"(?P<process_name>\([A-Za-z0-9._ +:/-]+\)|[A-Za-z0-9_/-]+)\[(?P<process_id>\d+)]";
+        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
 
         Ok(Self {
             regex,
