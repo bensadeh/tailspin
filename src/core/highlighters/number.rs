@@ -1,8 +1,9 @@
 use crate::core::config::NumberConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex};
+use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
+use std::fmt::Write as _;
 
 pub struct NumberHighlighter {
     regex: Regex,
@@ -11,14 +12,14 @@ pub struct NumberHighlighter {
 
 impl NumberHighlighter {
     pub fn new(config: NumberConfig) -> Result<Self, Error> {
-        let regex = Regex::new(
-            r"(?x)             # Enable verbose mode to allow comments and ignore whitespace
-            \b                 # Match a word boundary (start of the number)
-            \d+                # Match one or more digits (integer part of the number)
-            (\.\d+)?           # Optionally match a dot followed by one or more digits (fractional part of the number)
-            \b                 # Match a word boundary (end of the number)
-            ",
-        )?;
+        let pattern = r"(?x)
+            \b          # start of number
+            \d+         # integer part
+            (?:\.\d+)?  # optional fractional
+            \b          # end of number
+        ";
+
+        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
 
         Ok(Self {
             regex,
@@ -29,8 +30,22 @@ impl NumberHighlighter {
 
 impl Highlight for NumberHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        self.regex
-            .replace_all(input, |caps: &Captures<'_>| format!("{}", self.style.paint(&caps[0])))
+        let mut it = self.regex.find_iter(input).peekable();
+        if it.peek().is_none() {
+            return Cow::Borrowed(input);
+        }
+
+        let mut out = String::with_capacity(input.len() + 32);
+        let mut last = 0usize;
+
+        for m in self.regex.find_iter(input) {
+            out.push_str(&input[last..m.start()]);
+            let _ = write!(out, "{}", self.style.paint(&input[m.start()..m.end()]));
+            last = m.end();
+        }
+        out.push_str(&input[last..]);
+
+        Cow::Owned(out)
     }
 }
 
