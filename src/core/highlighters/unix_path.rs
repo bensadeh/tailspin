@@ -13,11 +13,13 @@ pub struct UnixPathHighlighter {
 impl UnixPathHighlighter {
     pub fn new(config: UnixPathConfig) -> Result<Self, Error> {
         let regex = Regex::new(
-            r"(?x)               # Enable comments and whitespace insensitivity
-            (?P<path>            # Capture the path segment
-                [~/.][\w./-]*    # Match zero or more word characters, dots, slashes, or hyphens
-                /[\w.-]*         # Match a path segment separated by a slash
-            )",
+            r"(?x)
+                (?P<path>
+                    (?:\./|~/|//|/)?    # optional prefix like ./, ~/, //, /
+                    [\w.-]+             # first name
+                    (?:/[\w.-]+)+       # one or more '/name' pairs
+                )
+            ",
         )?;
 
         Ok(Self {
@@ -26,41 +28,44 @@ impl UnixPathHighlighter {
             separator: config.separator.into(),
         })
     }
+
+    fn paint_segment(&self, s: &str) -> String {
+        self.segment.paint(s).to_string()
+    }
+
+    fn paint_separator(&self) -> String {
+        self.separator.paint("/").to_string()
+    }
 }
 
 impl Highlight for UnixPathHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        if !input.as_bytes().contains(&b'/') {
+            return Cow::Borrowed(input);
+        }
+
         self.regex.replace_all(input, |caps: &Captures<'_>| {
             let path = &caps["path"];
-            let chars: Vec<_> = path.chars().collect();
+            let mut out = String::new();
+            let mut cur = String::new();
 
-            // Check if path starts with a valid character and not a double slash
-            if !(chars[0] == '/' || chars[0] == '~' || (chars[0] == '.' && chars.len() > 1 && chars[1] == '/'))
-                || (chars[0] == '/' && chars.len() > 1 && chars[1] == '/')
-            {
-                return path.to_string();
-            }
-
-            let mut output = String::new();
-            let mut current_segment = String::new();
-            for &char in &chars {
-                match char {
-                    '/' => {
-                        if !current_segment.is_empty() {
-                            output.push_str(&self.segment.paint(&current_segment).to_string());
-                            current_segment.clear();
-                        }
-                        output.push_str(&self.separator.paint(char.to_string()).to_string());
+            for ch in path.chars() {
+                if ch == '/' {
+                    if !cur.is_empty() {
+                        out.push_str(&self.paint_segment(&cur));
+                        cur.clear();
                     }
-                    _ => current_segment.push(char),
+                    out.push_str(&self.paint_separator());
+                } else {
+                    cur.push(ch);
                 }
             }
 
-            if !current_segment.is_empty() {
-                output.push_str(&self.segment.paint(&current_segment).to_string());
+            if !cur.is_empty() {
+                out.push_str(&self.paint_segment(&cur));
             }
 
-            output
+            out
         })
     }
 }
@@ -80,11 +85,46 @@ mod tests {
         .unwrap();
 
         let cases = vec![
+            ("a//b", "a//b"),
+            ("a/b", "[green]a[reset][yellow]/[reset][green]b[reset]"),
+            ("justtext", "justtext"),
+            ("README.md", "README.md"),
+            (
+                "//network/share",
+                "[yellow]/[reset][yellow]/[reset][green]network[reset][yellow]/[reset][green]share[reset]",
+            ),
             (
                 "/user/local",
                 "[yellow]/[reset][green]user[reset][yellow]/[reset][green]local[reset]",
             ),
-            ("No numbers here!", "No numbers here!"),
+            (
+                "123/234/345/456",
+                "[green]123[reset][yellow]/[reset][green]234[reset][yellow]/[reset][green]345[reset][yellow]/[reset][green]456[reset]",
+            ),
+            (
+                "~/projects/rust/tailspin",
+                "[green]~[reset][yellow]/[reset][green]projects[reset][yellow]/[reset][green]rust[reset][yellow]/[reset][green]tailspin[reset]",
+            ),
+            (
+                "./a/b",
+                "[green].[reset][yellow]/[reset][green]a[reset][yellow]/[reset][green]b[reset]",
+            ),
+            (
+                "/var/log/nginx/error.log",
+                "[yellow]/[reset][green]var[reset][yellow]/[reset][green]log[reset][yellow]/[reset][green]nginx[reset][yellow]/[reset][green]error.log[reset]",
+            ),
+            (
+                "/path/.hidden/file",
+                "[yellow]/[reset][green]path[reset][yellow]/[reset][green].hidden[reset][yellow]/[reset][green]file[reset]",
+            ),
+            (
+                "/usr/local/",
+                "[yellow]/[reset][green]usr[reset][yellow]/[reset][green]local[reset]/",
+            ),
+            (
+                "See /etc/hosts please",
+                "See [yellow]/[reset][green]etc[reset][yellow]/[reset][green]hosts[reset] please",
+            ),
         ];
 
         for (input, expected) in cases {
