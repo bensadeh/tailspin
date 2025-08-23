@@ -1,7 +1,7 @@
 use crate::core::config::PointerConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex};
+use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct PointerHighlighter {
@@ -15,8 +15,7 @@ pub struct PointerHighlighter {
 
 impl PointerHighlighter {
     pub fn new(config: PointerConfig) -> Result<Self, Error> {
-        let regex = Regex::new(
-            r"(?ix)
+        let pattern = r"(?ix)
             \b
             (?P<prefix>0x)
             (?P<first_half>[0-9a-fA-F]{8})
@@ -27,8 +26,9 @@ impl PointerHighlighter {
             (?P<first_half64>[0-9a-fA-F]{8})
             (?P<second_half>[0-9a-fA-F]{8})
             \b  
-        ",
-        )?;
+        ";
+
+        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
 
         Ok(Self {
             regex,
