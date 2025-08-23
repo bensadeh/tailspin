@@ -963,6 +963,7 @@ dependencies = [
 name = "tailspin"
 version = "5.5.0"
 dependencies = [
+ "aho-corasick",
  "async-trait",
  "clap",
  "clap_complete",
