@@ -5,6 +5,7 @@
 - Fixed a bug where the IPv6 highlighter would swallow parts of a matched, but invalid IPv6 address
 - Improved unix path regex to include more valid paths
 - Use aho-corasick for keyword highlighting for better performance
+- Disabled Unicode support in regexes for better performance
 
 ## 5.4.5
 
