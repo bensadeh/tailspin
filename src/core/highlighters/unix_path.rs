@@ -1,7 +1,7 @@
 use crate::core::config::UnixPathConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex};
+use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct UnixPathHighlighter {
@@ -12,15 +12,14 @@ pub struct UnixPathHighlighter {
 
 impl UnixPathHighlighter {
     pub fn new(config: UnixPathConfig) -> Result<Self, Error> {
-        let regex = Regex::new(
-            r"(?x)
-                (?P<path>
-                    (?:\./|~/|//|/)?    # optional prefix like ./, ~/, //, /
-                    [\w.-]+             # first name
-                    (?:/[\w.-]+)+       # one or more '/name' pairs
-                )
-            ",
-        )?;
+        let pattern = r"(?x)
+            (?P<path>
+            (?:\./|~/|//|/)
+                [\w.-]+
+                (?:/[\w.-]+)+ |
+            [\w.-]+ (?:/[\w.-]+){2,}
+        ) ";
+        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
 
         Ok(Self {
             regex,
@@ -86,7 +85,12 @@ mod tests {
 
         let cases = vec![
             ("a//b", "a//b"),
-            ("a/b", "[green]a[reset][yellow]/[reset][green]b[reset]"),
+            ("a/b", "a/b"),
+            ("name/name", "name/name"),
+            (
+                "a/b/c",
+                "[green]a[reset][yellow]/[reset][green]b[reset][yellow]/[reset][green]c[reset]",
+            ),
             ("justtext", "justtext"),
             ("README.md", "README.md"),
             (
