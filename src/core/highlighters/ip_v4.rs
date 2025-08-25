@@ -31,7 +31,7 @@ impl IpV4Highlighter {
 
 impl Highlight for IpV4Highlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        if !input.as_bytes().contains(&b':') {
+        if !input.as_bytes().contains(&b'.') {
             return Cow::Borrowed(input);
         }
 
