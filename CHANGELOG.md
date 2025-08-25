@@ -6,6 +6,7 @@
 - Improved unix path regex to include more valid paths
 - Use aho-corasick for keyword highlighting for better performance
 - Disabled Unicode support in regexes for better performance
+- Updated default colors for the JSON highlighter
 
 ## 5.4.5
 

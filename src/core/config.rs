@@ -252,8 +252,8 @@ impl Default for UnixProcessConfig {
 impl Default for JsonConfig {
     fn default() -> Self {
         JsonConfig {
-            key: Style::new().fg(Color::Yellow),
-            quote_token: Style::new().fg(Color::Yellow).faint(),
+            key: Style::new().faint(),
+            quote_token: Style::new().faint(),
             curly_bracket: Style::new().faint(),
             square_bracket: Style::new().faint(),
             comma: Style::new().faint(),
