@@ -14,7 +14,6 @@ impl KeywordHighlighter {
     pub fn new(keyword_config: KeywordConfig) -> Result<Self, Error> {
         let ac = AhoCorasickBuilder::new()
             .match_kind(MatchKind::LeftmostFirst)
-            .byte_classes(true)
             .build(&keyword_config.words)
             .map_err(|e| Error::Syntax(e.to_string()))?;
 
