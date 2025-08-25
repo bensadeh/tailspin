@@ -83,6 +83,10 @@ mod tests {
             ),
             ("::1", "[red]:[reset][red]:[reset][blue]1[reset]"),
             (
+                "2001:db8:85a3::8a2e:192.0.2.33",
+                "[blue]2[reset][blue]0[reset][blue]0[reset][blue]1[reset][red]:[reset][yellow]d[reset][yellow]b[reset][blue]8[reset][red]:[reset][blue]8[reset][blue]5[reset][yellow]a[reset][blue]3[reset][red]:[reset][red]:[reset][blue]8[reset][yellow]a[reset][blue]2[reset][yellow]e[reset][red]:[reset][blue]1[reset][blue]9[reset][blue]2[reset][red].[reset][blue]0[reset][red].[reset][blue]2[reset][red].[reset][blue]3[reset][blue]3[reset]",
+            ),
+            (
                 "::ffff:127.0.0.1",
                 "[red]:[reset][red]:[reset][yellow]f[reset][yellow]f[reset][yellow]f[reset][yellow]f[reset][red]:[reset][blue]1[reset][blue]2[reset][blue]7[reset][red].[reset][blue]0[reset][red].[reset][blue]0[reset][red].[reset][blue]1[reset]",
             ),

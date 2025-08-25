@@ -26,8 +26,8 @@ pub fn get_highlighter(
     }
 
     if highlighter_groups.ip_addresses {
-        builder.with_ip_v4_highlighter(theme.ip_v4_addresses);
         builder.with_ip_v6_highlighter(theme.ip_v6_addresses);
+        builder.with_ip_v4_highlighter(theme.ip_v4_addresses);
     }
 
     if highlighter_groups.urls {
