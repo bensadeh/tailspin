@@ -7,7 +7,8 @@ use io::presenter::Present;
 use io::reader::{AsyncLineReader, StreamEvent};
 use io::writer::AsyncLineWriter;
 use miette::{IntoDiagnostic, Result};
-use rayon::prelude::*;
+use rayon::iter::ParallelIterator;
+use rayon::prelude::IntoParallelRefIterator;
 use tailspin::Highlighter;
 use tokio::task::JoinHandle;
 
