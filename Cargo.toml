@@ -16,7 +16,7 @@ name = "tspin"
 [dependencies]
 aho-corasick = "1.1.3"
 async-trait = "0.1.89"
-clap = { version = "4.5.45", features = ["derive", "env", "wrap_help"] }
+clap = { version = "4.5.46", features = ["derive", "env", "wrap_help"] }
 clap_complete = "4.5.57"
 ctrlc = "3.4.7"
 linemux = "0.3.0"
