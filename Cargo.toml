@@ -20,18 +20,18 @@ clap = { version = "4.5.48", features = ["derive", "env", "wrap_help"] }
 clap_complete = "4.5.58"
 ctrlc = "3.5.0"
 linemux = "0.3.0"
-memchr = "2.7.5"
+memchr = "2.7.6"
 miette = { version = "7.6.0", features = ["fancy"] }
-nu-ansi-term = "0.50.1"
+nu-ansi-term = "0.50.3"
 rayon = "1.11.0"
-regex = "1.11.2"
-serde = { version = "1.0.226", features = ["derive"] }
+regex = "1.12.1"
+serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.145", features = ["preserve_order"] }
 shell-words = "1.1.0"
 shellexpand = "3.1.1"
-tempfile = "3.22.0"
-thiserror = "2.0.16"
+tempfile = "3.23.0"
+thiserror = "2.0.17"
 tokio = { version = "1.47.1", features = ["full"] }
-toml = "0.9.7"
+toml = "0.9.8"
 uuid = { version = "1.18.1", features = ["v4"] }
 winsplit = "0.1"
