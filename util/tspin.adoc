@@ -27,7 +27,7 @@ tailspin is a command line tool that highlights log files.
 
 _-f, --follow_::
 Follow (tail) the contents of the file.
-Always true when using the _--follow-command_ flag.
+Always true when using the _--exec_ flag.
 
 _-p, --print_::
 Print the output to stdout instead of viewing the contents in the pager _less_.
