@@ -27,7 +27,7 @@ rayon = "1.11.0"
 regex = "1.12.2"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.145", features = ["preserve_order"] }
-shell-words = "1.1.0"
+shell-words = "1.1.1"
 shellexpand = "3.1.1"
 tempfile = "3.23.0"
 thiserror = "2.0.17"
