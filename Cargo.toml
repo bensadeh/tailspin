@@ -17,7 +17,7 @@ name = "tspin"
 aho-corasick = "1.1.4"
 async-trait = "0.1.89"
 clap = { version = "4.5.54", features = ["derive", "env", "wrap_help"] }
-clap_complete = "4.5.64"
+clap_complete = "4.5.65"
 ctrlc = "3.5.1"
 linemux = "0.3.0"
 memchr = "2.7.6"
@@ -26,12 +26,12 @@ nu-ansi-term = "0.50.3"
 rayon = "1.11.0"
 regex = "1.12.2"
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = { version = "1.0.148", features = ["preserve_order"] }
+serde_json = { version = "1.0.149", features = ["preserve_order"] }
 shell-words = "1.1.1"
 shellexpand = "3.1.1"
 tempfile = "3.24.0"
 thiserror = "2.0.17"
 tokio = { version = "1.49.0", features = ["full"] }
-toml = "0.9.10"
+toml = "0.9.11"
 uuid = { version = "1.19.0", features = ["v4"] }
 winsplit = "0.1"
