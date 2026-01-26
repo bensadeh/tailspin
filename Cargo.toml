@@ -33,5 +33,5 @@ tempfile = "3.24.0"
 thiserror = "2.0.18"
 tokio = { version = "1.49.0", features = ["full"] }
 toml = "0.9.11"
-uuid = { version = "1.19.0", features = ["v4"] }
+uuid = { version = "1.20.0", features = ["v4"] }
 winsplit = "0.1"
