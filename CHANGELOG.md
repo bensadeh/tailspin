@@ -1,6 +1,7 @@
 # Changelog
 ## 5.6.0
 
+- Enable LTO and single codegen unit for release builds, improving performance and reducing binary size
 
 
 
