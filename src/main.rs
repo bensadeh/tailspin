@@ -1,8 +1,7 @@
 #![forbid(unsafe_code)]
 
-use crate::initial_read::InitialReadCompleteSender;
-use crate::io::controller::{Reader, Writer};
-use io::controller::initialize_io;
+use initial_read::InitialReadCompleteSender;
+use io::controller::{initialize_io, Reader, Writer};
 use io::presenter::Present;
 use io::reader::{AsyncLineReader, StreamEvent};
 use io::writer::AsyncLineWriter;
