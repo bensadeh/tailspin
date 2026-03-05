@@ -10,12 +10,16 @@ pub enum ReadResult {
     Batch(Vec<String>),
 }
 
+/// Peeks at the buffered reader to classify available data, then dispatches
+/// to a handler. The peek/handle split exists because `fill_buf()` borrows
+/// the reader — we must drop that borrow before calling `read_until` or
+/// `consume` in the handlers.
 pub async fn read_lines<R>(reader: &mut R) -> Result<ReadResult>
 where
     R: AsyncBufRead + Unpin,
 {
     match peek_buffer(reader).await? {
-        PeekResult::Eof => handle_eof(reader).await,
+        PeekResult::Eof => Ok(ReadResult::Eof),
         PeekResult::SingleOrNoNewline => handle_single_or_no_newline(reader).await,
         PeekResult::MultipleNewlines => handle_multiple_newlines(reader).await,
     }
@@ -46,31 +50,22 @@ where
     }
 }
 
-async fn handle_eof<R>(reader: &mut R) -> Result<ReadResult>
-where
-    R: AsyncBufRead + Unpin,
-{
-    let buf = reader.fill_buf().await.into_diagnostic()?;
-    let buf_len = buf.len();
-    let lines = parse_buffer(buf);
-    reader.consume(buf_len);
-
-    match lines.len() {
-        0 => Ok(ReadResult::Eof),
-        1 => Ok(ReadResult::Line(lines[0].clone())),
-        _ => Err(miette!("EOF buffer should not contain multiple lines")),
-    }
-}
-
 async fn handle_single_or_no_newline<R>(reader: &mut R) -> Result<ReadResult>
 where
     R: AsyncBufRead + Unpin,
 {
-    let mut line = String::new();
-    reader.read_line(&mut line).await.into_diagnostic()?;
-    let trimmed_line = line.trim_end_matches('\n').to_string();
+    let mut buf = Vec::new();
+    reader.read_until(b'\n', &mut buf).await.into_diagnostic()?;
 
-    Ok(ReadResult::Line(trimmed_line))
+    if buf.last() == Some(&b'\n') {
+        buf.pop();
+    }
+    if buf.last() == Some(&b'\r') {
+        buf.pop();
+    }
+
+    let line = String::from_utf8_lossy(&buf).to_string();
+    Ok(ReadResult::Line(line))
 }
 
 async fn handle_multiple_newlines<R>(reader: &mut R) -> Result<ReadResult>
@@ -93,7 +88,10 @@ where
 fn parse_buffer(buf: &[u8]) -> Vec<String> {
     let mut parts = buf
         .split(|&b| b == b'\n')
-        .map(|slice| String::from_utf8_lossy(slice).to_string())
+        .map(|slice| {
+            let slice = slice.strip_suffix(b"\r").unwrap_or(slice);
+            String::from_utf8_lossy(slice).to_string()
+        })
         .collect::<Vec<String>>();
 
     if let Some(last) = parts.last() {
@@ -250,6 +248,55 @@ mod tests {
             } else {
                 Poll::Pending
             }
+        }
+    }
+
+    #[tokio::test]
+    async fn test_crlf_batch() {
+        let input = b"line1\r\nline2\r\nline3\r\n";
+        let mut reader = BufReader::new(&input[..]);
+
+        if let Ok(ReadResult::Batch(lines)) = read_lines(&mut reader).await {
+            assert_eq!(lines, vec!["line1", "line2", "line3"]);
+        } else {
+            panic!("Expected Ok(ReadResult::Batch), got something else");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_crlf_single_line() {
+        let input = b"line1\r\n";
+        let mut reader = BufReader::new(&input[..]);
+
+        if let Ok(ReadResult::Line(line)) = read_lines(&mut reader).await {
+            assert_eq!(line, "line1");
+        } else {
+            panic!("Expected Ok(ReadResult::Line), got something else");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_non_utf8_single_line() {
+        let input = b"caf\xe9\n";
+        let mut reader = BufReader::new(&input[..]);
+
+        if let Ok(ReadResult::Line(line)) = read_lines(&mut reader).await {
+            assert!(line.starts_with("caf"));
+            assert!(line.contains('\u{FFFD}'));
+        } else {
+            panic!("Expected Ok(ReadResult::Line), got something else");
+        }
+    }
+
+    #[tokio::test]
+    async fn test_mixed_line_endings() {
+        let input = b"unix\nwindows\r\nunix2\n";
+        let mut reader = BufReader::new(&input[..]);
+
+        if let Ok(ReadResult::Batch(lines)) = read_lines(&mut reader).await {
+            assert_eq!(lines, vec!["unix", "windows", "unix2"]);
+        } else {
+            panic!("Expected Ok(ReadResult::Batch), got something else");
         }
     }
 }

@@ -6,7 +6,7 @@
 
 - File truncation detection in follow mode
 - Support for parentheses in URL paths (e.g. Wikipedia-style URLs) with balanced parenthesis detection
-- Clear error message for `--exec` on Windows instead of a generic failure
+- Clear error message for `--exec` on Windows instead of a generic failure ([#232](https://github.com/bensadeh/tailspin/issues/232))
 
 ### Fixed
 
@@ -14,8 +14,8 @@
   polling-based file reader ([#240](https://github.com/bensadeh/tailspin/issues/240))
 - Crash when reading files with non-UTF-8 content ([#31](https://github.com/bensadeh/tailspin/issues/31))
 - URLs wrapped in parentheses or single quotes incorrectly including surrounding delimiters in the highlight
-- Files with symlinks in their path could not be opened consistently
-- Quoted regions now highlight correctly while preserving inner highlights
+- Files with symlinks in their path could not be opened consistently ([#244](https://github.com/bensadeh/tailspin/issues/244), [#134](https://github.com/bensadeh/tailspin/issues/134))
+- Quoted regions now highlight correctly while preserving inner highlights ([#171](https://github.com/bensadeh/tailspin/issues/171))
 
 ### Changed
 

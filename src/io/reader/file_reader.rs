@@ -1,16 +1,17 @@
 use crate::io::reader::StreamEvent::{Ended, Started};
+use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, StreamEvent};
 use miette::{Context, IntoDiagnostic, Result};
 use std::path::Path;
 use std::time::Duration;
-use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncSeekExt, BufReader};
+use tokio::io::{AsyncBufReadExt, AsyncSeekExt, BufReader};
 
 const POLL_INTERVAL: Duration = Duration::from_millis(100);
 
 pub struct FileReader {
     reader: BufReader<tokio::fs::File>,
     buf: Vec<u8>,
-    initial_lines: Option<Vec<String>>,
+    initial_read_done: bool,
     has_emitted_start_event: bool,
     terminate_after_first_read: bool,
 }
@@ -21,27 +22,17 @@ impl FileReader {
             .into_diagnostic()
             .wrap_err("Could not canonicalize file path")?;
 
-        let mut file = tokio::fs::File::open(&file_path)
+        let file = tokio::fs::File::open(&file_path)
             .await
             .into_diagnostic()
             .wrap_err("Could not open file")?;
 
-        let mut bytes = Vec::new();
-        file.read_to_end(&mut bytes)
-            .await
-            .into_diagnostic()
-            .wrap_err("Could not read file")?;
-
-        let content = String::from_utf8_lossy(&bytes);
-        let initial_lines: Vec<String> = content.lines().map(|l| l.to_string()).collect();
-
-        // File position is now at end of initial content; wrap in BufReader for tailing
-        let reader = BufReader::new(file);
+        let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, file);
 
         Ok(Self {
             reader,
             buf: Vec::new(),
-            initial_lines: Some(initial_lines),
+            initial_read_done: false,
             has_emitted_start_event: false,
             terminate_after_first_read,
         })
@@ -105,8 +96,15 @@ impl FileReader {
 
 impl AsyncLineReader for FileReader {
     async fn next(&mut self) -> Result<StreamEvent> {
-        if let Some(lines) = self.initial_lines.take() {
-            return Ok(StreamEvent::Lines(lines));
+        if !self.initial_read_done {
+            match read_lines(&mut self.reader).await? {
+                ReadResult::Eof => {
+                    self.initial_read_done = true;
+                    // fall through to Started
+                }
+                ReadResult::Line(line) => return Ok(StreamEvent::Line(line)),
+                ReadResult::Batch(lines) => return Ok(StreamEvent::Lines(lines)),
+            }
         }
 
         if !self.has_emitted_start_event {
@@ -185,11 +183,8 @@ mod tests {
 
             let first_event = reader.next().await?;
             match first_event {
-                Lines(lines) => {
-                    assert_eq!(lines.len(), 1);
-                    assert_eq!(lines[0], "only_line");
-                }
-                _ => panic!("Expected StreamEvent::Lines(...)"),
+                Line(line) => assert_eq!(line, "only_line"),
+                _ => panic!("Expected StreamEvent::Line(...)"),
             }
 
             let second_event = reader.next().await?;
@@ -271,12 +266,6 @@ mod tests {
             let mut reader = FileReader::new(file_path, true).await?;
 
             let event = reader.next().await?;
-            match event {
-                Lines(lines) => assert!(lines.is_empty()),
-                _ => panic!("Expected StreamEvent::Lines(vec![])"),
-            }
-
-            let event = reader.next().await?;
             assert!(matches!(event, Started));
 
             let event = reader.next().await?;
@@ -300,15 +289,16 @@ mod tests {
 
             let mut reader = FileReader::new(file_path, true).await?;
 
-            let event = reader.next().await?;
-            match event {
-                Lines(lines) => {
-                    assert_eq!(lines.len(), 2);
-                    assert_eq!(lines[0], "line1");
-                    assert_eq!(lines[1], "line2");
+            let mut all_lines = Vec::new();
+            loop {
+                let event = reader.next().await?;
+                match event {
+                    Line(line) => all_lines.push(line),
+                    Lines(lines) => all_lines.extend(lines),
+                    Started | Ended => break,
                 }
-                _ => panic!("Expected StreamEvent::Lines(...)"),
             }
+            assert_eq!(all_lines, vec!["line1", "line2"]);
 
             Ok(())
         })
@@ -378,13 +368,12 @@ mod tests {
 
             let event = reader.next().await?;
             match event {
-                Lines(lines) => {
-                    assert_eq!(lines.len(), 1);
-                    assert!(lines[0].contains("hello"));
-                    assert!(lines[0].contains("world"));
-                    assert!(lines[0].contains('\u{FFFD}'));
+                Line(line) => {
+                    assert!(line.contains("hello"));
+                    assert!(line.contains("world"));
+                    assert!(line.contains('\u{FFFD}'));
                 }
-                _ => panic!("Expected StreamEvent::Lines(...)"),
+                _ => panic!("Expected StreamEvent::Line(...)"),
             }
 
             Ok(())
@@ -407,7 +396,10 @@ mod tests {
         let mut reader = FileReader::new(file_path.as_path(), false).await?;
 
         let event = reader.next().await?;
-        assert!(matches!(event, Lines(_)));
+        match event {
+            Line(line) => assert_eq!(line, "initial"),
+            _ => panic!("Expected StreamEvent::Line(\"initial\")"),
+        }
 
         let event = reader.next().await?;
         assert!(matches!(event, Started));
@@ -475,5 +467,49 @@ mod tests {
         }
 
         Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_large_file_streams_in_batches() -> Result<()> {
+        let test_result = timeout(Duration::from_millis(5000), async {
+            let dir = tempdir().unwrap();
+            let file_path = dir.path().join("large.log");
+
+            {
+                let mut file = File::create(&file_path).unwrap();
+                for i in 0..2000 {
+                    writeln!(file, "line {:05} - padding to make this line reasonably long for testing", i).unwrap();
+                }
+            }
+
+            let mut reader = FileReader::new(file_path, true).await?;
+
+            let mut event_count = 0;
+            let mut total_lines = 0;
+
+            loop {
+                let event = reader.next().await?;
+                match event {
+                    Line(_) => {
+                        event_count += 1;
+                        total_lines += 1;
+                    }
+                    Lines(lines) => {
+                        event_count += 1;
+                        total_lines += lines.len();
+                    }
+                    Started => break,
+                    Ended => panic!("Unexpected Ended before Started"),
+                }
+            }
+
+            assert_eq!(total_lines, 2000);
+            assert!(event_count > 1, "Large file should produce multiple events, got {}", event_count);
+
+            Ok(())
+        })
+        .await;
+
+        test_result.unwrap_or_else(|_| Err(miette::miette!("Test timed out!")))
     }
 }
