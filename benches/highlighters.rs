@@ -1,4 +1,5 @@
-use criterion::{Criterion, criterion_group, criterion_main};\nuse std::hint::black_box;
+use criterion::{Criterion, criterion_group, criterion_main};
+use std::hint::black_box;
 use tailspin::Highlighter;
 use tailspin::config::*;
 use tailspin::style::{Color, Style};
