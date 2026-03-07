@@ -76,8 +76,7 @@ impl TimeHighlighter {
 
 impl Highlight for TimeHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        let mut it = self.regex.captures_iter(input).peekable();
-        if it.peek().is_none() {
+        if !input.as_bytes().contains(&b':') {
             return Cow::Borrowed(input);
         }
 

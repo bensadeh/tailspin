@@ -117,6 +117,10 @@ impl DateDashHighlighter {
 
 impl Highlight for DateDashHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        if !input.as_bytes().contains(&b'-') && !input.as_bytes().contains(&b'/') {
+            return Cow::Borrowed(input);
+        }
+
         let mut it = self.regex.captures_iter(input).peekable();
         if it.peek().is_none() {
             return Cow::Borrowed(input);

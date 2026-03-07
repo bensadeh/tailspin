@@ -39,6 +39,10 @@ impl UuidHighlighter {
 
 impl Highlight for UuidHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        if !input.as_bytes().contains(&b'-') {
+            return Cow::Borrowed(input);
+        }
+
         self.regex.replace_all(input, |caps: &Captures<'_>| {
             let matched = &caps[0];
             let mut buf = String::with_capacity(matched.len() + 32);
