@@ -42,7 +42,7 @@ impl Highlight for QuoteHighlighter {
         }
 
         let mut state = OutsideQuote;
-        let mut output = String::new();
+        let mut output = String::with_capacity(input.len());
 
         for ch in input.chars() {
             match &mut state {
@@ -75,7 +75,7 @@ impl Highlight for QuoteHighlighter {
                         output.push_str(&self.color);
                         output.push(ch);
                         state = InsideQuote {
-                            potential_reset_code: String::new(),
+                            potential_reset_code: String::with_capacity(RESET.len()),
                         };
                         continue;
                     }
