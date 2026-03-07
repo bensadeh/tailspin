@@ -49,6 +49,10 @@ fn builtin_keywords() -> Vec<KeywordConfig> {
             words: vec!["DELETE".to_string()],
             style: Style::new().fg(Color::Black).on(Color::Red),
         },
+        KeywordConfig {
+            words: vec!["HEAD".to_string(), "CONNECT".to_string()],
+            style: Style::new().fg(Color::Black).on(Color::Blue),
+        },
     ];
 
     let booleans = [
