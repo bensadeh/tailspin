@@ -14,12 +14,13 @@ pub struct UnixPathHighlighter {
 impl UnixPathHighlighter {
     pub fn new(config: UnixPathConfig) -> Result<Self, Error> {
         let pattern = r"(?x)
+            (?:^|\s)
             (?P<path>
-            (?:\./|~/|//|/)
+                (?:\./|~/|//|/)
                 [\w.-]+
-                (?:/[\w.-]+)+ |
-            [\w.-]+ (?:/[\w.-]+){2,}
-        ) ";
+                (?:/[\w.-]+)+
+            )
+        ";
         let regex = RegexBuilder::new(pattern).unicode(false).build()?;
 
         Ok(Self {
@@ -37,8 +38,15 @@ impl Highlight for UnixPathHighlighter {
         }
 
         self.regex.replace_all(input, |caps: &Captures<'_>| {
+            let full = &caps[0];
             let path = &caps["path"];
-            let mut out = String::with_capacity(path.len() + 32);
+            let mut out = String::with_capacity(full.len() + 32);
+
+            // Preserve any leading whitespace that was part of the match
+            if full.len() > path.len() {
+                out.push_str(&full[..full.len() - path.len()]);
+            }
+
             let mut seg_start = None;
 
             for (i, ch) in path.char_indices() {
@@ -79,10 +87,7 @@ mod tests {
             ("a//b", "a//b"),
             ("a/b", "a/b"),
             ("name/name", "name/name"),
-            (
-                "a/b/c",
-                "[green]a[reset][yellow]/[reset][green]b[reset][yellow]/[reset][green]c[reset]",
-            ),
+            ("a/b/c", "a/b/c"),
             ("justtext", "justtext"),
             ("README.md", "README.md"),
             (
@@ -93,10 +98,7 @@ mod tests {
                 "/user/local",
                 "[yellow]/[reset][green]user[reset][yellow]/[reset][green]local[reset]",
             ),
-            (
-                "123/234/345/456",
-                "[green]123[reset][yellow]/[reset][green]234[reset][yellow]/[reset][green]345[reset][yellow]/[reset][green]456[reset]",
-            ),
+            ("123/234/345/456", "123/234/345/456"),
             (
                 "~/projects/rust/tailspin",
                 "[green]~[reset][yellow]/[reset][green]projects[reset][yellow]/[reset][green]rust[reset][yellow]/[reset][green]tailspin[reset]",
