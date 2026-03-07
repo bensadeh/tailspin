@@ -50,7 +50,7 @@ fn builtin_keywords() -> Vec<KeywordConfig> {
             style: Style::new().fg(Color::Black).on(Color::Red),
         },
         KeywordConfig {
-            words: vec!["HEAD".to_string(), "CONNECT".to_string()],
+            words: vec!["HEAD".to_string(), "CONNECT".to_string(), "OPTIONS".to_string()],
             style: Style::new().fg(Color::Black).on(Color::Blue),
         },
     ];
