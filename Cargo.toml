@@ -18,6 +18,14 @@ strip = true
 path = "src/main.rs"
 name = "tspin"
 
+
+[dev-dependencies]
+criterion = "0.8.2"
+
+[[bench]]
+name = "highlighters"
+harness = false
+
 [dependencies]
 aho-corasick = "1.1.4"
 clap = { version = "4.5.60", features = ["derive", "env", "wrap_help"] }
@@ -34,5 +42,5 @@ shell-words = "1.1.1"
 shellexpand = "3.1.2"
 tempfile = "3.26.0"
 thiserror = "2.0.18"
-tokio = { version = "1.49.0", features = ["macros", "rt-multi-thread", "sync", "fs", "io-util", "io-std", "time", "process"] }
+tokio = { version = "1.50.0", features = ["macros", "rt-multi-thread", "sync", "fs", "io-util", "io-std", "time", "process"] }
 toml = "1.0.3"
