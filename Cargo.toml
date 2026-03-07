@@ -18,7 +18,6 @@ strip = true
 path = "src/main.rs"
 name = "tspin"
 
-
 [dev-dependencies]
 criterion = "0.8.2"
 

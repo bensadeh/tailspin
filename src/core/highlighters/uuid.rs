@@ -1,5 +1,6 @@
 use crate::core::config::UuidConfig;
 use crate::core::highlighter::Highlight;
+use memchr::memchr;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
@@ -37,9 +38,20 @@ impl UuidHighlighter {
     }
 }
 
+fn has_at_least_n_dashes(bytes: &[u8], n: usize) -> bool {
+    let mut start = 0;
+    for _ in 0..n {
+        match memchr(b'-', &bytes[start..]) {
+            Some(pos) => start += pos + 1,
+            None => return false,
+        }
+    }
+    true
+}
+
 impl Highlight for UuidHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        if !input.as_bytes().contains(&b'-') {
+        if !has_at_least_n_dashes(input.as_bytes(), 4) {
             return Cow::Borrowed(input);
         }
 
