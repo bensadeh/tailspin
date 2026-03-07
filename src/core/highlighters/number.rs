@@ -38,7 +38,7 @@ impl Highlight for NumberHighlighter {
         let mut out = String::with_capacity(input.len() + 32);
         let mut last = 0usize;
 
-        for m in self.regex.find_iter(input) {
+        for m in it {
             out.push_str(&input[last..m.start()]);
             let _ = write!(out, "{}", self.style.paint(&input[m.start()..m.end()]));
             last = m.end();
