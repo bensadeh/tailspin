@@ -11,13 +11,9 @@ pub fn normalize_keyword_configs(configs: Vec<KeywordConfig>) -> Vec<KeywordConf
 
     let mut result: Vec<KeywordConfig> = grouped_configs
         .into_iter()
-        .map(|(style, words)| {
-            let mut sorted_words = words.clone();
-            sorted_words.sort();
-            KeywordConfig {
-                words: sorted_words,
-                style,
-            }
+        .map(|(style, mut words)| {
+            words.sort();
+            KeywordConfig { words, style }
         })
         .collect();
 
