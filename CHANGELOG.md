@@ -5,6 +5,7 @@
 ### Added
 
 - Highlight `HEAD`, `CONNECT`, and `OPTIONS` HTTP methods by default ([#261](https://github.com/bensadeh/tailspin/pull/261), thanks @g0l4!)
+- Add builtin keyword highlighting for `undefined`, `NULL`, `nil`, `NIL`, `NaN`, `FALSE`, and `TRUE`
 - File truncation detection in follow mode
 - Support for parentheses in URL paths (e.g. Wikipedia-style URLs) with balanced parenthesis detection
 - Clear error message for `--exec` on Windows instead of a generic failure ([#232](https://github.com/bensadeh/tailspin/issues/232))
