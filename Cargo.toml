@@ -9,21 +9,14 @@ keywords = ["log", "syntax-highlighting", "tail", "less"]
 license = "MIT"
 rust-version = "1.93"
 
-[profile.release]
-lto = "fat"
-codegen-units = 1
-strip = true
-
 [[bin]]
 path = "src/main.rs"
 name = "tspin"
 
-[dev-dependencies]
-criterion = "0.8.2"
-
-[[bench]]
-name = "highlighters"
-harness = false
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = true
 
 [dependencies]
 aho-corasick = "1.1.4"
@@ -41,5 +34,16 @@ shell-words = "1.1.1"
 shellexpand = "3.1.2"
 tempfile = "3.26.0"
 thiserror = "2.0.18"
-tokio = { version = "1.50.0", features = ["macros", "rt-multi-thread", "sync", "fs", "io-util", "io-std", "time", "process"] }
+tokio = { version = "1.50.0", features = ["fs", "io-std", "io-util", "macros", "process", "rt-multi-thread", "sync", "time"] }
 toml = "1.0.3"
+
+[dev-dependencies]
+criterion = "0.8.2"
+
+[[bench]]
+name = "highlighters"
+harness = false
+
+[[bench]]
+name = "no_match"
+harness = false
