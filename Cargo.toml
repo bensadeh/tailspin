@@ -22,7 +22,6 @@ strip = true
 aho-corasick = "1.1.4"
 clap = { version = "4.5.60", features = ["derive", "env", "wrap_help"] }
 clap_complete = "4.5.66"
-ctrlc = "3.5.2"
 memchr = "2.7.6"
 miette = { version = "7.6.0", features = ["fancy"] }
 nu-ansi-term = "0.50.3"
@@ -34,7 +33,7 @@ shell-words = "1.1.1"
 shellexpand = "3.1.2"
 tempfile = "3.26.0"
 thiserror = "2.0.18"
-tokio = { version = "1.50.0", features = ["fs", "io-std", "io-util", "macros", "process", "rt-multi-thread", "sync", "time"] }
+tokio = { version = "1.50.0", features = ["fs", "io-std", "io-util", "macros", "process", "rt-multi-thread", "signal", "sync", "time"] }
 toml = "1.0.3"
 
 [dev-dependencies]

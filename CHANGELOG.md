@@ -37,9 +37,10 @@
 ### Build
 
 - Enable LTO, single codegen unit, and `strip = true` for release builds
-- Trim tokio features from `full` to only what's used, reducing compile time
-- Replace `async-trait` with native async traits, removing a dependency
+- Trim tokio features from `full` to only what's used
+- Replace `async-trait` with native async traits
 - Remove `uuid` dependency by using a fixed temp file name within the unique temp directory
+- Replace `ctrlc` crate with tokio's built-in signal handling
 
 ## 5.5.0
 

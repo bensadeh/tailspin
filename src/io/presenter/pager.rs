@@ -25,8 +25,9 @@ pub struct CustomPagerOptions {
 
 #[derive(Debug, Error, Diagnostic)]
 pub enum PagerError {
-    #[error(transparent)]
-    CtrlCError(#[from] ctrlc::Error),
+    #[error("Could not set up signal handler")]
+    #[diagnostic(code(pager::signal_setup))]
+    SignalSetup(#[source] std::io::Error),
 
     #[error("Could not run pager")]
     #[diagnostic(code(less::command_spawn))]
@@ -45,7 +46,9 @@ impl Pager {
 
 impl Present for Pager {
     async fn present(&self) -> Result<()> {
-        ctrlc::set_handler(|| {}).map_err(PagerError::CtrlCError)?;
+        #[cfg(unix)]
+        let _sigint = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt())
+            .map_err(PagerError::SignalSetup)?;
 
         let mut command = match &self.pager_options {
             PagerOptions::Less(less) => get_less_pager_command(less.follow, &self.path),
