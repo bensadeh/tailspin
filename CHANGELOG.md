@@ -12,6 +12,7 @@
 
 ### Fixed
 
+- Surface the actual error when the stream processor fails during initial read, instead of a generic channel-receive error
 - Gracefully handle broken pipe (e.g. `tspin | head`) instead of panicking
 - `--follow` not working on certain filesystems (NFS, FUSE, Docker bind mounts, etc.) by replacing `linemux` with a
   polling-based file reader ([#240](https://github.com/bensadeh/tailspin/issues/240))

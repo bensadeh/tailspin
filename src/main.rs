@@ -26,7 +26,11 @@ async fn main() -> Result<()> {
 
     let mut process_stream_task = tokio::spawn(process_stream(reader, writer, highlighter, initial_read_complete_tx));
 
-    initial_read_complete_rx.receive().await?;
+    if initial_read_complete_rx.receive().await.is_err() {
+        // The sender was dropped, meaning process_stream failed before signaling.
+        // Surface the actual error instead of a generic "failed to receive signal" message.
+        return process_stream_task.await.into_diagnostic()?;
+    }
 
     let mut presenter_task = tokio::spawn(async move { presenter.present().await });
 
