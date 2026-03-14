@@ -29,20 +29,41 @@ fn default_constructor_should_not_panic() {
 }
 
 #[test]
-fn no_highlights_should_return_reference_to_the_input_str() {
+fn no_highlights_should_return_borrowed() {
     let highlighter = Highlighter::default();
-    let input = "Nothing will be highlighted in this string";
 
-    let output = highlighter.apply(input);
+    // Each input bypasses progressively more fast-path checks (byte-level early
+    // returns) while still not matching any highlighter regex, so the pipeline
+    // must return Cow::Borrowed for every one of them.
+    let inputs: &[&str] = &[
+        // No trigger characters — every fast-path returns early.
+        "Nothing will be highlighted in this string",
+        // Colon present → DateTime and IpV6 run their regex.
+        "status: pending",
+        // Dot present → IpV4 runs its regex.
+        "hello.world",
+        // Dash and slash → DateDash and UnixPath run their regex.
+        "left-right mid/end",
+        // Bracket present → UnixProcess runs its regex.
+        "see [note] here",
+        // Equals present → KeyValue runs its regex.
+        "not ==> equal",
+        // Contains 'x' → Pointer runs its regex.
+        "extra context",
+        // All trigger characters present — every highlighter reaches its regex.
+        //   :  → DateTime, IpV6         .  → IpV4
+        //   -  → DateDash (×4 for UUID) /  → UnixPath
+        //   [  → UnixProcess            =  → KeyValue
+        //   x  → Pointer
+        "mix: [note] x.y a-b-c-d-e ==> w/q",
+    ];
 
-    match output {
-        Cow::Borrowed(s) => {
-            assert!(
-                std::ptr::eq(s, input),
-                "Expected borrowed reference to equal input reference"
-            );
-        }
-        Cow::Owned(_) => panic!("Expected a borrowed reference, got owned"),
+    for input in inputs {
+        let output = highlighter.apply(input);
+        assert!(
+            matches!(output, Cow::Borrowed(s) if std::ptr::eq(s, *input)),
+            "Expected Cow::Borrowed for input: {input:?}, got Cow::Owned",
+        );
     }
 }
 
