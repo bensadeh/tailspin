@@ -121,28 +121,30 @@ impl Highlight for DateDashHighlighter {
             return Cow::Borrowed(input);
         }
 
-        let mut it = self.regex.captures_iter(input).peekable();
-        if it.peek().is_none() {
-            return Cow::Borrowed(input);
-        }
-
-        let mut out = String::with_capacity(input.len() + 32);
+        let mut out: Option<String> = None;
         let mut last = 0usize;
 
         for caps in self.regex.captures_iter(input) {
             let m = caps.get(0).unwrap();
-            out.push_str(&input[last..m.start()]);
+            let buf = out.get_or_insert_with(|| String::with_capacity(input.len() + 32));
+            buf.push_str(&input[last..m.start()]);
 
             if caps.get(self.idx.a_year).is_some() {
-                self.write_branch_a(&caps, &mut out);
+                self.write_branch_a(&caps, buf);
             } else {
-                self.write_branch_b(&caps, &mut out);
+                self.write_branch_b(&caps, buf);
             }
 
             last = m.end();
         }
-        out.push_str(&input[last..]);
-        Cow::Owned(out)
+
+        match out {
+            Some(mut buf) => {
+                buf.push_str(&input[last..]);
+                Cow::Owned(buf)
+            }
+            None => Cow::Borrowed(input),
+        }
     }
 }
 

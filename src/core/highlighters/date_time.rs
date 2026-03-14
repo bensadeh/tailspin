@@ -80,28 +80,34 @@ impl Highlight for TimeHighlighter {
             return Cow::Borrowed(input);
         }
 
-        let mut out = String::with_capacity(input.len() + 32);
+        let mut out: Option<String> = None;
         let mut last = 0usize;
 
         for caps in self.regex.captures_iter(input) {
             let m = caps.get(0).unwrap();
-            out.push_str(&input[last..m.start()]);
+            let buf = out.get_or_insert_with(|| String::with_capacity(input.len() + 32));
+            buf.push_str(&input[last..m.start()]);
 
-            Self::write_part(&mut out, &caps, self.idx.t, &self.zone);
-            Self::write_part(&mut out, &caps, self.idx.hours, &self.time);
-            Self::write_part(&mut out, &caps, self.idx.colon1, &self.separator);
-            Self::write_part(&mut out, &caps, self.idx.minutes, &self.time);
-            Self::write_part(&mut out, &caps, self.idx.colon2, &self.separator);
-            Self::write_part(&mut out, &caps, self.idx.seconds, &self.time);
-            Self::write_part(&mut out, &caps, self.idx.frac_sep, &self.separator);
-            Self::write_part(&mut out, &caps, self.idx.frac_digits, &self.time);
-            Self::write_part(&mut out, &caps, self.idx.tz, &self.zone);
+            Self::write_part(buf, &caps, self.idx.t, &self.zone);
+            Self::write_part(buf, &caps, self.idx.hours, &self.time);
+            Self::write_part(buf, &caps, self.idx.colon1, &self.separator);
+            Self::write_part(buf, &caps, self.idx.minutes, &self.time);
+            Self::write_part(buf, &caps, self.idx.colon2, &self.separator);
+            Self::write_part(buf, &caps, self.idx.seconds, &self.time);
+            Self::write_part(buf, &caps, self.idx.frac_sep, &self.separator);
+            Self::write_part(buf, &caps, self.idx.frac_digits, &self.time);
+            Self::write_part(buf, &caps, self.idx.tz, &self.zone);
 
             last = m.end();
         }
 
-        out.push_str(&input[last..]);
-        Cow::Owned(out)
+        match out {
+            Some(mut buf) => {
+                buf.push_str(&input[last..]);
+                Cow::Owned(buf)
+            }
+            None => Cow::Borrowed(input),
+        }
     }
 }
 
