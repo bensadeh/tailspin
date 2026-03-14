@@ -122,7 +122,13 @@ fn bench_no_match(c: &mut Criterion) {
             let mut builder = Highlighter::builder();
             builder.with_keyword_highlighter(vec![
                 KeywordConfig {
-                    words: vec!["ERROR".into(), "WARN".into(), "INFO".into(), "DEBUG".into(), "TRACE".into()],
+                    words: vec![
+                        "ERROR".into(),
+                        "WARN".into(),
+                        "INFO".into(),
+                        "DEBUG".into(),
+                        "TRACE".into(),
+                    ],
                     style: Style::new().fg(Color::Red),
                 },
                 KeywordConfig {

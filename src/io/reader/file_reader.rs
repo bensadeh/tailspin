@@ -478,7 +478,12 @@ mod tests {
             {
                 let mut file = File::create(&file_path).unwrap();
                 for i in 0..2000 {
-                    writeln!(file, "line {:05} - padding to make this line reasonably long for testing", i).unwrap();
+                    writeln!(
+                        file,
+                        "line {:05} - padding to make this line reasonably long for testing",
+                        i
+                    )
+                    .unwrap();
                 }
             }
 
@@ -504,7 +509,11 @@ mod tests {
             }
 
             assert_eq!(total_lines, 2000);
-            assert!(event_count > 1, "Large file should produce multiple events, got {}", event_count);
+            assert!(
+                event_count > 1,
+                "Large file should produce multiple events, got {}",
+                event_count
+            );
 
             Ok(())
         })

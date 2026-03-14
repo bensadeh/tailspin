@@ -15,7 +15,6 @@ use tempfile::TempDir;
 use tokio::fs::File;
 use tokio::io::BufWriter;
 
-
 pub enum Reader {
     File(FileReader),
     Stdin(StdinReader),

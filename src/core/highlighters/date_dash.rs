@@ -1,5 +1,6 @@
 use crate::core::config::DateTimeConfig;
 use crate::core::highlighter::Highlight;
+use memchr::memchr2;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
@@ -117,7 +118,7 @@ impl DateDashHighlighter {
 
 impl Highlight for DateDashHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        if !input.as_bytes().contains(&b'-') && !input.as_bytes().contains(&b'/') {
+        if memchr2(b'-', b'/', input.as_bytes()).is_none() {
             return Cow::Borrowed(input);
         }
 

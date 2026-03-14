@@ -1,5 +1,6 @@
 use crate::core::config::KeyValueConfig;
 use crate::core::highlighter::Highlight;
+use memchr::memchr;
 use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
@@ -26,7 +27,7 @@ impl KeyValueHighlighter {
 
 impl Highlight for KeyValueHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        if !input.as_bytes().contains(&b'=') {
+        if memchr(b'=', input.as_bytes()).is_none() {
             return Cow::Borrowed(input);
         }
 

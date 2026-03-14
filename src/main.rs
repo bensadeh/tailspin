@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use initial_read::InitialReadCompleteSender;
-use io::controller::{initialize_io, Reader, Writer};
+use io::controller::{Reader, Writer, initialize_io};
 use io::presenter::Present;
 use io::reader::{AsyncLineReader, StreamEvent};
 use io::writer::AsyncLineWriter;
