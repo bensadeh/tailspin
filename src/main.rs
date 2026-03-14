@@ -5,6 +5,7 @@ use io::controller::{Reader, Writer, initialize_io};
 use io::presenter::Present;
 use io::reader::{AsyncLineReader, StreamEvent};
 use io::writer::AsyncLineWriter;
+use io::writer::stdout::BrokenPipe;
 use miette::{IntoDiagnostic, Result};
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
@@ -36,7 +37,7 @@ async fn main() -> Result<()> {
         },
         process_stream_result = &mut process_stream_task => {
             abort_and_drain(&mut presenter_task).await;
-            process_stream_result.into_diagnostic()??;
+            BrokenPipe::suppress(process_stream_result.into_diagnostic()?)?;
         },
     }
 
