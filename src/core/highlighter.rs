@@ -35,7 +35,7 @@ pub trait Highlight: Sync + Send {
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Regex error: {0}")]
-    RegexError(#[from] regex::Error),
+    RegexError(String),
 
     #[error("Pattern error: {0}")]
     PatternError(String),
@@ -221,7 +221,7 @@ impl HighlighterBuilder {
 
         match highlighter {
             Ok(h) => self.highlighters.push(h),
-            Err(e) => self.first_error = Some(e.into()),
+            Err(e) => self.first_error = Some(Error::RegexError(e.to_string())),
         }
         self
     }
