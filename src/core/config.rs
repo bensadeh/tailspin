@@ -1,12 +1,14 @@
 use crate::style::{Color, Style};
 
 /// Configuration for highlighting numeric values.
+#[derive(Clone, Copy)]
 pub struct NumberConfig {
     /// Style applied to numbers.
     pub style: Style,
 }
 
 /// Configuration for highlighting UUIDs.
+#[derive(Clone, Copy)]
 pub struct UuidConfig {
     /// Style applied to numeric characters.
     pub number: Style,
@@ -17,6 +19,7 @@ pub struct UuidConfig {
 }
 
 /// Configuration for highlighting key-value pairs.
+#[derive(Clone, Copy)]
 pub struct KeyValueConfig {
     /// Style for the key portion.
     pub key: Style,
@@ -38,6 +41,7 @@ pub struct DateTimeConfig {
 }
 
 /// Configuration for highlighting IPv4 addresses.
+#[derive(Clone, Copy)]
 pub struct IpV4Config {
     /// Style for numeric segments.
     pub number: Style,
@@ -46,6 +50,7 @@ pub struct IpV4Config {
 }
 
 /// Configuration for highlighting IPv6 addresses.
+#[derive(Clone, Copy)]
 pub struct IpV6Config {
     /// Style for numeric characters.
     pub number: Style,
@@ -56,6 +61,7 @@ pub struct IpV6Config {
 }
 
 /// Configuration for highlighting URLs.
+#[derive(Clone, Copy)]
 pub struct UrlConfig {
     /// Style for "http" scheme.
     pub http: Style,
@@ -74,6 +80,7 @@ pub struct UrlConfig {
 }
 
 /// Configuration for highlighting Unix file paths.
+#[derive(Clone, Copy)]
 pub struct UnixPathConfig {
     /// Style for path segments.
     pub segment: Style,
@@ -82,6 +89,7 @@ pub struct UnixPathConfig {
 }
 
 /// Configuration for highlighting memory pointers.
+#[derive(Clone, Copy)]
 pub struct PointerConfig {
     /// Style for numeric digits.
     pub number: Style,
@@ -96,6 +104,7 @@ pub struct PointerConfig {
 }
 
 /// Configuration for highlighting Unix processes.
+#[derive(Clone, Copy)]
 pub struct UnixProcessConfig {
     /// Style for process name.
     pub name: Style,
@@ -106,6 +115,7 @@ pub struct UnixProcessConfig {
 }
 
 /// Configuration for highlighting JSON structures.
+#[derive(Clone, Copy)]
 pub struct JsonConfig {
     /// Style for JSON keys.
     pub key: Style,
@@ -122,6 +132,7 @@ pub struct JsonConfig {
 }
 
 /// Configuration for highlighting quoted text.
+#[derive(Clone, Copy)]
 pub struct QuotesConfig {
     /// ASCII byte used as quote delimiter.
     pub quotes_token: u8,
