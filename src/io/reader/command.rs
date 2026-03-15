@@ -3,10 +3,11 @@ use crate::io::reader::{AsyncLineReader, StreamEvent};
 use anyhow::{Context, Result, anyhow};
 use std::process::Stdio;
 use tokio::io::BufReader;
-use tokio::process::{ChildStdout, Command};
+use tokio::process::{Child, ChildStdout, Command};
 
 pub struct CommandReader {
     reader: BufReader<ChildStdout>,
+    child: Child,
     ready: bool,
 }
 
@@ -20,7 +21,7 @@ impl CommandReader {
 async fn spawn_command(command: String) -> Result<CommandReader> {
     let trap_command = format!("trap '' INT; {}", command);
 
-    let child = Command::new("sh")
+    let mut child = Command::new("sh")
         .arg("-c")
         .arg(trap_command)
         .stdout(Stdio::piped())
@@ -29,11 +30,16 @@ async fn spawn_command(command: String) -> Result<CommandReader> {
 
     let stdout = child
         .stdout
+        .take()
         .ok_or_else(|| anyhow!("Could not capture stdout of spawned process"))?;
 
     let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, stdout);
 
-    Ok(CommandReader { reader, ready: false })
+    Ok(CommandReader {
+        reader,
+        child,
+        ready: false,
+    })
 }
 
 #[cfg(windows)]
@@ -44,15 +50,20 @@ async fn spawn_command(_command: String) -> Result<CommandReader> {
 impl AsyncLineReader for CommandReader {
     async fn next(&mut self) -> Result<StreamEvent> {
         if !self.ready {
-            self.ready = !self.ready;
+            self.ready = true;
 
             return Ok(StreamEvent::Started);
         }
 
-        read_lines(&mut self.reader).await.map(|res| match res {
-            ReadResult::Eof => StreamEvent::Ended,
+        let event = match read_lines(&mut self.reader).await? {
+            ReadResult::Eof => {
+                let _ = self.child.wait().await;
+                StreamEvent::Ended
+            }
             ReadResult::Line(line) => StreamEvent::Line(line),
             ReadResult::Batch(lines) => StreamEvent::Lines(lines),
-        })
+        };
+
+        Ok(event)
     }
 }

@@ -14,6 +14,7 @@
 
 ### Fixed
 
+- Fix zombie processes when using `--exec` by properly waiting on the child process after it exits
 - Surface the actual error when the stream processor fails during initial read, instead of a generic channel-receive
   error
 - Gracefully handle broken pipe (e.g. `tspin | head`) instead of panicking
