@@ -30,6 +30,8 @@
 ### Crate
 
 - Differentiate between Regexp Errors and Aho-Corasick Errors
+- Feature-gate CLI dependencies (`tokio`, `clap`, `rayon`, etc.) so library consumers can use
+  `default-features = false` to avoid compiling them
 
 ### Changed
 

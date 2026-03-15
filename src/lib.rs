@@ -12,6 +12,16 @@
 //! In order to configure the highlighter, use the [`HighlighterBuilder`]. Otherwise, use
 //! [`Highlighter::default()`](crate::Highlighter::default) for reasonable defaults.
 //!
+//! ## Dependency usage
+//!
+//! When using `tailspin` as a library, disable default features to avoid pulling in
+//! CLI-specific dependencies like `tokio`, `clap`, and `rayon`:
+//!
+//! ```toml
+//! [dependencies]
+//! tailspin = { version = "6.0", default-features = false }
+//! ```
+//!
 //!
 //! ## Example
 //!

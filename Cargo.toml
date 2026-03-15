@@ -12,6 +12,21 @@ rust-version = "1.93"
 [[bin]]
 path = "src/main.rs"
 name = "tspin"
+required-features = ["cli"]
+
+[features]
+default = ["cli"]
+cli = [
+    "dep:anyhow",
+    "dep:clap",
+    "dep:clap_complete",
+    "dep:rayon",
+    "dep:shell-words",
+    "dep:shellexpand",
+    "dep:tempfile",
+    "dep:tokio",
+    "dep:toml",
+]
 
 [profile.release]
 lto = "fat"
@@ -20,21 +35,21 @@ strip = true
 
 [dependencies]
 aho-corasick = "1.1.4"
-anyhow = "1.0.102"
-clap = { version = "4.5.60", features = ["derive", "env", "wrap_help"] }
-clap_complete = "4.5.66"
+anyhow = { version = "1.0.102", optional = true }
+clap = { version = "4.5.60", features = ["derive", "env", "wrap_help"], optional = true }
+clap_complete = { version = "4.5.66", optional = true }
 memchr = "2.8.0"
 nu-ansi-term = "0.50.3"
-rayon = "1.11.0"
+rayon = { version = "1.11.0", optional = true }
 regex = "1.12.2"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.149", features = ["preserve_order"] }
-shell-words = "1.1.1"
-shellexpand = "3.1.2"
-tempfile = "3.27.0"
+shell-words = { version = "1.1.1", optional = true }
+shellexpand = { version = "3.1.2", optional = true }
+tempfile = { version = "3.27.0", optional = true }
 thiserror = "2.0.18"
-tokio = { version = "1.50.0", features = ["fs", "io-std", "io-util", "macros", "process", "rt-multi-thread", "signal", "sync", "time"] }
-toml = "1.0.3"
+tokio = { version = "1.50.0", features = ["fs", "io-std", "io-util", "macros", "process", "rt-multi-thread", "signal", "sync", "time"], optional = true }
+toml = { version = "1.0.3", optional = true }
 
 [dev-dependencies]
 criterion = "0.8.2"
