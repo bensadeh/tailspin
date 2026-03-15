@@ -1,3 +1,4 @@
+use super::RegexExt;
 use crate::core::config::UrlConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
@@ -70,11 +71,9 @@ fn count_unbalanced_trailing_parens(s: &str) -> usize {
 
 impl Highlight for UrlHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        self.url_regex.replace_all(input, |caps: &Captures<'_>| {
-            let full_match = caps.get(0).map_or("", |m| m.as_str());
+        self.url_regex.replace_all_cow(input, |caps, buf| {
+            let full_match = caps.get(0).unwrap().as_str();
             let trim_count = count_unbalanced_trailing_parens(full_match);
-
-            let mut output = String::with_capacity(full_match.len() + 64);
 
             if let Some(protocol) = caps.name("protocol") {
                 let style = match protocol.as_str() {
@@ -82,20 +81,20 @@ impl Highlight for UrlHighlighter {
                     "https" => self.https,
                     _ => NuStyle::default(),
                 };
-                let _ = write!(output, "{}://", style.paint(protocol.as_str()));
+                let _ = write!(buf, "{}://", style.paint(protocol.as_str()));
             }
 
             if let Some(host) = caps.name("host") {
-                let _ = write!(output, "{}", self.host.paint(host.as_str()));
+                let _ = write!(buf, "{}", self.host.paint(host.as_str()));
             }
 
             if let Some(path) = caps.name("path") {
                 let path_str = path.as_str();
                 if caps.name("query").is_none() && trim_count > 0 {
                     let trimmed = &path_str[..path_str.len() - trim_count];
-                    let _ = write!(output, "{}", self.path.paint(trimmed));
+                    let _ = write!(buf, "{}", self.path.paint(trimmed));
                 } else {
-                    let _ = write!(output, "{}", self.path.paint(path_str));
+                    let _ = write!(buf, "{}", self.path.paint(path_str));
                 }
             }
 
@@ -119,15 +118,13 @@ impl Highlight for UrlHighlighter {
                         let _ = write!(qbuf, "{}", self.query_params_value.paint(value));
                         qbuf
                     });
-                output.push_str(&query_highlighted);
+                buf.push_str(&query_highlighted);
             }
 
             // Append unbalanced trailing parens outside the highlighted URL
             for _ in 0..trim_count {
-                output.push(')');
+                buf.push(')');
             }
-
-            output
         })
     }
 }

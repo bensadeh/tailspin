@@ -1,8 +1,9 @@
+use super::RegexExt;
 use crate::core::config::IpV6Config;
 use crate::core::highlighter::Highlight;
 use memchr::memchr;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex, RegexBuilder};
+use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 use std::fmt::Write as _;
 use std::net::Ipv6Addr;
@@ -34,34 +35,31 @@ impl Highlight for IpV6Highlighter {
             return Cow::Borrowed(input);
         }
 
-        self.regex
-            .replace_all(input, |caps: &Captures<'_>| match caps[1].parse::<Ipv6Addr>() {
-                Ok(_ip) => {
-                    let addr = &caps[1];
-                    let mut output = String::with_capacity(addr.len() + 32);
-                    for (i, c) in addr.char_indices() {
-                        let s = &addr[i..i + c.len_utf8()];
-                        let style = match c {
-                            '0'..='9' => &self.number,
-                            'a'..='f' | 'A'..='F' => &self.letter,
-                            ':' | '.' => &self.separator,
-                            _ => {
-                                output.push(c);
-                                continue;
-                            }
-                        };
-                        let _ = write!(output, "{}", style.paint(s));
-                    }
-
-                    if let (Some(slash), Some(netmask)) = (caps.get(2), caps.get(3)) {
-                        let _ = write!(output, "{}", self.separator.paint(slash.as_str()));
-                        let _ = write!(output, "{}", self.number.paint(netmask.as_str()));
-                    }
-
-                    output
+        self.regex.replace_all_cow(input, |caps, buf| {
+            if caps[1].parse::<Ipv6Addr>().is_ok() {
+                let addr = &caps[1];
+                for (i, c) in addr.char_indices() {
+                    let s = &addr[i..i + c.len_utf8()];
+                    let style = match c {
+                        '0'..='9' => &self.number,
+                        'a'..='f' | 'A'..='F' => &self.letter,
+                        ':' | '.' => &self.separator,
+                        _ => {
+                            buf.push(c);
+                            continue;
+                        }
+                    };
+                    let _ = write!(buf, "{}", style.paint(s));
                 }
-                Err(_) => caps.get(0).map(|m| m.as_str()).unwrap_or("").to_string(),
-            })
+
+                if let (Some(slash), Some(netmask)) = (caps.get(2), caps.get(3)) {
+                    let _ = write!(buf, "{}", self.separator.paint(slash.as_str()));
+                    let _ = write!(buf, "{}", self.number.paint(netmask.as_str()));
+                }
+            } else {
+                buf.push_str(caps.get(0).unwrap().as_str());
+            }
+        })
     }
 }
 

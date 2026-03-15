@@ -35,6 +35,7 @@
 - Remove unnecessary string allocation in temp file writer
 - Remove per-quoted-segment string clone in quote highlighter
 - Pre-allocate JSON highlighter output buffer
+- Eliminate per-match `String` allocations in regex-based highlighters by writing directly into a single shared buffer
 
 ### Build
 

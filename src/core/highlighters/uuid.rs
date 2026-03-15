@@ -1,8 +1,9 @@
+use super::RegexExt;
 use crate::core::config::UuidConfig;
 use crate::core::highlighter::Highlight;
 use memchr::memchr;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex, RegexBuilder};
+use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 use std::fmt::Write as _;
 
@@ -55,9 +56,8 @@ impl Highlight for UuidHighlighter {
             return Cow::Borrowed(input);
         }
 
-        self.regex.replace_all(input, |caps: &Captures<'_>| {
-            let matched = &caps[0];
-            let mut buf = String::with_capacity(matched.len() + 32);
+        self.regex.replace_all_cow(input, |caps, buf| {
+            let matched = caps.get(0).unwrap().as_str();
             for (i, c) in matched.char_indices() {
                 let s = &matched[i..i + c.len_utf8()];
                 let style = match c {
@@ -71,7 +71,6 @@ impl Highlight for UuidHighlighter {
                 };
                 let _ = write!(buf, "{}", style.paint(s));
             }
-            buf
         })
     }
 }

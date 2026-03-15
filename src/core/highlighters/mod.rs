@@ -14,6 +14,7 @@ use crate::core::highlighters::unix_path::UnixPathHighlighter;
 use crate::core::highlighters::unix_process::UnixProcessHighlighter;
 use crate::core::highlighters::url::UrlHighlighter;
 use crate::core::highlighters::uuid::UuidHighlighter;
+use ::regex::{Captures, Regex};
 use std::borrow::Cow;
 
 pub mod date_dash;
@@ -31,6 +32,41 @@ pub mod unix_path;
 pub mod unix_process;
 pub mod url;
 pub mod uuid;
+
+/// Extension trait for `Regex` that provides a zero-alloc alternative to
+/// `replace_all`. Writes directly into a single buffer instead of allocating
+/// a `String` per match, and returns `Cow::Borrowed` when there are no matches.
+pub(crate) trait RegexExt {
+    fn replace_all_cow<'a, F>(&self, input: &'a str, replacer: F) -> Cow<'a, str>
+    where
+        F: FnMut(&Captures<'_>, &mut String);
+}
+
+impl RegexExt for Regex {
+    fn replace_all_cow<'a, F>(&self, input: &'a str, mut replacer: F) -> Cow<'a, str>
+    where
+        F: FnMut(&Captures<'_>, &mut String),
+    {
+        let mut out: Option<String> = None;
+        let mut last = 0usize;
+
+        for caps in self.captures_iter(input) {
+            let m = caps.get(0).unwrap();
+            let buf = out.get_or_insert_with(|| String::with_capacity(input.len() + 32));
+            buf.push_str(&input[last..m.start()]);
+            replacer(&caps, buf);
+            last = m.end();
+        }
+
+        match out {
+            Some(mut buf) => {
+                buf.push_str(&input[last..]);
+                Cow::Owned(buf)
+            }
+            None => Cow::Borrowed(input),
+        }
+    }
+}
 
 pub enum StaticHighlight {
     DateDash(DateDashHighlighter),

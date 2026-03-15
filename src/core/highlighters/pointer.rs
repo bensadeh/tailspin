@@ -1,8 +1,9 @@
+use super::RegexExt;
 use crate::core::config::PointerConfig;
 use crate::core::highlighter::Highlight;
 use memchr::memchr2;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex, RegexBuilder};
+use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 use std::fmt::Write as _;
 
@@ -67,7 +68,7 @@ impl Highlight for PointerHighlighter {
             return Cow::Borrowed(input);
         }
 
-        self.regex.replace_all(input, |caps: &Captures<'_>| {
+        self.regex.replace_all_cow(input, |caps, buf| {
             let prefix = caps.name("prefix").or_else(|| caps.name("prefix64")).unwrap().as_str();
             let first_half = caps
                 .name("first_half")
@@ -75,17 +76,14 @@ impl Highlight for PointerHighlighter {
                 .unwrap()
                 .as_str();
 
-            let mut buf = String::with_capacity(prefix.len() + first_half.len() * 2 + 32);
-            self.write_hex_chars(&mut buf, prefix);
-            self.write_hex_chars(&mut buf, first_half);
+            self.write_hex_chars(buf, prefix);
+            self.write_hex_chars(buf, first_half);
 
             if let Some(second_half) = caps.name("second_half") {
                 let sep: &str = &self.separator_token.to_string();
                 let _ = write!(buf, "{}", self.separator.paint(sep));
-                self.write_hex_chars(&mut buf, second_half.as_str());
+                self.write_hex_chars(buf, second_half.as_str());
             }
-
-            buf
         })
     }
 }

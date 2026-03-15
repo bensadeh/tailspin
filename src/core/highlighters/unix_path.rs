@@ -1,8 +1,9 @@
+use super::RegexExt;
 use crate::core::config::UnixPathConfig;
 use crate::core::highlighter::Highlight;
 use memchr::memchr;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex, RegexBuilder};
+use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 use std::fmt::Write as _;
 
@@ -38,14 +39,13 @@ impl Highlight for UnixPathHighlighter {
             return Cow::Borrowed(input);
         }
 
-        self.regex.replace_all(input, |caps: &Captures<'_>| {
-            let full = &caps[0];
+        self.regex.replace_all_cow(input, |caps, buf| {
+            let full = caps.get(0).unwrap().as_str();
             let path = &caps["path"];
-            let mut out = String::with_capacity(full.len() + 32);
 
             // Preserve any leading whitespace that was part of the match
             if full.len() > path.len() {
-                out.push_str(&full[..full.len() - path.len()]);
+                buf.push_str(&full[..full.len() - path.len()]);
             }
 
             let mut seg_start = None;
@@ -53,19 +53,17 @@ impl Highlight for UnixPathHighlighter {
             for (i, ch) in path.char_indices() {
                 if ch == '/' {
                     if let Some(start) = seg_start.take() {
-                        let _ = write!(out, "{}", self.segment.paint(&path[start..i]));
+                        let _ = write!(buf, "{}", self.segment.paint(&path[start..i]));
                     }
-                    let _ = write!(out, "{}", self.separator.paint("/"));
+                    let _ = write!(buf, "{}", self.separator.paint("/"));
                 } else if seg_start.is_none() {
                     seg_start = Some(i);
                 }
             }
 
             if let Some(start) = seg_start {
-                let _ = write!(out, "{}", self.segment.paint(&path[start..]));
+                let _ = write!(buf, "{}", self.segment.paint(&path[start..]));
             }
-
-            out
         })
     }
 }

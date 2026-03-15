@@ -1,8 +1,9 @@
+use super::RegexExt;
 use crate::core::config::IpV4Config;
 use crate::core::highlighter::Highlight;
 use memchr::memchr;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex, RegexBuilder};
+use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 use std::fmt::Write as _;
 
@@ -39,45 +40,32 @@ impl Highlight for IpV4Highlighter {
 
         let seg = &self.segment_style;
         let sep = &self.separator_style;
+        let names = ["o1", "o2", "o3", "o4"];
 
-        self.regex
-            .replace_all(input, |caps: &Captures<'_>| highlight_caps(seg, sep, caps))
+        self.regex.replace_all_cow(input, |caps, buf| {
+            let valid_octets = names
+                .iter()
+                .all(|n| caps.name(n).unwrap().as_str().parse::<u8>().is_ok());
+            let valid_mask = caps
+                .name("mask")
+                .map_or(true, |ms| ms.as_str().parse::<u8>().is_ok_and(|v| v <= 32));
+
+            if valid_octets && valid_mask {
+                for (i, &n) in names.iter().enumerate() {
+                    let _ = write!(buf, "{}", seg.paint(caps.name(n).unwrap().as_str()));
+                    if i < 3 {
+                        let _ = write!(buf, "{}", sep.paint("."));
+                    }
+                }
+                if let Some(ms) = caps.name("mask") {
+                    let _ = write!(buf, "{}", sep.paint("/"));
+                    let _ = write!(buf, "{}", seg.paint(ms.as_str()));
+                }
+            } else {
+                buf.push_str(caps.get(0).unwrap().as_str());
+            }
+        })
     }
-}
-
-fn highlight_caps(seg_style: &NuStyle, sep_style: &NuStyle, caps: &Captures<'_>) -> String {
-    let full_match = caps.get(0).expect("full match always present").as_str();
-
-    let names = ["o1", "o2", "o3", "o4"];
-    for &n in &names {
-        let txt = caps.name(n).expect("named octet group always present").as_str();
-        if txt.parse::<u8>().is_err() {
-            return full_match.to_string();
-        }
-    }
-
-    let mask_str = caps.name("mask").map(|m| m.as_str());
-    if let Some(ms) = mask_str {
-        if !ms.parse::<u8>().map(|v| v <= 32).unwrap_or(false) {
-            return full_match.to_string();
-        }
-    }
-
-    let mut output = String::with_capacity(32);
-    for (i, &n) in names.iter().enumerate() {
-        let text = caps.name(n).expect("named octet group always present").as_str();
-        let _ = write!(output, "{}", seg_style.paint(text));
-        if i < 3 {
-            let _ = write!(output, "{}", sep_style.paint("."));
-        }
-    }
-
-    if let Some(ms) = mask_str {
-        let _ = write!(output, "{}", sep_style.paint("/"));
-        let _ = write!(output, "{}", seg_style.paint(ms));
-    }
-
-    output
 }
 
 #[cfg(test)]

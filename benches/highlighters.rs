@@ -4,7 +4,7 @@ use tailspin::Highlighter;
 use tailspin::config::*;
 use tailspin::style::{Color, Style};
 
-const LOG_LINE: &str = r#"2025-03-07T14:32:01.123Z INFO  [server::handler] GET /api/v2/users/550e8400-e29b-41d4-a716-446655440000?status=active&limit=100 from 192.168.1.42/24 pid=worker[1234] key=value path=/var/log/app/server.log count=42 "request completed" null true {"status": 200}"#;
+const LOG_LINE: &str = r#"2025-03-07T14:32:01.123Z INFO  [server::handler] GET https://api.example.com/v2/users?status=active&limit=100 from 192.168.1.42/24 via fe80::1 ptr=0x7f4a2c00b340 pid=worker[1234] uuid=550e8400-e29b-41d4-a716-446655440000 key=value path=/var/log/app/server.log count=42 "request completed" null true {"status": 200}"#;
 
 fn bench_individual_highlighters(c: &mut Criterion) {
     let mut group = c.benchmark_group("highlighters");

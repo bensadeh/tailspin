@@ -1,3 +1,4 @@
+use super::RegexExt;
 use crate::core::config::UnixProcessConfig;
 use crate::core::highlighter::Highlight;
 use memchr::memchr;
@@ -33,17 +34,15 @@ impl Highlight for UnixProcessHighlighter {
             return Cow::Borrowed(input);
         }
 
-        self.regex.replace_all(input, |captures: &regex::Captures| {
-            let mut buf = String::with_capacity(32);
-            if let Some(p) = captures.name("process_name") {
+        self.regex.replace_all_cow(input, |caps, buf| {
+            if let Some(p) = caps.name("process_name") {
                 let _ = write!(buf, "{}", self.name.paint(p.as_str()));
             }
             let _ = write!(buf, "{}", self.bracket.paint("["));
-            if let Some(n) = captures.name("process_id") {
+            if let Some(n) = caps.name("process_id") {
                 let _ = write!(buf, "{}", self.id.paint(n.as_str()));
             }
             let _ = write!(buf, "{}", self.bracket.paint("]"));
-            buf
         })
     }
 }
