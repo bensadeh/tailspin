@@ -1,8 +1,8 @@
 use crate::io::presenter::Present;
 use anyhow::Result;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 use thiserror::Error;
+use tokio::process::Command;
 
 pub struct Pager {
     path: PathBuf,
@@ -54,7 +54,7 @@ impl Present for Pager {
             }
         };
 
-        let status = command.status().map_err(PagerError::CommandSpawn)?;
+        let status = command.status().await.map_err(PagerError::CommandSpawn)?;
 
         status.success().then_some(()).ok_or(PagerError::NonZeroExit(status))?;
 
