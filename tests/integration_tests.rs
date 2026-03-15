@@ -79,7 +79,7 @@ fn it_works() {
             },
         })
         .with_quote_highlighter(QuotesConfig {
-            quotes_token: '"',
+            quotes_token: b'"',
             style: Style {
                 fg: Some(Color::Yellow),
                 ..Style::default()

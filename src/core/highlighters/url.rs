@@ -2,7 +2,7 @@ use super::RegexExt;
 use crate::core::config::UrlConfig;
 use crate::core::highlighter::Highlight;
 use nu_ansi_term::Style as NuStyle;
-use regex::{Captures, Error, Regex, RegexBuilder};
+use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 use std::fmt::Write as _;
 
@@ -104,21 +104,21 @@ impl Highlight for UrlHighlighter {
                 } else {
                     query.as_str()
                 };
-                let query_highlighted = self
-                    .query_params_regex
-                    .replace_all(query_str, |query_caps: &Captures<'_>| {
-                        let delimiter = query_caps.name("delimiter").map_or("", |m| m.as_str());
-                        let key = query_caps.name("key").map_or("", |m| m.as_str());
-                        let equal = query_caps.name("equal").map_or("", |m| m.as_str());
-                        let value = query_caps.name("value").map_or("", |m| m.as_str());
-                        let mut qbuf = String::with_capacity(32);
-                        let _ = write!(qbuf, "{}", self.symbols.paint(delimiter));
-                        let _ = write!(qbuf, "{}", self.query_params_key.paint(key));
-                        let _ = write!(qbuf, "{}", self.symbols.paint(equal));
-                        let _ = write!(qbuf, "{}", self.query_params_value.paint(value));
-                        qbuf
-                    });
-                buf.push_str(&query_highlighted);
+                let mut last = 0usize;
+                for query_caps in self.query_params_regex.captures_iter(query_str) {
+                    let m = query_caps.get(0).unwrap();
+                    buf.push_str(&query_str[last..m.start()]);
+                    let delimiter = query_caps.name("delimiter").map_or("", |m| m.as_str());
+                    let key = query_caps.name("key").map_or("", |m| m.as_str());
+                    let equal = query_caps.name("equal").map_or("", |m| m.as_str());
+                    let value = query_caps.name("value").map_or("", |m| m.as_str());
+                    let _ = write!(buf, "{}", self.symbols.paint(delimiter));
+                    let _ = write!(buf, "{}", self.query_params_key.paint(key));
+                    let _ = write!(buf, "{}", self.symbols.paint(equal));
+                    let _ = write!(buf, "{}", self.query_params_value.paint(value));
+                    last = m.end();
+                }
+                buf.push_str(&query_str[last..]);
             }
 
             // Append unbalanced trailing parens outside the highlighted URL

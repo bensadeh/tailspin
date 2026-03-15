@@ -74,7 +74,10 @@ impl From<QuotesToml> for QuotesConfig {
         let default_config = QuotesConfig::default();
 
         QuotesConfig {
-            quotes_token: quotes_toml.quotes_token.unwrap_or(default_config.quotes_token),
+            quotes_token: quotes_toml
+                .quotes_token
+                .filter(|ch| ch.is_ascii())
+                .map_or(default_config.quotes_token, |ch| ch as u8),
             style: quotes_toml.style.unwrap_or(default_config.style),
         }
     }

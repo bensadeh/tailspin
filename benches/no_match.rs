@@ -117,6 +117,18 @@ fn bench_no_match(c: &mut Criterion) {
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
+    group.bench_function("regex", |b| {
+        let h = {
+            let mut builder = Highlighter::builder();
+            builder.with_regex_highlighter(RegexConfig {
+                regex: r"FOOBAR_\d+".into(),
+                style: Style::new().fg(Color::Red),
+            });
+            builder.build().unwrap()
+        };
+        b.iter(|| h.apply(black_box(LOG_LINE)));
+    });
+
     group.bench_function("keyword", |b| {
         let h = {
             let mut builder = Highlighter::builder();

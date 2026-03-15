@@ -18,7 +18,7 @@ mod initial_read;
 mod io;
 mod theme;
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() {
     if let Err(err) = run().await {
         eprintln!("{} {err}", nu_ansi_term::Color::Red.paint("Error:"));

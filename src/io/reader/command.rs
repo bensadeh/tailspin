@@ -47,6 +47,12 @@ async fn spawn_command(_command: String) -> Result<CommandReader> {
     Err(anyhow!("The --exec flag is not supported on Windows"))
 }
 
+impl Drop for CommandReader {
+    fn drop(&mut self) {
+        let _ = self.child.start_kill();
+    }
+}
+
 impl AsyncLineReader for CommandReader {
     async fn next(&mut self) -> Result<StreamEvent> {
         if !self.ready {

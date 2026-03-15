@@ -240,7 +240,7 @@ mod tests {
                 style: Style::new().fg(Color::Cyan),
             })
             .with_quote_highlighter(QuotesConfig {
-                quotes_token: '"',
+                quotes_token: b'"',
                 style: Style::new().fg(Color::Yellow),
             });
         builder.build().unwrap()

@@ -35,43 +35,37 @@ impl RegexpHighlighter {
 
 impl Highlight for RegexpHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        let mut new_string = String::new();
-        let mut last_end = 0;
-        let mut changed = false;
         let capture_groups = self.regex.captures_len() - 1;
+        let mut caps_iter = self.regex.captures_iter(input).peekable();
 
-        for caps in self.regex.captures_iter(input) {
+        if caps_iter.peek().is_none() {
+            return Cow::Borrowed(input);
+        }
+
+        let mut new_string = String::with_capacity(input.len() + 32);
+        let mut last_end = 0;
+
+        for caps in caps_iter {
             if let Some(entire_match) = caps.get(0) {
-                changed = true;
-                // Append text before the match (this is a slice from the original input)
                 new_string.push_str(&input[last_end..entire_match.start()]);
 
                 match capture_groups {
                     1 => {
                         if let Some(captured) = caps.get(1) {
-                            // Append text from the start of the match until the capture group.
                             new_string.push_str(&input[entire_match.start()..captured.start()]);
-                            // Append the highlighted capture group.
                             let _ = write!(new_string, "{}", self.style.paint(captured.as_str()));
-                            // Append text from after the capture group until the end of the match.
                             new_string.push_str(&input[captured.end()..entire_match.end()]);
                         }
                     }
                     _ => {
-                        // Highlight the entire match.
                         let _ = write!(new_string, "{}", self.style.paint(entire_match.as_str()));
                     }
                 }
                 last_end = entire_match.end();
             }
         }
-        // Append any remaining text after the last match.
         new_string.push_str(&input[last_end..]);
 
-        if changed {
-            Cow::Owned(new_string)
-        } else {
-            Cow::Borrowed(input)
-        }
+        Cow::Owned(new_string)
     }
 }
