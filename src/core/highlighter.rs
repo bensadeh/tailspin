@@ -36,6 +36,9 @@ pub trait Highlight: Sync + Send {
 pub enum Error {
     #[error("Regex error: {0}")]
     RegexError(#[from] regex::Error),
+
+    #[error("Pattern error: {0}")]
+    PatternError(String),
 }
 
 impl Highlighter {
@@ -49,7 +52,7 @@ impl Highlighter {
     pub const fn builder() -> HighlighterBuilder {
         HighlighterBuilder {
             highlighters: Vec::new(),
-            first_regex_error: None,
+            first_error: None,
         }
     }
 
@@ -102,7 +105,7 @@ impl Default for Highlighter {
 /// Builder for configuring a [`Highlighter`].
 pub struct HighlighterBuilder {
     highlighters: Vec<StaticHighlight>,
-    first_regex_error: Option<regex::Error>,
+    first_error: Option<Error>,
 }
 
 impl HighlighterBuilder {
@@ -189,15 +192,13 @@ impl HighlighterBuilder {
         let normalized_keyword_configs = normalize_keyword_configs(keyword_configs);
 
         for keyword_config in normalized_keyword_configs {
-            let highlighter = KeywordHighlighter::new(keyword_config);
-
-            if self.first_regex_error.is_some() {
+            if self.first_error.is_some() {
                 continue;
             }
 
-            match highlighter {
+            match KeywordHighlighter::new(keyword_config) {
                 Ok(h) => self.highlighters.push(StaticHighlight::Keyword(h)),
-                Err(e) => self.first_regex_error = Some(e),
+                Err(e) => self.first_error = Some(Error::PatternError(e.to_string())),
             }
         }
 
@@ -206,21 +207,21 @@ impl HighlighterBuilder {
 
     /// Finalizes the builder and returns a configured [`Highlighter`].
     pub fn build(self) -> Result<Highlighter, Error> {
-        if let Some(err) = self.first_regex_error {
-            Err(Error::RegexError(err))
+        if let Some(err) = self.first_error {
+            Err(err)
         } else {
             Ok(Highlighter::new().with_highlighters(self.highlighters))
         }
     }
 
     fn try_add_highlighter(&mut self, highlighter: Result<StaticHighlight, regex::Error>) -> &mut Self {
-        if self.first_regex_error.is_some() {
+        if self.first_error.is_some() {
             return self;
         }
 
         match highlighter {
             Ok(h) => self.highlighters.push(h),
-            Err(e) => self.first_regex_error = Some(e),
+            Err(e) => self.first_error = Some(e.into()),
         }
         self
     }

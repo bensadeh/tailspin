@@ -1,8 +1,7 @@
 use crate::core::config::KeywordConfig;
 use crate::core::highlighter::Highlight;
-use aho_corasick::{AhoCorasick, AhoCorasickBuilder, MatchKind};
+use aho_corasick::{AhoCorasick, AhoCorasickBuilder, BuildError, MatchKind};
 use nu_ansi_term::Style as NuStyle;
-use regex::Error;
 use std::borrow::Cow;
 use std::fmt::Write as _;
 
@@ -12,11 +11,10 @@ pub struct KeywordHighlighter {
 }
 
 impl KeywordHighlighter {
-    pub fn new(keyword_config: KeywordConfig) -> Result<Self, Error> {
+    pub fn new(keyword_config: KeywordConfig) -> Result<Self, BuildError> {
         let ac = AhoCorasickBuilder::new()
             .match_kind(MatchKind::LeftmostFirst)
-            .build(&keyword_config.words)
-            .map_err(|e| Error::Syntax(e.to_string()))?;
+            .build(&keyword_config.words)?;
 
         Ok(Self {
             ac,

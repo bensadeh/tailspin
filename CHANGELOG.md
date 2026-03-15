@@ -26,6 +26,10 @@
 - Quoted regions now highlight correctly while preserving inner
   highlights ([#171](https://github.com/bensadeh/tailspin/issues/171))
 
+### Crate
+
+- Differentiate between Regexp Errors and Aho-Corasick Errors
+
 ### Changed
 
 - Builtin keyword highlighting of `true` changed from red to green
