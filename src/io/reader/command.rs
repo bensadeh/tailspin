@@ -1,6 +1,6 @@
 use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, StreamEvent};
-use miette::{Context, IntoDiagnostic, Result, miette};
+use anyhow::{Context, Result, anyhow};
 use std::process::Stdio;
 use tokio::io::BufReader;
 use tokio::process::{ChildStdout, Command};
@@ -25,12 +25,11 @@ async fn spawn_command(command: String) -> Result<CommandReader> {
         .arg(trap_command)
         .stdout(Stdio::piped())
         .spawn()
-        .into_diagnostic()
-        .wrap_err("Could not spawn process")?;
+        .context("Could not spawn process")?;
 
     let stdout = child
         .stdout
-        .ok_or_else(|| miette!("Could not capture stdout of spawned process"))?;
+        .ok_or_else(|| anyhow!("Could not capture stdout of spawned process"))?;
 
     let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, stdout);
 
@@ -39,7 +38,7 @@ async fn spawn_command(command: String) -> Result<CommandReader> {
 
 #[cfg(windows)]
 async fn spawn_command(_command: String) -> Result<CommandReader> {
-    Err(miette!("The --exec flag is not supported on Windows"))
+    Err(anyhow!("The --exec flag is not supported on Windows"))
 }
 
 impl AsyncLineReader for CommandReader {

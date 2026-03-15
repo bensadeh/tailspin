@@ -1,5 +1,5 @@
 use crate::io::controller::Presenter;
-use miette::Result;
+use anyhow::Result;
 
 pub mod pager;
 pub mod stdout;

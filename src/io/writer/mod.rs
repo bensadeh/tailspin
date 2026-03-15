@@ -2,7 +2,7 @@ pub mod stdout;
 pub mod temp_file;
 
 use crate::io::controller::Writer;
-use miette::Result;
+use anyhow::Result;
 
 pub trait AsyncLineWriter {
     async fn write(&mut self, line: &str) -> Result<()>;

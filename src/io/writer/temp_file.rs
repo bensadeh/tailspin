@@ -1,5 +1,5 @@
 use crate::io::writer::AsyncLineWriter;
-use miette::{Context, IntoDiagnostic, Result};
+use anyhow::{Context, Result};
 use tokio::fs::File;
 use tokio::io::{AsyncWriteExt, BufWriter};
 
@@ -18,21 +18,15 @@ impl AsyncLineWriter for TempFile {
         self.writer
             .write_all(line.as_bytes())
             .await
-            .into_diagnostic()
-            .wrap_err("Failed to write line to file")?;
+            .context("Failed to write line to file")?;
 
         self.writer
             .write_all(b"\n")
             .await
-            .into_diagnostic()
-            .wrap_err("Failed to write line to file")?;
+            .context("Failed to write line to file")?;
 
         // Flush after each write so the pager (e.g. less +F) sees lines immediately
-        self.writer
-            .flush()
-            .await
-            .into_diagnostic()
-            .wrap_err("Error flushing temp file")?;
+        self.writer.flush().await.context("Error flushing temp file")?;
 
         Ok(())
     }

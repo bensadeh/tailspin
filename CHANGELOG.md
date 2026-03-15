@@ -4,22 +4,27 @@
 
 ### Added
 
-- Highlight `HEAD`, `CONNECT`, and `OPTIONS` HTTP methods by default ([#261](https://github.com/bensadeh/tailspin/pull/261), thanks @g0l4!)
+- Highlight `HEAD`, `CONNECT`, and `OPTIONS` HTTP methods by
+  default ([#261](https://github.com/bensadeh/tailspin/pull/261), thanks @g0l4!)
 - Add builtin keyword highlighting for `undefined`, `NULL`, `nil`, `NIL`, `NaN`, `FALSE`, and `TRUE`
 - File truncation detection in follow mode
 - Support for parentheses in URL paths (e.g. Wikipedia-style URLs) with balanced parenthesis detection
-- Clear error message for `--exec` on Windows instead of a generic failure ([#232](https://github.com/bensadeh/tailspin/issues/232))
+- Clear error message for `--exec` on Windows instead of a generic
+  failure ([#232](https://github.com/bensadeh/tailspin/issues/232))
 
 ### Fixed
 
-- Surface the actual error when the stream processor fails during initial read, instead of a generic channel-receive error
+- Surface the actual error when the stream processor fails during initial read, instead of a generic channel-receive
+  error
 - Gracefully handle broken pipe (e.g. `tspin | head`) instead of panicking
 - `--follow` not working on certain filesystems (NFS, FUSE, Docker bind mounts, etc.) by replacing `linemux` with a
   polling-based file reader ([#240](https://github.com/bensadeh/tailspin/issues/240))
 - Crash when reading files with non-UTF-8 content ([#31](https://github.com/bensadeh/tailspin/issues/31))
 - URLs wrapped in parentheses or single quotes incorrectly including surrounding delimiters in the highlight
-- Files with symlinks in their path could not be opened consistently ([#244](https://github.com/bensadeh/tailspin/issues/244), [#134](https://github.com/bensadeh/tailspin/issues/134))
-- Quoted regions now highlight correctly while preserving inner highlights ([#171](https://github.com/bensadeh/tailspin/issues/171))
+- Files with symlinks in their path could not be opened
+  consistently ([#244](https://github.com/bensadeh/tailspin/issues/244), [#134](https://github.com/bensadeh/tailspin/issues/134))
+- Quoted regions now highlight correctly while preserving inner
+  highlights ([#171](https://github.com/bensadeh/tailspin/issues/171))
 
 ### Changed
 
@@ -28,22 +33,23 @@
 ### Performance
 
 - Reduced string allocations in highlighters by replacing `format!()` with `write!()` to pre-allocated buffers
-- Increased pre-allocation cap for highlighted output from 3KB to 16KB, avoiding reallocations on long log lines
+- Increased pre-allocation cap for highlighted output from 3KB to 16KB
 - Use SIMD-accelerated `memchr` for newline detection in buffered reader
 - Cache ANSI escape sequence finders using `LazyLock` statics instead of recreating per call
 - Add fast byte-check early exits to key_value, unix_process, and pointer highlighters
 - Remove unnecessary string allocation in temp file writer
 - Remove per-quoted-segment string clone in quote highlighter
 - Pre-allocate JSON highlighter output buffer
-- Eliminate per-match `String` allocations in regex-based highlighters by writing directly into a single shared buffer
+- Eliminate per-match `String` allocations in regex-based highlighters
 
 ### Build
 
 - Enable LTO, single codegen unit, and `strip = true` for release builds
 - Trim tokio features from `full` to only what's used
 - Replace `async-trait` with native async traits
-- Remove `uuid` dependency by using a fixed temp file name within the unique temp directory
+- Remove `uuid` dependency
 - Replace `ctrlc` crate with tokio's built-in signal handling
+- Replace `miette` with `anyhow`
 
 ## 5.5.0
 

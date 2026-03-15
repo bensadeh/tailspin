@@ -1,5 +1,5 @@
 use crate::io::presenter::Present;
-use miette::{Diagnostic, Result};
+use anyhow::Result;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use thiserror::Error;
@@ -23,18 +23,15 @@ pub struct CustomPagerOptions {
     pub args: Vec<String>,
 }
 
-#[derive(Debug, Error, Diagnostic)]
+#[derive(Debug, Error)]
 pub enum PagerError {
     #[error("Could not set up signal handler")]
-    #[diagnostic(code(pager::signal_setup))]
     SignalSetup(#[source] std::io::Error),
 
     #[error("Could not run pager")]
-    #[diagnostic(code(less::command_spawn))]
     CommandSpawn(#[source] std::io::Error),
 
     #[error("Pager exited with non-zero status: {0}")]
-    #[diagnostic(code(less::non_zero_exit))]
     NonZeroExit(std::process::ExitStatus),
 }
 

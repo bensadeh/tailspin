@@ -1,7 +1,7 @@
 use crate::io::reader::StreamEvent::{Ended, Started};
 use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, StreamEvent};
-use miette::{Context, IntoDiagnostic, Result};
+use anyhow::{Context, Result};
 use std::path::Path;
 use std::time::Duration;
 use tokio::io::{AsyncBufReadExt, AsyncSeekExt, BufReader};
@@ -18,14 +18,9 @@ pub struct FileReader {
 
 impl FileReader {
     pub async fn new<P: AsRef<Path>>(file_path: P, terminate_after_first_read: bool) -> Result<FileReader> {
-        let file_path = std::fs::canonicalize(file_path.as_ref())
-            .into_diagnostic()
-            .wrap_err("Could not canonicalize file path")?;
+        let file_path = std::fs::canonicalize(file_path.as_ref()).context("Could not canonicalize file path")?;
 
-        let file = tokio::fs::File::open(&file_path)
-            .await
-            .into_diagnostic()
-            .wrap_err("Could not open file")?;
+        let file = tokio::fs::File::open(&file_path).await.context("Could not open file")?;
 
         let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, file);
 
@@ -44,8 +39,7 @@ impl FileReader {
                 .reader
                 .read_until(b'\n', &mut self.buf)
                 .await
-                .into_diagnostic()
-                .wrap_err("Could not read next line")?;
+                .context("Could not read next line")?;
 
             if bytes_read == 0 {
                 // Detect file truncation: if the file shrank past our position, restart from the beginning
@@ -54,22 +48,19 @@ impl FileReader {
                     .get_ref()
                     .metadata()
                     .await
-                    .into_diagnostic()
-                    .wrap_err("Could not stat file")?
+                    .context("Could not stat file")?
                     .len();
                 let position = self
                     .reader
                     .stream_position()
                     .await
-                    .into_diagnostic()
-                    .wrap_err("Could not get stream position")?;
+                    .context("Could not get stream position")?;
 
                 if file_size < position {
                     self.reader
                         .seek(std::io::SeekFrom::Start(0))
                         .await
-                        .into_diagnostic()
-                        .wrap_err("Could not seek to start after truncation")?;
+                        .context("Could not seek to start after truncation")?;
                     self.buf.clear();
                 }
 
@@ -203,17 +194,17 @@ mod tests {
         })
         .await;
 
-        test_result.unwrap_or_else(|_| Err(miette::miette!("Test timed out!")))
+        test_result.unwrap_or_else(|_| Err(anyhow::anyhow!("Test timed out!")))
     }
 
     #[tokio::test]
     async fn test_append_new_lines_after_initial_read() -> Result<()> {
-        let dir = tempdir().into_diagnostic()?;
+        let dir = tempdir()?;
         let file_path = dir.path().join("test_append.log");
 
-        let mut file = File::create(&file_path).into_diagnostic()?;
-        writeln!(file, "initial1").into_diagnostic()?;
-        writeln!(file, "initial2").into_diagnostic()?;
+        let mut file = File::create(&file_path)?;
+        writeln!(file, "initial1")?;
+        writeln!(file, "initial2")?;
 
         let mut reader = FileReader::new(file_path.as_path(), false).await?;
         let event = reader.next().await?;
@@ -229,16 +220,15 @@ mod tests {
         let event = reader.next().await?;
         assert!(matches!(event, Started));
 
-        let mut file = OpenOptions::new().append(true).open(&file_path).into_diagnostic()?;
-        writeln!(file, "appended1").into_diagnostic()?;
-        writeln!(file, "appended2").into_diagnostic()?;
+        let mut file = OpenOptions::new().append(true).open(&file_path)?;
+        writeln!(file, "appended1")?;
+        writeln!(file, "appended2")?;
 
         sleep(Duration::from_millis(200)).await;
 
         let event = timeout(Duration::from_millis(1000), reader.next())
             .await
-            .into_diagnostic()
-            .wrap_err("Timed out waiting for appended1")?;
+            .context("Timed out waiting for appended1")?;
         match event? {
             Line(line) => assert_eq!(line, "appended1"),
             _ => panic!("Expected StreamEvent::Line(...) with appended1"),
@@ -246,8 +236,7 @@ mod tests {
 
         let event = timeout(Duration::from_millis(1000), reader.next())
             .await
-            .into_diagnostic()
-            .wrap_err("Timed out waiting for appended2")?;
+            .context("Timed out waiting for appended2")?;
         match event? {
             Line(line) => assert_eq!(line, "appended2"),
             _ => panic!("Expected StreamEvent::Line(...) with appended2"),
@@ -275,7 +264,7 @@ mod tests {
         })
         .await;
 
-        test_result.unwrap_or_else(|_| Err(miette::miette!("Test timed out!")))
+        test_result.unwrap_or_else(|_| Err(anyhow::anyhow!("Test timed out!")))
     }
 
     #[tokio::test]
@@ -304,17 +293,17 @@ mod tests {
         })
         .await;
 
-        test_result.unwrap_or_else(|_| Err(miette::miette!("Test timed out!")))
+        test_result.unwrap_or_else(|_| Err(anyhow::anyhow!("Test timed out!")))
     }
 
     #[tokio::test]
     async fn test_crlf_line_endings() -> Result<()> {
-        let dir = tempdir().into_diagnostic()?;
+        let dir = tempdir()?;
         let file_path = dir.path().join("crlf.log");
 
         {
-            let mut file = File::create(&file_path).into_diagnostic()?;
-            file.write_all(b"line1\r\nline2\r\n").into_diagnostic()?;
+            let mut file = File::create(&file_path)?;
+            file.write_all(b"line1\r\nline2\r\n")?;
         }
 
         let mut reader = FileReader::new(file_path.as_path(), false).await?;
@@ -334,16 +323,15 @@ mod tests {
 
         // Append a CRLF line in follow mode
         {
-            let mut file = OpenOptions::new().append(true).open(&file_path).into_diagnostic()?;
-            file.write_all(b"appended\r\n").into_diagnostic()?;
+            let mut file = OpenOptions::new().append(true).open(&file_path)?;
+            file.write_all(b"appended\r\n")?;
         }
 
         sleep(Duration::from_millis(200)).await;
 
         let event = timeout(Duration::from_millis(1000), reader.next())
             .await
-            .into_diagnostic()
-            .wrap_err("Timed out waiting for appended CRLF line")?;
+            .context("Timed out waiting for appended CRLF line")?;
         match event? {
             Line(line) => assert_eq!(line, "appended"),
             _ => panic!("Expected StreamEvent::Line(\"appended\")"),
@@ -380,17 +368,17 @@ mod tests {
         })
         .await;
 
-        test_result.unwrap_or_else(|_| Err(miette::miette!("Test timed out!")))
+        test_result.unwrap_or_else(|_| Err(anyhow::anyhow!("Test timed out!")))
     }
 
     #[tokio::test]
     async fn test_non_utf8_in_follow_mode() -> Result<()> {
-        let dir = tempdir().into_diagnostic()?;
+        let dir = tempdir()?;
         let file_path = dir.path().join("non_utf8_follow.log");
 
         {
-            let mut file = File::create(&file_path).into_diagnostic()?;
-            writeln!(file, "initial").into_diagnostic()?;
+            let mut file = File::create(&file_path)?;
+            writeln!(file, "initial")?;
         }
 
         let mut reader = FileReader::new(file_path.as_path(), false).await?;
@@ -406,16 +394,15 @@ mod tests {
 
         // Append non-UTF-8 in follow mode
         {
-            let mut file = OpenOptions::new().append(true).open(&file_path).into_diagnostic()?;
-            file.write_all(b"caf\xe9\n").into_diagnostic()?;
+            let mut file = OpenOptions::new().append(true).open(&file_path)?;
+            file.write_all(b"caf\xe9\n")?;
         }
 
         sleep(Duration::from_millis(200)).await;
 
         let event = timeout(Duration::from_millis(1000), reader.next())
             .await
-            .into_diagnostic()
-            .wrap_err("Timed out waiting for non-UTF-8 line")?;
+            .context("Timed out waiting for non-UTF-8 line")?;
         match event? {
             Line(line) => {
                 assert!(line.starts_with("caf"));
@@ -429,12 +416,12 @@ mod tests {
 
     #[tokio::test]
     async fn test_truncation_detection() -> Result<()> {
-        let dir = tempdir().into_diagnostic()?;
+        let dir = tempdir()?;
         let file_path = dir.path().join("truncate.log");
 
-        let mut file = File::create(&file_path).into_diagnostic()?;
-        writeln!(file, "original1").into_diagnostic()?;
-        writeln!(file, "original2").into_diagnostic()?;
+        let mut file = File::create(&file_path)?;
+        writeln!(file, "original1")?;
+        writeln!(file, "original2")?;
 
         let mut reader = FileReader::new(file_path.as_path(), false).await?;
 
@@ -452,15 +439,14 @@ mod tests {
         assert!(matches!(event, Started));
 
         // Truncate the file and write new, shorter content
-        let mut file = File::create(&file_path).into_diagnostic()?;
-        writeln!(file, "new").into_diagnostic()?;
+        let mut file = File::create(&file_path)?;
+        writeln!(file, "new")?;
 
         sleep(Duration::from_millis(200)).await;
 
         let event = timeout(Duration::from_millis(1000), reader.next())
             .await
-            .into_diagnostic()
-            .wrap_err("Timed out waiting for line after truncation")?;
+            .context("Timed out waiting for line after truncation")?;
         match event? {
             Line(line) => assert_eq!(line, "new"),
             _ => panic!("Expected StreamEvent::Line(\"new\")"),
@@ -519,6 +505,6 @@ mod tests {
         })
         .await;
 
-        test_result.unwrap_or_else(|_| Err(miette::miette!("Test timed out!")))
+        test_result.unwrap_or_else(|_| Err(anyhow::anyhow!("Test timed out!")))
     }
 }

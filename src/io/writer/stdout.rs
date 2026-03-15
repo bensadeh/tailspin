@@ -1,9 +1,9 @@
 use crate::io::writer::AsyncLineWriter;
-use miette::{Diagnostic, IntoDiagnostic, Result};
+use anyhow::Result;
 use std::io::{self, Write as _};
 use thiserror::Error;
 
-#[derive(Debug, Error, Diagnostic)]
+#[derive(Debug, Error)]
 #[error("broken pipe")]
 pub struct BrokenPipe;
 
@@ -30,7 +30,7 @@ impl AsyncLineWriter for StdoutWriter {
     async fn write(&mut self, line: &str) -> Result<()> {
         match writeln!(io::stdout(), "{}", line) {
             Err(e) if e.kind() == io::ErrorKind::BrokenPipe => Err(BrokenPipe)?,
-            result => result.into_diagnostic(),
+            result => Ok(result?),
         }
     }
 }

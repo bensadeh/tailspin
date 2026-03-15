@@ -8,7 +8,7 @@ use crate::io::reader::file_reader::FileReader;
 use crate::io::reader::stdin::StdinReader;
 use crate::io::writer::stdout::StdoutWriter;
 use crate::io::writer::temp_file::TempFile;
-use miette::{Context, IntoDiagnostic, Result};
+use anyhow::{Context, Result};
 use std::path::PathBuf;
 use tailspin::Highlighter;
 use tempfile::TempDir;
@@ -105,15 +105,12 @@ async fn get_temp_file_and_pager(pager_opts: PagerOptions) -> Result<(Writer, Pr
 async fn create_temp_file() -> Result<(TempDir, PathBuf, BufWriter<File>)> {
     let filename = "tailspin.temp";
 
-    let temp_dir = tempfile::tempdir()
-        .into_diagnostic()
-        .wrap_err("Could not locate temporary directory")?;
+    let temp_dir = tempfile::tempdir().context("Could not locate temporary directory")?;
 
     let temp_file_path = temp_dir.path().join(filename);
     let output_file = File::create(&temp_file_path)
         .await
-        .into_diagnostic()
-        .wrap_err("Could not create temporary file")?;
+        .context("Could not create temporary file")?;
 
     let buf_writer = BufWriter::new(output_file);
 

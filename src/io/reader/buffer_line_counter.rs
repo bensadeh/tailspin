@@ -1,5 +1,5 @@
+use anyhow::{Result, anyhow};
 use memchr::memchr;
-use miette::{IntoDiagnostic, Result, miette};
 use tokio::io::{AsyncBufRead, AsyncBufReadExt};
 
 pub const BUFF_READER_CAPACITY: usize = 64 * 1024;
@@ -35,7 +35,7 @@ async fn peek_buffer<R>(reader: &mut R) -> Result<PeekResult>
 where
     R: AsyncBufRead + Unpin,
 {
-    let buf = reader.fill_buf().await.into_diagnostic()?;
+    let buf = reader.fill_buf().await?;
 
     if buf.is_empty() {
         return Ok(PeekResult::Eof);
@@ -55,7 +55,7 @@ where
     R: AsyncBufRead + Unpin,
 {
     let mut buf = Vec::new();
-    reader.read_until(b'\n', &mut buf).await.into_diagnostic()?;
+    reader.read_until(b'\n', &mut buf).await?;
 
     if buf.last() == Some(&b'\n') {
         buf.pop();
@@ -72,7 +72,7 @@ async fn handle_multiple_newlines<R>(reader: &mut R) -> Result<ReadResult>
 where
     R: AsyncBufRead + Unpin,
 {
-    let buf = reader.fill_buf().await.into_diagnostic()?;
+    let buf = reader.fill_buf().await?;
 
     if let Some(last_newline_pos) = buf.iter().rposition(|&b| b == b'\n') {
         let consumed_buf = &buf[..=last_newline_pos];
@@ -82,7 +82,7 @@ where
         return Ok(ReadResult::Batch(lines));
     }
 
-    Err(miette!("Expected multiple newlines, but none found"))
+    Err(anyhow!("Expected multiple newlines, but none found"))
 }
 
 fn parse_buffer(buf: &[u8]) -> Vec<String> {

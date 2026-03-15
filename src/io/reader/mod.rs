@@ -4,7 +4,7 @@ pub mod file_reader;
 pub mod stdin;
 
 use crate::io::controller::Reader;
-use miette::Result;
+use anyhow::Result;
 
 #[derive(Debug)]
 pub enum StreamEvent {

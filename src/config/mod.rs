@@ -1,5 +1,4 @@
 use crate::cli::Arguments;
-use miette::Diagnostic;
 use nu_ansi_term::Color::{Magenta, Yellow};
 use std::cmp::PartialEq;
 use std::fs;
@@ -40,10 +39,9 @@ pub struct CustomPagerOptions {
     pub args: Vec<String>,
 }
 
-#[derive(Debug, Error, Diagnostic)]
+#[derive(Debug, Error)]
 pub enum ConfigError {
     #[error("Missing filename ({} for help)", Magenta.paint("tspin --help").to_string())]
-    #[diagnostic(severity(Warning))]
     MissingFilename,
 
     #[error("Cannot read from both file and {}", Magenta.paint("--listen-command").to_string())]
@@ -53,7 +51,6 @@ pub enum ConfigError {
     CouldNotDetermineInputType,
 
     #[error("{0}: No such file or directory")]
-    #[diagnostic(severity(Warning))]
     NoSuchFileOrDirectory(String),
 
     #[error("Path is not a file")]

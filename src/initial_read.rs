@@ -1,4 +1,4 @@
-use miette::{Diagnostic, Result};
+use anyhow::Result;
 use thiserror::Error;
 use tokio::sync::oneshot;
 
@@ -10,9 +10,8 @@ pub fn initial_read_complete_channel() -> (InitialReadCompleteSender, InitialRea
 #[derive(Debug)]
 pub struct InitialReadCompleteReceiver(oneshot::Receiver<()>);
 
-#[derive(Debug, Diagnostic, Error)]
+#[derive(Debug, Error)]
 #[error("Failed to receive initial-read-complete signal")]
-#[diagnostic(help("Ensure the IO task completes correctly and signals initial read completion."))]
 pub struct InitialReadCompleteRecvError(#[source] oneshot::error::RecvError);
 
 impl InitialReadCompleteReceiver {
@@ -30,9 +29,8 @@ impl InitialReadCompleteReceiver {
 #[derive(Debug)]
 pub struct InitialReadCompleteSender(Option<oneshot::Sender<()>>);
 
-#[derive(Debug, Diagnostic, Error)]
+#[derive(Debug, Error)]
 #[error("Failed to send initial-read-complete signal")]
-#[diagnostic(help("The receiver was dropped early. Ensure it remains alive until initial read completes."))]
 pub struct InitialReadCompleteSendError;
 
 impl InitialReadCompleteSender {

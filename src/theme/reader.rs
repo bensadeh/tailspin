@@ -1,5 +1,4 @@
 use crate::theme::{Theme, TomlTheme};
-use miette::Diagnostic;
 use std::env;
 use std::env::VarError;
 use std::fs;
@@ -45,7 +44,7 @@ fn read_and_parse_toml(path: &Path) -> Result<TomlTheme, ThemeError> {
     toml::from_str::<TomlTheme>(&content).map_err(ThemeError::Parsing)
 }
 
-#[derive(Debug, Error, Diagnostic)]
+#[derive(Debug, Error)]
 pub enum ThemeError {
     #[error("could not read the TOML file: {0}")]
     Read(#[source] io::Error),

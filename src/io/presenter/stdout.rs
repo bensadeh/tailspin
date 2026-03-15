@@ -1,5 +1,5 @@
 use crate::io::presenter::Present;
-use miette::Result;
+use anyhow::Result;
 use std::future::pending;
 
 /// `StdoutPresenter` does not require any special presentation logic because

@@ -17,7 +17,6 @@ use crate::core::highlighters::url::UrlHighlighter;
 use crate::core::highlighters::uuid::UuidHighlighter;
 use crate::core::utils::normalizer::normalize_keyword_configs;
 use crate::core::utils::split_and_apply::apply_only_to_unhighlighted;
-use miette::Diagnostic;
 use std::borrow::Cow;
 use thiserror::Error;
 
@@ -33,10 +32,9 @@ pub trait Highlight: Sync + Send {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str>;
 }
 
-#[derive(Debug, Error, Diagnostic)]
+#[derive(Debug, Error)]
 pub enum Error {
     #[error("Regex error: {0}")]
-    #[diagnostic(help("Verify that your regex pattern is valid."))]
     RegexError(#[from] regex::Error),
 }
 

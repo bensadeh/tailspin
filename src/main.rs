@@ -6,7 +6,6 @@ use io::presenter::Present;
 use io::reader::{AsyncLineReader, StreamEvent};
 use io::writer::AsyncLineWriter;
 use io::writer::stdout::BrokenPipe;
-use miette::{IntoDiagnostic, Result};
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use tailspin::Highlighter;
@@ -20,7 +19,14 @@ mod io;
 mod theme;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
+    if let Err(err) = run().await {
+        eprintln!("{} {err}", nu_ansi_term::Color::Red.paint("Error:"));
+        std::process::exit(1);
+    }
+}
+
+async fn run() -> anyhow::Result<()> {
     let (reader, writer, presenter, highlighter, initial_read_complete_tx, initial_read_complete_rx, _temp_dir) =
         initialize_io().await?;
 
@@ -29,7 +35,7 @@ async fn main() -> Result<()> {
     if initial_read_complete_rx.receive().await.is_err() {
         // The sender was dropped, meaning process_stream failed before signaling.
         // Surface the actual error instead of a generic "failed to receive signal" message.
-        return process_stream_task.await.into_diagnostic()?;
+        return process_stream_task.await?;
     }
 
     let mut presenter_task = tokio::spawn(async move { presenter.present().await });
@@ -37,11 +43,11 @@ async fn main() -> Result<()> {
     tokio::select! {
         presenter_result = &mut presenter_task => {
             abort_and_drain(&mut process_stream_task).await;
-            presenter_result.into_diagnostic()??;
+            presenter_result??;
         },
         process_stream_result = &mut process_stream_task => {
             abort_and_drain(&mut presenter_task).await;
-            BrokenPipe::suppress(process_stream_result.into_diagnostic()?)?;
+            BrokenPipe::suppress(process_stream_result?)?;
         },
     }
 
@@ -58,7 +64,7 @@ async fn process_stream(
     mut writer: Writer,
     highlighter: Highlighter,
     mut initial_read_complete: InitialReadCompleteSender,
-) -> Result<()> {
+) -> anyhow::Result<()> {
     loop {
         match reader.next().await? {
             StreamEvent::Started => initial_read_complete.send()?,
@@ -69,7 +75,7 @@ async fn process_stream(
     }
 }
 
-async fn write_line(writer: &mut Writer, highlighter: &Highlighter, line: &str) -> Result<()> {
+async fn write_line(writer: &mut Writer, highlighter: &Highlighter, line: &str) -> anyhow::Result<()> {
     let highlighted = highlighter.apply(line);
 
     writer.write(&highlighted).await?;
@@ -77,7 +83,7 @@ async fn write_line(writer: &mut Writer, highlighter: &Highlighter, line: &str) 
     Ok(())
 }
 
-async fn write_lines(writer: &mut Writer, highlighter: &Highlighter, lines: Vec<String>) -> Result<()> {
+async fn write_lines(writer: &mut Writer, highlighter: &Highlighter, lines: Vec<String>) -> anyhow::Result<()> {
     let highlighted = lines
         .par_iter()
         .map(|line| highlighter.apply(line.as_str()))

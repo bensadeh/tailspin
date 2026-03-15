@@ -20,10 +20,10 @@ strip = true
 
 [dependencies]
 aho-corasick = "1.1.4"
+anyhow = "1.0.102"
 clap = { version = "4.5.60", features = ["derive", "env", "wrap_help"] }
 clap_complete = "4.5.66"
-memchr = "2.7.6"
-miette = { version = "7.6.0", features = ["fancy"] }
+memchr = "2.8.0"
 nu-ansi-term = "0.50.3"
 rayon = "1.11.0"
 regex = "1.12.2"
@@ -31,7 +31,7 @@ serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.149", features = ["preserve_order"] }
 shell-words = "1.1.1"
 shellexpand = "3.1.2"
-tempfile = "3.26.0"
+tempfile = "3.27.0"
 thiserror = "2.0.18"
 tokio = { version = "1.50.0", features = ["fs", "io-std", "io-util", "macros", "process", "rt-multi-thread", "signal", "sync", "time"] }
 toml = "1.0.3"

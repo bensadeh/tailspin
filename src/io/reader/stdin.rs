@@ -1,6 +1,6 @@
 use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, StreamEvent};
-use miette::Result;
+use anyhow::Result;
 use tokio::io::{BufReader, Stdin, stdin};
 
 pub struct StdinReader {
