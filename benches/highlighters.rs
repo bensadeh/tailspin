@@ -18,6 +18,16 @@ fn bench_individual_highlighters(c: &mut Criterion) {
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
+    group.bench_function("json_match", |b| {
+        let h = {
+            let mut builder = Highlighter::builder();
+            builder.with_json_highlighter(JsonConfig::default());
+            builder.build().unwrap()
+        };
+        let json_input = r#"{"status": 200, "message": "OK", "data": [1, 2, 3]}"#;
+        b.iter(|| h.apply(black_box(json_input)));
+    });
+
     group.bench_function("date_time", |b| {
         let h = {
             let mut builder = Highlighter::builder();

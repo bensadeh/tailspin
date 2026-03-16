@@ -83,6 +83,11 @@ impl JsonHighlighter {
 
 impl Highlight for JsonHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        let first = input.as_bytes().iter().find(|b| !b.is_ascii_whitespace());
+        if first != Some(&b'{') && first != Some(&b'[') {
+            return Cow::Borrowed(input);
+        }
+
         let json_value: Value = match serde_json::from_str(input) {
             Ok(value) => value,
             Err(_) => return Cow::Borrowed(input),
