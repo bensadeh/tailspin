@@ -1,18 +1,17 @@
 use super::RegexExt;
 use crate::core::config::IpV6Config;
 use crate::core::highlighter::Highlight;
+use crate::core::highlighters::Painter;
 use memchr::memchr;
-use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
-use std::fmt::Write as _;
 use std::net::Ipv6Addr;
 
 pub struct IpV6Highlighter {
     regex: Regex,
-    number: NuStyle,
-    letter: NuStyle,
-    separator: NuStyle,
+    number: Painter,
+    letter: Painter,
+    separator: Painter,
 }
 
 impl IpV6Highlighter {
@@ -22,9 +21,9 @@ impl IpV6Highlighter {
 
         Ok(Self {
             regex,
-            number: config.number.into(),
-            letter: config.letter.into(),
-            separator: config.separator.into(),
+            number: Painter::new(config.number.into()),
+            letter: Painter::new(config.letter.into()),
+            separator: Painter::new(config.separator.into()),
         })
     }
 }
@@ -40,7 +39,7 @@ impl Highlight for IpV6Highlighter {
                 let addr = &caps[1];
                 for (i, c) in addr.char_indices() {
                     let s = &addr[i..i + c.len_utf8()];
-                    let style = match c {
+                    let painter = match c {
                         '0'..='9' => &self.number,
                         'a'..='f' | 'A'..='F' => &self.letter,
                         ':' | '.' => &self.separator,
@@ -49,12 +48,12 @@ impl Highlight for IpV6Highlighter {
                             continue;
                         }
                     };
-                    let _ = write!(buf, "{}", style.paint(s));
+                    painter.paint(buf, s);
                 }
 
                 if let (Some(slash), Some(netmask)) = (caps.get(2), caps.get(3)) {
-                    let _ = write!(buf, "{}", self.separator.paint(slash.as_str()));
-                    let _ = write!(buf, "{}", self.number.paint(netmask.as_str()));
+                    self.separator.paint(buf, slash.as_str());
+                    self.number.paint(buf, netmask.as_str());
                 }
             } else {
                 buf.push_str(caps.get(0).unwrap().as_str());

@@ -1,17 +1,16 @@
 use crate::core::config::DateTimeConfig;
 use crate::core::highlighter::Highlight;
+use crate::core::highlighters::Painter;
 use memchr::memchr;
-use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
-use std::fmt::Write as _;
 
 pub struct TimeHighlighter {
     regex: Regex,
     idx: Idx,
-    time: NuStyle,
-    zone: NuStyle,
-    separator: NuStyle,
+    time: Painter,
+    zone: Painter,
+    separator: Painter,
 }
 
 #[derive(Copy, Clone)]
@@ -61,16 +60,16 @@ impl TimeHighlighter {
         Ok(Self {
             regex,
             idx,
-            time: time_config.time.into(),
-            zone: time_config.zone.into(),
-            separator: time_config.separator.into(),
+            time: Painter::new(time_config.time.into()),
+            zone: Painter::new(time_config.zone.into()),
+            separator: Painter::new(time_config.separator.into()),
         })
     }
 
     #[inline]
-    fn write_part(buf: &mut String, caps: &Captures<'_>, i: usize, style: &NuStyle) {
+    fn write_part(buf: &mut String, caps: &Captures<'_>, i: usize, painter: &Painter) {
         if let Some(m) = caps.get(i) {
-            let _ = write!(buf, "{}", style.paint(m.as_str()));
+            painter.paint(buf, m.as_str());
         }
     }
 }

@@ -15,7 +15,50 @@ use crate::core::highlighters::unix_process::UnixProcessHighlighter;
 use crate::core::highlighters::url::UrlHighlighter;
 use crate::core::highlighters::uuid::UuidHighlighter;
 use ::regex::{Captures, Regex};
+use nu_ansi_term::Style as NuStyle;
 use std::borrow::Cow;
+
+const RESET: &str = "\x1b[0m";
+
+/// Pre-computed ANSI escape prefix for a style. Avoids the `Display` dispatch
+/// of `style.paint(s)` on every call by writing `prefix + s + RESET` directly.
+pub(crate) struct Painter {
+    prefix: String,
+}
+
+impl Painter {
+    pub fn new(style: NuStyle) -> Self {
+        let styled = format!("{}", style.paint(""));
+        let prefix = styled.replace(RESET, "");
+        Self { prefix }
+    }
+
+    #[inline]
+    pub fn paint(&self, buf: &mut String, s: &str) {
+        if self.prefix.is_empty() {
+            buf.push_str(s);
+        } else {
+            buf.push_str(&self.prefix);
+            buf.push_str(s);
+            buf.push_str(RESET);
+        }
+    }
+
+    #[inline]
+    pub fn paint_with_padding(&self, buf: &mut String, s: &str) {
+        if self.prefix.is_empty() {
+            buf.push(' ');
+            buf.push_str(s);
+            buf.push(' ');
+        } else {
+            buf.push_str(&self.prefix);
+            buf.push(' ');
+            buf.push_str(s);
+            buf.push(' ');
+            buf.push_str(RESET);
+        }
+    }
+}
 
 pub mod date_dash;
 pub mod date_time;
@@ -65,6 +108,43 @@ impl RegexExt for Regex {
             }
             None => Cow::Borrowed(input),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn painter_prefix_ends_with_reset() {
+        let style = NuStyle {
+            foreground: Some(nu_ansi_term::Color::Red),
+            ..Default::default()
+        };
+        let styled = format!("{}", style.paint(""));
+        assert!(
+            styled.ends_with(RESET),
+            "nu_ansi_term output must end with RESET: {styled:?}"
+        );
+    }
+
+    #[test]
+    fn painter_default_style_produces_empty_prefix() {
+        let painter = Painter::new(NuStyle::default());
+        assert!(painter.prefix.is_empty());
+    }
+
+    #[test]
+    fn painter_paint_roundtrip() {
+        let painter = Painter::new(NuStyle {
+            foreground: Some(nu_ansi_term::Color::Green),
+            ..Default::default()
+        });
+        let mut buf = String::new();
+        painter.paint(&mut buf, "hello");
+        assert!(buf.starts_with("\x1b["));
+        assert!(buf.ends_with(RESET));
+        assert!(buf.contains("hello"));
     }
 }
 

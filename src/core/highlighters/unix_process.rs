@@ -1,17 +1,16 @@
 use super::RegexExt;
 use crate::core::config::UnixProcessConfig;
 use crate::core::highlighter::Highlight;
+use crate::core::highlighters::Painter;
 use memchr::memchr;
-use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
-use std::fmt::Write as _;
 
 pub struct UnixProcessHighlighter {
     regex: Regex,
-    name: NuStyle,
-    id: NuStyle,
-    bracket: NuStyle,
+    name: Painter,
+    id: Painter,
+    bracket: Painter,
 }
 
 impl UnixProcessHighlighter {
@@ -21,9 +20,9 @@ impl UnixProcessHighlighter {
 
         Ok(Self {
             regex,
-            name: config.name.into(),
-            id: config.id.into(),
-            bracket: config.bracket.into(),
+            name: Painter::new(config.name.into()),
+            id: Painter::new(config.id.into()),
+            bracket: Painter::new(config.bracket.into()),
         })
     }
 }
@@ -36,13 +35,13 @@ impl Highlight for UnixProcessHighlighter {
 
         self.regex.replace_all_cow(input, |caps, buf| {
             if let Some(p) = caps.name("process_name") {
-                let _ = write!(buf, "{}", self.name.paint(p.as_str()));
+                self.name.paint(buf, p.as_str());
             }
-            let _ = write!(buf, "{}", self.bracket.paint("["));
+            self.bracket.paint(buf, "[");
             if let Some(n) = caps.name("process_id") {
-                let _ = write!(buf, "{}", self.id.paint(n.as_str()));
+                self.id.paint(buf, n.as_str());
             }
-            let _ = write!(buf, "{}", self.bracket.paint("]"));
+            self.bracket.paint(buf, "]");
         })
     }
 }

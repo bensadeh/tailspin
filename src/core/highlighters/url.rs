@@ -1,21 +1,20 @@
 use super::RegexExt;
 use crate::core::config::UrlConfig;
 use crate::core::highlighter::Highlight;
-use nu_ansi_term::Style as NuStyle;
+use crate::core::highlighters::Painter;
 use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
-use std::fmt::Write as _;
 
 pub struct UrlHighlighter {
     url_regex: Regex,
     query_params_regex: Regex,
-    http: NuStyle,
-    https: NuStyle,
-    host: NuStyle,
-    path: NuStyle,
-    query_params_key: NuStyle,
-    query_params_value: NuStyle,
-    symbols: NuStyle,
+    http: Painter,
+    https: Painter,
+    host: Painter,
+    path: Painter,
+    query_params_key: Painter,
+    query_params_value: Painter,
+    symbols: Painter,
 }
 
 impl UrlHighlighter {
@@ -37,13 +36,13 @@ impl UrlHighlighter {
         Ok(Self {
             url_regex,
             query_params_regex,
-            http: config.http.into(),
-            https: config.https.into(),
-            host: config.host.into(),
-            path: config.path.into(),
-            query_params_key: config.query_params_key.into(),
-            query_params_value: config.query_params_value.into(),
-            symbols: config.symbols.into(),
+            http: Painter::new(config.http.into()),
+            https: Painter::new(config.https.into()),
+            host: Painter::new(config.host.into()),
+            path: Painter::new(config.path.into()),
+            query_params_key: Painter::new(config.query_params_key.into()),
+            query_params_value: Painter::new(config.query_params_value.into()),
+            symbols: Painter::new(config.symbols.into()),
         })
     }
 }
@@ -76,25 +75,26 @@ impl Highlight for UrlHighlighter {
             let trim_count = count_unbalanced_trailing_parens(full_match);
 
             if let Some(protocol) = caps.name("protocol") {
-                let style = match protocol.as_str() {
-                    "http" => self.http,
-                    "https" => self.https,
-                    _ => NuStyle::default(),
+                let painter = match protocol.as_str() {
+                    "http" => &self.http,
+                    "https" => &self.https,
+                    _ => &self.http,
                 };
-                let _ = write!(buf, "{}://", style.paint(protocol.as_str()));
+                painter.paint(buf, protocol.as_str());
+                buf.push_str("://");
             }
 
             if let Some(host) = caps.name("host") {
-                let _ = write!(buf, "{}", self.host.paint(host.as_str()));
+                self.host.paint(buf, host.as_str());
             }
 
             if let Some(path) = caps.name("path") {
                 let path_str = path.as_str();
                 if caps.name("query").is_none() && trim_count > 0 {
                     let trimmed = &path_str[..path_str.len() - trim_count];
-                    let _ = write!(buf, "{}", self.path.paint(trimmed));
+                    self.path.paint(buf, trimmed);
                 } else {
-                    let _ = write!(buf, "{}", self.path.paint(path_str));
+                    self.path.paint(buf, path_str);
                 }
             }
 
@@ -112,10 +112,10 @@ impl Highlight for UrlHighlighter {
                     let key = query_caps.name("key").map_or("", |m| m.as_str());
                     let equal = query_caps.name("equal").map_or("", |m| m.as_str());
                     let value = query_caps.name("value").map_or("", |m| m.as_str());
-                    let _ = write!(buf, "{}", self.symbols.paint(delimiter));
-                    let _ = write!(buf, "{}", self.query_params_key.paint(key));
-                    let _ = write!(buf, "{}", self.symbols.paint(equal));
-                    let _ = write!(buf, "{}", self.query_params_value.paint(value));
+                    self.symbols.paint(buf, delimiter);
+                    self.query_params_key.paint(buf, key);
+                    self.symbols.paint(buf, equal);
+                    self.query_params_value.paint(buf, value);
                     last = m.end();
                 }
                 buf.push_str(&query_str[last..]);

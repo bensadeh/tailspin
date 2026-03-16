@@ -1,16 +1,15 @@
 use super::RegexExt;
 use crate::core::config::UnixPathConfig;
 use crate::core::highlighter::Highlight;
+use crate::core::highlighters::Painter;
 use memchr::memchr;
-use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
-use std::fmt::Write as _;
 
 pub struct UnixPathHighlighter {
     regex: Regex,
-    segment: NuStyle,
-    separator: NuStyle,
+    segment: Painter,
+    separator: Painter,
 }
 
 impl UnixPathHighlighter {
@@ -27,8 +26,8 @@ impl UnixPathHighlighter {
 
         Ok(Self {
             regex,
-            segment: config.segment.into(),
-            separator: config.separator.into(),
+            segment: Painter::new(config.segment.into()),
+            separator: Painter::new(config.separator.into()),
         })
     }
 }
@@ -53,16 +52,16 @@ impl Highlight for UnixPathHighlighter {
             for (i, ch) in path.char_indices() {
                 if ch == '/' {
                     if let Some(start) = seg_start.take() {
-                        let _ = write!(buf, "{}", self.segment.paint(&path[start..i]));
+                        self.segment.paint(buf, &path[start..i]);
                     }
-                    let _ = write!(buf, "{}", self.separator.paint("/"));
+                    self.separator.paint(buf, "/");
                 } else if seg_start.is_none() {
                     seg_start = Some(i);
                 }
             }
 
             if let Some(start) = seg_start {
-                let _ = write!(buf, "{}", self.segment.paint(&path[start..]));
+                self.segment.paint(buf, &path[start..]);
             }
         })
     }

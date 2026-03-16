@@ -1,17 +1,16 @@
 use super::RegexExt;
 use crate::core::config::UuidConfig;
 use crate::core::highlighter::Highlight;
+use crate::core::highlighters::Painter;
 use memchr::memchr;
-use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
-use std::fmt::Write as _;
 
 pub struct UuidHighlighter {
     regex: Regex,
-    number: NuStyle,
-    letter: NuStyle,
-    dash: NuStyle,
+    number: Painter,
+    letter: Painter,
+    dash: Painter,
 }
 
 impl UuidHighlighter {
@@ -32,9 +31,9 @@ impl UuidHighlighter {
 
         Ok(Self {
             regex,
-            number: config.number.into(),
-            letter: config.letter.into(),
-            dash: config.dash.into(),
+            number: Painter::new(config.number.into()),
+            letter: Painter::new(config.letter.into()),
+            dash: Painter::new(config.dash.into()),
         })
     }
 }
@@ -60,7 +59,7 @@ impl Highlight for UuidHighlighter {
             let matched = caps.get(0).unwrap().as_str();
             for (i, c) in matched.char_indices() {
                 let s = &matched[i..i + c.len_utf8()];
-                let style = match c {
+                let painter = match c {
                     '0'..='9' => &self.number,
                     'a'..='f' | 'A'..='F' => &self.letter,
                     '-' => &self.dash,
@@ -69,7 +68,7 @@ impl Highlight for UuidHighlighter {
                         continue;
                     }
                 };
-                let _ = write!(buf, "{}", style.paint(s));
+                painter.paint(buf, s);
             }
         })
     }

@@ -1,13 +1,12 @@
 use crate::core::config::NumberConfig;
 use crate::core::highlighter::Highlight;
-use nu_ansi_term::Style as NuStyle;
+use crate::core::highlighters::Painter;
 use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
-use std::fmt::Write as _;
 
 pub struct NumberHighlighter {
     regex: Regex,
-    style: NuStyle,
+    style: Painter,
 }
 
 impl NumberHighlighter {
@@ -23,7 +22,7 @@ impl NumberHighlighter {
 
         Ok(Self {
             regex,
-            style: config.style.into(),
+            style: Painter::new(config.style.into()),
         })
     }
 }
@@ -40,7 +39,7 @@ impl Highlight for NumberHighlighter {
 
         for m in it {
             out.push_str(&input[last..m.start()]);
-            let _ = write!(out, "{}", self.style.paint(&input[m.start()..m.end()]));
+            self.style.paint(&mut out, &input[m.start()..m.end()]);
             last = m.end();
         }
         out.push_str(&input[last..]);

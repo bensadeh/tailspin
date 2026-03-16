@@ -1,19 +1,18 @@
 use super::RegexExt;
 use crate::core::config::PointerConfig;
 use crate::core::highlighter::Highlight;
+use crate::core::highlighters::Painter;
 use memchr::memchr2;
-use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
-use std::fmt::Write as _;
 
 pub struct PointerHighlighter {
     regex: Regex,
-    number: NuStyle,
-    letter: NuStyle,
-    separator: NuStyle,
-    separator_token: char,
-    x: NuStyle,
+    number: Painter,
+    letter: Painter,
+    separator: Painter,
+    separator_token_str: String,
+    x: Painter,
 }
 
 impl PointerHighlighter {
@@ -22,24 +21,24 @@ impl PointerHighlighter {
             \b
             (?P<prefix>0x)
             (?P<first_half>[0-9a-fA-F]{8})
-            \b          
+            \b
             |
             \b
             (?P<prefix64>0x)
             (?P<first_half64>[0-9a-fA-F]{8})
             (?P<second_half>[0-9a-fA-F]{8})
-            \b  
+            \b
         ";
 
         let regex = RegexBuilder::new(pattern).unicode(false).build()?;
 
         Ok(Self {
             regex,
-            number: config.number.into(),
-            letter: config.letter.into(),
-            separator: config.separator.into(),
-            separator_token: config.separator_token,
-            x: config.x.into(),
+            number: Painter::new(config.number.into()),
+            letter: Painter::new(config.letter.into()),
+            separator: Painter::new(config.separator.into()),
+            separator_token_str: config.separator_token.to_string(),
+            x: Painter::new(config.x.into()),
         })
     }
 }
@@ -48,7 +47,7 @@ impl PointerHighlighter {
     fn write_hex_chars(&self, buf: &mut String, text: &str) {
         for (i, c) in text.char_indices() {
             let s = &text[i..i + c.len_utf8()];
-            let style = match c {
+            let painter = match c {
                 '0'..='9' => &self.number,
                 'x' | 'X' => &self.x,
                 'a'..='f' | 'A'..='F' => &self.letter,
@@ -57,7 +56,7 @@ impl PointerHighlighter {
                     continue;
                 }
             };
-            let _ = write!(buf, "{}", style.paint(s));
+            painter.paint(buf, s);
         }
     }
 }
@@ -80,8 +79,7 @@ impl Highlight for PointerHighlighter {
             self.write_hex_chars(buf, first_half);
 
             if let Some(second_half) = caps.name("second_half") {
-                let sep: &str = &self.separator_token.to_string();
-                let _ = write!(buf, "{}", self.separator.paint(sep));
+                self.separator.paint(buf, &self.separator_token_str);
                 self.write_hex_chars(buf, second_half.as_str());
             }
         })

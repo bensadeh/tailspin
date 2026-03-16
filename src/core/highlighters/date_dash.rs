@@ -1,15 +1,14 @@
 use crate::core::config::DateTimeConfig;
 use crate::core::highlighter::Highlight;
+use crate::core::highlighters::Painter;
 use memchr::memchr2;
-use nu_ansi_term::Style as NuStyle;
 use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
-use std::fmt::Write as _;
 
 pub struct DateDashHighlighter {
     regex: Regex,
-    date: NuStyle,
-    separator: NuStyle,
+    date: Painter,
+    separator: Painter,
     idx: Idx,
 }
 
@@ -73,14 +72,9 @@ impl DateDashHighlighter {
         Ok(Self {
             regex,
             idx,
-            date: time_config.date.into(),
-            separator: time_config.separator.into(),
+            date: Painter::new(time_config.date.into()),
+            separator: Painter::new(time_config.separator.into()),
         })
-    }
-
-    #[inline]
-    fn paint<'a>(&self, s: &'a str, style: &NuStyle, out: &mut String) {
-        let _ = write!(out, "{}", style.paint(s));
     }
 
     #[inline]
@@ -92,11 +86,11 @@ impl DateDashHighlighter {
         let s2 = caps.get(self.idx.a_sep2).unwrap().as_str();
         let s = caps.get(self.idx.a_second).unwrap().as_str();
 
-        self.paint(y, &self.date, out);
-        self.paint(s1, &self.separator, out);
-        self.paint(f, &self.date, out);
-        self.paint(s2, &self.separator, out);
-        self.paint(s, &self.date, out);
+        self.date.paint(out, y);
+        self.separator.paint(out, s1);
+        self.date.paint(out, f);
+        self.separator.paint(out, s2);
+        self.date.paint(out, s);
     }
 
     #[inline]
@@ -108,11 +102,11 @@ impl DateDashHighlighter {
         let s2 = caps.get(self.idx.b_sep2).unwrap().as_str();
         let y = caps.get(self.idx.b_year).unwrap().as_str();
 
-        self.paint(y, &self.date, out);
-        self.paint(s1, &self.separator, out);
-        self.paint(f, &self.date, out);
-        self.paint(s2, &self.separator, out);
-        self.paint(s, &self.date, out);
+        self.date.paint(out, y);
+        self.separator.paint(out, s1);
+        self.date.paint(out, f);
+        self.separator.paint(out, s2);
+        self.date.paint(out, s);
     }
 }
 

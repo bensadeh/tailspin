@@ -1,78 +1,72 @@
 use crate::core::config::JsonConfig;
 use crate::core::highlighter::Highlight;
-use nu_ansi_term::Style as NuStyle;
+use crate::core::highlighters::Painter;
 use serde_json::Value;
 use std::borrow::Cow;
 use std::fmt::Write;
 
 pub struct JsonHighlighter {
-    pub key: NuStyle,
-    pub quote_token: NuStyle,
-    pub curly_bracket: NuStyle,
-    pub square_bracket: NuStyle,
-    pub comma: NuStyle,
-    pub colon: NuStyle,
+    key: Painter,
+    quote_token: Painter,
+    curly_bracket: Painter,
+    square_bracket: Painter,
+    comma: Painter,
+    colon: Painter,
 }
 
 impl JsonHighlighter {
     pub fn new(config: JsonConfig) -> Self {
         Self {
-            key: config.key.into(),
-            quote_token: config.quote_token.into(),
-            curly_bracket: config.curly_bracket.into(),
-            square_bracket: config.square_bracket.into(),
-            comma: config.comma.into(),
-            colon: config.colon.into(),
+            key: Painter::new(config.key.into()),
+            quote_token: Painter::new(config.quote_token.into()),
+            curly_bracket: Painter::new(config.curly_bracket.into()),
+            square_bracket: Painter::new(config.square_bracket.into()),
+            comma: Painter::new(config.comma.into()),
+            colon: Painter::new(config.colon.into()),
         }
     }
 
     fn format_json(&self, value: &Value, output: &mut String) {
         match value {
             Value::Object(map) => {
-                write!(output, "{}", self.curly_bracket.paint("{")).unwrap();
+                self.curly_bracket.paint(output, "{");
                 let mut first = true;
                 for (key, val) in map {
                     if !first {
-                        write!(output, "{}", self.comma.paint(",")).unwrap();
+                        self.comma.paint(output, ",");
                     }
                     first = false;
 
-                    write!(
-                        output,
-                        " {}{}{}",
-                        self.quote_token.paint("\""),
-                        self.key.paint(key),
-                        self.quote_token.paint("\"")
-                    )
-                    .unwrap();
-                    write!(output, "{} ", self.colon.paint(":")).unwrap();
+                    output.push(' ');
+                    self.quote_token.paint(output, "\"");
+                    self.key.paint(output, key);
+                    self.quote_token.paint(output, "\"");
+                    self.colon.paint(output, ":");
+                    output.push(' ');
 
                     self.format_json(val, output);
                 }
-                write!(output, " {}", self.curly_bracket.paint("}")).unwrap();
+                output.push(' ');
+                self.curly_bracket.paint(output, "}");
             }
             Value::Array(array) => {
-                write!(output, "{}", self.square_bracket.paint("[")).unwrap();
+                self.square_bracket.paint(output, "[");
                 let mut first = true;
                 for item in array {
                     if !first {
-                        write!(output, "{} ", self.comma.paint(",")).unwrap();
+                        self.comma.paint(output, ",");
+                        output.push(' ');
                     }
                     first = false;
 
                     self.format_json(item, output);
                 }
-                write!(output, "{}", self.square_bracket.paint("]")).unwrap();
+                self.square_bracket.paint(output, "]");
             }
             Value::String(s) => {
-                write!(
-                    output,
-                    "{}{}{}",
-                    self.quote_token.paint("\""),
-                    s,
-                    self.quote_token.paint("\"")
-                )
-                .unwrap();
+                self.quote_token.paint(output, "\"");
+                output.push_str(s);
+                self.quote_token.paint(output, "\"");
             }
             Value::Number(n) => {
                 write!(output, "{}", n).unwrap();
@@ -81,7 +75,7 @@ impl JsonHighlighter {
                 write!(output, "{}", b).unwrap();
             }
             Value::Null => {
-                write!(output, "null").unwrap();
+                output.push_str("null");
             }
         }
     }

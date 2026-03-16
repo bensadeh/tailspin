@@ -1,13 +1,12 @@
 use crate::core::config::RegexConfig;
 use crate::core::highlighter::Highlight;
-use nu_ansi_term::Style as NuStyle;
+use crate::core::highlighters::Painter;
 use regex::{Error, Regex};
 use std::borrow::Cow;
-use std::fmt::Write as _;
 
 pub struct RegexpHighlighter {
     regex: Regex,
-    style: NuStyle,
+    style: Painter,
 }
 
 impl RegexpHighlighter {
@@ -28,7 +27,7 @@ impl RegexpHighlighter {
     pub fn new(config: RegexConfig) -> Result<Self, Error> {
         Ok(Self {
             regex: Regex::new(config.regex.as_str())?,
-            style: config.style.into(),
+            style: Painter::new(config.style.into()),
         })
     }
 }
@@ -53,15 +52,14 @@ impl Highlight for RegexpHighlighter {
                     1 => {
                         if let Some(captured) = caps.get(1) {
                             new_string.push_str(&input[entire_match.start()..captured.start()]);
-                            let _ = write!(new_string, "{}", self.style.paint(captured.as_str()));
+                            self.style.paint(&mut new_string, captured.as_str());
                             new_string.push_str(&input[captured.end()..entire_match.end()]);
                         } else {
-                            let _ =
-                                write!(new_string, "{}", self.style.paint(entire_match.as_str()));
+                            self.style.paint(&mut new_string, entire_match.as_str());
                         }
                     }
                     _ => {
-                        let _ = write!(new_string, "{}", self.style.paint(entire_match.as_str()));
+                        self.style.paint(&mut new_string, entire_match.as_str());
                     }
                 }
                 last_end = entire_match.end();

@@ -1,16 +1,15 @@
 use super::RegexExt;
 use crate::core::config::KeyValueConfig;
 use crate::core::highlighter::Highlight;
+use crate::core::highlighters::Painter;
 use memchr::memchr;
-use nu_ansi_term::Style as NuStyle;
 use regex::{Error, Regex, RegexBuilder};
 use std::borrow::Cow;
-use std::fmt::Write as _;
 
 pub struct KeyValueHighlighter {
     regex: Regex,
-    key: NuStyle,
-    separator: NuStyle,
+    key: Painter,
+    separator: Painter,
 }
 
 impl KeyValueHighlighter {
@@ -20,8 +19,8 @@ impl KeyValueHighlighter {
 
         Ok(Self {
             regex,
-            key: config.key.into(),
-            separator: config.separator.into(),
+            key: Painter::new(config.key.into()),
+            separator: Painter::new(config.separator.into()),
         })
     }
 }
@@ -36,10 +35,10 @@ impl Highlight for KeyValueHighlighter {
             let space_or_start = caps.name("space_or_start").map(|s| s.as_str()).unwrap_or_default();
             buf.push_str(space_or_start);
             if let Some(k) = caps.name("key") {
-                let _ = write!(buf, "{}", self.key.paint(k.as_str()));
+                self.key.paint(buf, k.as_str());
             }
             if let Some(e) = caps.name("equals") {
-                let _ = write!(buf, "{}", self.separator.paint(e.as_str()));
+                self.separator.paint(buf, e.as_str());
             }
         })
     }

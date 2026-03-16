@@ -1,13 +1,13 @@
 use crate::core::config::KeywordConfig;
 use crate::core::highlighter::Highlight;
+use crate::core::highlighters::Painter;
 use aho_corasick::{AhoCorasick, AhoCorasickBuilder, BuildError, MatchKind};
-use nu_ansi_term::Style as NuStyle;
 use std::borrow::Cow;
-use std::fmt::Write as _;
 
 pub struct KeywordHighlighter {
     ac: AhoCorasick,
-    style: NuStyle,
+    style: Painter,
+    has_background: bool,
 }
 
 impl KeywordHighlighter {
@@ -16,9 +16,12 @@ impl KeywordHighlighter {
             .match_kind(MatchKind::LeftmostFirst)
             .build(&keyword_config.words)?;
 
+        let has_background = keyword_config.style.bg.is_some();
+
         Ok(Self {
             ac,
-            style: keyword_config.style.into(),
+            style: Painter::new(keyword_config.style.into()),
+            has_background,
         })
     }
 }
@@ -49,11 +52,10 @@ impl Highlight for KeywordHighlighter {
 
             out_buf.push_str(&input[last..s]);
 
-            if self.style.background.is_none() {
-                let _ = write!(out_buf, "{}", self.style.paint(&input[s..e]));
+            if !self.has_background {
+                self.style.paint(out_buf, &input[s..e]);
             } else {
-                let padded = format!(" {} ", &input[s..e]);
-                let _ = write!(out_buf, "{}", self.style.paint(padded));
+                self.style.paint_with_padding(out_buf, &input[s..e]);
             }
 
             last = e;
