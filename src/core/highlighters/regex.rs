@@ -55,6 +55,9 @@ impl Highlight for RegexpHighlighter {
                             new_string.push_str(&input[entire_match.start()..captured.start()]);
                             let _ = write!(new_string, "{}", self.style.paint(captured.as_str()));
                             new_string.push_str(&input[captured.end()..entire_match.end()]);
+                        } else {
+                            let _ =
+                                write!(new_string, "{}", self.style.paint(entire_match.as_str()));
                         }
                     }
                     _ => {
@@ -67,5 +70,38 @@ impl Highlight for RegexpHighlighter {
         new_string.push_str(&input[last_end..]);
 
         Cow::Owned(new_string)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::tests::escape_code_converter::ConvertEscapeCodes;
+    use crate::style::{Color, Style};
+
+    fn make_highlighter(pattern: &str) -> RegexpHighlighter {
+        let config = RegexConfig {
+            regex: pattern.to_string(),
+            style: Style::new().fg(Color::Red),
+        };
+        RegexpHighlighter::new(config).unwrap()
+    }
+
+    #[test]
+    fn test_optional_capture_group_not_participating() {
+        // Pattern with one optional capture group: group 1 participates
+        // only when "error" is present
+        let highlighter = make_highlighter(r"(error)?warning");
+
+        // When the capture group does NOT participate, the matched text
+        // ("warning") must still appear in the output.
+        let result = highlighter.apply("got a warning here");
+        let readable = result.to_string().convert_escape_codes();
+        assert_eq!(readable, "got a [red]warning[reset] here");
+
+        // When the capture group DOES participate, only it is styled.
+        let result = highlighter.apply("got a errorwarning here");
+        let readable = result.to_string().convert_escape_codes();
+        assert_eq!(readable, "got a [red]error[reset]warning here");
     }
 }
