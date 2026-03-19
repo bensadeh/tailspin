@@ -39,24 +39,16 @@
 
 ### Performance
 
-- Reduced string allocations in highlighters by replacing `format!()` with `write!()` to pre-allocated buffers
-- Increased pre-allocation cap for highlighted output from 3KB to 16KB
 - Use SIMD-accelerated `memchr` for newline detection in buffered reader
 - Cache ANSI escape sequence finders using `LazyLock` statics instead of recreating per call
-- Add fast byte-check early exits to key_value, unix_process, and pointer highlighters
-- Remove unnecessary string allocation in temp file writer
-- Remove per-quoted-segment string clone in quote highlighter
-- Pre-allocate JSON highlighter output buffer
-- Eliminate per-match `String` allocations in regex-based highlighters
+- Reduced string allocations across highlighters by replacing `format!()` with `write!()`, eliminating per-match
+  allocations, and increasing pre-allocation buffers
 
 ### Build
 
 - Enable LTO, single codegen unit, and `strip = true` for release builds
-- Trim tokio features from `full` to only what's used
-- Replace `async-trait` with native async traits
-- Remove `uuid` dependency
-- Replace `ctrlc` crate with tokio's built-in signal handling
-- Replace `miette` with `anyhow`
+- Trimmed and modernized dependencies: replaced `async-trait` with native async traits, `miette` with `anyhow`,
+  `ctrlc` with tokio signals; removed `uuid`
 
 ## 5.5.0
 
