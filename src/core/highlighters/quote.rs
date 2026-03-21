@@ -36,7 +36,7 @@ impl Highlight for QuoteHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         let quotes_count = memchr_iter(self.quotes_token, input.as_bytes()).count();
 
-        if quotes_count == 0 || quotes_count % 2 != 0 {
+        if quotes_count == 0 || !quotes_count.is_multiple_of(2) {
             return Cow::Borrowed(input);
         }
 

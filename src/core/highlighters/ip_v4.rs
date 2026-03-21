@@ -45,7 +45,7 @@ impl Highlight for IpV4Highlighter {
                 .all(|n| caps.name(n).unwrap().as_str().parse::<u8>().is_ok());
             let valid_mask = caps
                 .name("mask")
-                .map_or(true, |ms| ms.as_str().parse::<u8>().is_ok_and(|v| v <= 32));
+                .is_none_or(|ms| ms.as_str().parse::<u8>().is_ok_and(|v| v <= 32));
 
             if valid_octets && valid_mask {
                 for (i, &n) in names.iter().enumerate() {

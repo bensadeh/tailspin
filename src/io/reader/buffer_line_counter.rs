@@ -94,10 +94,10 @@ fn parse_buffer(buf: &[u8]) -> Vec<String> {
         })
         .collect::<Vec<String>>();
 
-    if let Some(last) = parts.last() {
-        if last.is_empty() {
-            parts.pop();
-        }
+    if let Some(last) = parts.last()
+        && last.is_empty()
+    {
+        parts.pop();
     }
 
     parts
