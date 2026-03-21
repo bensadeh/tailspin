@@ -16,11 +16,16 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy --verbose -- -D warnings
+
       - name: Build and test
         run: |
           cargo build --verbose
           cargo test --verbose
-          cargo clippy --verbose
 
       - name: Check Cargo.lock
         run: |

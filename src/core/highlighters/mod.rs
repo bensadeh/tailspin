@@ -111,43 +111,6 @@ impl RegexExt for Regex {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn painter_prefix_ends_with_reset() {
-        let style = NuStyle {
-            foreground: Some(nu_ansi_term::Color::Red),
-            ..Default::default()
-        };
-        let styled = format!("{}", style.paint(""));
-        assert!(
-            styled.ends_with(RESET),
-            "nu_ansi_term output must end with RESET: {styled:?}"
-        );
-    }
-
-    #[test]
-    fn painter_default_style_produces_empty_prefix() {
-        let painter = Painter::new(NuStyle::default());
-        assert!(painter.prefix.is_empty());
-    }
-
-    #[test]
-    fn painter_paint_roundtrip() {
-        let painter = Painter::new(NuStyle {
-            foreground: Some(nu_ansi_term::Color::Green),
-            ..Default::default()
-        });
-        let mut buf = String::new();
-        painter.paint(&mut buf, "hello");
-        assert!(buf.starts_with("\x1b["));
-        assert!(buf.ends_with(RESET));
-        assert!(buf.contains("hello"));
-    }
-}
-
 pub enum StaticHighlight {
     DateDash(DateDashHighlighter),
     Time(TimeHighlighter),
@@ -191,5 +154,42 @@ impl Highlight for StaticHighlight {
             StaticHighlight::Url(h) => h.apply(input),
             StaticHighlight::Uuid(h) => h.apply(input),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn painter_prefix_ends_with_reset() {
+        let style = NuStyle {
+            foreground: Some(nu_ansi_term::Color::Red),
+            ..Default::default()
+        };
+        let styled = format!("{}", style.paint(""));
+        assert!(
+            styled.ends_with(RESET),
+            "nu_ansi_term output must end with RESET: {styled:?}"
+        );
+    }
+
+    #[test]
+    fn painter_default_style_produces_empty_prefix() {
+        let painter = Painter::new(NuStyle::default());
+        assert!(painter.prefix.is_empty());
+    }
+
+    #[test]
+    fn painter_paint_roundtrip() {
+        let painter = Painter::new(NuStyle {
+            foreground: Some(nu_ansi_term::Color::Green),
+            ..Default::default()
+        });
+        let mut buf = String::new();
+        painter.paint(&mut buf, "hello");
+        assert!(buf.starts_with("\x1b["));
+        assert!(buf.ends_with(RESET));
+        assert!(buf.contains("hello"));
     }
 }
