@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
-use initial_read::InitialReadCompleteSender;
 use io::controller::{Reader, Writer, initialize_io};
+use io::initial_read::InitialReadCompleteSender;
 use io::presenter::Present;
 use io::reader::{AsyncLineReader, StreamEvent};
 use io::writer::AsyncLineWriter;
@@ -14,7 +14,6 @@ use tokio::task::JoinHandle;
 mod cli;
 mod config;
 mod highlighter_builder;
-mod initial_read;
 mod io;
 mod theme;
 

@@ -1,6 +1,6 @@
 use crate::cli::get_config;
 use crate::config::{Source, Target};
-use crate::initial_read::{InitialReadCompleteReceiver, InitialReadCompleteSender, initial_read_complete_channel};
+use crate::io::initial_read::{InitialReadCompleteReceiver, InitialReadCompleteSender, initial_read_complete_channel};
 use crate::io::presenter::pager::{CustomPagerOptions, LessPagerOptions, Pager, PagerOptions};
 use crate::io::presenter::stdout::StdoutPresenter;
 use crate::io::reader::command::CommandReader;
