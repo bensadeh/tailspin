@@ -39,8 +39,8 @@
 //!             ..Style::default()
 //!         },
 //!     })
-//!     .with_quote_highlighter(QuotesConfig {
-//!         quotes_token: b'"',
+//!     .with_quote_highlighter(QuoteConfig {
+//!         quote_token: b'"',
 //!         style: Style {
 //!             fg: Some(Color::Yellow),
 //!             ..Style::default()

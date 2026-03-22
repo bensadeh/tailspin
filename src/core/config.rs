@@ -133,9 +133,9 @@ pub struct JsonConfig {
 
 /// Configuration for highlighting quoted text.
 #[derive(Clone, Copy)]
-pub struct QuotesConfig {
+pub struct QuoteConfig {
     /// ASCII byte used as quote delimiter.
-    pub quotes_token: u8,
+    pub quote_token: u8,
     /// Style applied to quoted text.
     pub style: Style,
 }
@@ -273,10 +273,10 @@ impl Default for JsonConfig {
     }
 }
 
-impl Default for QuotesConfig {
+impl Default for QuoteConfig {
     fn default() -> Self {
-        QuotesConfig {
-            quotes_token: b'"',
+        QuoteConfig {
+            quote_token: b'"',
             style: Style::new().fg(Color::Yellow),
         }
     }

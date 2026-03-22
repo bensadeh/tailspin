@@ -5,7 +5,7 @@ use memchr::memchr;
 use regex::{Captures, Error, Regex, RegexBuilder};
 use std::borrow::Cow;
 
-pub struct TimeHighlighter {
+pub struct DateTimeHighlighter {
     regex: Regex,
     idx: Idx,
     time: Painter,
@@ -26,7 +26,7 @@ struct Idx {
     tz: usize,
 }
 
-impl TimeHighlighter {
+impl DateTimeHighlighter {
     pub fn new(time_config: DateTimeConfig) -> Result<Self, Error> {
         let pattern = r"(?x)
             (?P<T>[T\s])?
@@ -74,7 +74,7 @@ impl TimeHighlighter {
     }
 }
 
-impl Highlight for TimeHighlighter {
+impl Highlight for DateTimeHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         if memchr(b':', input.as_bytes()).is_none() {
             return Cow::Borrowed(input);
@@ -126,7 +126,7 @@ mod tests {
             zone: Style::new().fg(Color::Blue),
             separator: Style::new().fg(Color::Yellow),
         };
-        let highlighter = TimeHighlighter::new(config).unwrap();
+        let highlighter = DateTimeHighlighter::new(config).unwrap();
 
         let cases = vec![
             (

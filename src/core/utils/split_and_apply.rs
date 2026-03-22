@@ -1,5 +1,4 @@
 use crate::core::highlighter::Highlight;
-use crate::core::highlighters::StaticHighlight;
 use memchr::memmem::Finder;
 use std::borrow::Cow;
 use std::cmp::min;
@@ -11,7 +10,7 @@ static RESET_FINDER: LazyLock<Finder<'static>> = LazyLock::new(|| Finder::new("\
 const RESET_LEN: usize = "\x1b[0m".len();
 const SIXTEEN_KB: usize = 16 * 1024;
 
-pub fn apply_only_to_unhighlighted<'a>(input: &'a str, highlighter: &StaticHighlight) -> Cow<'a, str> {
+pub fn apply_only_to_unhighlighted<'a>(input: &'a str, highlighter: &(impl Highlight + ?Sized)) -> Cow<'a, str> {
     let bytes = input.as_bytes();
     let mut result: Option<String> = None;
     let mut copied = 0usize;
@@ -53,7 +52,7 @@ pub fn apply_only_to_unhighlighted<'a>(input: &'a str, highlighter: &StaticHighl
 #[inline(always)]
 fn apply_chunk(
     text: &str,
-    highlighter: &StaticHighlight,
+    highlighter: &(impl Highlight + ?Sized),
     input: &str,
     result: &mut Option<String>,
     copied: &mut usize,
@@ -88,17 +87,14 @@ fn push_changed(new_text: &str, input: &str, result: &mut Option<String>, copied
 mod tests {
     use super::*;
     use crate::core::config::NumberConfig;
-    use crate::core::highlighters::StaticHighlight;
     use crate::core::highlighters::number::NumberHighlighter;
     use crate::style::{Color, Style};
 
-    fn number_highlighter() -> StaticHighlight {
-        StaticHighlight::Number(
-            NumberHighlighter::new(NumberConfig {
-                style: Style::new().fg(Color::Cyan),
-            })
-            .unwrap(),
-        )
+    fn number_highlighter() -> NumberHighlighter {
+        NumberHighlighter::new(NumberConfig {
+            style: Style::new().fg(Color::Cyan),
+        })
+        .unwrap()
     }
 
     #[test]

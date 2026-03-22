@@ -10,7 +10,7 @@ pub struct Theme {
     pub regexes: Vec<RegexConfig>,
     pub numbers: NumberConfig,
     pub uuids: UuidConfig,
-    pub quotes: QuotesConfig,
+    pub quotes: QuoteConfig,
     pub ip_v4_addresses: IpV4Config,
     pub ip_v6_addresses: IpV6Config,
     pub dates: DateTimeConfig,
@@ -65,7 +65,7 @@ pub struct UuidToml {
 
 #[derive(Deserialize, Debug)]
 pub struct QuotesToml {
-    pub quotes_token: Option<char>,
+    pub quote_token: Option<char>,
     pub style: Option<Style>,
 }
 

@@ -4,14 +4,14 @@ use crate::core::highlighters::Painter;
 use regex::{Error, Regex};
 use std::borrow::Cow;
 
-pub struct RegexpHighlighter {
+pub struct RegexHighlighter {
     regex: Regex,
     style: Painter,
 }
 
-impl RegexpHighlighter {
+impl RegexHighlighter {
     /// This constructor takes a regular expression pattern and a `Style` object,
-    /// returning a `RegexpHighlighter` that will apply the specified style
+    /// returning a `RegexHighlighter` that will apply the specified style
     /// to any text matching the regular expression.
     ///
     /// It supports one capture group `()`. When found, it will apply the style to the captured text.
@@ -32,7 +32,7 @@ impl RegexpHighlighter {
     }
 }
 
-impl Highlight for RegexpHighlighter {
+impl Highlight for RegexHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         let capture_groups = self.regex.captures_len() - 1;
         let mut caps_iter = self.regex.captures_iter(input).peekable();
@@ -77,12 +77,12 @@ mod tests {
     use crate::core::tests::escape_code_converter::ConvertEscapeCodes;
     use crate::style::{Color, Style};
 
-    fn make_highlighter(pattern: &str) -> RegexpHighlighter {
+    fn make_highlighter(pattern: &str) -> RegexHighlighter {
         let config = RegexConfig {
             regex: pattern.to_string(),
             style: Style::new().fg(Color::Red),
         };
-        RegexpHighlighter::new(config).unwrap()
+        RegexHighlighter::new(config).unwrap()
     }
 
     #[test]

@@ -2,7 +2,7 @@ use memchr::memchr_iter;
 use nu_ansi_term::Style as NuStyle;
 use std::borrow::Cow;
 
-use crate::core::config::QuotesConfig;
+use crate::core::config::QuoteConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::quote::State::{InsideQuote, OutsideQuote};
 use crate::style::Style;
@@ -10,16 +10,16 @@ use crate::style::Style;
 const RESET: &str = "\x1b[0m";
 
 pub struct QuoteHighlighter {
-    quotes_token: u8,
+    quote_token: u8,
     color: String,
 }
 
 impl QuoteHighlighter {
-    pub fn new(config: QuotesConfig) -> Self {
+    pub fn new(config: QuoteConfig) -> Self {
         let color = ansi_color_code_without_reset(config.style);
 
         Self {
-            quotes_token: config.quotes_token,
+            quote_token: config.quote_token,
             color,
         }
     }
@@ -34,7 +34,7 @@ fn ansi_color_code_without_reset(style: Style) -> String {
 
 impl Highlight for QuoteHighlighter {
     fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        let quotes_count = memchr_iter(self.quotes_token, input.as_bytes()).count();
+        let quotes_count = memchr_iter(self.quote_token, input.as_bytes()).count();
 
         if quotes_count == 0 || !quotes_count.is_multiple_of(2) {
             return Cow::Borrowed(input);
@@ -46,7 +46,7 @@ impl Highlight for QuoteHighlighter {
         for ch in input.chars() {
             match &mut state {
                 InsideQuote { potential_reset_code } => {
-                    if ch == self.quotes_token as char {
+                    if ch == self.quote_token as char {
                         // Flush any partially accumulated escape sequence.
                         output.push_str(potential_reset_code);
                         // End of a quoted segment: insert the closing quote and reset.
@@ -69,7 +69,7 @@ impl Highlight for QuoteHighlighter {
                     }
                 }
                 OutsideQuote => {
-                    if ch == self.quotes_token as char {
+                    if ch == self.quote_token as char {
                         // Start of a quoted segment: insert the color code and the quote.
                         output.push_str(&self.color);
                         output.push(ch);
@@ -84,6 +84,10 @@ impl Highlight for QuoteHighlighter {
         }
 
         Cow::Owned(output)
+    }
+
+    fn apply_to_line<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.apply(input)
     }
 }
 
@@ -100,8 +104,8 @@ mod tests {
 
     #[test]
     fn test_multiple() {
-        let highlighter = QuoteHighlighter::new(QuotesConfig {
-            quotes_token: b'"',
+        let highlighter = QuoteHighlighter::new(QuoteConfig {
+            quote_token: b'"',
             style: Style::new().fg(Color::Yellow),
         });
 
@@ -124,8 +128,8 @@ mod tests {
 
     #[test]
     fn test_no_overwrite() {
-        let highlighter = QuoteHighlighter::new(QuotesConfig {
-            quotes_token: b'"',
+        let highlighter = QuoteHighlighter::new(QuoteConfig {
+            quote_token: b'"',
             style: Style::new().fg(Color::Yellow),
         });
 
@@ -139,8 +143,8 @@ mod tests {
 
     #[test]
     fn test_odd_number_of_highlight_tokens() {
-        let highlighter = QuoteHighlighter::new(QuotesConfig {
-            quotes_token: b'"',
+        let highlighter = QuoteHighlighter::new(QuoteConfig {
+            quote_token: b'"',
             style: Style::new().fg(Color::Yellow),
         });
 
@@ -154,8 +158,8 @@ mod tests {
 
     #[test]
     fn test_preserves_multiple_highlights_inside_quotes() {
-        let highlighter = QuoteHighlighter::new(QuotesConfig {
-            quotes_token: b'"',
+        let highlighter = QuoteHighlighter::new(QuoteConfig {
+            quote_token: b'"',
             style: Style::new().fg(Color::Yellow),
         });
 
@@ -171,8 +175,8 @@ mod tests {
 
     #[test]
     fn test_highlight_at_start_of_quote() {
-        let highlighter = QuoteHighlighter::new(QuotesConfig {
-            quotes_token: b'"',
+        let highlighter = QuoteHighlighter::new(QuoteConfig {
+            quote_token: b'"',
             style: Style::new().fg(Color::Yellow),
         });
 
@@ -186,8 +190,8 @@ mod tests {
 
     #[test]
     fn test_highlight_at_end_of_quote() {
-        let highlighter = QuoteHighlighter::new(QuotesConfig {
-            quotes_token: b'"',
+        let highlighter = QuoteHighlighter::new(QuoteConfig {
+            quote_token: b'"',
             style: Style::new().fg(Color::Yellow),
         });
 
@@ -201,8 +205,8 @@ mod tests {
 
     #[test]
     fn test_no_highlights_inside_quotes() {
-        let highlighter = QuoteHighlighter::new(QuotesConfig {
-            quotes_token: b'"',
+        let highlighter = QuoteHighlighter::new(QuoteConfig {
+            quote_token: b'"',
             style: Style::new().fg(Color::Yellow),
         });
 
@@ -216,8 +220,8 @@ mod tests {
 
     #[test]
     fn test_adjacent_quoted_strings() {
-        let highlighter = QuoteHighlighter::new(QuotesConfig {
-            quotes_token: b'"',
+        let highlighter = QuoteHighlighter::new(QuoteConfig {
+            quote_token: b'"',
             style: Style::new().fg(Color::Yellow),
         });
 
@@ -231,8 +235,8 @@ mod tests {
 
     #[test]
     fn test_empty_quoted_string() {
-        let highlighter = QuoteHighlighter::new(QuotesConfig {
-            quotes_token: b'"',
+        let highlighter = QuoteHighlighter::new(QuoteConfig {
+            quote_token: b'"',
             style: Style::new().fg(Color::Yellow),
         });
 
@@ -246,8 +250,8 @@ mod tests {
 
     #[test]
     fn test_entirely_highlighted_content_inside_quotes() {
-        let highlighter = QuoteHighlighter::new(QuotesConfig {
-            quotes_token: b'"',
+        let highlighter = QuoteHighlighter::new(QuoteConfig {
+            quote_token: b'"',
             style: Style::new().fg(Color::Yellow),
         });
 
@@ -261,8 +265,8 @@ mod tests {
 
     #[test]
     fn test_single_quote_token() {
-        let highlighter = QuoteHighlighter::new(QuotesConfig {
-            quotes_token: b'\'',
+        let highlighter = QuoteHighlighter::new(QuoteConfig {
+            quote_token: b'\'',
             style: Style::new().fg(Color::Yellow),
         });
 

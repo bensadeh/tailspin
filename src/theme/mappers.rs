@@ -11,7 +11,7 @@ impl From<TomlTheme> for Theme {
                 .map_or_else(Vec::new, |regexes| regexes.into_iter().map(RegexConfig::from).collect()),
             numbers: toml.numbers.map_or_else(NumberConfig::default, NumberConfig::from),
             uuids: toml.uuids.map_or_else(UuidConfig::default, UuidConfig::from),
-            quotes: toml.quotes.map_or_else(QuotesConfig::default, QuotesConfig::from),
+            quotes: toml.quotes.map_or_else(QuoteConfig::default, QuoteConfig::from),
             ip_v4_addresses: toml.ip_addresses.map_or_else(IpV4Config::default, IpV4Config::from),
             ip_v6_addresses: toml.ip_addresses.map_or_else(IpV6Config::default, IpV6Config::from),
             dates: toml.dates.map_or_else(DateTimeConfig::default, DateTimeConfig::from),
@@ -69,15 +69,15 @@ impl From<UuidToml> for UuidConfig {
     }
 }
 
-impl From<QuotesToml> for QuotesConfig {
+impl From<QuotesToml> for QuoteConfig {
     fn from(quotes_toml: QuotesToml) -> Self {
-        let default_config = QuotesConfig::default();
+        let default_config = QuoteConfig::default();
 
-        QuotesConfig {
-            quotes_token: quotes_toml
-                .quotes_token
+        QuoteConfig {
+            quote_token: quotes_toml
+                .quote_token
                 .filter(|ch| ch.is_ascii())
-                .map_or(default_config.quotes_token, |ch| ch as u8),
+                .map_or(default_config.quote_token, |ch| ch as u8),
             style: quotes_toml.style.unwrap_or(default_config.style),
         }
     }

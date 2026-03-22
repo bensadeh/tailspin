@@ -111,7 +111,7 @@ fn bench_no_match(c: &mut Criterion) {
     group.bench_function("quote", |b| {
         let h = {
             let mut builder = Highlighter::builder();
-            builder.with_quote_highlighter(QuotesConfig::default());
+            builder.with_quote_highlighter(QuoteConfig::default());
             builder.build().unwrap()
         };
         b.iter(|| h.apply(black_box(LOG_LINE)));
