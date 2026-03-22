@@ -118,6 +118,7 @@ pub enum Extras {
 pub enum HighlighterGroup {
     Numbers,
     Urls,
+    Emails,
     Pointers,
     Dates,
     Paths,

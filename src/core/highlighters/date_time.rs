@@ -2,7 +2,7 @@ use crate::core::config::DateTimeConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
 use memchr::memchr;
-use regex::{Captures, Error, Regex, RegexBuilder};
+use regex::{Captures, Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct DateTimeHighlighter {
@@ -27,7 +27,7 @@ struct Idx {
 }
 
 impl DateTimeHighlighter {
-    pub fn new(time_config: DateTimeConfig) -> Result<Self, Error> {
+    pub fn new(time_config: DateTimeConfig) -> Self {
         let pattern = r"(?x)
             (?P<T>[T\s])?
             (?P<hours>[01]?\d|2[0-3])(?P<colon1>:)
@@ -37,7 +37,10 @@ impl DateTimeHighlighter {
             (?P<tz>Z)?
         ";
 
-        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
+        let regex = RegexBuilder::new(pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded date-time regex must compile");
 
         let mut name_to_idx = std::collections::HashMap::new();
         for (i, name_opt) in regex.capture_names().enumerate() {
@@ -57,13 +60,13 @@ impl DateTimeHighlighter {
             tz: name_to_idx["tz"],
         };
 
-        Ok(Self {
+        Self {
             regex,
             idx,
             time: Painter::new(time_config.time.into()),
             zone: Painter::new(time_config.zone.into()),
             separator: Painter::new(time_config.separator.into()),
-        })
+        }
     }
 
     #[inline]
@@ -126,7 +129,7 @@ mod tests {
             zone: Style::new().fg(Color::Blue),
             separator: Style::new().fg(Color::Yellow),
         };
-        let highlighter = DateTimeHighlighter::new(config).unwrap();
+        let highlighter = DateTimeHighlighter::new(config);
 
         let cases = vec![
             (

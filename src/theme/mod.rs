@@ -16,6 +16,7 @@ pub struct Theme {
     pub dates: DateTimeConfig,
     pub paths: UnixPathConfig,
     pub urls: UrlConfig,
+    pub emails: EmailConfig,
     pub pointers: PointerConfig,
     pub processes: UnixProcessConfig,
     pub key_value_pairs: KeyValueConfig,
@@ -33,6 +34,7 @@ pub struct TomlTheme {
     pub dates: Option<DateToml>,
     pub paths: Option<PathToml>,
     pub urls: Option<UrlToml>,
+    pub emails: Option<EmailToml>,
     pub pointers: Option<PointerToml>,
     pub processes: Option<UnixProcessToml>,
     pub key_value_pairs: Option<KeyValueToml>,
@@ -99,6 +101,14 @@ pub struct UrlToml {
     pub query_params_key: Option<Style>,
     pub query_params_value: Option<Style>,
     pub symbols: Option<Style>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct EmailToml {
+    pub local_part: Option<Style>,
+    pub at_sign: Option<Style>,
+    pub domain: Option<Style>,
+    pub dot: Option<Style>,
 }
 
 #[derive(Deserialize, Debug)]

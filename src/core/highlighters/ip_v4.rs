@@ -3,7 +3,7 @@ use crate::core::config::IpV4Config;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
 use memchr::memchr;
-use regex::{Error, Regex, RegexBuilder};
+use regex::{Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct IpV4Highlighter {
@@ -13,7 +13,7 @@ pub struct IpV4Highlighter {
 }
 
 impl IpV4Highlighter {
-    pub fn new(config: IpV4Config) -> Result<Self, Error> {
+    pub fn new(config: IpV4Config) -> Self {
         let pattern = r"(?x)\b
             (?P<o1>\d{1,3})\.
             (?P<o2>\d{1,3})\.
@@ -21,13 +21,16 @@ impl IpV4Highlighter {
             (?P<o4>\d{1,3})
             (?:/(?P<mask>\d{1,2}))?
             \b";
-        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
+        let regex = RegexBuilder::new(pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded IPv4 regex must compile");
 
-        Ok(Self {
+        Self {
             regex,
             segment: Painter::new(config.number.into()),
             separator: Painter::new(config.separator.into()),
-        })
+        }
     }
 }
 
@@ -76,8 +79,7 @@ mod tests {
         let h = IpV4Highlighter::new(IpV4Config {
             number: Style::new().fg(Color::Blue),
             separator: Style::new().fg(Color::Red),
-        })
-        .unwrap();
+        });
 
         let cases = vec![
             (
@@ -105,8 +107,7 @@ mod tests {
         let h = IpV4Highlighter::new(IpV4Config {
             number: Style::new().fg(Color::Blue),
             separator: Style::new().fg(Color::Red),
-        })
-        .unwrap();
+        });
 
         let cases = vec![
             // octet >255

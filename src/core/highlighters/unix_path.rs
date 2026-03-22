@@ -3,7 +3,7 @@ use crate::core::config::UnixPathConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
 use memchr::memchr;
-use regex::{Error, Regex, RegexBuilder};
+use regex::{Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct UnixPathHighlighter {
@@ -13,7 +13,7 @@ pub struct UnixPathHighlighter {
 }
 
 impl UnixPathHighlighter {
-    pub fn new(config: UnixPathConfig) -> Result<Self, Error> {
+    pub fn new(config: UnixPathConfig) -> Self {
         let pattern = r"(?x)
             (?:^|\s)
             (?P<path>
@@ -22,13 +22,16 @@ impl UnixPathHighlighter {
                 (?:/[\w.-]+)+
             )
         ";
-        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
+        let regex = RegexBuilder::new(pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded Unix path regex must compile");
 
-        Ok(Self {
+        Self {
             regex,
             segment: Painter::new(config.segment.into()),
             separator: Painter::new(config.separator.into()),
-        })
+        }
     }
 }
 
@@ -78,8 +81,7 @@ mod tests {
         let highlighter = UnixPathHighlighter::new(UnixPathConfig {
             segment: Style::new().fg(Color::Green),
             separator: Style::new().fg(Color::Yellow),
-        })
-        .unwrap();
+        });
 
         let cases = vec![
             ("a//b", "a//b"),

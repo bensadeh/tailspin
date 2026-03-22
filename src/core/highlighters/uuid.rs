@@ -3,7 +3,7 @@ use crate::core::config::UuidConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
 use memchr::memchr;
-use regex::{Error, Regex, RegexBuilder};
+use regex::{Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct UuidHighlighter {
@@ -14,7 +14,7 @@ pub struct UuidHighlighter {
 }
 
 impl UuidHighlighter {
-    pub fn new(config: UuidConfig) -> Result<Self, Error> {
+    pub fn new(config: UuidConfig) -> Self {
         let pattern = r"(?x)       # Enable comments and whitespace insensitivity
             \b[0-9a-fA-F]{8}\b    # Match first segment of UUID
             -                     # Match separator
@@ -27,14 +27,17 @@ impl UuidHighlighter {
             \b[0-9a-fA-F]{12}\b   # Match last segment of UUID
             ";
 
-        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
+        let regex = RegexBuilder::new(pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded UUID regex must compile");
 
-        Ok(Self {
+        Self {
             regex,
             number: Painter::new(config.number.into()),
             letter: Painter::new(config.letter.into()),
             dash: Painter::new(config.dash.into()),
-        })
+        }
     }
 }
 
@@ -86,8 +89,7 @@ mod tests {
             number: Style::new().fg(Color::Cyan),
             letter: Style::new().fg(Color::Yellow),
             dash: Style::new().fg(Color::Red),
-        })
-        .unwrap();
+        });
 
         let cases = vec![
             (

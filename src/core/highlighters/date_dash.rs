@@ -2,7 +2,7 @@ use crate::core::config::DateTimeConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
 use memchr::memchr2;
-use regex::{Captures, Error, Regex, RegexBuilder};
+use regex::{Captures, Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct DateDashHighlighter {
@@ -30,7 +30,7 @@ struct Idx {
 }
 
 impl DateDashHighlighter {
-    pub fn new(time_config: DateTimeConfig) -> Result<Self, Error> {
+    pub fn new(time_config: DateTimeConfig) -> Self {
         let pattern = r"(?x)
             # Branch A: YYYY-xx-xx
             (?P<a_year> 19\d{2} | 20\d{2} )
@@ -47,7 +47,10 @@ impl DateDashHighlighter {
             (?P<b_year>  19\d{2} | 20\d{2} )
         ";
 
-        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
+        let regex = RegexBuilder::new(pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded date-dash regex must compile");
 
         // Resolve capture names → indices once.
         let mut map = std::collections::HashMap::new();
@@ -69,12 +72,12 @@ impl DateDashHighlighter {
             b_year: map["b_year"],
         };
 
-        Ok(Self {
+        Self {
             regex,
             idx,
             date: Painter::new(time_config.date.into()),
             separator: Painter::new(time_config.separator.into()),
-        })
+        }
     }
 
     #[inline]
@@ -156,7 +159,7 @@ mod tests {
             separator: Style::new().fg(Color::Blue),
             ..DateTimeConfig::default()
         };
-        let highlighter = DateDashHighlighter::new(config).unwrap();
+        let highlighter = DateDashHighlighter::new(config);
 
         let cases = vec![
             (

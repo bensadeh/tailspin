@@ -18,6 +18,19 @@ pub struct UuidConfig {
     pub dash: Style,
 }
 
+/// Configuration for highlighting email addresses.
+#[derive(Clone, Copy)]
+pub struct EmailConfig {
+    /// Style for the local part (before `@`).
+    pub local_part: Style,
+    /// Style for the `@` symbol.
+    pub at_sign: Style,
+    /// Style for domain text segments.
+    pub domain: Style,
+    /// Style for dot separators in the domain.
+    pub dot: Style,
+}
+
 /// Configuration for highlighting key-value pairs.
 #[derive(Clone, Copy)]
 pub struct KeyValueConfig {
@@ -162,6 +175,17 @@ impl Default for NumberConfig {
     fn default() -> Self {
         NumberConfig {
             style: Style::new().fg(Color::Cyan),
+        }
+    }
+}
+
+impl Default for EmailConfig {
+    fn default() -> Self {
+        EmailConfig {
+            local_part: Style::new().fg(Color::Green).underline(),
+            at_sign: Style::new().fg(Color::Red),
+            domain: Style::new().fg(Color::Green).underline(),
+            dot: Style::new().fg(Color::Red),
         }
     }
 }

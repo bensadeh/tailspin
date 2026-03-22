@@ -1,6 +1,7 @@
 use crate::core::config::*;
 use crate::core::highlighters::date_dash::DateDashHighlighter;
 use crate::core::highlighters::date_time::DateTimeHighlighter;
+use crate::core::highlighters::email::EmailHighlighter;
 use crate::core::highlighters::ip_v4::IpV4Highlighter;
 use crate::core::highlighters::ip_v6::IpV6Highlighter;
 use crate::core::highlighters::json::JsonHighlighter;
@@ -87,6 +88,7 @@ impl Default for Highlighter {
             .with_json_highlighter(JsonConfig::default())
             .with_date_time_highlighters(DateTimeConfig::default())
             .with_url_highlighter(UrlConfig::default())
+            .with_email_highlighter(EmailConfig::default())
             .with_ip_v4_highlighter(IpV4Config::default())
             .with_uuid_highlighter(UuidConfig::default())
             .with_pointer_highlighter(PointerConfig::default())
@@ -109,61 +111,68 @@ pub struct HighlighterBuilder {
 impl HighlighterBuilder {
     /// Adds a highlighter for numbers.
     pub fn with_number_highlighter(&mut self, config: NumberConfig) -> &mut Self {
-        self.try_add_highlighter(NumberHighlighter::new(config));
+        self.add_highlighter(NumberHighlighter::new(config));
         self
     }
 
     /// Adds a highlighter for UUIDs.
     pub fn with_uuid_highlighter(&mut self, config: UuidConfig) -> &mut Self {
-        self.try_add_highlighter(UuidHighlighter::new(config));
+        self.add_highlighter(UuidHighlighter::new(config));
         self
     }
 
     /// Adds a highlighter for Unix file paths.
     pub fn with_unix_path_highlighter(&mut self, config: UnixPathConfig) -> &mut Self {
-        self.try_add_highlighter(UnixPathHighlighter::new(config));
+        self.add_highlighter(UnixPathHighlighter::new(config));
         self
     }
 
     /// Adds a highlighter for Unix processes.
     pub fn with_unix_process_highlighter(&mut self, config: UnixProcessConfig) -> &mut Self {
-        self.try_add_highlighter(UnixProcessHighlighter::new(config));
+        self.add_highlighter(UnixProcessHighlighter::new(config));
         self
     }
 
     /// Adds a highlighter for key-value pairs.
     pub fn with_key_value_highlighter(&mut self, config: KeyValueConfig) -> &mut Self {
-        self.try_add_highlighter(KeyValueHighlighter::new(config));
+        self.add_highlighter(KeyValueHighlighter::new(config));
         self
     }
 
     /// Adds highlighters for dates and times.
     pub fn with_date_time_highlighters(&mut self, config: DateTimeConfig) -> &mut Self {
-        self.try_add_highlighter(DateTimeHighlighter::new(config))
-            .try_add_highlighter(DateDashHighlighter::new(config))
+        self.add_highlighter(DateTimeHighlighter::new(config));
+        self.add_highlighter(DateDashHighlighter::new(config));
+        self
     }
 
     /// Adds a highlighter for IPv6 addresses.
     pub fn with_ip_v6_highlighter(&mut self, config: IpV6Config) -> &mut Self {
-        self.try_add_highlighter(IpV6Highlighter::new(config));
+        self.add_highlighter(IpV6Highlighter::new(config));
         self
     }
 
     /// Adds a highlighter for IPv4 addresses.
     pub fn with_ip_v4_highlighter(&mut self, config: IpV4Config) -> &mut Self {
-        self.try_add_highlighter(IpV4Highlighter::new(config));
+        self.add_highlighter(IpV4Highlighter::new(config));
         self
     }
 
     /// Adds a highlighter for URLs.
     pub fn with_url_highlighter(&mut self, config: UrlConfig) -> &mut Self {
-        self.try_add_highlighter(UrlHighlighter::new(config));
+        self.add_highlighter(UrlHighlighter::new(config));
+        self
+    }
+
+    /// Adds a highlighter for email addresses.
+    pub fn with_email_highlighter(&mut self, config: EmailConfig) -> &mut Self {
+        self.add_highlighter(EmailHighlighter::new(config));
         self
     }
 
     /// Adds a highlighter for memory pointers.
     pub fn with_pointer_highlighter(&mut self, config: PointerConfig) -> &mut Self {
-        self.try_add_highlighter(PointerHighlighter::new(config));
+        self.add_highlighter(PointerHighlighter::new(config));
         self
     }
 

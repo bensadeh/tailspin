@@ -94,7 +94,6 @@ mod tests {
         NumberHighlighter::new(NumberConfig {
             style: Style::new().fg(Color::Cyan),
         })
-        .unwrap()
     }
 
     #[test]

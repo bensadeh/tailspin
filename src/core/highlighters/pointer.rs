@@ -3,7 +3,7 @@ use crate::core::config::PointerConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
 use memchr::memchr2;
-use regex::{Error, Regex, RegexBuilder};
+use regex::{Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct PointerHighlighter {
@@ -16,7 +16,7 @@ pub struct PointerHighlighter {
 }
 
 impl PointerHighlighter {
-    pub fn new(config: PointerConfig) -> Result<Self, Error> {
+    pub fn new(config: PointerConfig) -> Self {
         let pattern = r"(?ix)
             \b
             (?P<prefix>0x)
@@ -30,16 +30,19 @@ impl PointerHighlighter {
             \b
         ";
 
-        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
+        let regex = RegexBuilder::new(pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded pointer regex must compile");
 
-        Ok(Self {
+        Self {
             regex,
             number: Painter::new(config.number.into()),
             letter: Painter::new(config.letter.into()),
             separator: Painter::new(config.separator.into()),
             separator_token_str: config.separator_token.to_string(),
             x: Painter::new(config.x.into()),
-        })
+        }
     }
 }
 
@@ -100,8 +103,7 @@ mod tests {
             separator: Style::new().fg(Color::Green),
             separator_token: '•',
             x: Style::new().fg(Color::Red),
-        })
-        .unwrap();
+        });
 
         let cases = vec![
             (

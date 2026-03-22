@@ -3,7 +3,7 @@ use crate::core::config::KeyValueConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
 use memchr::memchr;
-use regex::{Error, Regex, RegexBuilder};
+use regex::{Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct KeyValueHighlighter {
@@ -13,15 +13,18 @@ pub struct KeyValueHighlighter {
 }
 
 impl KeyValueHighlighter {
-    pub fn new(config: KeyValueConfig) -> Result<Self, Error> {
+    pub fn new(config: KeyValueConfig) -> Self {
         let pattern = r"(?P<space_or_start>(^)|\s)(?P<key>\w+\b)(?P<equals>=)";
-        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
+        let regex = RegexBuilder::new(pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded key-value regex must compile");
 
-        Ok(Self {
+        Self {
             regex,
             key: Painter::new(config.key.into()),
             separator: Painter::new(config.separator.into()),
-        })
+        }
     }
 }
 
@@ -55,8 +58,7 @@ mod tests {
         let highlighter = KeyValueHighlighter::new(KeyValueConfig {
             key: Style::new().fg(Color::Red),
             separator: Style::new().fg(Color::Yellow),
-        })
-        .unwrap();
+        });
 
         let cases = vec![
             ("Entry key=value", "Entry [red]key[reset][yellow]=[reset]value"),

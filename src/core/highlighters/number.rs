@@ -1,7 +1,7 @@
 use crate::core::config::NumberConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
-use regex::{Error, Regex, RegexBuilder};
+use regex::{Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct NumberHighlighter {
@@ -10,7 +10,7 @@ pub struct NumberHighlighter {
 }
 
 impl NumberHighlighter {
-    pub fn new(config: NumberConfig) -> Result<Self, Error> {
+    pub fn new(config: NumberConfig) -> Self {
         let pattern = r"(?x)
             \b          # start of number
             \d+         # integer part
@@ -18,12 +18,15 @@ impl NumberHighlighter {
             \b          # end of number
         ";
 
-        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
+        let regex = RegexBuilder::new(pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded number regex must compile");
 
-        Ok(Self {
+        Self {
             regex,
             style: Painter::new(config.style.into()),
-        })
+        }
     }
 }
 
@@ -58,8 +61,7 @@ mod tests {
     fn test_number_highlighter() {
         let highlighter = NumberHighlighter::new(NumberConfig {
             style: Style::new().fg(Color::Red),
-        })
-        .unwrap();
+        });
 
         let cases = vec![
             (

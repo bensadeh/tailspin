@@ -3,7 +3,7 @@ use crate::core::config::IpV6Config;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
 use memchr::memchr;
-use regex::{Error, Regex, RegexBuilder};
+use regex::{Regex, RegexBuilder};
 use std::borrow::Cow;
 use std::net::Ipv6Addr;
 
@@ -15,16 +15,19 @@ pub struct IpV6Highlighter {
 }
 
 impl IpV6Highlighter {
-    pub fn new(config: IpV6Config) -> Result<Self, Error> {
+    pub fn new(config: IpV6Config) -> Self {
         let pattern = r#"([0-9a-fA-F:.]{3,})(?:(/)(\d{1,3}))?"#;
-        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
+        let regex = RegexBuilder::new(pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded IPv6 regex must compile");
 
-        Ok(Self {
+        Self {
             regex,
             number: Painter::new(config.number.into()),
             letter: Painter::new(config.letter.into()),
             separator: Painter::new(config.separator.into()),
-        })
+        }
     }
 }
 
@@ -74,8 +77,7 @@ mod tests {
             number: Style::new().fg(Color::Blue),
             letter: Style::new().fg(Color::Yellow),
             separator: Style::new().fg(Color::Red),
-        })
-        .unwrap();
+        });
 
         let cases = vec![
             (

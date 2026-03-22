@@ -54,6 +54,15 @@ fn bench_no_match(c: &mut Criterion) {
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
+    group.bench_function("email", |b| {
+        let h = {
+            let mut builder = Highlighter::builder();
+            builder.with_email_highlighter(EmailConfig::default());
+            builder.build().unwrap()
+        };
+        b.iter(|| h.apply(black_box(LOG_LINE)));
+    });
+
     group.bench_function("uuid", |b| {
         let h = {
             let mut builder = Highlighter::builder();

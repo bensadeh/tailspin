@@ -3,7 +3,7 @@ use crate::core::config::UnixProcessConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
 use memchr::memchr;
-use regex::{Error, Regex, RegexBuilder};
+use regex::{Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct UnixProcessHighlighter {
@@ -14,16 +14,19 @@ pub struct UnixProcessHighlighter {
 }
 
 impl UnixProcessHighlighter {
-    pub fn new(config: UnixProcessConfig) -> Result<Self, Error> {
+    pub fn new(config: UnixProcessConfig) -> Self {
         let pattern = r"(?P<process_name>\([A-Za-z0-9._ +:/-]+\)|[A-Za-z0-9_/-]+)\[(?P<process_id>\d+)]";
-        let regex = RegexBuilder::new(pattern).unicode(false).build()?;
+        let regex = RegexBuilder::new(pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded Unix process regex must compile");
 
-        Ok(Self {
+        Self {
             regex,
             name: Painter::new(config.name.into()),
             id: Painter::new(config.id.into()),
             bracket: Painter::new(config.bracket.into()),
-        })
+        }
     }
 }
 
@@ -58,8 +61,7 @@ mod tests {
             name: Style::new().fg(Color::Magenta),
             id: Style::new().fg(Color::Green),
             bracket: Style::new().fg(Color::Blue),
-        })
-        .unwrap();
+        });
 
         let cases = vec![
             (

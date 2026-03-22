@@ -115,3 +115,6 @@ cron[101]: Running scheduled job ID 23456
 {"timestamp": "2022-09-22T08:11:36.171800155Z", "message": "Invalid input received", "status": "warning"}
 {"timestamp": "2022-09-22T08:11:36.171800155Z", "message": "Configuration loaded", "status": "info"}
 {"timestamp": "2022-09-22T08:11:36.171800155Z", "message": "Invalid request", "status": "debug"}
+
+# email
+Contact admin@example.com or support@sub.domain.co.uk for help

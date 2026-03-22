@@ -2,7 +2,7 @@ use super::RegexExt;
 use crate::core::config::UrlConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
-use regex::{Error, Regex, RegexBuilder};
+use regex::{Regex, RegexBuilder};
 use std::borrow::Cow;
 
 pub struct UrlHighlighter {
@@ -18,22 +18,28 @@ pub struct UrlHighlighter {
 }
 
 impl UrlHighlighter {
-    pub fn new(config: UrlConfig) -> Result<Self, Error> {
+    pub fn new(config: UrlConfig) -> Self {
         let url_pattern = r"(?x)
             (?P<protocol>https?) (:) (//)
             (?P<host>[A-Za-z0-9._\-]+)
             (?P<path>(?:/[A-Za-z0-9._~\-/%+()]*)?)           # common URL-safe chars incl parens
             (?P<query>\?[A-Za-z0-9._~\-/%+&=;,@!*()?:]*)?    # include &= and friends";
-        let url_regex = RegexBuilder::new(url_pattern).unicode(false).build()?;
+        let url_regex = RegexBuilder::new(url_pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded URL regex must compile");
 
         let query_params_pattern = r"(?x)
             (?P<delimiter>[?&])
             (?P<key>   [A-Za-z0-9._~\-+%]*)   # allow common URL-safe chars
             (?P<equal> =)
             (?P<value> [A-Za-z0-9._~\-+%]*)";
-        let query_params_regex = RegexBuilder::new(query_params_pattern).unicode(false).build()?;
+        let query_params_regex = RegexBuilder::new(query_params_pattern)
+            .unicode(false)
+            .build()
+            .expect("hardcoded URL query-params regex must compile");
 
-        Ok(Self {
+        Self {
             url_regex,
             query_params_regex,
             http: Painter::new(config.http.into()),
@@ -43,7 +49,7 @@ impl UrlHighlighter {
             query_params_key: Painter::new(config.query_params_key.into()),
             query_params_value: Painter::new(config.query_params_value.into()),
             symbols: Painter::new(config.symbols.into()),
-        })
+        }
     }
 }
 
@@ -145,7 +151,6 @@ mod tests {
             query_params_value: Style::new().fg(Color::Cyan),
             symbols: Style::new().fg(Color::Red),
         })
-        .unwrap()
     }
 
     #[test]

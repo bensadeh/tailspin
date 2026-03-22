@@ -17,6 +17,7 @@ impl From<TomlTheme> for Theme {
             dates: toml.dates.map_or_else(DateTimeConfig::default, DateTimeConfig::from),
             paths: toml.paths.map_or_else(UnixPathConfig::default, UnixPathConfig::from),
             urls: toml.urls.map_or_else(UrlConfig::default, UrlConfig::from),
+            emails: toml.emails.map_or_else(EmailConfig::default, EmailConfig::from),
             pointers: toml.pointers.map_or_else(PointerConfig::default, PointerConfig::from),
             json: toml.json.map_or_else(JsonConfig::default, JsonConfig::from),
             processes: toml
@@ -142,6 +143,19 @@ impl From<UrlToml> for UrlConfig {
             query_params_key: url_toml.query_params_key.unwrap_or(default_config.query_params_key),
             query_params_value: url_toml.query_params_value.unwrap_or(default_config.query_params_value),
             symbols: url_toml.symbols.unwrap_or(default_config.symbols),
+        }
+    }
+}
+
+impl From<EmailToml> for EmailConfig {
+    fn from(email_toml: EmailToml) -> Self {
+        let default_config = EmailConfig::default();
+
+        EmailConfig {
+            local_part: email_toml.local_part.unwrap_or(default_config.local_part),
+            at_sign: email_toml.at_sign.unwrap_or(default_config.at_sign),
+            domain: email_toml.domain.unwrap_or(default_config.domain),
+            dot: email_toml.dot.unwrap_or(default_config.dot),
         }
     }
 }

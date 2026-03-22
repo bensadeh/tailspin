@@ -37,6 +37,10 @@ pub fn get_highlighter(
         builder.with_url_highlighter(theme.urls);
     }
 
+    if highlighter_groups.emails {
+        builder.with_email_highlighter(theme.emails);
+    }
+
     if highlighter_groups.paths {
         builder.with_unix_path_highlighter(theme.paths);
     }
