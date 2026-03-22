@@ -1,9 +1,9 @@
 use crate::cli::HighlighterGroup;
-use HighlighterConfigNew::*;
+use HighlighterConfig::*;
 use std::fmt::Debug;
 use thiserror::Error;
 
-pub enum HighlighterConfigNew {
+pub enum HighlighterConfig {
     AllHighlightersEnabled,
     SomeHighlightersEnabled,
     SomeHighlightersDisabled,
@@ -50,7 +50,7 @@ pub fn get_highlighter_groups(
     enabled: &[HighlighterGroup],
     disabled: &[HighlighterGroup],
 ) -> Result<HighlighterGroups, ConfigError> {
-    match determine_highlighter_type_new(enabled, disabled) {
+    match determine_highlighter_type(enabled, disabled) {
         AllHighlightersEnabled => Ok(HighlighterGroups::all_enabled()),
         SomeHighlightersEnabled => Ok(HighlighterGroups {
             numbers: enabled.contains(&HighlighterGroup::Numbers),
@@ -82,10 +82,10 @@ pub fn get_highlighter_groups(
     }
 }
 
-pub const fn determine_highlighter_type_new(
+pub const fn determine_highlighter_type(
     enabled: &[HighlighterGroup],
     disabled: &[HighlighterGroup],
-) -> HighlighterConfigNew {
+) -> HighlighterConfig {
     let some_enabled = !enabled.is_empty();
     let some_disabled = !disabled.is_empty();
 
