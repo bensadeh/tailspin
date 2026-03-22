@@ -62,6 +62,10 @@ pub struct Arguments {
     #[clap(long = "disable", value_enum, use_value_delimiter = true)]
     pub disabled_highlighters: Vec<HighlighterGroup>,
 
+    /// Enable extra highlighters (e.g., --extras ipv6)
+    #[clap(long = "extras", value_enum, use_value_delimiter = true)]
+    pub extras: Vec<Extras>,
+
     /// Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)
     #[clap(long = "disable-builtin-keywords")]
     pub disable_builtin_keywords: bool,
@@ -106,6 +110,11 @@ pub enum KeywordColor {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub enum Extras {
+    Ipv6,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub enum HighlighterGroup {
     Numbers,
     Urls,
@@ -115,7 +124,7 @@ pub enum HighlighterGroup {
     Quotes,
     KeyValuePairs,
     Uuids,
-    IpAddresses,
+    Ipv4,
     Processes,
     Json,
 }
@@ -140,7 +149,8 @@ pub fn get_config() -> Result<FullConfig> {
     }
 
     let io_config = get_io_config(&cli)?;
-    let highlighter_groups = groups::get_highlighter_groups(&cli.enabled_highlighters, &cli.disabled_highlighters)?;
+    let mut highlighter_groups = groups::get_highlighter_groups(&cli.enabled_highlighters, &cli.disabled_highlighters)?;
+    highlighter_groups.ip_v6 = cli.extras.contains(&Extras::Ipv6);
 
     let theme = reader::parse_theme(&cli.config_path)?;
     let keywords_builtin = get_builtin_keywords(cli.disable_builtin_keywords);

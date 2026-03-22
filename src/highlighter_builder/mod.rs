@@ -25,9 +25,12 @@ pub fn get_highlighter(
         builder.with_date_time_highlighters(theme.dates);
     }
 
-    if highlighter_groups.ip_addresses {
-        builder.with_ip_v6_highlighter(theme.ip_v6_addresses);
+    if highlighter_groups.ip_v4 {
         builder.with_ip_v4_highlighter(theme.ip_v4_addresses);
+    }
+
+    if highlighter_groups.ip_v6 {
+        builder.with_ip_v6_highlighter(theme.ip_v6_addresses);
     }
 
     if highlighter_groups.urls {

@@ -109,77 +109,100 @@ Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `P
 
 ## Highlight Groups
 
-### Dates
+### Defaults
+
+The following highlight groups are enabled by default and can be toggled with `--enable` and `--disable`:
+
+#### Dates
 
 <p align="center">
   <img src="assets/examples/dates.png" width="600"/>
 </p>
 
-### Keywords
+#### Keywords
 
 <p align="center">
   <img src="assets/examples/keywords.png" width="600"/>
 </p>
 
-### URLs
+#### URLs
 
 <p align="center">
   <img src="assets/examples/urls.png" width="600"/>
 </p>
 
-### Numbers
+#### Numbers
 
 <p align="center">
   <img src="assets/examples/numbers.png" width="600"/>
 </p>
 
-### IP Addresses
+#### IPv4 Addresses
 
 <p align="center">
   <img src="assets/examples/ip.png" width="600"/>
 </p>
 
-### Quotes
+#### Quotes
 
 <p align="center">
   <img src="assets/examples/quotes.png" width="600"/>
 </p>
 
-### Unix file paths
+#### Unix file paths
 
 <p align="center">
   <img src="assets/examples/paths.png" width="600"/>
 </p>
 
-### HTTP methods
+#### HTTP methods
 
 <p align="center">
   <img src="assets/examples/http.png" width="600"/>
 </p>
 
-### UUIDs
+#### UUIDs
 
 <p align="center">
   <img src="assets/examples/uuids.png" width="600"/>
 </p>
 
-### Key-value pairs
+#### Key-value pairs
 
 <p align="center">
   <img src="assets/examples/kv.png" width="600"/>
 </p>
 
-### Pointer addresses
+#### Pointer addresses
 
 <p align="center">
   <img src="assets/examples/pointers.png" width="600"/>
 </p>
 
-### Unix processes
+#### Unix processes
 
 <p align="center">
   <img src="assets/examples/processes.png" width="600"/>
 </p>
+
+### Extras
+
+Extras are highlight groups that are not enabled by default. They can be enabled with the `--extras` flag and are
+always additive — they apply on top of whatever defaults or `--enable`/`--disable` configuration is active.
+
+```console
+# Enable IPv6 highlighting in addition to the defaults
+tspin application.log --extras ipv6
+
+# Combine with --enable
+tspin application.log --enable urls,numbers --extras ipv6
+```
+
+Available extras:
+
+| Name   | Description                |
+|--------|----------------------------|
+| `ipv6` | Highlight IPv6 addresses   |
 
 ## Customizing Highlight Groups
 
@@ -278,14 +301,14 @@ colon = { faint = true }
 
 ### Disabling Highlight Groups
 
-To individually disable or enable highlight groups, use the `--enable` and `--disable` flags:
+To individually disable or enable default highlight groups, use the `--enable` and `--disable` flags:
 
 ```console
 # Enable only the url highlight group, disable the rest
-tspin application.log --enable=url
+tspin application.log --enable urls
 
 # Disable the numbers highlight group, keep the rest
-tspin application.log --disable=numbers
+tspin application.log --disable numbers
 ```
 
 ### Adding Keywords via theme.toml
@@ -422,10 +445,12 @@ TAILSPIN_PAGER="ov -f [FILE]" tspin example-logs/example1
                                  (e.g. `--pager="ov -f [FILE]"`)
     --highlight=[COLOR]:[WORDS]  Highlight the provided comma-separated words in the specified color
                                  (e.g. `--highlight red:ERROR,WARNING`)
-    --enable=[HIGHLIGHT_GROUP]   Enable one or more highlight groups, disabling the rest
-                                 (e.g. `--enable=keywords,urls`)
-    --disable=[HIGHLIGHT_GROUP]  Disable one or more highlight groups, enabling the rest
-                                 (e.g. `--disable=keywords,urls`)
+    --enable [HIGHLIGHT_GROUP]   Enable one or more default highlight groups, disabling the rest
+                                 (e.g. `--enable keywords,urls`)
+    --disable [HIGHLIGHT_GROUP]  Disable one or more default highlight groups, enabling the rest
+                                 (e.g. `--disable keywords,urls`)
+    --extras [EXTRA]             Enable extra highlight groups on top of the current configuration
+                                 (e.g. `--extras ipv6`)
     --disable-builtin-keywords   Disable the highlighting of booleans, nulls, log severities and common REST verbs
 ```
 

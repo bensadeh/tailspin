@@ -38,7 +38,7 @@ fn no_highlights_should_return_borrowed() {
     let inputs: &[&str] = &[
         // No trigger characters — every fast-path returns early.
         "Nothing will be highlighted in this string",
-        // Colon present → DateTime and IpV6 run their regex.
+        // Colon present → DateTime runs its regex.
         "status: pending",
         // Dot present → IpV4 runs its regex.
         "hello.world",
@@ -51,7 +51,7 @@ fn no_highlights_should_return_borrowed() {
         // Contains 'x' → Pointer runs its regex.
         "extra context",
         // All trigger characters present — every highlighter reaches its regex.
-        //   :  → DateTime, IpV6         .  → IpV4
+        //   :  → DateTime                .  → IpV4
         //   -  → DateDash (×4 for UUID) /  → UnixPath
         //   [  → UnixProcess            =  → KeyValue
         //   x  → Pointer
@@ -96,4 +96,36 @@ fn it_works() {
     let expected = "Hello \u{1b}[36m123\u{1b}[0m world! ".to_string();
 
     assert_eq!(actual, expected);
+}
+
+#[test]
+fn default_should_not_highlight_ipv6() {
+    let highlighter = Highlighter::default();
+
+    // All hex-letter groups — no digits, so the number highlighter won't match either.
+    let input = "cafe:babe::dead:beef";
+    let output = highlighter.apply(input);
+
+    assert_eq!(
+        output.as_ref(),
+        input,
+        "Default highlighter should not highlight IPv6 addresses"
+    );
+}
+
+#[test]
+fn builder_with_ipv6_should_highlight() {
+    let mut builder = Highlighter::builder();
+    builder.with_ip_v6_highlighter(IpV6Config::default());
+
+    let highlighter = builder.build().unwrap();
+
+    let input = "2001:db8::ff00:42:8329";
+    let output = highlighter.apply(input);
+
+    assert_ne!(
+        output.as_ref(),
+        input,
+        "IPv6 highlighter should highlight IPv6 addresses"
+    );
 }

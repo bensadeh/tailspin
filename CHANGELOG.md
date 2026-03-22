@@ -35,6 +35,8 @@
 
 ### Changed
 
+- IPv6 highlighting is now opt-in via `--extras ipv6` instead of being enabled by default
+- **Breaking (CLI):** `--enable ip-addresses` / `--disable ip-addresses` renamed to `--enable ipv4` / `--disable ipv4`
 - Builtin keyword highlighting of `true` changed from red to green
 - **Breaking (config):** The `quotes_token` key in the `[quotes]` section of theme config files has been renamed to
   `quote_token`. Existing config files using the old key will silently fall back to the default (`"`)
