@@ -81,7 +81,7 @@ fn get_less_pager_command(follow: bool, path: &PathBuf) -> Command {
 }
 
 fn get_custom_pager_command(command: String, args: Vec<String>, path: &Path) -> Command {
-    let replaced_args = replace_file_placeholder(args, path.to_str().unwrap());
+    let replaced_args = replace_file_placeholder(args, &path.to_string_lossy());
 
     let mut cmd = Command::new(command);
 
