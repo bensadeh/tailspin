@@ -77,9 +77,7 @@ async fn process_stream(
 async fn write_line(writer: &mut Writer, highlighter: &Highlighter, line: &str) -> anyhow::Result<()> {
     let highlighted = highlighter.apply(line);
 
-    writer.write(&highlighted).await?;
-
-    Ok(())
+    writer.write(&highlighted).await
 }
 
 async fn write_lines(writer: &mut Writer, highlighter: &Highlighter, lines: Vec<String>) -> anyhow::Result<()> {
@@ -89,7 +87,5 @@ async fn write_lines(writer: &mut Writer, highlighter: &Highlighter, lines: Vec<
         .collect::<Vec<_>>()
         .join("\n");
 
-    writer.write(&highlighted).await?;
-
-    Ok(())
+    writer.write(&highlighted).await
 }
