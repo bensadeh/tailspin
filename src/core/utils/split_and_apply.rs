@@ -12,6 +12,12 @@ const SIXTEEN_KB: usize = 16 * 1024;
 
 pub fn apply_only_to_unhighlighted<'a>(input: &'a str, highlighter: &(impl Highlight + ?Sized)) -> Cow<'a, str> {
     let bytes = input.as_bytes();
+
+    // Fast path: no escape sequences means the entire input is unhighlighted
+    if ESCAPE_FINDER.find(bytes).is_none() {
+        return highlighter.apply(input);
+    }
+
     let mut result: Option<String> = None;
     let mut copied = 0usize;
     let mut pos = 0;
