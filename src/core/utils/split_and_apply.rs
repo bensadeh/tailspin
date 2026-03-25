@@ -55,8 +55,6 @@ pub fn apply_only_to_unhighlighted<'a>(input: &'a str, highlighter: &(impl Highl
     result.map_or(Cow::Borrowed(input), Cow::Owned)
 }
 
-#[allow(clippy::inline_always)]
-#[inline(always)]
 fn apply_chunk(
     text: &str,
     highlighter: &(impl Highlight + ?Sized),
@@ -70,8 +68,6 @@ fn apply_chunk(
     }
 }
 
-#[allow(clippy::inline_always)]
-#[inline(always)]
 fn push_unchanged(text: &str, result: &mut Option<String>, copied: &mut usize) {
     if let Some(buf) = result {
         buf.push_str(text);
@@ -80,8 +76,6 @@ fn push_unchanged(text: &str, result: &mut Option<String>, copied: &mut usize) {
     }
 }
 
-#[allow(clippy::inline_always)]
-#[inline(always)]
 fn push_changed(new_text: &str, input: &str, result: &mut Option<String>, copied: &mut usize) {
     let buf = result.get_or_insert_with(|| {
         let extra = min(input.len(), SIXTEEN_KB);
