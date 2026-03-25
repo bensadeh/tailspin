@@ -6,34 +6,38 @@ use std::io::{self, IsTerminal, stdin};
 use std::path::PathBuf;
 use thiserror::Error;
 
+#[derive(Debug)]
 pub struct InputOutputConfig {
     pub source: Source,
     pub target: Target,
 }
 
-#[derive(Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
 pub enum Source {
     File(FileInfo),
     Command(String),
     Stdin,
 }
 
-#[derive(PartialEq, Eq, Ord, PartialOrd)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd)]
 pub struct FileInfo {
     pub path: PathBuf,
     pub terminate_after_first_read: bool,
 }
 
+#[derive(Debug)]
 pub enum Target {
     Less(LessOptions),
     CustomPager(CustomPagerOptions),
     Stdout,
 }
 
+#[derive(Debug)]
 pub struct LessOptions {
     pub follow: bool,
 }
 
+#[derive(Debug)]
 pub struct CustomPagerOptions {
     pub command: String,
     pub args: Vec<String>,

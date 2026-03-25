@@ -1,14 +1,14 @@
 use crate::style::{Color, Style};
 
 /// Configuration for highlighting numeric values.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct NumberConfig {
     /// Style applied to numbers.
     pub style: Style,
 }
 
 /// Configuration for highlighting UUIDs.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct UuidConfig {
     /// Style applied to numeric characters.
     pub number: Style,
@@ -19,7 +19,7 @@ pub struct UuidConfig {
 }
 
 /// Configuration for highlighting email addresses.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct EmailConfig {
     /// Style for the local part (before `@`).
     pub local_part: Style,
@@ -32,7 +32,7 @@ pub struct EmailConfig {
 }
 
 /// Configuration for highlighting key-value pairs.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct KeyValueConfig {
     /// Style for the key portion.
     pub key: Style,
@@ -41,7 +41,7 @@ pub struct KeyValueConfig {
 }
 
 /// Configuration for highlighting date-time strings.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct DateTimeConfig {
     /// Style for dates.
     pub date: Style,
@@ -54,7 +54,7 @@ pub struct DateTimeConfig {
 }
 
 /// Configuration for highlighting IPv4 addresses.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct IpV4Config {
     /// Style for numeric segments.
     pub number: Style,
@@ -63,7 +63,7 @@ pub struct IpV4Config {
 }
 
 /// Configuration for highlighting IPv6 addresses.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct IpV6Config {
     /// Style for numeric characters.
     pub number: Style,
@@ -74,7 +74,7 @@ pub struct IpV6Config {
 }
 
 /// Configuration for highlighting URLs.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct UrlConfig {
     /// Style for "http" scheme.
     pub http: Style,
@@ -93,7 +93,7 @@ pub struct UrlConfig {
 }
 
 /// Configuration for highlighting Unix file paths.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct UnixPathConfig {
     /// Style for path segments.
     pub segment: Style,
@@ -102,7 +102,7 @@ pub struct UnixPathConfig {
 }
 
 /// Configuration for highlighting memory pointers.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct PointerConfig {
     /// Style for numeric digits.
     pub number: Style,
@@ -117,7 +117,7 @@ pub struct PointerConfig {
 }
 
 /// Configuration for highlighting Unix processes.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct UnixProcessConfig {
     /// Style for process name.
     pub name: Style,
@@ -128,7 +128,7 @@ pub struct UnixProcessConfig {
 }
 
 /// Configuration for highlighting JSON structures.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct JsonConfig {
     /// Style for JSON keys.
     pub key: Style,
@@ -145,7 +145,7 @@ pub struct JsonConfig {
 }
 
 /// Configuration for highlighting quoted text.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct QuoteConfig {
     /// ASCII byte used as quote delimiter.
     pub quote_token: u8,

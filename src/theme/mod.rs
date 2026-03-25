@@ -5,6 +5,7 @@ use tailspin::style::Style;
 mod mappers;
 pub mod reader;
 
+#[derive(Debug)]
 pub struct Theme {
     pub keywords: Vec<KeywordConfig>,
     pub regexes: Vec<RegexConfig>,

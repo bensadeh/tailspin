@@ -105,8 +105,8 @@ pub enum Color {
     BrightWhite,
 }
 
-impl From<&Color> for NuColor {
-    fn from(color: &Color) -> Self {
+impl From<Color> for NuColor {
+    fn from(color: Color) -> Self {
         match color {
             Color::Default => NuColor::Default,
             Color::Black => NuColor::Black,
@@ -133,10 +133,10 @@ impl From<Style> for NuStyle {
     fn from(style: Style) -> Self {
         let mut nu_style = NuStyle::new();
 
-        if let Some(fg) = &style.fg {
+        if let Some(fg) = style.fg {
             nu_style = nu_style.fg(NuColor::from(fg));
         }
-        if let Some(bg) = &style.bg {
+        if let Some(bg) = style.bg {
             nu_style = nu_style.on(NuColor::from(bg));
         }
 
