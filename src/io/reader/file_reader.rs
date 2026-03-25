@@ -154,8 +154,7 @@ mod tests {
 
         assert!(
             result.is_err(),
-            "Entire file has been read, next() should not return anything: {:?}",
-            result
+            "Entire file has been read, next() should not return anything: {result:?}"
         );
 
         Ok(())
@@ -466,8 +465,7 @@ mod tests {
                 for i in 0..2000 {
                     writeln!(
                         file,
-                        "line {:05} - padding to make this line reasonably long for testing",
-                        i
+                        "line {i:05} - padding to make this line reasonably long for testing"
                     )
                     .unwrap();
                 }
@@ -497,8 +495,7 @@ mod tests {
             assert_eq!(total_lines, 2000);
             assert!(
                 event_count > 1,
-                "Large file should produce multiple events, got {}",
-                event_count
+                "Large file should produce multiple events, got {event_count}"
             );
 
             Ok(())

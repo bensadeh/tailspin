@@ -2,9 +2,10 @@ use tailspin::config::KeywordConfig;
 use tailspin::style::{Color, Style};
 
 pub fn get_builtin_keywords(disable_builtin_keywords: bool) -> Vec<KeywordConfig> {
-    match disable_builtin_keywords {
-        true => vec![],
-        false => builtin_keywords(),
+    if disable_builtin_keywords {
+        vec![]
+    } else {
+        builtin_keywords()
     }
 }
 

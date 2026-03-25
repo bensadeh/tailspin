@@ -18,8 +18,9 @@ impl CommandReader {
 }
 
 #[cfg(not(windows))]
+#[allow(clippy::unused_async)]
 async fn spawn_command(command: String) -> Result<CommandReader> {
-    let trap_command = format!("trap '' INT; {}", command);
+    let trap_command = format!("trap '' INT; {command}");
 
     let mut child = Command::new("sh")
         .arg("-c")

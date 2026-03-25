@@ -69,10 +69,10 @@ impl JsonHighlighter {
                 self.quote_token.paint(output, "\"");
             }
             Value::Number(n) => {
-                write!(output, "{}", n).unwrap();
+                write!(output, "{n}").unwrap();
             }
             Value::Bool(b) => {
-                write!(output, "{}", b).unwrap();
+                write!(output, "{b}").unwrap();
             }
             Value::Null => {
                 output.push_str("null");

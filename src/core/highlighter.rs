@@ -53,6 +53,7 @@ impl Highlighter {
     }
 
     /// Creates a new [`HighlighterBuilder`] for configuring a [`Highlighter`].
+    #[must_use]
     pub const fn builder() -> HighlighterBuilder {
         HighlighterBuilder {
             highlighters: Vec::new(),
@@ -66,6 +67,7 @@ impl Highlighter {
     }
 
     /// Applies the configured highlights to the given input string.
+    #[must_use]
     pub fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         self.highlighters.iter().fold(Cow::Borrowed(input), |acc, highlighter| {
             let result = highlighter.apply_to_line(&acc);

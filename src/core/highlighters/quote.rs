@@ -115,8 +115,8 @@ mod tests {
                 r#"Lorem ipsum [yellow]"dolor"[reset] sit amet"#,
             ),
             (
-                r#"Lorem ipsum dolor sit amet, consectetur adipiscing elit"#,
-                r#"Lorem ipsum dolor sit amet, consectetur adipiscing elit"#,
+                r"Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+                r"Lorem ipsum dolor sit amet, consectetur adipiscing elit",
             ),
         ];
 

@@ -32,22 +32,27 @@ pub struct Style {
 }
 
 impl Style {
+    #[must_use]
     pub fn new() -> Style {
         Style::default()
     }
 
+    #[must_use]
     pub const fn bold(&self) -> Style {
         Style { bold: true, ..*self }
     }
 
+    #[must_use]
     pub const fn faint(&self) -> Style {
         Style { faint: true, ..*self }
     }
 
+    #[must_use]
     pub const fn italic(&self) -> Style {
         Style { italic: true, ..*self }
     }
 
+    #[must_use]
     pub const fn underline(&self) -> Style {
         Style {
             underline: true,
@@ -55,10 +60,12 @@ impl Style {
         }
     }
 
+    #[must_use]
     pub const fn fg(&self, fg: Color) -> Style {
         Style { fg: Some(fg), ..*self }
     }
 
+    #[must_use]
     pub const fn on(&self, bg: Color) -> Style {
         Style { bg: Some(bg), ..*self }
     }

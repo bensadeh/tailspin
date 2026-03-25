@@ -77,7 +77,7 @@ impl From<QuotesToml> for QuoteConfig {
         QuoteConfig {
             quote_token: quotes_toml
                 .quote_token
-                .filter(|ch| ch.is_ascii())
+                .filter(char::is_ascii)
                 .map_or(default_config.quote_token, |ch| ch as u8),
             style: quotes_toml.style.unwrap_or(default_config.style),
         }

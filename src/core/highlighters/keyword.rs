@@ -52,10 +52,10 @@ impl Highlight for KeywordHighlighter {
 
             out_buf.push_str(&input[last..s]);
 
-            if !self.has_background {
-                self.style.paint(out_buf, &input[s..e]);
-            } else {
+            if self.has_background {
                 self.style.paint_with_padding(out_buf, &input[s..e]);
+            } else {
+                self.style.paint(out_buf, &input[s..e]);
             }
 
             last = e;

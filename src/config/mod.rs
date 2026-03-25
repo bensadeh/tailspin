@@ -117,9 +117,8 @@ fn split_custom_pager_command(raw_command: &str) -> Result<CustomPagerOptions, C
     let raw_args = shell_words::split(raw_command).unwrap_or_default();
 
     let (command, args) = match raw_args.split_first() {
-        Some((first, rest)) if !rest.is_empty() => (first.to_string(), rest.to_vec()),
-        Some(_) => return Err(ConfigError::CouldNotParseCustomPagerCommand), // Command without args
-        None => return Err(ConfigError::CouldNotParseCustomPagerCommand),    // Empty args
+        Some((first, rest)) if !rest.is_empty() => (first.clone(), rest.to_vec()),
+        Some(_) | None => return Err(ConfigError::CouldNotParseCustomPagerCommand),
     };
 
     Ok(CustomPagerOptions { command, args })

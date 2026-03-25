@@ -90,7 +90,7 @@ pub struct Arguments {
 fn parse_highlight(s: &str) -> Result<(KeywordColor, Vec<String>), Box<dyn Error + Send + Sync>> {
     let (color_str, words_str) = s
         .split_once(':')
-        .ok_or_else(|| format!("Expected format COLOR:word1,word2,... found `{}`", s))?;
+        .ok_or_else(|| format!("Expected format COLOR:word1,word2,... found `{s}`"))?;
 
     let color = KeywordColor::from_str(color_str, true)?;
 
@@ -153,7 +153,7 @@ pub fn get_config() -> Result<FullConfig> {
     let mut highlighter_groups = groups::get_highlighter_groups(&cli.enabled_highlighters, &cli.disabled_highlighters)?;
     highlighter_groups.ip_v6 = cli.extras.contains(&Extras::Ipv6);
 
-    let theme = reader::parse_theme(&cli.config_path)?;
+    let theme = reader::parse_theme(cli.config_path.as_ref())?;
     let keywords_builtin = get_builtin_keywords(cli.disable_builtin_keywords);
     let keywords_from_toml = theme.keywords.clone();
     let keywords_from_cli = get_keywords_from_cli(&cli);
@@ -177,5 +177,5 @@ pub fn get_config() -> Result<FullConfig> {
 #[test]
 fn verify_app() {
     use clap::CommandFactory;
-    Arguments::command().debug_assert()
+    Arguments::command().debug_assert();
 }

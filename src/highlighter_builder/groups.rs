@@ -1,5 +1,5 @@
 use crate::cli::HighlighterGroup;
-use HighlighterConfig::*;
+use HighlighterConfig::{AllHighlightersEnabled, Mismatch, SomeHighlightersDisabled, SomeHighlightersEnabled};
 use std::fmt::Debug;
 use thiserror::Error;
 

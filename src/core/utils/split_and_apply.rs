@@ -55,6 +55,7 @@ pub fn apply_only_to_unhighlighted<'a>(input: &'a str, highlighter: &(impl Highl
     result.map_or(Cow::Borrowed(input), Cow::Owned)
 }
 
+#[allow(clippy::inline_always)]
 #[inline(always)]
 fn apply_chunk(
     text: &str,
@@ -69,6 +70,7 @@ fn apply_chunk(
     }
 }
 
+#[allow(clippy::inline_always)]
 #[inline(always)]
 fn push_unchanged(text: &str, result: &mut Option<String>, copied: &mut usize) {
     if let Some(buf) = result {
@@ -78,6 +80,7 @@ fn push_unchanged(text: &str, result: &mut Option<String>, copied: &mut usize) {
     }
 }
 
+#[allow(clippy::inline_always)]
 #[inline(always)]
 fn push_changed(new_text: &str, input: &str, result: &mut Option<String>, copied: &mut usize) {
     let buf = result.get_or_insert_with(|| {
@@ -138,7 +141,7 @@ mod tests {
         let result = apply_only_to_unhighlighted(input, &h);
         assert!(matches!(result, Cow::Owned(_)));
         // The "7" outside the escape should be highlighted
-        assert!(result.contains("7"));
+        assert!(result.contains('7'));
         // The escape region should be preserved verbatim
         assert!(result.contains("\x1b[31mred\x1b[0m"));
     }

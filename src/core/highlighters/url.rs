@@ -82,7 +82,6 @@ impl Highlight for UrlHighlighter {
 
             if let Some(protocol) = caps.name("protocol") {
                 let painter = match protocol.as_str() {
-                    "http" => &self.http,
                     "https" => &self.https,
                     _ => &self.http,
                 };

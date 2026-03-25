@@ -17,7 +17,7 @@ fn test_binary_with_various_inputs() {
 
     for (input, expected_output) in test_cases {
         let output = utils::run_binary_with_input(binary_path.clone(), input);
-        assert_eq!(output.trim(), expected_output, "Failed on input: {}", input);
+        assert_eq!(output.trim(), expected_output, "Failed on input: {input}");
     }
 }
 
@@ -87,10 +87,7 @@ fn it_works() {
         })
         .with_uuid_highlighter(UuidConfig::default());
 
-    let highlighter = match builder.build() {
-        Ok(h) => h,
-        Err(_) => panic!("Failed to build highlighter"),
-    };
+    let highlighter = builder.build().expect("Failed to build highlighter");
 
     let actual = highlighter.apply("Hello 123 world! ");
     let expected = "Hello \u{1b}[36m123\u{1b}[0m world! ".to_string();

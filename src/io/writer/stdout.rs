@@ -28,7 +28,7 @@ impl StdoutWriter {
 
 impl AsyncLineWriter for StdoutWriter {
     async fn write(&mut self, line: &str) -> Result<()> {
-        match writeln!(io::stdout(), "{}", line) {
+        match writeln!(io::stdout(), "{line}") {
             Err(e) if e.kind() == io::ErrorKind::BrokenPipe => Err(BrokenPipe)?,
             result => Ok(result?),
         }

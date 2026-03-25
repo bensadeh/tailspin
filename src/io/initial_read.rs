@@ -31,7 +31,7 @@ pub struct InitialReadCompleteSender(Option<oneshot::Sender<()>>);
 impl InitialReadCompleteSender {
     pub fn send(&mut self) -> Result<()> {
         match self.0.take() {
-            Some(sender) => Ok(sender.send(()).map_err(|_| SignalError::Send)?),
+            Some(sender) => Ok(sender.send(()).map_err(|()| SignalError::Send)?),
             None => Ok(()),
         }
     }
