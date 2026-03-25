@@ -10,138 +10,123 @@ fn bench_no_match(c: &mut Criterion) {
     let mut group = c.benchmark_group("no_match");
 
     group.bench_function("json", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_json_highlighter(JsonConfig::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_json_highlighter(JsonConfig::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("date_time", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_date_time_highlighters(DateTimeConfig::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_date_time_highlighters(DateTimeConfig::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("url", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_url_highlighter(UrlConfig::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_url_highlighter(UrlConfig::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("ip_v4", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_ip_v4_highlighter(IpV4Config::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_ip_v4_highlighter(IpV4Config::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("ip_v6", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_ip_v6_highlighter(IpV6Config::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_ip_v6_highlighter(IpV6Config::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("email", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_email_highlighter(EmailConfig::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_email_highlighter(EmailConfig::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("uuid", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_uuid_highlighter(UuidConfig::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_uuid_highlighter(UuidConfig::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("pointer", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_pointer_highlighter(PointerConfig::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_pointer_highlighter(PointerConfig::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("unix_path", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_unix_path_highlighter(UnixPathConfig::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_unix_path_highlighter(UnixPathConfig::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("unix_process", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_unix_process_highlighter(UnixProcessConfig::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_unix_process_highlighter(UnixProcessConfig::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("key_value", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_key_value_highlighter(KeyValueConfig::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_key_value_highlighter(KeyValueConfig::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("number", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_number_highlighter(NumberConfig::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_number_highlighter(NumberConfig::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("quote", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_quote_highlighter(QuoteConfig::default());
-            builder.build().unwrap()
-        };
+        let h = Highlighter::builder()
+            .with_quote_highlighter(QuoteConfig::default())
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("regex", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_regex_highlighter(RegexConfig {
+        let h = Highlighter::builder()
+            .with_regex_highlighter(RegexConfig {
                 regex: r"FOOBAR_\d+".into(),
                 style: Style::new().fg(Color::Red),
-            });
-            builder.build().unwrap()
-        };
+            })
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
     group.bench_function("keyword", |b| {
-        let h = {
-            let mut builder = Highlighter::builder();
-            builder.with_keyword_highlighter(vec![
+        let h = Highlighter::builder()
+            .with_keyword_highlighter(vec![
                 KeywordConfig {
                     words: vec![
                         "ERROR".into(),
@@ -160,9 +145,9 @@ fn bench_no_match(c: &mut Criterion) {
                     words: vec!["null".into(), "false".into(), "true".into()],
                     style: Style::new().fg(Color::Yellow),
                 },
-            ]);
-            builder.build().unwrap()
-        };
+            ])
+            .build()
+            .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 

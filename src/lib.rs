@@ -32,9 +32,7 @@
 //! use tailspin::Highlighter;
 //! use tailspin::style::{Color, Style};
 //!
-//! let mut builder = Highlighter::builder();
-//!
-//! builder
+//! let highlighter = Highlighter::builder()
 //!     .with_number_highlighter(NumberConfig {
 //!         style: Style {
 //!             fg: Some(Color::Cyan),
@@ -48,13 +46,9 @@
 //!             ..Style::default()
 //!         },
 //!     })
-//!     .with_uuid_highlighter(UuidConfig::default());
-//!    
-//! // Using the highlight builder can fail if the regexes inside don't compile
-//! let highlighter = match builder.build() {
-//!     Ok(h) => h,
-//!     Err(_) => panic!("Failed to build highlighter"),
-//! };
+//!     .with_uuid_highlighter(UuidConfig::default())
+//!     .build()
+//!     .expect("Failed to build highlighter");
 //!
 //! let input = "Hello 42 world";
 //! let output = highlighter.apply(input);

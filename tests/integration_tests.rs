@@ -69,9 +69,7 @@ fn no_highlights_should_return_borrowed() {
 
 #[test]
 fn it_works() {
-    let mut builder = Highlighter::builder();
-
-    builder
+    let highlighter = Highlighter::builder()
         .with_number_highlighter(NumberConfig {
             style: Style {
                 fg: Some(Color::Cyan),
@@ -85,9 +83,9 @@ fn it_works() {
                 ..Style::default()
             },
         })
-        .with_uuid_highlighter(UuidConfig::default());
-
-    let highlighter = builder.build().expect("Failed to build highlighter");
+        .with_uuid_highlighter(UuidConfig::default())
+        .build()
+        .expect("Failed to build highlighter");
 
     let actual = highlighter.apply("Hello 123 world! ");
     let expected = "Hello \u{1b}[36m123\u{1b}[0m world! ".to_string();
@@ -112,10 +110,10 @@ fn default_should_not_highlight_ipv6() {
 
 #[test]
 fn builder_with_ipv6_should_highlight() {
-    let mut builder = Highlighter::builder();
-    builder.with_ip_v6_highlighter(IpV6Config::default());
-
-    let highlighter = builder.build().unwrap();
+    let highlighter = Highlighter::builder()
+        .with_ip_v6_highlighter(IpV6Config::default())
+        .build()
+        .unwrap();
 
     let input = "2001:db8::ff00:42:8329";
     let output = highlighter.apply(input);

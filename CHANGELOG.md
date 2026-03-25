@@ -29,6 +29,8 @@
 
 ### Crate
 
+- `HighlighterBuilder` methods now take owned `self` instead of `&mut self`, enabling full method
+  chaining (e.g. `Highlighter::builder().with_number_highlighter(...).build()`)
 - Differentiate between Regexp Errors and Aho-Corasick Errors
 - Feature-gate CLI dependencies (`tokio`, `clap`, `rayon`, etc.) so library consumers can use
   `default-features = false` to avoid compiling them
