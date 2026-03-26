@@ -18,6 +18,7 @@ use crate::core::highlighters::uuid::UuidHighlighter;
 use crate::core::utils::normalizer::normalize_keyword_configs;
 use crate::core::utils::split_and_apply::apply_only_to_unhighlighted;
 use std::borrow::Cow;
+use std::fmt;
 use thiserror::Error;
 
 /// A regex-based log highlighter.
@@ -78,6 +79,14 @@ impl Highlighter {
     }
 }
 
+impl fmt::Debug for Highlighter {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Highlighter")
+            .field("highlighters", &self.highlighters.len())
+            .finish()
+    }
+}
+
 impl Default for Highlighter {
     /// Creates a default `Highlighter` with common patterns.
     ///
@@ -106,6 +115,15 @@ impl Default for Highlighter {
 pub struct HighlighterBuilder {
     highlighters: Vec<Box<dyn Highlight>>,
     first_error: Option<Error>,
+}
+
+impl fmt::Debug for HighlighterBuilder {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("HighlighterBuilder")
+            .field("highlighters", &self.highlighters.len())
+            .field("has_error", &self.first_error.is_some())
+            .finish()
+    }
 }
 
 impl HighlighterBuilder {

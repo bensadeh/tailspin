@@ -1,4 +1,5 @@
 #![forbid(unsafe_code)]
+#![warn(missing_debug_implementations)]
 
 //! <p align="center">
 //!   <a href="https://github.com/bensadeh/tailspin">
