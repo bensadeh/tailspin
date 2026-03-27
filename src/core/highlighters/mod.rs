@@ -18,6 +18,11 @@ impl Painter {
     }
 
     #[inline]
+    pub fn prefix(&self) -> &str {
+        &self.prefix
+    }
+
+    #[inline]
     pub fn paint(&self, buf: &mut String, s: &str) {
         if self.prefix.is_empty() {
             buf.push_str(s);

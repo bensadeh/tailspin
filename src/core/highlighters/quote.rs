@@ -4,8 +4,8 @@ use std::borrow::Cow;
 
 use crate::core::config::QuoteConfig;
 use crate::core::highlighter::Highlight;
+use crate::core::highlighters::Painter;
 use crate::core::highlighters::quote::State::{InsideQuote, OutsideQuote};
-use crate::style::Style;
 
 const RESET: &str = "\x1b[0m";
 
@@ -16,20 +16,13 @@ pub struct QuoteHighlighter {
 
 impl QuoteHighlighter {
     pub fn new(config: QuoteConfig) -> Self {
-        let color = ansi_color_code_without_reset(config.style);
+        let painter = Painter::new(NuStyle::from(config.style));
 
         Self {
             quote_token: config.quote_token,
-            color,
+            color: painter.prefix().to_owned(),
         }
     }
-}
-
-fn ansi_color_code_without_reset(style: Style) -> String {
-    let nu_style = NuStyle::from(style);
-    let styled_str = format!("{}", nu_style.paint(""));
-
-    styled_str.replace(RESET, "")
 }
 
 impl Highlight for QuoteHighlighter {
