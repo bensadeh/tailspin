@@ -40,10 +40,10 @@ pub trait Highlight: Sync + Send {
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Regex error: {0}")]
-    RegexError(String),
+    RegexError(#[from] regex::Error),
 
     #[error("Pattern error: {0}")]
-    PatternError(String),
+    PatternError(#[from] aho_corasick::BuildError),
 }
 
 impl Highlighter {
@@ -223,7 +223,7 @@ impl HighlighterBuilder {
 
             match KeywordHighlighter::new(keyword_config) {
                 Ok(h) => self.highlighters.push(Box::new(h)),
-                Err(e) => self.first_error = Some(Error::PatternError(e.to_string())),
+                Err(e) => self.first_error = Some(Error::PatternError(e)),
             }
         }
 
@@ -252,7 +252,7 @@ impl HighlighterBuilder {
 
         match highlighter {
             Ok(h) => self.highlighters.push(Box::new(h)),
-            Err(e) => self.first_error = Some(Error::RegexError(e.to_string())),
+            Err(e) => self.first_error = Some(Error::RegexError(e)),
         }
     }
 }
