@@ -2,6 +2,7 @@ use super::RegexExt;
 use crate::core::config::UrlConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
+use memchr::memchr_iter;
 use regex::{Regex, RegexBuilder};
 use std::borrow::Cow;
 
@@ -61,8 +62,8 @@ impl UrlHighlighter {
 /// - `"https://example.com)"` → 1 (one unbalanced trailing paren)
 /// - `"/wiki/Foo_(bar))"` → 1 (one unbalanced trailing paren)
 fn count_unbalanced_trailing_parens(s: &str) -> usize {
-    let open = s.chars().filter(|&c| c == '(').count();
-    let close = s.chars().filter(|&c| c == ')').count();
+    let open = memchr_iter(b'(', s.as_bytes()).count();
+    let close = memchr_iter(b')', s.as_bytes()).count();
 
     if close <= open {
         return 0;
