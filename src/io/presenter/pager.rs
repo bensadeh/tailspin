@@ -62,7 +62,7 @@ impl Present for Pager {
     }
 }
 
-fn get_less_pager_command(follow: bool, path: &PathBuf) -> Command {
+fn get_less_pager_command(follow: bool, path: &Path) -> Command {
     let mut args = vec![
         "--ignore-case".to_string(),
         "--RAW-CONTROL-CHARS".to_string(),
