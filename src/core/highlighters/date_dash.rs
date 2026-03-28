@@ -1,3 +1,4 @@
+use super::RegexExt;
 use crate::core::config::DateTimeConfig;
 use crate::core::highlighter::Highlight;
 use crate::core::highlighters::Painter;
@@ -119,30 +120,13 @@ impl Highlight for DateDashHighlighter {
             return Cow::Borrowed(input);
         }
 
-        let mut out: Option<String> = None;
-        let mut last = 0usize;
-
-        for caps in self.regex.captures_iter(input) {
-            let m = caps.get(0).unwrap();
-            let buf = out.get_or_insert_with(|| String::with_capacity(input.len() + 32));
-            buf.push_str(&input[last..m.start()]);
-
+        self.regex.replace_all_cow(input, |caps, buf| {
             if caps.get(self.idx.a_year).is_some() {
-                self.write_branch_a(&caps, buf);
+                self.write_branch_a(caps, buf);
             } else {
-                self.write_branch_b(&caps, buf);
+                self.write_branch_b(caps, buf);
             }
-
-            last = m.end();
-        }
-
-        match out {
-            Some(mut buf) => {
-                buf.push_str(&input[last..]);
-                Cow::Owned(buf)
-            }
-            None => Cow::Borrowed(input),
-        }
+        })
     }
 }
 
