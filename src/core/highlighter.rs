@@ -57,7 +57,7 @@ impl Highlighter {
 
 impl fmt::Debug for Highlighter {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Highlighter").finish()
+        f.debug_struct("Highlighter").field("pipeline", &self.inner).finish()
     }
 }
 
