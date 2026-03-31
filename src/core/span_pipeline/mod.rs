@@ -191,4 +191,68 @@ mod tests {
         assert!(matches!(result, Cow::Borrowed(_)));
         assert_eq!(&*result, "");
     }
+
+    #[test]
+    fn three_finders_overlapping_same_region() {
+        // Number (priority 0), keyword (priority 1), quote (priority 2) all cover "200"
+        let highlighter = Pipeline::new(vec![
+            Box::new(NumberFinder::new(Style::new().fg(Color::Cyan))),
+            Box::new(KeywordFinder::new(&["200"], Style::new().fg(Color::Green)).unwrap()),
+            Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
+        ]);
+
+        // "200" is inside quotes, matched by all three finders — number (priority 0) wins
+        let result = highlighter.apply_sequential(r#""status 200 ok""#);
+        let readable = result.to_string().convert_escape_codes();
+        assert_eq!(
+            readable,
+            r#"[yellow]"status [reset][cyan]200[reset][yellow] ok"[reset]"#
+        );
+    }
+
+    #[test]
+    fn multibyte_utf8_with_numbers() {
+        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(Style::new().fg(Color::Cyan)))]);
+
+        let result = highlighter.apply_sequential("café 42 résumé");
+        assert_eq!(result.to_string().convert_escape_codes(), "café [cyan]42[reset] résumé");
+    }
+
+    #[test]
+    fn multibyte_utf8_with_quotes() {
+        let highlighter = Pipeline::new(vec![
+            Box::new(NumberFinder::new(Style::new().fg(Color::Cyan))),
+            Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
+        ]);
+
+        let result = highlighter.apply_sequential(r#"日本語 "hello 42" 世界"#);
+        let readable = result.to_string().convert_escape_codes();
+        assert_eq!(
+            readable,
+            r#"日本語 [yellow]"hello [reset][cyan]42[reset][yellow]"[reset] 世界"#
+        );
+    }
+
+    #[test]
+    fn keyword_badge_is_entire_input() {
+        let highlighter = Pipeline::new(vec![Box::new(
+            KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap(),
+        )]);
+
+        let result = highlighter.apply_sequential("ERROR");
+        assert_eq!(result.to_string().convert_escape_codes(), "[bg_red] ERROR [reset]");
+    }
+
+    #[test]
+    fn ansi_input_passes_through() {
+        // Pre-styled input: finders won't match inside ANSI codes,
+        // but the pipeline should not panic or corrupt output
+        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(Style::new().fg(Color::Cyan)))]);
+
+        let input = "\x1b[31mhello\x1b[0m 42";
+        let result = highlighter.apply_sequential(input);
+        let readable = result.to_string().convert_escape_codes();
+        // The 42 is still highlighted; ANSI codes are treated as opaque text
+        assert!(readable.contains("[cyan]42[reset]"));
+    }
 }
