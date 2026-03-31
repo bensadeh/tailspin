@@ -1,7 +1,7 @@
-pub mod finders;
-pub mod merge;
-pub mod render;
-pub mod span;
+pub(crate) mod finders;
+pub(crate) mod merge;
+pub(crate) mod render;
+pub(crate) mod span;
 
 use std::borrow::Cow;
 

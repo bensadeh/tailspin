@@ -6,7 +6,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct KeyValueFinder {
+pub(crate) struct KeyValueFinder {
     regex: Regex,
     key: Style,
     separator: Style,

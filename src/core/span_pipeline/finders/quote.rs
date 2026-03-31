@@ -5,7 +5,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct QuoteFinder {
+pub(crate) struct QuoteFinder {
     quote_token: u8,
     style: Style,
 }

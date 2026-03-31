@@ -6,7 +6,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct UuidFinder {
+pub(crate) struct UuidFinder {
     regex: Regex,
     number: Style,
     letter: Style,

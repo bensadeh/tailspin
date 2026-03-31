@@ -7,7 +7,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct UrlFinder {
+pub(crate) struct UrlFinder {
     url_regex: Regex,
     query_params_regex: Regex,
     http: Style,

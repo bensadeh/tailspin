@@ -6,7 +6,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct UnixProcessFinder {
+pub(crate) struct UnixProcessFinder {
     regex: Regex,
     name: Style,
     id: Style,

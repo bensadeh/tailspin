@@ -6,7 +6,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct DateDashFinder {
+pub(crate) struct DateDashFinder {
     regex: Regex,
     idx: Idx,
     date: Style,

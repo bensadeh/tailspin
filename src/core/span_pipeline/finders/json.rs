@@ -5,7 +5,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct JsonFinder {
+pub(crate) struct JsonFinder {
     key: Style,
     quote_token: Style,
     curly_bracket: Style,

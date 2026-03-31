@@ -7,7 +7,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct IpV6Finder {
+pub(crate) struct IpV6Finder {
     regex: Regex,
     number: Style,
     letter: Style,

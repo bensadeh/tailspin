@@ -6,7 +6,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct UnixPathFinder {
+pub(crate) struct UnixPathFinder {
     regex: Regex,
     segment: Style,
     separator: Style,

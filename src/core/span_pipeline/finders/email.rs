@@ -6,7 +6,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct EmailFinder {
+pub(crate) struct EmailFinder {
     regex: Regex,
     local_part: Style,
     at_sign: Style,

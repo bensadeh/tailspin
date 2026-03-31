@@ -5,7 +5,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct RegexFinder {
+pub(crate) struct RegexFinder {
     regex: Regex,
     style: Style,
 }

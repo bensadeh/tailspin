@@ -5,7 +5,7 @@ use crate::style::Style;
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
-pub struct KeywordFinder {
+pub(crate) struct KeywordFinder {
     ac: AhoCorasick,
     style: Style,
     has_background: bool,
