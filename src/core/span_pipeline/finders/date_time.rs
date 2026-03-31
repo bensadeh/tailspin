@@ -1,6 +1,5 @@
 use memchr::memchr;
 use regex::{Regex, RegexBuilder};
-use std::collections::HashMap;
 
 use crate::style::Style;
 
@@ -44,23 +43,31 @@ impl DateTimeFinder {
             .build()
             .expect("hardcoded date-time regex must compile");
 
-        let mut name_to_idx = HashMap::new();
-        for (i, name_opt) in regex.capture_names().enumerate() {
-            if let Some(name) = name_opt {
-                name_to_idx.insert(name.to_string(), i);
+        let mut idx = Idx {
+            t: 0,
+            hours: 0,
+            colon1: 0,
+            minutes: 0,
+            colon2: 0,
+            seconds: 0,
+            frac_sep: 0,
+            frac_digits: 0,
+            tz: 0,
+        };
+        for (i, name) in regex.capture_names().enumerate() {
+            match name {
+                Some("T") => idx.t = i,
+                Some("hours") => idx.hours = i,
+                Some("colon1") => idx.colon1 = i,
+                Some("minutes") => idx.minutes = i,
+                Some("colon2") => idx.colon2 = i,
+                Some("seconds") => idx.seconds = i,
+                Some("frac_sep") => idx.frac_sep = i,
+                Some("frac_digits") => idx.frac_digits = i,
+                Some("tz") => idx.tz = i,
+                _ => {}
             }
         }
-        let idx = Idx {
-            t: name_to_idx["T"],
-            hours: name_to_idx["hours"],
-            colon1: name_to_idx["colon1"],
-            minutes: name_to_idx["minutes"],
-            colon2: name_to_idx["colon2"],
-            seconds: name_to_idx["seconds"],
-            frac_sep: name_to_idx["frac_sep"],
-            frac_digits: name_to_idx["frac_digits"],
-            tz: name_to_idx["tz"],
-        };
 
         Self {
             regex,

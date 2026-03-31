@@ -4,7 +4,7 @@ use tailspin::Highlighter;
 use tailspin::config::*;
 use tailspin::style::{Color, Style};
 
-const LOG_LINE: &str = r#"INFO  [server::handler] next request - Loss exceeded max. threshold - status n/a - re-run completed 200 OK user=admin "all good""#;
+const LOG_LINE: &str = "just a plain boring log line with no patterns to match whatsoever and no special characters";
 
 fn bench_no_match(c: &mut Criterion) {
     let mut group = c.benchmark_group("no_match");

@@ -31,6 +31,7 @@ impl UrlFinder {
         let url_pattern = r"(?x)
             (?P<protocol>https?) (:) (//)
             (?P<host>[A-Za-z0-9._\-]+)
+            (?::(?P<port>\d{1,5}))?
             (?P<path>(?:/[A-Za-z0-9._~\-/%+()]*)?)
             (?P<query>\?[A-Za-z0-9._~\-/%+&=;,@!*()?:]*)?";
         let url_regex = RegexBuilder::new(url_pattern)
@@ -97,6 +98,12 @@ impl Finder for UrlFinder {
                 collector.push(host.start(), host.end(), self.host);
             }
 
+            if let Some(port) = caps.name("port") {
+                // Style the colon before the port as a symbol
+                collector.push(port.start() - 1, port.start(), self.symbols);
+                collector.push(port.start(), port.end(), self.host);
+            }
+
             if let Some(path) = caps.name("path") {
                 let end = if caps.name("query").is_none() && trim_count > 0 {
                     path.end() - trim_count
@@ -141,5 +148,71 @@ impl Finder for UrlFinder {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::style::Color;
+
+    fn finder() -> UrlFinder {
+        UrlFinder::new(
+            Style::new().fg(Color::Red),
+            Style::new().fg(Color::Green),
+            Style::new().fg(Color::Blue),
+            Style::new().fg(Color::Cyan),
+            Style::new().fg(Color::Magenta),
+            Style::new().fg(Color::Yellow),
+            Style::new().fg(Color::White),
+        )
+    }
+
+    fn spans_text<'a>(input: &'a str, finder: &UrlFinder) -> Vec<&'a str> {
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
+    }
+
+    #[test]
+    fn matches_url_with_port() {
+        let f = finder();
+        let input = "http://localhost:8080/path";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"http"));
+        assert!(texts.contains(&"localhost"));
+        assert!(texts.contains(&":"));
+        assert!(texts.contains(&"8080"));
+        assert!(texts.contains(&"/path"));
+    }
+
+    #[test]
+    fn matches_url_without_port() {
+        let f = finder();
+        let input = "https://example.com/foo";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"https"));
+        assert!(texts.contains(&"example.com"));
+        assert!(texts.contains(&"/foo"));
+        assert!(!texts.contains(&":")); // no port colon
+    }
+
+    #[test]
+    fn matches_url_with_port_and_query() {
+        let f = finder();
+        let input = "http://api.dev:3000/v1?key=val";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"api.dev"));
+        assert!(texts.contains(&"3000"));
+        assert!(texts.contains(&"key"));
+        assert!(texts.contains(&"val"));
+    }
+
+    #[test]
+    fn no_match_returns_no_spans() {
+        let f = finder();
+        let mut collector = Collector::new(0);
+        f.find_spans("no urls here", &mut collector);
+        assert!(collector.into_spans().is_empty());
     }
 }

@@ -1,4 +1,4 @@
-use serde_json::Value;
+use serde::Deserialize;
 
 use crate::style::Style;
 
@@ -46,9 +46,9 @@ impl Finder for JsonFinder {
         // Instead, we style the structural tokens at their original positions
         // by walking the raw input string.
         //
-        // For the span pipeline prototype, we do a simpler approach:
-        // just validate it's JSON and style the structural characters in-place.
-        if serde_json::from_str::<Value>(input).is_err() {
+        // Validate it's JSON without allocating the tree.
+        let mut de = serde_json::Deserializer::from_str(input);
+        if serde::de::IgnoredAny::deserialize(&mut de).is_err() || de.end().is_err() {
             return;
         }
 

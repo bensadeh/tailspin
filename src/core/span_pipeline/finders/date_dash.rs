@@ -1,6 +1,5 @@
 use memchr::memchr2;
 use regex::{Regex, RegexBuilder};
-use std::collections::HashMap;
 
 use crate::style::Style;
 
@@ -51,24 +50,33 @@ impl DateDashFinder {
             .build()
             .expect("hardcoded date-dash regex must compile");
 
-        let mut map = HashMap::new();
+        let mut idx = Idx {
+            a_year: 0,
+            a_sep1: 0,
+            a_first: 0,
+            a_sep2: 0,
+            a_second: 0,
+            b_first: 0,
+            b_sep1: 0,
+            b_second: 0,
+            b_sep2: 0,
+            b_year: 0,
+        };
         for (i, name) in regex.capture_names().enumerate() {
-            if let Some(n) = name {
-                map.insert(n.to_string(), i);
+            match name {
+                Some("a_year") => idx.a_year = i,
+                Some("a_sep1") => idx.a_sep1 = i,
+                Some("a_first") => idx.a_first = i,
+                Some("a_sep2") => idx.a_sep2 = i,
+                Some("a_second") => idx.a_second = i,
+                Some("b_first") => idx.b_first = i,
+                Some("b_sep1") => idx.b_sep1 = i,
+                Some("b_second") => idx.b_second = i,
+                Some("b_sep2") => idx.b_sep2 = i,
+                Some("b_year") => idx.b_year = i,
+                _ => {}
             }
         }
-        let idx = Idx {
-            a_year: map["a_year"],
-            a_sep1: map["a_sep1"],
-            a_first: map["a_first"],
-            a_sep2: map["a_sep2"],
-            a_second: map["a_second"],
-            b_first: map["b_first"],
-            b_sep1: map["b_sep1"],
-            b_second: map["b_second"],
-            b_sep2: map["b_sep2"],
-            b_year: map["b_year"],
-        };
 
         Self {
             regex,
