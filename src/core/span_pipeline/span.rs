@@ -28,7 +28,7 @@ impl Span {
 
 /// Collects spans from a single finder, coalescing adjacent same-style spans.
 #[derive(Debug)]
-pub struct Collector {
+pub(crate) struct Collector {
     spans: Vec<Span>,
     padded_ranges: Vec<Range<usize>>,
     priority: u16,
@@ -85,7 +85,7 @@ impl Collector {
 ///
 /// Implementations run on the original unstyled input and push spans
 /// into the collector.
-pub trait Finder: Sync + Send {
+pub(crate) trait Finder: Sync + Send {
     fn find_spans(&self, input: &str, collector: &mut Collector);
 }
 

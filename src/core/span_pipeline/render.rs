@@ -131,7 +131,7 @@ mod tests {
     fn padded_span_gets_spaces() {
         let input = "x ERROR y";
         let style = Style::new().on(Color::Red);
-        let result = render(input, &[span(2, 7, style)], &[2..7]);
+        let result = render(input, &[span(2, 7, style)], &[Range { start: 2, end: 7 }]);
         assert_eq!(result.to_string().convert_escape_codes(), "x [bg_red] ERROR [reset] y");
     }
 

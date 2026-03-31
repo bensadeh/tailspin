@@ -22,9 +22,9 @@ use std::borrow::Cow;
 use std::fmt;
 use thiserror::Error;
 
-/// A regex-based log highlighter.
+/// A pattern-based log highlighter.
 ///
-/// `Highlighter` applies configured regex-based highlighters to text inputs,
+/// `Highlighter` applies configured pattern-based highlighters to text inputs,
 /// returning highlighted output with ANSI colors.
 pub struct Highlighter {
     inner: Pipeline,

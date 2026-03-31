@@ -38,8 +38,8 @@ A log file highlighter
 
 ## Overview
 
-`tailspin` works by reading through a log file line by line, running a series of regexes
-against each line. The regexes recognize patterns you expect to find in a logfile, like dates, numbers, severity
+`tailspin` works by reading through a log file line by line, running a series of matchers
+against each line. The matchers recognize patterns you expect to find in a logfile, like dates, numbers, severity
 keywords and more.
 
 `tailspin` does not make any assumptions on the format or position of the items it wants to highlight. For this reason,

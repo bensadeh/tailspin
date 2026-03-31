@@ -1,4 +1,5 @@
 use memchr::memchr_iter;
+use memchr::memmem;
 use regex::{Regex, RegexBuilder};
 
 use crate::style::Style;
@@ -79,6 +80,10 @@ fn count_unbalanced_trailing_parens(s: &str) -> usize {
 
 impl Finder for UrlFinder {
     fn find_spans(&self, input: &str, collector: &mut Collector) {
+        if memmem::find(input.as_bytes(), b"://").is_none() {
+            return;
+        }
+
         for caps in self.url_regex.captures_iter(input) {
             let full_match = caps.get(0).unwrap();
             let full_str = full_match.as_str();
