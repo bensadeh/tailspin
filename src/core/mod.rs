@@ -2,7 +2,7 @@ pub mod highlighter;
 pub mod style;
 
 pub mod config;
-mod highlighters;
+pub(crate) mod span_pipeline;
 mod utils;
 
 #[cfg(test)]

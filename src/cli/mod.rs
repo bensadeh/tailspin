@@ -158,14 +158,14 @@ pub fn get_config() -> Result<FullConfig> {
     let keywords_from_toml = theme.keywords.clone();
     let keywords_from_cli = get_keywords_from_cli(&cli);
 
-    let keywords = vec![]
+    let keywords: Vec<_> = vec![]
         .into_iter()
         .chain(keywords_builtin)
         .chain(keywords_from_toml)
         .chain(keywords_from_cli)
         .collect();
 
-    let highlighter = highlighter_builder::get_highlighter(highlighter_groups, theme, keywords)?;
+    let highlighter = highlighter_builder::get_highlighter(highlighter_groups, theme, keywords);
 
     Ok(FullConfig {
         source: io_config.source,

@@ -32,8 +32,6 @@ async fn run() -> anyhow::Result<()> {
     let mut process_stream_task = tokio::spawn(process_stream(reader, writer, highlighter, initial_read_complete_tx));
 
     if initial_read_complete_rx.receive().await.is_err() {
-        // The sender was dropped, meaning process_stream failed before signaling.
-        // Surface the actual error instead of a generic "failed to receive signal" message.
         return process_stream_task.await?;
     }
 
@@ -76,7 +74,6 @@ async fn process_stream(
 
 async fn write_line(writer: &mut Writer, highlighter: &Highlighter, line: &str) -> anyhow::Result<()> {
     let highlighted = highlighter.apply(line);
-
     writer.write(&highlighted).await
 }
 

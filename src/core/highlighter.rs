@@ -1,22 +1,23 @@
 use crate::core::config::*;
-use crate::core::highlighters::date_dash::DateDashHighlighter;
-use crate::core::highlighters::date_time::DateTimeHighlighter;
-use crate::core::highlighters::email::EmailHighlighter;
-use crate::core::highlighters::ip_v4::IpV4Highlighter;
-use crate::core::highlighters::ip_v6::IpV6Highlighter;
-use crate::core::highlighters::json::JsonHighlighter;
-use crate::core::highlighters::key_value::KeyValueHighlighter;
-use crate::core::highlighters::keyword::KeywordHighlighter;
-use crate::core::highlighters::number::NumberHighlighter;
-use crate::core::highlighters::pointer::PointerHighlighter;
-use crate::core::highlighters::quote::QuoteHighlighter;
-use crate::core::highlighters::regex::RegexHighlighter;
-use crate::core::highlighters::unix_path::UnixPathHighlighter;
-use crate::core::highlighters::unix_process::UnixProcessHighlighter;
-use crate::core::highlighters::url::UrlHighlighter;
-use crate::core::highlighters::uuid::UuidHighlighter;
+use crate::core::span_pipeline::Pipeline;
+use crate::core::span_pipeline::finders::date_dash::DateDashFinder;
+use crate::core::span_pipeline::finders::date_time::DateTimeFinder;
+use crate::core::span_pipeline::finders::email::EmailFinder;
+use crate::core::span_pipeline::finders::ip_v4::IpV4Finder;
+use crate::core::span_pipeline::finders::ip_v6::IpV6Finder;
+use crate::core::span_pipeline::finders::json::JsonFinder;
+use crate::core::span_pipeline::finders::key_value::KeyValueFinder;
+use crate::core::span_pipeline::finders::keyword::KeywordFinder;
+use crate::core::span_pipeline::finders::number::NumberFinder;
+use crate::core::span_pipeline::finders::pointer::PointerFinder;
+use crate::core::span_pipeline::finders::quote::QuoteFinder;
+use crate::core::span_pipeline::finders::regex::RegexFinder;
+use crate::core::span_pipeline::finders::unix_path::UnixPathFinder;
+use crate::core::span_pipeline::finders::unix_process::UnixProcessFinder;
+use crate::core::span_pipeline::finders::url::UrlFinder;
+use crate::core::span_pipeline::finders::uuid::UuidFinder;
+use crate::core::span_pipeline::span::Finder;
 use crate::core::utils::normalizer::normalize_keyword_configs;
-use crate::core::utils::split_and_apply::apply_only_to_unhighlighted;
 use std::borrow::Cow;
 use std::fmt;
 use thiserror::Error;
@@ -26,15 +27,7 @@ use thiserror::Error;
 /// `Highlighter` applies configured regex-based highlighters to text inputs,
 /// returning highlighted output with ANSI colors.
 pub struct Highlighter {
-    highlighters: Vec<Box<dyn Highlight>>,
-}
-
-pub trait Highlight: Sync + Send {
-    fn apply<'a>(&self, input: &'a str) -> Cow<'a, str>;
-
-    fn apply_to_line<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        apply_only_to_unhighlighted(input, self)
-    }
+    inner: Pipeline,
 }
 
 #[derive(Debug, Error)]
@@ -47,43 +40,24 @@ pub enum Error {
 }
 
 impl Highlighter {
-    const fn new() -> Self {
-        Highlighter {
-            highlighters: Vec::new(),
-        }
-    }
-
     /// Creates a new [`HighlighterBuilder`] for configuring a [`Highlighter`].
     pub const fn builder() -> HighlighterBuilder {
         HighlighterBuilder {
-            highlighters: Vec::new(),
+            finders: Vec::new(),
             first_error: None,
         }
-    }
-
-    fn with_highlighters(mut self, highlighters: Vec<Box<dyn Highlight>>) -> Self {
-        self.highlighters = highlighters;
-        self
     }
 
     /// Applies the configured highlights to the given input string.
     #[must_use]
     pub fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        self.highlighters.iter().fold(Cow::Borrowed(input), |acc, highlighter| {
-            let result = highlighter.apply_to_line(&acc);
-            match result {
-                Cow::Borrowed(_) => acc,
-                Cow::Owned(modified) => Cow::Owned(modified),
-            }
-        })
+        self.inner.apply_sequential(input)
     }
 }
 
 impl fmt::Debug for Highlighter {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Highlighter")
-            .field("highlighters", &self.highlighters.len())
-            .finish()
+        f.debug_struct("Highlighter").finish()
     }
 }
 
@@ -113,14 +87,14 @@ impl Default for Highlighter {
 /// Builder for configuring a [`Highlighter`].
 #[must_use]
 pub struct HighlighterBuilder {
-    highlighters: Vec<Box<dyn Highlight>>,
+    finders: Vec<Box<dyn Finder>>,
     first_error: Option<Error>,
 }
 
 impl fmt::Debug for HighlighterBuilder {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("HighlighterBuilder")
-            .field("highlighters", &self.highlighters.len())
+            .field("finders", &self.finders.len())
             .field("has_error", &self.first_error.is_some())
             .finish()
     }
@@ -129,86 +103,117 @@ impl fmt::Debug for HighlighterBuilder {
 impl HighlighterBuilder {
     /// Adds a highlighter for numbers.
     pub fn with_number_highlighter(mut self, config: NumberConfig) -> Self {
-        self.add_highlighter(NumberHighlighter::new(config));
+        self.add_finder(NumberFinder::new(config.style));
         self
     }
 
     /// Adds a highlighter for UUIDs.
     pub fn with_uuid_highlighter(mut self, config: UuidConfig) -> Self {
-        self.add_highlighter(UuidHighlighter::new(config));
+        self.add_finder(UuidFinder::new(config.number, config.letter, config.dash));
         self
     }
 
     /// Adds a highlighter for Unix file paths.
     pub fn with_unix_path_highlighter(mut self, config: UnixPathConfig) -> Self {
-        self.add_highlighter(UnixPathHighlighter::new(config));
+        self.add_finder(UnixPathFinder::new(config.segment, config.separator));
         self
     }
 
     /// Adds a highlighter for Unix processes.
     pub fn with_unix_process_highlighter(mut self, config: UnixProcessConfig) -> Self {
-        self.add_highlighter(UnixProcessHighlighter::new(config));
+        self.add_finder(UnixProcessFinder::new(config.name, config.id, config.bracket));
         self
     }
 
     /// Adds a highlighter for key-value pairs.
     pub fn with_key_value_highlighter(mut self, config: KeyValueConfig) -> Self {
-        self.add_highlighter(KeyValueHighlighter::new(config));
+        self.add_finder(KeyValueFinder::new(config.key, config.separator));
         self
     }
 
     /// Adds highlighters for dates and times.
     pub fn with_date_time_highlighters(mut self, config: DateTimeConfig) -> Self {
-        self.add_highlighter(DateTimeHighlighter::new(config));
-        self.add_highlighter(DateDashHighlighter::new(config));
+        self.add_finder(DateTimeFinder::new(config.time, config.zone, config.separator));
+        self.add_finder(DateDashFinder::new(config.date, config.separator));
         self
     }
 
     /// Adds a highlighter for IPv6 addresses.
     pub fn with_ip_v6_highlighter(mut self, config: IpV6Config) -> Self {
-        self.add_highlighter(IpV6Highlighter::new(config));
+        self.add_finder(IpV6Finder::new(config.number, config.letter, config.separator));
         self
     }
 
     /// Adds a highlighter for IPv4 addresses.
     pub fn with_ip_v4_highlighter(mut self, config: IpV4Config) -> Self {
-        self.add_highlighter(IpV4Highlighter::new(config));
+        self.add_finder(IpV4Finder::new(config.number, config.separator));
         self
     }
 
     /// Adds a highlighter for URLs.
     pub fn with_url_highlighter(mut self, config: UrlConfig) -> Self {
-        self.add_highlighter(UrlHighlighter::new(config));
+        self.add_finder(UrlFinder::new(
+            config.http,
+            config.https,
+            config.host,
+            config.path,
+            config.query_params_key,
+            config.query_params_value,
+            config.symbols,
+        ));
         self
     }
 
     /// Adds a highlighter for email addresses.
     pub fn with_email_highlighter(mut self, config: EmailConfig) -> Self {
-        self.add_highlighter(EmailHighlighter::new(config));
+        self.add_finder(EmailFinder::new(
+            config.local_part,
+            config.at_sign,
+            config.domain,
+            config.dot,
+        ));
         self
     }
 
     /// Adds a highlighter for memory pointers.
     pub fn with_pointer_highlighter(mut self, config: PointerConfig) -> Self {
-        self.add_highlighter(PointerHighlighter::new(config));
+        self.add_finder(PointerFinder::new(
+            config.number,
+            config.letter,
+            config.separator,
+            config.x,
+        ));
         self
     }
 
     /// Adds a highlighter using a custom regex pattern.
     pub fn with_regex_highlighter(mut self, config: RegexConfig) -> Self {
-        self.try_add_highlighter(RegexHighlighter::new(config));
+        if self.first_error.is_some() {
+            return self;
+        }
+        match RegexFinder::new(&config.regex, config.style) {
+            Ok(f) => self.finders.push(Box::new(f)),
+            Err(e) => self.first_error = Some(Error::RegexError(e)),
+        }
         self
     }
 
     /// Adds a highlighter for quoted text.
     pub fn with_quote_highlighter(mut self, config: QuoteConfig) -> Self {
-        self.add_highlighter(QuoteHighlighter::new(config));
+        self.add_finder(QuoteFinder::new(config.quote_token, config.style));
         self
     }
 
     /// Adds a highlighter for JSON structures.
     pub fn with_json_highlighter(mut self, config: JsonConfig) -> Self {
-        self.add_highlighter(JsonHighlighter::new(config));
+        self.add_finder(JsonFinder::new(
+            config.key,
+            config.quote_token,
+            config.curly_bracket,
+            config.square_bracket,
+            config.comma,
+            config.colon,
+        ));
         self
     }
 
@@ -221,8 +226,9 @@ impl HighlighterBuilder {
                 continue;
             }
 
-            match KeywordHighlighter::new(keyword_config) {
-                Ok(h) => self.highlighters.push(Box::new(h)),
+            let word_refs: Vec<&str> = keyword_config.words.iter().map(String::as_str).collect();
+            match KeywordFinder::new(&word_refs, keyword_config.style) {
+                Ok(f) => self.finders.push(Box::new(f)),
                 Err(e) => self.first_error = Some(Error::PatternError(e)),
             }
         }
@@ -235,24 +241,15 @@ impl HighlighterBuilder {
         if let Some(err) = self.first_error {
             Err(err)
         } else {
-            Ok(Highlighter::new().with_highlighters(self.highlighters))
+            Ok(Highlighter {
+                inner: Pipeline::new(self.finders),
+            })
         }
     }
 
-    fn add_highlighter<H: Highlight + 'static>(&mut self, highlighter: H) {
+    fn add_finder<F: Finder + 'static>(&mut self, finder: F) {
         if self.first_error.is_none() {
-            self.highlighters.push(Box::new(highlighter));
-        }
-    }
-
-    fn try_add_highlighter<H: Highlight + 'static>(&mut self, highlighter: Result<H, regex::Error>) {
-        if self.first_error.is_some() {
-            return;
-        }
-
-        match highlighter {
-            Ok(h) => self.highlighters.push(Box::new(h)),
-            Err(e) => self.first_error = Some(Error::RegexError(e)),
+            self.finders.push(Box::new(finder));
         }
     }
 }
@@ -281,7 +278,9 @@ mod tests {
         let highlighter = number_then_quote_highlighter();
 
         let input = r#"count is "value 42 here" end"#;
-        let expected = r#"count is [yellow]"value [cyan]42[reset][yellow] here"[reset] end"#;
+        // In the span pipeline, number (priority 0) wins over quote (priority 1)
+        // so number is cyan, quote fills the gaps with yellow
+        let expected = r#"count is [yellow]"value [reset][cyan]42[reset][yellow] here"[reset] end"#;
 
         let actual = highlighter.apply(input);
 
@@ -317,7 +316,7 @@ mod tests {
         let highlighter = number_then_quote_highlighter();
 
         let input = r#""port 8080 and 443""#;
-        let expected = r#"[yellow]"port [cyan]8080[reset][yellow] and [cyan]443[reset][yellow]"[reset]"#;
+        let expected = r#"[yellow]"port [reset][cyan]8080[reset][yellow] and [reset][cyan]443[reset][yellow]"[reset]"#;
 
         let actual = highlighter.apply(input);
 
@@ -329,8 +328,7 @@ mod tests {
         let highlighter = number_then_quote_highlighter();
 
         let input = r#""count 1" and "count 2""#;
-        let expected =
-            r#"[yellow]"count [cyan]1[reset][yellow]"[reset] and [yellow]"count [cyan]2[reset][yellow]"[reset]"#;
+        let expected = r#"[yellow]"count [reset][cyan]1[reset][yellow]"[reset] and [yellow]"count [reset][cyan]2[reset][yellow]"[reset]"#;
 
         let actual = highlighter.apply(input);
 
