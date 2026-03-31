@@ -14,7 +14,7 @@ pub struct PointerFinder {
 }
 
 impl PointerFinder {
-    pub fn new(number: Style, letter: Style, _separator: Style, x: Style) -> Self {
+    pub fn new(number: Style, letter: Style, x: Style) -> Self {
         let pattern = r"(?ix)
             \b
             (?P<prefix>0x)

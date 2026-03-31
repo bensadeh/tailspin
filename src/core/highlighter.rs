@@ -177,12 +177,7 @@ impl HighlighterBuilder {
 
     /// Adds a highlighter for memory pointers.
     pub fn with_pointer_highlighter(mut self, config: PointerConfig) -> Self {
-        self.add_finder(PointerFinder::new(
-            config.number,
-            config.letter,
-            config.separator,
-            config.x,
-        ));
+        self.add_finder(PointerFinder::new(config.number, config.letter, config.x));
         self
     }
 

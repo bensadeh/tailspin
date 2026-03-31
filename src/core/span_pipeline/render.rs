@@ -58,8 +58,7 @@ pub(crate) fn render<'a>(input: &'a str, spans: &[ResolvedSpan], padded_ranges: 
             && padded_ranges[pad_idx].start <= span.start
             && span.end <= padded_ranges[pad_idx].end;
 
-        let prefix = cache.get(span.style).to_owned();
-        output.push_str(&prefix);
+        output.push_str(cache.get(span.style));
         if padded {
             output.push(' ');
         }
@@ -82,6 +81,7 @@ pub(crate) fn render<'a>(input: &'a str, spans: &[ResolvedSpan], padded_ranges: 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::tests::escape_code_converter::ConvertEscapeCodes;
     use crate::style::Color;
 
     fn span(start: usize, end: usize, style: Style) -> ResolvedSpan {
@@ -101,9 +101,7 @@ mod tests {
         let input = "hello world";
         let style = Style::new().fg(Color::Red);
         let result = render(input, &[span(6, 11, style)], &[]);
-        assert!(result.starts_with("hello "));
-        assert!(result.contains("world"));
-        assert!(result.contains(RESET));
+        assert_eq!(result.to_string().convert_escape_codes(), "hello [red]world[reset]");
     }
 
     #[test]
@@ -111,7 +109,10 @@ mod tests {
         let input = "abc def ghi";
         let style = Style::new().fg(Color::Red);
         let result = render(input, &[span(0, 3, style), span(8, 11, style)], &[]);
-        assert!(result.contains(" def "));
+        assert_eq!(
+            result.to_string().convert_escape_codes(),
+            "[red]abc[reset] def [red]ghi[reset]"
+        );
     }
 
     #[test]
@@ -120,43 +121,39 @@ mod tests {
         let red = Style::new().fg(Color::Red);
         let blue = Style::new().fg(Color::Blue);
         let result = render(input, &[span(0, 3, red), span(3, 6, blue)], &[]);
-        // Should contain two separate styled regions
-        let reset_count = result.matches(RESET).count();
-        assert_eq!(reset_count, 2);
+        assert_eq!(
+            result.to_string().convert_escape_codes(),
+            "[red]abc[reset][blue]def[reset]"
+        );
     }
 
     #[test]
     fn padded_span_gets_spaces() {
         let input = "x ERROR y";
         let style = Style::new().on(Color::Red);
-        let spans = &[span(2, 7, style)];
-        let padded = &[2..7];
-        let result = render(input, spans, padded);
-        // Should have space before and after "ERROR" inside the ANSI color
-        assert!(result.contains(" ERROR "));
-        assert!(result.contains(RESET));
+        let result = render(input, &[span(2, 7, style)], &[2..7]);
+        assert_eq!(result.to_string().convert_escape_codes(), "x [bg_red] ERROR [reset] y");
     }
 
     #[test]
     fn non_padded_span_gets_no_spaces() {
         let input = "x ERROR y";
         let style = Style::new().fg(Color::Red);
-        let spans = &[span(2, 7, style)];
-        let result = render(input, spans, &[]);
-        // No extra spaces — just the styled text
-        assert!(!result.contains(" ERROR "));
+        let result = render(input, &[span(2, 7, style)], &[]);
+        assert_eq!(result.to_string().convert_escape_codes(), "x [red]ERROR[reset] y");
     }
 
     #[test]
-    fn multiple_padded_ranges_sorted() {
-        // Two padded ranges in position order — both should get padding
+    fn multiple_padded_ranges() {
         let input = "WARN then ERROR end";
         let yellow = Style::new().on(Color::Yellow);
         let red = Style::new().on(Color::Red);
         let spans = &[span(0, 4, yellow), span(10, 15, red)];
         let padded = &[0..4, 10..15];
         let result = render(input, spans, padded);
-        assert!(result.contains(" WARN "));
-        assert!(result.contains(" ERROR "));
+        assert_eq!(
+            result.to_string().convert_escape_codes(),
+            "[bg_yellow] WARN [reset] then [bg_red] ERROR [reset] end"
+        );
     }
 }

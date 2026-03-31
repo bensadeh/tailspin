@@ -46,6 +46,8 @@ impl Collector {
     /// Push a span. If it is contiguous with the last span and has the same
     /// style, extend the last span rather than pushing a new one.
     pub fn push(&mut self, start: usize, end: usize, style: Style) {
+        debug_assert!(start < end, "span start ({start}) must be less than end ({end})");
+
         if let Some(last) = self.spans.last_mut()
             && last.style == style
             && last.end == start
