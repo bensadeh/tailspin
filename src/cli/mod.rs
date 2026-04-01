@@ -165,7 +165,7 @@ pub fn get_config() -> Result<FullConfig> {
         .chain(keywords_from_cli)
         .collect();
 
-    let highlighter = highlighter_builder::get_highlighter(highlighter_groups, theme, keywords);
+    let highlighter = highlighter_builder::get_highlighter(highlighter_groups, theme, keywords)?;
 
     Ok(FullConfig {
         source: io_config.source,

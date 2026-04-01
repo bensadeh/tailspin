@@ -6,7 +6,11 @@ use crate::theme::Theme;
 use tailspin::Highlighter;
 use tailspin::config::KeywordConfig;
 
-pub fn get_highlighter(groups: HighlighterGroups, theme: Theme, keywords: Vec<KeywordConfig>) -> Highlighter {
+pub fn get_highlighter(
+    groups: HighlighterGroups,
+    theme: Theme,
+    keywords: Vec<KeywordConfig>,
+) -> Result<Highlighter, tailspin::Error> {
     let mut builder = Highlighter::builder();
 
     if groups.json {
@@ -67,7 +71,5 @@ pub fn get_highlighter(groups: HighlighterGroups, theme: Theme, keywords: Vec<Ke
         builder = builder.with_quote_highlighter(theme.quotes);
     }
 
-    builder
-        .build()
-        .expect("Theme configuration should produce a valid highlighter")
+    builder.build()
 }
