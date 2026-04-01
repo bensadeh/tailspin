@@ -54,9 +54,11 @@ pub(crate) fn render<'a>(input: &'a str, spans: &[ResolvedSpan], padded_ranges: 
         while pad_idx < padded_ranges.len() && padded_ranges[pad_idx].end <= span.start {
             pad_idx += 1;
         }
+        // Only pad if this span covers the entire padded range;
+        // fragments produced by higher-priority finders get no padding.
         let padded = pad_idx < padded_ranges.len()
-            && padded_ranges[pad_idx].start <= span.start
-            && span.end <= padded_ranges[pad_idx].end;
+            && padded_ranges[pad_idx].start == span.start
+            && span.end == padded_ranges[pad_idx].end;
 
         output.push_str(cache.get(span.style));
         if padded {
@@ -133,6 +135,74 @@ mod tests {
         let style = Style::new().on(Color::Red);
         let result = render(input, &[span(2, 7, style)], &[Range { start: 2, end: 7 }]);
         assert_eq!(result.to_string().convert_escape_codes(), "x [bg_red] ERROR [reset] y");
+    }
+
+    #[test]
+    fn fragmented_padded_span_gets_no_spaces() {
+        // When a higher-priority finder splits a padded keyword, the fragments
+        // should NOT receive padding — only complete badges get spaces.
+        let input = "x ERROR y";
+        let keyword = Style::new().on(Color::Red);
+        let number = Style::new().fg(Color::Green);
+        // Simulate merge splitting "ERROR" (2..7) because bytes 5..7 were claimed
+        // by a higher-priority finder.
+        let spans = &[span(2, 5, keyword), span(5, 7, number)];
+        let padded = &[2..7];
+        let result = render(input, spans, padded);
+        assert_eq!(
+            result.to_string().convert_escape_codes(),
+            "x [bg_red]ERR[reset][green]OR[reset] y"
+        );
+    }
+
+    #[test]
+    fn padded_span_at_start_of_input() {
+        let input = "ERROR rest";
+        let style = Style::new().on(Color::Red);
+        let result = render(input, &[span(0, 5, style)], &[0..5]);
+        assert_eq!(result.to_string().convert_escape_codes(), "[bg_red] ERROR [reset] rest");
+    }
+
+    #[test]
+    fn padded_span_at_end_of_input() {
+        let input = "prefix ERROR";
+        let style = Style::new().on(Color::Red);
+        let result = render(input, &[span(7, 12, style)], &[7..12]);
+        assert_eq!(
+            result.to_string().convert_escape_codes(),
+            "prefix [bg_red] ERROR [reset]"
+        );
+    }
+
+    #[test]
+    fn fragmented_padded_span_from_left() {
+        // Higher-priority finder overrides the start of a padded keyword.
+        let input = "x ERROR y";
+        let keyword = Style::new().on(Color::Red);
+        let other = Style::new().fg(Color::Green);
+        let spans = &[span(2, 4, other), span(4, 7, keyword)];
+        let padded = &[2..7];
+        let result = render(input, spans, padded);
+        assert_eq!(
+            result.to_string().convert_escape_codes(),
+            "x [green]ER[reset][bg_red]ROR[reset] y"
+        );
+    }
+
+    #[test]
+    fn fragmented_padded_span_in_middle() {
+        // Higher-priority finder overrides the middle of a padded keyword,
+        // producing two keyword fragments. Neither should get padding.
+        let input = "x ERROR y";
+        let keyword = Style::new().on(Color::Red);
+        let other = Style::new().fg(Color::Green);
+        let spans = &[span(2, 4, keyword), span(4, 5, other), span(5, 7, keyword)];
+        let padded = &[2..7];
+        let result = render(input, spans, padded);
+        assert_eq!(
+            result.to_string().convert_escape_codes(),
+            "x [bg_red]ER[reset][green]R[reset][bg_red]OR[reset] y"
+        );
     }
 
     #[test]

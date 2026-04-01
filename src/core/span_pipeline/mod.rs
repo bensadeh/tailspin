@@ -60,6 +60,7 @@ mod tests {
     use finders::keyword::KeywordFinder;
     use finders::number::NumberFinder;
     use finders::quote::QuoteFinder;
+    use finders::regex::RegexFinder;
 
     #[test]
     fn end_to_end_number_highlighter() {
@@ -241,6 +242,35 @@ mod tests {
 
         let result = highlighter.apply_sequential("ERROR");
         assert_eq!(result.to_string().convert_escape_codes(), "[bg_red] ERROR [reset]");
+    }
+
+    #[test]
+    fn regex_partially_overrides_keyword_badge() {
+        // Regex (priority 0) overlaps the start of a padded keyword (priority 1).
+        // The keyword fragment should NOT get badge padding.
+        let highlighter = Pipeline::new(vec![
+            Box::new(RegexFinder::new("ERR", Style::new().fg(Color::Cyan)).unwrap()),
+            Box::new(KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap()),
+        ]);
+
+        let result = highlighter.apply_sequential("level ERROR here");
+        let readable = result.to_string().convert_escape_codes();
+        // "ERR" gets regex style, "OR" gets keyword style — neither fragment is padded
+        assert_eq!(readable, "level [cyan]ERR[reset][bg_red]OR[reset] here");
+    }
+
+    #[test]
+    fn number_fully_overrides_keyword_badge() {
+        // Number (priority 0) covers the exact same range as a padded keyword (priority 1).
+        // The number style wins but the padded range still matches exactly — padding applies.
+        let highlighter = Pipeline::new(vec![
+            Box::new(NumberFinder::new(Style::new().fg(Color::Cyan))),
+            Box::new(KeywordFinder::new(&["200"], Style::new().on(Color::Red)).unwrap()),
+        ]);
+
+        let result = highlighter.apply_sequential("status 200 ok");
+        let readable = result.to_string().convert_escape_codes();
+        assert_eq!(readable, "status [cyan] 200 [reset] ok");
     }
 
     #[test]
