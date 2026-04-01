@@ -15,11 +15,11 @@ pub(crate) struct IpV4Finder {
 impl IpV4Finder {
     pub fn new(number: Style, separator: Style) -> Self {
         let pattern = r"(?x)\b
-            (?P<o1>\d{1,3})\.
-            (?P<o2>\d{1,3})\.
-            (?P<o3>\d{1,3})\.
+            (?P<o1>\d{1,3})(?P<d1>\.)
+            (?P<o2>\d{1,3})(?P<d2>\.)
+            (?P<o3>\d{1,3})(?P<d3>\.)
             (?P<o4>\d{1,3})
-            (?:/(?P<mask>\d{1,2}))?
+            (?:(?P<slash>/)(?P<mask>\d{1,2}))?
             \b";
         let regex = RegexBuilder::new(pattern)
             .unicode(false)
@@ -40,10 +40,11 @@ impl Finder for IpV4Finder {
             return;
         }
 
-        let names = ["o1", "o2", "o3", "o4"];
+        let octets = ["o1", "o2", "o3", "o4"];
+        let dots = ["d1", "d2", "d3"];
 
         for caps in self.regex.captures_iter(input) {
-            let valid_octets = names
+            let valid_octets = octets
                 .iter()
                 .all(|n| caps.name(n).unwrap().as_str().parse::<u8>().is_ok());
             let valid_mask = caps
@@ -51,18 +52,17 @@ impl Finder for IpV4Finder {
                 .is_none_or(|ms| ms.as_str().parse::<u8>().is_ok_and(|v| v <= 32));
 
             if valid_octets && valid_mask {
-                for (i, &n) in names.iter().enumerate() {
-                    let m = caps.name(n).unwrap();
-                    collector.push(m.start(), m.end(), self.number);
-                    if i < 3 {
-                        // Push the dot separator between octets
-                        collector.push(m.end(), m.end() + 1, self.separator);
+                for (i, &name) in octets.iter().enumerate() {
+                    let octet = caps.name(name).unwrap();
+                    collector.push(octet.start(), octet.end(), self.number);
+                    if let Some(dot) = dots.get(i).and_then(|&d| caps.name(d)) {
+                        collector.push(dot.start(), dot.end(), self.separator);
                     }
                 }
-                if let Some(ms) = caps.name("mask") {
-                    // Push the "/" separator
-                    collector.push(ms.start() - 1, ms.start(), self.separator);
-                    collector.push(ms.start(), ms.end(), self.number);
+                if let Some(slash) = caps.name("slash") {
+                    collector.push(slash.start(), slash.end(), self.separator);
+                    let mask = caps.name("mask").unwrap();
+                    collector.push(mask.start(), mask.end(), self.number);
                 }
             }
         }

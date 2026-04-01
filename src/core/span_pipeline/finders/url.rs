@@ -32,7 +32,7 @@ impl UrlFinder {
         let url_pattern = r"(?x)
             (?P<protocol>https?) (:) (//)
             (?P<host>[A-Za-z0-9._\-]+)
-            (?::(?P<port>\d{1,5}))?
+            (?:(?P<port_sep>:)(?P<port>\d{1,5}))?
             (?P<path>(?:/[A-Za-z0-9._~\-/%+()]*)?)
             (?P<query>\?[A-Za-z0-9._~\-/%+&=;,@!*()?:]*)?";
         let url_regex = RegexBuilder::new(url_pattern)
@@ -104,8 +104,8 @@ impl Finder for UrlFinder {
             }
 
             if let Some(port) = caps.name("port") {
-                // Style the colon before the port as a symbol
-                collector.push(port.start() - 1, port.start(), self.symbols);
+                let sep = caps.name("port_sep").unwrap();
+                collector.push(sep.start(), sep.end(), self.symbols);
                 collector.push(port.start(), port.end(), self.host);
             }
 

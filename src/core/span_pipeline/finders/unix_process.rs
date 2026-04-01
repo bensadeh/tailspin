@@ -15,7 +15,8 @@ pub(crate) struct UnixProcessFinder {
 
 impl UnixProcessFinder {
     pub fn new(name: Style, id: Style, bracket: Style) -> Self {
-        let pattern = r"(?P<process_name>\([A-Za-z0-9._ +:/-]+\)|[A-Za-z0-9_/-]+)\[(?P<process_id>\d+)]";
+        let pattern =
+            r"(?P<process_name>\([A-Za-z0-9._ +:/-]+\)|[A-Za-z0-9_/-]+)(?P<open>\[)(?P<process_id>\d+)(?P<close>])";
         let regex = RegexBuilder::new(pattern)
             .unicode(false)
             .build()
@@ -40,11 +41,12 @@ impl Finder for UnixProcessFinder {
             if let Some(p) = caps.name("process_name") {
                 collector.push(p.start(), p.end(), self.name);
             }
-            // The '[' is between process_name end and process_id start
+            let open = caps.name("open").unwrap();
+            collector.push(open.start(), open.end(), self.bracket);
             let pid = caps.name("process_id").unwrap();
-            collector.push(pid.start() - 1, pid.start(), self.bracket); // [
             collector.push(pid.start(), pid.end(), self.id);
-            collector.push(pid.end(), pid.end() + 1, self.bracket); // ]
+            let close = caps.name("close").unwrap();
+            collector.push(close.start(), close.end(), self.bracket);
         }
     }
 }
