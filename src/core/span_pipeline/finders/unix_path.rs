@@ -14,13 +14,13 @@ pub(crate) struct UnixPathFinder {
 
 impl UnixPathFinder {
     pub fn new(segment: Style, separator: Style) -> Self {
+        // The (?:^|\s) anchor is zero-width at start-of-string or consumes one
+        // whitespace byte. We use find_iter and skip that leading byte manually.
         let pattern = r"(?x)
             (?:^|\s)
-            (?P<path>
-                (?:\./|~/|//|/)
-                [\w.-]+
-                (?:/[\w.-]+)+
-            )
+            (?:\./|~/|//|/)
+            [\w.-]+
+            (?:/[\w.-]+)+
         ";
         let regex = RegexBuilder::new(pattern)
             .unicode(false)
@@ -41,15 +41,18 @@ impl Finder for UnixPathFinder {
             return;
         }
 
-        for caps in self.regex.captures_iter(input) {
-            let path_match = caps.name("path").unwrap();
-            let path = path_match.as_str();
-            let offset = path_match.start();
+        for m in self.regex.find_iter(input) {
+            let bytes = m.as_str().as_bytes();
+
+            // Skip the leading whitespace consumed by (?:^|\s)
+            let skip = usize::from(!matches!(bytes[0], b'.' | b'~' | b'/'));
+            let offset = m.start() + skip;
+            let path = &bytes[skip..];
 
             let mut seg_start = None;
 
-            for (i, ch) in path.char_indices() {
-                if ch == '/' {
+            for (i, &b) in path.iter().enumerate() {
+                if b == b'/' {
                     if let Some(start) = seg_start.take() {
                         collector.push(offset + start, offset + i, self.segment);
                     }

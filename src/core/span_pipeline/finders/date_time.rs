@@ -8,34 +8,22 @@ use super::super::span::{Collector, Finder};
 #[derive(Debug)]
 pub(crate) struct DateTimeFinder {
     regex: Regex,
-    idx: Idx,
     time: Style,
     zone: Style,
     separator: Style,
 }
 
-#[derive(Debug, Copy, Clone)]
-struct Idx {
-    t: usize,
-    hours: usize,
-    colon1: usize,
-    minutes: usize,
-    colon2: usize,
-    seconds: usize,
-    frac_sep: usize,
-    frac_digits: usize,
-    tz: usize,
-}
-
 impl DateTimeFinder {
     pub fn new(time: Style, zone: Style, separator: Style) -> Self {
+        // Match structure: [T| ]? H?H:MM:SS [.,,:]digits? Z?
+        // We use find_iter and parse the fixed structure from match bytes.
         let pattern = r"(?x)
-            (?P<T>[T\s])?
-            (?P<hours>[01]?\d|2[0-3])(?P<colon1>:)
-            (?P<minutes>[0-5]\d)(?P<colon2>:)
-            (?P<seconds>[0-5]\d)
-            (?P<frac_sep>[.,:])?(?P<frac_digits>\d+)?
-            (?P<tz>Z)?
+            [T\s]?
+            (?:[01]?\d|2[0-3]):
+            [0-5]\d:
+            [0-5]\d
+            (?:[.,:]  \d+)?
+            Z?
         ";
 
         let regex = RegexBuilder::new(pattern)
@@ -43,44 +31,11 @@ impl DateTimeFinder {
             .build()
             .expect("hardcoded date-time regex must compile");
 
-        let mut idx = Idx {
-            t: 0,
-            hours: 0,
-            colon1: 0,
-            minutes: 0,
-            colon2: 0,
-            seconds: 0,
-            frac_sep: 0,
-            frac_digits: 0,
-            tz: 0,
-        };
-        for (i, name) in regex.capture_names().enumerate() {
-            match name {
-                Some("T") => idx.t = i,
-                Some("hours") => idx.hours = i,
-                Some("colon1") => idx.colon1 = i,
-                Some("minutes") => idx.minutes = i,
-                Some("colon2") => idx.colon2 = i,
-                Some("seconds") => idx.seconds = i,
-                Some("frac_sep") => idx.frac_sep = i,
-                Some("frac_digits") => idx.frac_digits = i,
-                Some("tz") => idx.tz = i,
-                _ => {}
-            }
-        }
-
         Self {
             regex,
-            idx,
             time,
             zone,
             separator,
-        }
-    }
-
-    fn push_part(collector: &mut Collector, caps: &regex::Captures<'_>, i: usize, style: Style) {
-        if let Some(m) = caps.get(i) {
-            collector.push(m.start(), m.end(), style);
         }
     }
 }
@@ -91,16 +46,50 @@ impl Finder for DateTimeFinder {
             return;
         }
 
-        for caps in self.regex.captures_iter(input) {
-            Self::push_part(collector, &caps, self.idx.t, self.zone);
-            Self::push_part(collector, &caps, self.idx.hours, self.time);
-            Self::push_part(collector, &caps, self.idx.colon1, self.separator);
-            Self::push_part(collector, &caps, self.idx.minutes, self.time);
-            Self::push_part(collector, &caps, self.idx.colon2, self.separator);
-            Self::push_part(collector, &caps, self.idx.seconds, self.time);
-            Self::push_part(collector, &caps, self.idx.frac_sep, self.separator);
-            Self::push_part(collector, &caps, self.idx.frac_digits, self.time);
-            Self::push_part(collector, &caps, self.idx.tz, self.zone);
+        for m in self.regex.find_iter(input) {
+            let s = m.start();
+            let bytes = m.as_str().as_bytes();
+            let mut pos = 0;
+
+            // Optional T or whitespace prefix
+            if !bytes[0].is_ascii_digit() {
+                collector.push(s, s + 1, self.zone);
+                pos = 1;
+            }
+
+            // Hours (1 or 2 digits) — scan to first ':'
+            let colon1 = bytes[pos..].iter().position(|&b| b == b':').unwrap() + pos;
+            collector.push(s + pos, s + colon1, self.time);
+            collector.push(s + colon1, s + colon1 + 1, self.separator);
+            pos = colon1 + 1;
+
+            // Minutes (2 digits) + ':'
+            collector.push(s + pos, s + pos + 2, self.time);
+            collector.push(s + pos + 2, s + pos + 3, self.separator);
+            pos += 3;
+
+            // Seconds (2 digits)
+            collector.push(s + pos, s + pos + 2, self.time);
+            pos += 2;
+
+            // Optional fractional part: separator + digits
+            if pos < bytes.len() && matches!(bytes[pos], b'.' | b',' | b':') {
+                collector.push(s + pos, s + pos + 1, self.separator);
+                pos += 1;
+
+                let digit_start = pos;
+                while pos < bytes.len() && bytes[pos].is_ascii_digit() {
+                    pos += 1;
+                }
+                if pos > digit_start {
+                    collector.push(s + digit_start, s + pos, self.time);
+                }
+            }
+
+            // Optional Z suffix
+            if pos < bytes.len() && bytes[pos] == b'Z' {
+                collector.push(s + pos, s + pos + 1, self.zone);
+            }
         }
     }
 }
