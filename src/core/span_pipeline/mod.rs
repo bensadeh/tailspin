@@ -35,14 +35,13 @@ impl Pipeline {
     pub(crate) fn apply_sequential<'a>(&self, input: &'a str) -> Cow<'a, str> {
         let mut all_spans = Vec::new();
         let mut padded_ranges = Vec::new();
+        let mut collector = Collector::new(0);
 
         for (priority, finder) in self.finders.iter().enumerate() {
             #[allow(clippy::cast_possible_truncation)]
-            let mut collector = Collector::new(priority as u16);
+            collector.reset(priority as u16);
             finder.find_spans(input, &mut collector);
-            let (spans, padded) = collector.into_parts();
-            all_spans.extend(spans);
-            padded_ranges.extend(padded);
+            collector.drain_into(&mut all_spans, &mut padded_ranges);
         }
 
         padded_ranges.sort_unstable_by_key(|r| r.start);

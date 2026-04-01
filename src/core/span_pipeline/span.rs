@@ -78,6 +78,18 @@ impl Collector {
         self.spans
     }
 
+    pub fn reset(&mut self, priority: u16) {
+        self.spans.clear();
+        self.padded_ranges.clear();
+        self.priority = priority;
+    }
+
+    pub fn drain_into(&mut self, spans: &mut Vec<Span>, padded: &mut Vec<Range<usize>>) {
+        spans.append(&mut self.spans);
+        padded.append(&mut self.padded_ranges);
+    }
+
+    #[cfg(test)]
     pub(crate) fn into_parts(self) -> (Vec<Span>, Vec<Range<usize>>) {
         (self.spans, self.padded_ranges)
     }
