@@ -14,7 +14,9 @@ pub(crate) struct KeyValueFinder {
 
 impl KeyValueFinder {
     pub fn new(key: Style, separator: Style) -> Self {
-        let pattern = r"(?P<space_or_start>(^)|\s)(?P<key>\w+\b)(?P<equals>=)";
+        // The (?:^|\s) anchor is zero-width at start-of-string or consumes one
+        // whitespace byte. We use find_iter and skip that leading byte manually.
+        let pattern = r"(?:^|\s)\w+\b=";
         let regex = RegexBuilder::new(pattern)
             .unicode(false)
             .build()
@@ -30,13 +32,14 @@ impl Finder for KeyValueFinder {
             return;
         }
 
-        for caps in self.regex.captures_iter(input) {
-            if let Some(k) = caps.name("key") {
-                collector.push(k.start(), k.end(), self.key);
-            }
-            if let Some(e) = caps.name("equals") {
-                collector.push(e.start(), e.end(), self.separator);
-            }
+        for m in self.regex.find_iter(input) {
+            let bytes = m.as_str().as_bytes();
+            let skip = usize::from(bytes[0].is_ascii_whitespace());
+            let s = m.start() + skip;
+
+            // Match structure (after skip): key=
+            collector.push(s, m.end() - 1, self.key);
+            collector.push(m.end() - 1, m.end(), self.separator);
         }
     }
 }

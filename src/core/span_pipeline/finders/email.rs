@@ -16,11 +16,8 @@ pub(crate) struct EmailFinder {
 
 impl EmailFinder {
     pub fn new(local_part: Style, at_sign: Style, domain: Style, dot: Style) -> Self {
-        let pattern = r"(?x)
-            ([a-zA-Z0-9._%+-]+)          # local part
-            (@)                           # at sign
-            ([a-zA-Z0-9.-]+\.[a-zA-Z]{2,}) # domain
-        ";
+        // Match structure: local@domain — we find '@' in the match to split the parts.
+        let pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}";
         let regex = RegexBuilder::new(pattern)
             .unicode(false)
             .build()
@@ -42,25 +39,26 @@ impl Finder for EmailFinder {
             return;
         }
 
-        for caps in self.regex.captures_iter(input) {
-            let local = caps.get(1).unwrap();
-            let at = caps.get(2).unwrap();
-            let domain_match = caps.get(3).unwrap();
+        for m in self.regex.find_iter(input) {
+            let s = m.start();
+            let bytes = m.as_str().as_bytes();
+            let at = memchr(b'@', bytes).unwrap();
 
-            collector.push(local.start(), local.end(), self.local_part);
-            collector.push(at.start(), at.end(), self.at_sign);
+            collector.push(s, s + at, self.local_part);
+            collector.push(s + at, s + at + 1, self.at_sign);
 
-            let domain_str = domain_match.as_str();
-            let domain_offset = domain_match.start();
+            // Domain: highlight segments and dots separately
+            let domain_offset = s + at + 1;
+            let domain_bytes = &bytes[at + 1..];
             let mut pos = 0;
-            for segment in domain_str.split('.') {
+            for segment in domain_bytes.split(|&b| b == b'.') {
                 if segment.is_empty() {
-                    pos += 1; // skip the dot between consecutive dots
+                    pos += 1;
                     continue;
                 }
                 collector.push(domain_offset + pos, domain_offset + pos + segment.len(), self.domain);
                 pos += segment.len();
-                if pos < domain_str.len() {
+                if pos < domain_bytes.len() {
                     collector.push(domain_offset + pos, domain_offset + pos + 1, self.dot);
                     pos += 1;
                 }

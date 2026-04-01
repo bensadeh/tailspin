@@ -15,8 +15,8 @@ pub(crate) struct UnixProcessFinder {
 
 impl UnixProcessFinder {
     pub fn new(name: Style, id: Style, bracket: Style) -> Self {
-        let pattern =
-            r"(?P<process_name>\([A-Za-z0-9._ +:/-]+\)|[A-Za-z0-9_/-]+)(?P<open>\[)(?P<process_id>\d+)(?P<close>])";
+        // Match structure: name[pid] — we find '[' in the match to split the parts.
+        let pattern = r"(?:\([A-Za-z0-9._ +:/-]+\)|[A-Za-z0-9_/-]+)\[\d+]";
         let regex = RegexBuilder::new(pattern)
             .unicode(false)
             .build()
@@ -37,16 +37,16 @@ impl Finder for UnixProcessFinder {
             return;
         }
 
-        for caps in self.regex.captures_iter(input) {
-            if let Some(p) = caps.name("process_name") {
-                collector.push(p.start(), p.end(), self.name);
-            }
-            let open = caps.name("open").unwrap();
-            collector.push(open.start(), open.end(), self.bracket);
-            let pid = caps.name("process_id").unwrap();
-            collector.push(pid.start(), pid.end(), self.id);
-            let close = caps.name("close").unwrap();
-            collector.push(close.start(), close.end(), self.bracket);
+        for m in self.regex.find_iter(input) {
+            let s = m.start();
+            let bytes = m.as_str().as_bytes();
+
+            // Match structure: name[pid]
+            let bracket = memchr(b'[', bytes).unwrap();
+            collector.push(s, s + bracket, self.name);
+            collector.push(s + bracket, s + bracket + 1, self.bracket);
+            collector.push(s + bracket + 1, s + bytes.len() - 1, self.id);
+            collector.push(s + bytes.len() - 1, s + bytes.len(), self.bracket);
         }
     }
 }
