@@ -40,3 +40,42 @@ impl Finder for KeyValueFinder {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::style::Color;
+
+    fn make_finder() -> KeyValueFinder {
+        KeyValueFinder::new(Style::new().fg(Color::Red), Style::new().fg(Color::Yellow))
+    }
+
+    fn span_texts<'a>(input: &'a str, finder: &KeyValueFinder) -> Vec<&'a str> {
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
+    }
+
+    #[test]
+    fn basic_key_value() {
+        let texts = span_texts("Entry key=value", &make_finder());
+        assert_eq!(texts, ["key", "="]);
+    }
+
+    #[test]
+    fn multiple_key_values() {
+        let texts = span_texts("host=localhost port=8080", &make_finder());
+        assert_eq!(texts, ["host", "=", "port", "="]);
+    }
+
+    #[test]
+    fn key_value_at_start_of_line() {
+        let texts = span_texts("key=value", &make_finder());
+        assert_eq!(texts, ["key", "="]);
+    }
+
+    #[test]
+    fn no_key_value_no_match() {
+        assert!(span_texts("No numbers here!", &make_finder()).is_empty());
+    }
+}

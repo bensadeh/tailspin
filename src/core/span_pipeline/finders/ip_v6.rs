@@ -61,3 +61,82 @@ impl Finder for IpV6Finder {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::style::Color;
+
+    fn make_finder() -> IpV6Finder {
+        IpV6Finder::new(
+            Style::new().fg(Color::Blue),
+            Style::new().fg(Color::Yellow),
+            Style::new().fg(Color::Red),
+        )
+    }
+
+    fn span_count(input: &str) -> usize {
+        let mut collector = Collector::new(0);
+        make_finder().find_spans(input, &mut collector);
+        collector.into_spans().len()
+    }
+
+    fn matched_range(input: &str) -> Option<(usize, usize)> {
+        let mut collector = Collector::new(0);
+        make_finder().find_spans(input, &mut collector);
+        let spans = collector.into_spans();
+        if spans.is_empty() {
+            None
+        } else {
+            Some((spans.first().unwrap().start, spans.last().unwrap().end))
+        }
+    }
+
+    #[test]
+    fn full_ipv6() {
+        assert!(span_count("2001:db8:0:0:0:ff00:42:8329") > 0);
+    }
+
+    #[test]
+    fn compressed_ipv6() {
+        assert!(span_count("2001:db8::ff00:42:8329") > 0);
+    }
+
+    #[test]
+    fn loopback() {
+        assert!(span_count("::1") > 0);
+    }
+
+    #[test]
+    fn ipv4_mapped() {
+        assert!(span_count("::ffff:127.0.0.1") > 0);
+    }
+
+    #[test]
+    fn cidr_notation() {
+        let input = "fe80::/10";
+        let (start, end) = matched_range(input).unwrap();
+        assert_eq!(start, 0);
+        assert_eq!(end, input.len());
+    }
+
+    #[test]
+    fn dual_stack_ipv4_in_ipv6() {
+        assert!(span_count("2001:db8:85a3::8a2e:192.0.2.33") > 0);
+    }
+
+    #[test]
+    fn plain_ipv4_no_match() {
+        assert_eq!(span_count("Not ipv4: 192.168.0.1"), 0);
+    }
+
+    #[test]
+    fn time_like_no_match() {
+        assert_eq!(span_count("11:47:39:850"), 0);
+    }
+
+    #[test]
+    fn slash_separated_no_match() {
+        assert_eq!(span_count("123/234/345/456"), 0);
+    }
+}

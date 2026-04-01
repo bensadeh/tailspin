@@ -68,3 +68,60 @@ impl Finder for IpV4Finder {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::style::Color;
+
+    fn make_finder() -> IpV4Finder {
+        IpV4Finder::new(Style::new().fg(Color::Blue), Style::new().fg(Color::Red))
+    }
+
+    fn span_texts<'a>(input: &'a str, finder: &IpV4Finder) -> Vec<&'a str> {
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
+    }
+
+    #[test]
+    fn valid_ipv4() {
+        let texts = span_texts("10.0.0.123", &make_finder());
+        assert_eq!(texts, ["10", ".", "0", ".", "0", ".", "123"]);
+    }
+
+    #[test]
+    fn ipv4_with_cidr() {
+        let texts = span_texts("192.168.0.1/24", &make_finder());
+        assert!(texts.contains(&"192"));
+        assert!(texts.contains(&"1"));
+        assert!(texts.contains(&"/"));
+        assert!(texts.contains(&"24"));
+    }
+
+    #[test]
+    fn all_zeros() {
+        let texts = span_texts("0.0.0.0", &make_finder());
+        assert_eq!(texts, ["0", ".", "0", ".", "0", ".", "0"]);
+    }
+
+    #[test]
+    fn octet_over_255_no_match() {
+        assert!(span_texts("256.1.1.1", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn all_999_no_match() {
+        assert!(span_texts("999.999.999.999", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn mask_over_32_no_match() {
+        assert!(span_texts("192.168.0.1/33", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn partial_address_no_match() {
+        assert!(span_texts("1.2.3", &make_finder()).is_empty());
+    }
+}

@@ -65,3 +65,97 @@ impl Finder for UnixPathFinder {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::style::Color;
+
+    fn make_finder() -> UnixPathFinder {
+        UnixPathFinder::new(Style::new().fg(Color::Green), Style::new().fg(Color::Yellow))
+    }
+
+    fn span_texts<'a>(input: &'a str, finder: &UnixPathFinder) -> Vec<&'a str> {
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
+    }
+
+    #[test]
+    fn absolute_path() {
+        let texts = span_texts("/user/local", &make_finder());
+        assert_eq!(texts, ["/", "user", "/", "local"]);
+    }
+
+    #[test]
+    fn deep_path() {
+        let texts = span_texts("/var/log/nginx/error.log", &make_finder());
+        assert_eq!(texts, ["/", "var", "/", "log", "/", "nginx", "/", "error.log"]);
+    }
+
+    #[test]
+    fn home_relative_path() {
+        let texts = span_texts("~/projects/rust/tailspin", &make_finder());
+        assert_eq!(texts, ["~", "/", "projects", "/", "rust", "/", "tailspin"]);
+    }
+
+    #[test]
+    fn dot_relative_path() {
+        let texts = span_texts("./a/b", &make_finder());
+        assert_eq!(texts, [".", "/", "a", "/", "b"]);
+    }
+
+    #[test]
+    fn network_path() {
+        let texts = span_texts("//network/share", &make_finder());
+        // Adjacent separator slashes coalesce into one span
+        assert_eq!(texts, ["//", "network", "/", "share"]);
+    }
+
+    #[test]
+    fn hidden_directory() {
+        let texts = span_texts("/path/.hidden/file", &make_finder());
+        assert_eq!(texts, ["/", "path", "/", ".hidden", "/", "file"]);
+    }
+
+    #[test]
+    fn path_in_context() {
+        let texts = span_texts("See /etc/hosts please", &make_finder());
+        assert_eq!(texts, ["/", "etc", "/", "hosts"]);
+    }
+
+    #[test]
+    fn trailing_slash_not_highlighted() {
+        let texts = span_texts("/usr/local/", &make_finder());
+        // The path segments and separators should be found, but trailing "/" is not part of the match
+        assert!(texts.contains(&"usr"));
+        assert!(texts.contains(&"local"));
+        // The matched text should not end with a trailing slash
+        let finder = make_finder();
+        let mut collector = Collector::new(0);
+        finder.find_spans("/usr/local/", &mut collector);
+        let spans = collector.into_spans();
+        let last = spans.last().unwrap();
+        assert_eq!(&"/usr/local/"[last.start..last.end], "local");
+    }
+
+    #[test]
+    fn three_segments_without_leading_slash_no_match() {
+        assert!(span_texts("a/b/c", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn single_segment_no_match() {
+        assert!(span_texts("justtext", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn two_segments_without_leading_slash_no_match() {
+        assert!(span_texts("name/name", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn slash_separated_numbers_no_match() {
+        assert!(span_texts("123/234/345/456", &make_finder()).is_empty());
+    }
+}

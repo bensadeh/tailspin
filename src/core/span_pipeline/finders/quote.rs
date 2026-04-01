@@ -69,4 +69,51 @@ mod tests {
         assert_eq!(&input[spans[0].start..spans[0].end], r#""hello""#);
         assert_eq!(&input[spans[1].start..spans[1].end], r#""world""#);
     }
+
+    #[test]
+    fn adjacent_quoted_strings() {
+        let finder = QuoteFinder::new(b'"', Style::new().fg(Color::Yellow));
+        let input = r#""hello""world""#;
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+
+        let spans = collector.into_spans();
+        // Adjacent same-style spans get coalesced by the Collector
+        assert_eq!(spans.len(), 1);
+        assert_eq!(&input[spans[0].start..spans[0].end], r#""hello""world""#);
+    }
+
+    #[test]
+    fn empty_quoted_string() {
+        let finder = QuoteFinder::new(b'"', Style::new().fg(Color::Yellow));
+        let input = r#"before "" after"#;
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+
+        let spans = collector.into_spans();
+        assert_eq!(spans.len(), 1);
+        assert_eq!(&input[spans[0].start..spans[0].end], r#""""#);
+    }
+
+    #[test]
+    fn single_quote_token() {
+        let finder = QuoteFinder::new(b'\'', Style::new().fg(Color::Yellow));
+        let input = "msg 'hello world' done";
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+
+        let spans = collector.into_spans();
+        assert_eq!(spans.len(), 1);
+        assert_eq!(&input[spans[0].start..spans[0].end], "'hello world'");
+    }
+
+    #[test]
+    fn three_quotes_produces_no_spans() {
+        let finder = QuoteFinder::new(b'"', Style::new().fg(Color::Yellow));
+        let input = r#"a "b" c "d"#;
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+        // 3 quotes is odd — should produce no spans
+        assert!(collector.into_spans().is_empty());
+    }
 }

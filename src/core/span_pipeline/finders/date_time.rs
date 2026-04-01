@@ -104,3 +104,85 @@ impl Finder for DateTimeFinder {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::style::Color;
+
+    fn make_finder() -> DateTimeFinder {
+        DateTimeFinder::new(
+            Style::new().fg(Color::Red),
+            Style::new().fg(Color::Blue),
+            Style::new().fg(Color::Yellow),
+        )
+    }
+
+    fn span_texts<'a>(input: &'a str, finder: &DateTimeFinder) -> Vec<&'a str> {
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
+    }
+
+    #[test]
+    fn basic_time() {
+        let texts = span_texts("07:46:34", &make_finder());
+        assert_eq!(texts, ["07", ":", "46", ":", "34"]);
+    }
+
+    #[test]
+    fn time_with_dot_fractional() {
+        let texts = span_texts("10:51:19.251", &make_finder());
+        assert_eq!(texts, ["10", ":", "51", ":", "19", ".", "251"]);
+    }
+
+    #[test]
+    fn time_with_colon_fractional() {
+        let texts = span_texts("11:47:39:850", &make_finder());
+        assert_eq!(texts, ["11", ":", "47", ":", "39", ":", "850"]);
+    }
+
+    #[test]
+    fn single_digit_hour() {
+        let texts = span_texts("3:33:30", &make_finder());
+        assert_eq!(texts, ["3", ":", "33", ":", "30"]);
+    }
+
+    #[test]
+    fn iso8601_with_t_and_z() {
+        let texts = span_texts("2022-09-22T07:46:34.171800155Z", &make_finder());
+        assert!(texts.contains(&"T"));
+        assert!(texts.contains(&"07"));
+        assert!(texts.contains(&"171800155"));
+        assert!(texts.contains(&"Z"));
+    }
+
+    #[test]
+    fn datetime_with_space_separator_and_comma_frac() {
+        let texts = span_texts("2022-09-09 11:48:34,534", &make_finder());
+        assert!(texts.contains(&" "));
+        assert!(texts.contains(&"11"));
+        assert!(texts.contains(&","));
+        assert!(texts.contains(&"534"));
+    }
+
+    #[test]
+    fn iso8601_with_timezone_offset() {
+        let texts = span_texts("2024-09-14T07:57:30.659+02:00", &make_finder());
+        assert!(texts.contains(&"T"));
+        assert!(texts.contains(&"07"));
+        assert!(texts.contains(&"30"));
+        assert!(texts.contains(&"659"));
+    }
+
+    #[test]
+    fn ipv6_should_not_match_as_time() {
+        // IPv6 addresses contain colons but should not be matched by DateTime
+        assert!(span_texts("2001:db8::ff00:42:8329", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn no_time_no_match() {
+        assert!(span_texts("No time here!", &make_finder()).is_empty());
+    }
+}

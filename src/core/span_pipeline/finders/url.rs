@@ -220,4 +220,143 @@ mod tests {
         f.find_spans("no urls here", &mut collector);
         assert!(collector.into_spans().is_empty());
     }
+
+    #[test]
+    fn url_wrapped_in_parens() {
+        // Trailing ) should be excluded when it's unbalanced
+        let f = finder();
+        let input = "(http://example.com/path)";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"http"));
+        assert!(texts.contains(&"example.com"));
+        assert!(texts.contains(&"/path"));
+        // The closing paren should NOT be part of any span
+        assert!(!texts.contains(&")"));
+    }
+
+    #[test]
+    fn url_with_balanced_parens_in_path() {
+        // Wikipedia-style URLs with balanced parens should keep them
+        let f = finder();
+        let input = "http://en.wikipedia.org/wiki/Rust_(programming_language)";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"http"));
+        assert!(texts.contains(&"en.wikipedia.org"));
+        // Path should include the balanced parens
+        let path_span = texts.iter().find(|t| t.contains("Rust_(")).unwrap();
+        assert!(path_span.contains("language)"));
+    }
+
+    #[test]
+    fn url_with_query_wrapped_in_parens() {
+        let f = finder();
+        let input = "(http://example.com/path?key=val)";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"key"));
+        assert!(texts.contains(&"val"));
+        assert!(!texts.contains(&")"));
+    }
+
+    #[test]
+    fn multiple_query_params() {
+        let f = finder();
+        let input = "http://api.dev/v1?a=1&b=2";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"a"));
+        assert!(texts.contains(&"1"));
+        assert!(texts.contains(&"b"));
+        assert!(texts.contains(&"2"));
+    }
+
+    #[test]
+    fn url_with_balanced_parens_wrapped_in_parens() {
+        let f = finder();
+        let input = "(https://en.wikipedia.org/wiki/Foo_(bar))";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"https"));
+        assert!(texts.contains(&"en.wikipedia.org"));
+        // The outer closing paren should be excluded
+        let path_span = texts.iter().find(|t| t.contains("Foo_(")).unwrap();
+        assert!(path_span.ends_with("bar)"));
+    }
+
+    #[test]
+    fn url_in_single_quotes() {
+        let f = finder();
+        let input = "'https://example.com/path'";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"https"));
+        assert!(texts.contains(&"example.com"));
+        // Single quote should not be part of any span
+        assert!(!texts.iter().any(|t| t.contains('\'')));
+    }
+
+    #[test]
+    fn multiple_parenthesized_urls() {
+        let f = finder();
+        let input = "(https://a.com/x) and (https://b.com/y)";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"a.com"));
+        assert!(texts.contains(&"b.com"));
+    }
+
+    #[test]
+    fn parens_in_query_string() {
+        let f = finder();
+        let input = "https://example.com/api?filter=(name)";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"https"));
+        assert!(texts.contains(&"example.com"));
+    }
+
+    #[test]
+    fn double_paren_wrapping() {
+        let f = finder();
+        let input = "((https://example.com))";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"https"));
+        assert!(texts.contains(&"example.com"));
+        // Neither closing paren should be in any span
+        assert!(!texts.iter().any(|t| t.contains(')')));
+    }
+
+    #[test]
+    fn nested_parens_in_path() {
+        let f = finder();
+        let input = "https://en.wikipedia.org/wiki/Foo_(bar_(baz))";
+        let texts = spans_text(input, &f);
+        assert!(texts.contains(&"https"));
+        let path_span = texts.iter().find(|t| t.contains("Foo_(")).unwrap();
+        assert!(path_span.contains("baz))"));
+    }
+
+    #[test]
+    fn count_parens_balanced() {
+        assert_eq!(count_unbalanced_trailing_parens("foo(bar)"), 0);
+    }
+
+    #[test]
+    fn count_parens_one_trailing() {
+        assert_eq!(count_unbalanced_trailing_parens("foo)"), 1);
+    }
+
+    #[test]
+    fn count_parens_nested_balanced() {
+        assert_eq!(count_unbalanced_trailing_parens("a(b(c))"), 0);
+    }
+
+    #[test]
+    fn count_parens_double_trailing() {
+        assert_eq!(count_unbalanced_trailing_parens("a(b))"), 1);
+    }
+
+    #[test]
+    fn count_parens_two_unbalanced() {
+        assert_eq!(count_unbalanced_trailing_parens("https://example.com))"), 2);
+    }
+
+    #[test]
+    fn count_parens_mixed_balanced_and_trailing() {
+        assert_eq!(count_unbalanced_trailing_parens("/a_(b)_(c))"), 1);
+    }
 }

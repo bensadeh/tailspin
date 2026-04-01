@@ -118,3 +118,63 @@ impl Finder for DateDashFinder {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::style::Color;
+
+    fn make_finder() -> DateDashFinder {
+        DateDashFinder::new(Style::new().fg(Color::Magenta), Style::new().fg(Color::Blue))
+    }
+
+    fn span_texts<'a>(input: &'a str, finder: &DateDashFinder) -> Vec<&'a str> {
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
+    }
+
+    #[test]
+    fn yyyy_mm_dd_with_dashes() {
+        let texts = span_texts("2022-09-09", &make_finder());
+        assert_eq!(texts, ["2022", "09", "09", "-", "-"]);
+    }
+
+    #[test]
+    fn yyyy_mm_dd_with_slashes() {
+        let texts = span_texts("2022/12/30", &make_finder());
+        assert_eq!(texts, ["2022", "12", "30", "/", "/"]);
+    }
+
+    #[test]
+    fn dd_mm_yyyy_with_dashes() {
+        let texts = span_texts("09-09-2022", &make_finder());
+        assert_eq!(texts, ["09", "09", "2022", "-", "-"]);
+    }
+
+    #[test]
+    fn dd_mm_yyyy_with_slashes() {
+        let texts = span_texts("09/09/2022", &make_finder());
+        assert_eq!(texts, ["09", "09", "2022", "/", "/"]);
+    }
+
+    #[test]
+    fn invalid_year_no_match() {
+        assert!(span_texts("3022-09-09", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn invalid_month_no_match() {
+        assert!(span_texts("2022-19-39", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn invalid_year_branch_b_no_match() {
+        assert!(span_texts("19/39/3023", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn no_dates_no_match() {
+        assert!(span_texts("No dates here!", &make_finder()).is_empty());
+    }
+}

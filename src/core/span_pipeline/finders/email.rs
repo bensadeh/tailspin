@@ -103,6 +103,41 @@ mod tests {
     }
 
     #[test]
+    fn email_with_plus_and_subdomains() {
+        let finder = make_finder();
+        let input = "first.last+tag@sub.domain.co.uk";
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+
+        let (spans, _) = collector.into_parts();
+        assert_eq!(&input[spans[0].start..spans[0].end], "first.last+tag");
+        assert_eq!(&input[spans[1].start..spans[1].end], "@");
+        // Domain parts: sub, ., domain, ., co, ., uk
+        assert_eq!(spans.len(), 9);
+    }
+
+    #[test]
+    fn multiple_emails() {
+        let finder = make_finder();
+        let input = "From alice@a.com to bob@b.org";
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+
+        let (spans, _) = collector.into_parts();
+        let texts: Vec<&str> = spans.iter().map(|s| &input[s.start..s.end]).collect();
+        assert!(texts.contains(&"alice"));
+        assert!(texts.contains(&"bob"));
+    }
+
+    #[test]
+    fn no_email_no_match() {
+        let finder = make_finder();
+        let mut collector = Collector::new(0);
+        finder.find_spans("No email here!", &mut collector);
+        assert!(collector.into_spans().is_empty());
+    }
+
+    #[test]
     fn double_dot_domain_does_not_panic() {
         let finder = make_finder();
         let mut collector = Collector::new(0);

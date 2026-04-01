@@ -120,3 +120,93 @@ impl Finder for JsonFinder {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::style::Color;
+
+    fn make_finder() -> JsonFinder {
+        JsonFinder::new(
+            Style::new().fg(Color::Yellow),
+            Style::new().fg(Color::Blue),
+            Style::new().fg(Color::Cyan),
+            Style::new().fg(Color::Green),
+            Style::new().fg(Color::Red),
+            Style::new().fg(Color::Magenta),
+        )
+    }
+
+    fn span_texts<'a>(input: &'a str, finder: &JsonFinder) -> Vec<&'a str> {
+        let mut collector = Collector::new(0);
+        finder.find_spans(input, &mut collector);
+        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
+    }
+
+    #[test]
+    fn simple_json_object() {
+        let input = r#"{"name": "John", "age": 30}"#;
+        let texts = span_texts(input, &make_finder());
+        assert!(texts.contains(&"{"));
+        assert!(texts.contains(&"}"));
+        assert!(texts.contains(&"name"));
+        assert!(texts.contains(&"age"));
+        assert!(texts.contains(&","));
+    }
+
+    #[test]
+    fn json_with_array() {
+        let input = r#"{"items": [1, 2]}"#;
+        let texts = span_texts(input, &make_finder());
+        assert!(texts.contains(&"["));
+        assert!(texts.contains(&"]"));
+        assert!(texts.contains(&"items"));
+    }
+
+    #[test]
+    fn nested_json() {
+        let input = r#"{"a": {"b": 1}}"#;
+        let texts = span_texts(input, &make_finder());
+        assert!(texts.contains(&"a"));
+        // Structural tokens are present
+        assert!(!texts.is_empty());
+    }
+
+    #[test]
+    fn json_with_escaped_quotes() {
+        let input = r#"{"key": "val\"ue"}"#;
+        let texts = span_texts(input, &make_finder());
+        assert!(texts.contains(&"key"));
+        // Should not panic or produce broken spans
+        assert!(!texts.is_empty());
+    }
+
+    #[test]
+    fn empty_json_object() {
+        let input = "{}";
+        let texts = span_texts(input, &make_finder());
+        // Adjacent same-style brackets coalesce into one span
+        assert_eq!(texts, ["{}"]);
+    }
+
+    #[test]
+    fn empty_json_array() {
+        let input = "[]";
+        let texts = span_texts(input, &make_finder());
+        assert_eq!(texts, ["[]"]);
+    }
+
+    #[test]
+    fn not_json_no_match() {
+        let mut collector = Collector::new(0);
+        make_finder().find_spans("No jsons here!", &mut collector);
+        assert!(collector.into_spans().is_empty());
+    }
+
+    #[test]
+    fn invalid_json_no_match() {
+        let mut collector = Collector::new(0);
+        make_finder().find_spans("{not valid json", &mut collector);
+        assert!(collector.into_spans().is_empty());
+    }
+}
