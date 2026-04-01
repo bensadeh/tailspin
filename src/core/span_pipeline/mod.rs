@@ -14,7 +14,7 @@ use span::{Collector, Finder};
 /// All finders run on the original unstyled input and produce spans.
 /// A merge step resolves overlaps by priority, and a single render pass
 /// produces the ANSI-colored output.
-pub struct Pipeline {
+pub(crate) struct Pipeline {
     finders: Vec<Box<dyn Finder>>,
 }
 
@@ -27,12 +27,12 @@ impl std::fmt::Debug for Pipeline {
 }
 
 impl Pipeline {
-    pub fn new(finders: Vec<Box<dyn Finder>>) -> Self {
+    pub(crate) fn new(finders: Vec<Box<dyn Finder>>) -> Self {
         Self { finders }
     }
 
     /// Apply all finders sequentially, merge, render.
-    pub fn apply_sequential<'a>(&self, input: &'a str) -> Cow<'a, str> {
+    pub(crate) fn apply_sequential<'a>(&self, input: &'a str) -> Cow<'a, str> {
         let mut all_spans = Vec::new();
         let mut padded_ranges = Vec::new();
 
