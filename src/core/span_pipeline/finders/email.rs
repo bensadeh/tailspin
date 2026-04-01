@@ -54,6 +54,10 @@ impl Finder for EmailFinder {
             let domain_offset = domain_match.start();
             let mut pos = 0;
             for segment in domain_str.split('.') {
+                if segment.is_empty() {
+                    pos += 1; // skip the dot between consecutive dots
+                    continue;
+                }
                 collector.push(domain_offset + pos, domain_offset + pos + segment.len(), self.domain);
                 pos += segment.len();
                 if pos < domain_str.len() {
@@ -62,5 +66,52 @@ impl Finder for EmailFinder {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::style::Color;
+
+    fn make_finder() -> EmailFinder {
+        EmailFinder::new(
+            Style::new().fg(Color::Cyan),
+            Style::new().fg(Color::Red),
+            Style::new().fg(Color::Green),
+            Style::new().fg(Color::Yellow),
+        )
+    }
+
+    #[test]
+    fn finds_email() {
+        let finder = make_finder();
+        let mut collector = Collector::new(0);
+        finder.find_spans("contact user@example.com today", &mut collector);
+
+        let (spans, _) = collector.into_parts();
+        // local("user") + at("@") + domain("example") + dot(".") + domain("com")
+        assert_eq!(spans.len(), 5);
+        assert_eq!(&"contact user@example.com today"[spans[0].start..spans[0].end], "user");
+        assert_eq!(&"contact user@example.com today"[spans[1].start..spans[1].end], "@");
+        assert_eq!(
+            &"contact user@example.com today"[spans[2].start..spans[2].end],
+            "example"
+        );
+        assert_eq!(&"contact user@example.com today"[spans[3].start..spans[3].end], ".");
+        assert_eq!(&"contact user@example.com today"[spans[4].start..spans[4].end], "com");
+    }
+
+    #[test]
+    fn double_dot_domain_does_not_panic() {
+        let finder = make_finder();
+        let mut collector = Collector::new(0);
+        // a..com has consecutive dots — should not panic in any build mode
+        finder.find_spans("user@a..com", &mut collector);
+
+        let (spans, _) = collector.into_parts();
+        // Should produce spans without panicking.
+        // The consecutive dot is skipped rather than producing a zero-width span.
+        assert!(spans.iter().all(|s| s.start < s.end));
     }
 }
