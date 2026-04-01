@@ -55,7 +55,6 @@ impl Finder for JsonFinder {
         let bytes = input.as_bytes();
         let mut in_string = false;
         let mut escape_next = false;
-        let mut after_colon = false;
 
         let mut i = 0;
         while i < bytes.len() {
@@ -73,7 +72,6 @@ impl Finder for JsonFinder {
                 } else if b == b'"' {
                     collector.push(i, i + 1, self.quote_token);
                     in_string = false;
-                    after_colon = false;
                 }
                 i += 1;
                 continue;
@@ -83,15 +81,21 @@ impl Finder for JsonFinder {
                 b'{' | b'}' => collector.push(i, i + 1, self.curly_bracket),
                 b'[' | b']' => collector.push(i, i + 1, self.square_bracket),
                 b',' => collector.push(i, i + 1, self.comma),
-                b':' => {
-                    collector.push(i, i + 1, self.colon);
-                    after_colon = true;
-                }
+                b':' => collector.push(i, i + 1, self.colon),
                 b'"' => {
                     collector.push(i, i + 1, self.quote_token);
                     in_string = true;
-                    // Find the end of this string to determine if it's a key
-                    if !after_colon {
+
+                    // A quoted string is a key unless preceded by `:`.
+                    // Only whitespace can appear between structural tokens in
+                    // validated JSON, so a short backward scan is sufficient.
+                    let preceded_by_colon = bytes[..i]
+                        .iter()
+                        .rev()
+                        .find(|b| !b.is_ascii_whitespace())
+                        .is_some_and(|&b| b == b':');
+
+                    if !preceded_by_colon {
                         // This is a key — style the content
                         let start = i + 1;
                         let mut j = start;
@@ -208,5 +212,37 @@ mod tests {
         let mut collector = Collector::new(0);
         make_finder().find_spans("{not valid json", &mut collector);
         assert!(collector.into_spans().is_empty());
+    }
+
+    #[test]
+    fn key_after_non_string_value() {
+        // The backward scan finds `,` before `"b"` regardless of value type.
+        let input = r#"{"a": 1, "b": 2}"#;
+        let texts = span_texts(input, &make_finder());
+        assert!(texts.contains(&"a"));
+        assert!(texts.contains(&"b"), "key after non-string value should be styled");
+    }
+
+    #[test]
+    fn key_in_nested_object() {
+        // The backward scan finds `{` before the inner key.
+        let input = r#"{"a": {"b": 1}, "c": 2}"#;
+        let texts = span_texts(input, &make_finder());
+        assert!(texts.contains(&"a"));
+        assert!(texts.contains(&"b"), "inner object key should be styled");
+        assert!(texts.contains(&"c"), "key after nested object should be styled");
+    }
+
+    #[test]
+    fn value_content_not_styled() {
+        // The backward scan finds `:` before value strings — their content
+        // should NOT appear in spans, only their quote tokens.
+        let input = r#"{"a": "x", "b": {"c": "y"}}"#;
+        let texts = span_texts(input, &make_finder());
+        assert!(texts.contains(&"a"));
+        assert!(texts.contains(&"b"));
+        assert!(texts.contains(&"c"));
+        assert!(!texts.contains(&"x"), "value content should not be styled");
+        assert!(!texts.contains(&"y"), "nested value content should not be styled");
     }
 }
