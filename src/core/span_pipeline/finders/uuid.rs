@@ -10,11 +10,11 @@ pub(crate) struct UuidFinder {
     regex: Regex,
     number: Style,
     letter: Style,
-    dash: Style,
+    separator: Style,
 }
 
 impl UuidFinder {
-    pub fn new(number: Style, letter: Style, dash: Style) -> Self {
+    pub fn new(number: Style, letter: Style, separator: Style) -> Self {
         let pattern = r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b";
         let regex = RegexBuilder::new(pattern)
             .unicode(false)
@@ -25,7 +25,7 @@ impl UuidFinder {
             regex,
             number,
             letter,
-            dash,
+            separator,
         }
     }
 }
@@ -53,7 +53,7 @@ impl Finder for UuidFinder {
                 let style = match c {
                     '0'..='9' => self.number,
                     'a'..='f' | 'A'..='F' => self.letter,
-                    '-' => self.dash,
+                    '-' => self.separator,
                     _ => continue,
                 };
                 collector.push(m.start() + i, m.start() + i + c.len_utf8(), style);

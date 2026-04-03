@@ -277,7 +277,6 @@ separator = { fg = "red" }
 [pointers]
 number = { fg = "blue", italic = true }
 letter = { fg = "magenta", italic = true }
-separator = { fg = "red" }
 
 [key_value_pairs]
 key = { faint = true }

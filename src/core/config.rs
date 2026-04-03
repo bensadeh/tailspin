@@ -14,8 +14,8 @@ pub struct UuidConfig {
     pub number: Style,
     /// Style applied to alphabetic characters.
     pub letter: Style,
-    /// Style applied to dashes (`-`).
-    pub dash: Style,
+    /// Style applied to dash separators (`-`).
+    pub separator: Style,
 }
 
 /// Configuration for highlighting email addresses.
@@ -108,10 +108,6 @@ pub struct PointerConfig {
     pub number: Style,
     /// Style for alphabetic characters.
     pub letter: Style,
-    /// Style for pointer separators.
-    pub separator: Style,
-    /// Token used to separate segments.
-    pub separator_token: char,
     /// Style for the `x` character in pointers.
     pub x: Style,
 }
@@ -195,7 +191,7 @@ impl Default for UuidConfig {
         UuidConfig {
             number: Style::new().fg(Color::Blue).italic(),
             letter: Style::new().fg(Color::Magenta).italic(),
-            dash: Style::new().fg(Color::Red),
+            separator: Style::new().fg(Color::Red),
         }
     }
 }
@@ -267,8 +263,6 @@ impl Default for PointerConfig {
         PointerConfig {
             number: Style::new().fg(Color::Blue).italic(),
             letter: Style::new().fg(Color::Magenta).italic(),
-            separator: Style::new().faint(),
-            separator_token: '•',
             x: Style::new().fg(Color::Red),
         }
     }

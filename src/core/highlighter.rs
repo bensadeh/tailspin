@@ -109,7 +109,7 @@ impl HighlighterBuilder {
 
     /// Adds a highlighter for UUIDs.
     pub fn with_uuid_highlighter(mut self, config: UuidConfig) -> Self {
-        self.add_finder(UuidFinder::new(config.number, config.letter, config.dash));
+        self.add_finder(UuidFinder::new(config.number, config.letter, config.separator));
         self
     }
 
