@@ -11,7 +11,7 @@ use crate::highlighter_builder::builtins::get_builtin_keywords;
 use crate::highlighter_builder::groups;
 use crate::theme::reader;
 use anyhow::Result;
-use clap::{Parser, ValueEnum};
+use clap::{ArgAction, Parser, ValueEnum};
 use nu_ansi_term::Style;
 use std::error::Error;
 use std::io::{IsTerminal, stdin};
@@ -25,7 +25,8 @@ use tailspin::Highlighter;
     about,
     author,
     styles = get_styles(),
-    max_term_width = 105,
+    max_term_width = 120,
+    disable_help_flag = true,
 )]
 pub struct Arguments {
     /// Filepath
@@ -73,6 +74,10 @@ pub struct Arguments {
     /// Override the default pager command used by tspin. (e.g. `--pager="ov -f [FILE]"`)
     #[clap(long = "pager", env = "TAILSPIN_PAGER")]
     pub pager: Option<String>,
+
+    /// Print help
+    #[arg(short = 'h', long = "help", action = ArgAction::HelpShort)]
+    help: bool,
 
     /// Print bash completions to stdout
     #[clap(long = "generate-bash-completions", hide = true)]
