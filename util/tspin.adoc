@@ -44,7 +44,7 @@ The command traps the interrupt signal to allow for cancelling and resuming foll
 +
 .Example:
 ----
-tspin --listen-command 'kubectl logs -f pod_name'
+tspin --exec 'kubectl logs -f pod_name'
 ----
 
 _--highlight_ *COLOR1*:__word1,word2,...__ *COLOR2*:__word3,word4,...__::
@@ -61,19 +61,37 @@ _--enable=[HIGHLIGHT_GROUP]_::
 Disable all highlighting groups except the ones specified.
 Comma separated list of groups.
 Cannot be used with *--disable=[HIGHLIGHT_GROUP]*.
+Possible groups: numbers, urls, emails, pointers, dates, paths, quotes, key-value-pairs, uuids, ipv4, processes, json.
 
 _--disable=[HIGHLIGHT_GROUP]_::
 Disable the specified highlighting groups.
 Comma separated list of groups.
 Cannot be used with *--enable=[HIGHLIGHT_GROUP]*.
+Possible groups: numbers, urls, emails, pointers, dates, paths, quotes, key-value-pairs, uuids, ipv4, processes, json.
+
+_--extras=[EXTRA]_::
+Enable extra highlighters.
+Comma separated list of extras.
+Possible values: ipv6.
+
+_--pager_ *COMMAND*::
+Override the default pager command used by tspin.
+The command must include the string _[FILE]_ which will be replaced with the file path internally.
+
++
+.Example:
+----
+tspin logfile.txt --pager "ov -f [FILE]"
+----
 
 _--disable-builtin-keywords_::
-Disables the highlighting of all builtin keyword groups (booleans, severity and REST).
+Disables the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs).
 
 == ENVIRONMENT VARIABLES
 
 *TAILSPIN_PAGER*::
 Set the _TAILSPIN_PAGER_ environment variable to override the default pager.
+Equivalent to the *--pager* flag.
 The command must include the string _[FILE]_ which will be replaced with the file path internally.
 For example, _"ov -f [FILE]"_.
 

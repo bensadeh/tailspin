@@ -19,8 +19,9 @@ _tspin() {
 '-e+[Run command and view the output in a pager]:EXEC:_default' \
 '--exec=[Run command and view the output in a pager]:EXEC:_default' \
 '*--highlight=[Highlights in the form color\:word1,word2]:COLOR_WORD:_default' \
-'*--enable=[Enable specific highlighters]:ENABLED_HIGHLIGHTERS:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
-'*--disable=[Disable specific highlighters]:DISABLED_HIGHLIGHTERS:(numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json)' \
+'*--enable=[Enable specific highlighters]:ENABLED_HIGHLIGHTERS:(numbers urls emails pointers dates paths quotes key-value-pairs uuids ipv4 processes json)' \
+'*--disable=[Disable specific highlighters]:DISABLED_HIGHLIGHTERS:(numbers urls emails pointers dates paths quotes key-value-pairs uuids ipv4 processes json)' \
+'*--extras=[Enable extra highlighters (e.g., --extras ipv6)]:EXTRAS:(ipv6)' \
 '--pager=[Override the default pager command used by tspin. (e.g. \`--pager="ov -f \[FILE\]"\`)]:PAGER:_default' \
 '-f[Follow the contents of a file]' \
 '--follow[Follow the contents of a file]' \
@@ -30,8 +31,8 @@ _tspin() {
 '--generate-bash-completions[Print bash completions to stdout]' \
 '--generate-fish-completions[Print fish completions to stdout]' \
 '--generate-zsh-completions[Print zsh completions to stdout]' \
-'-h[Print help (see more with '\''--help'\'')]' \
-'--help[Print help (see more with '\''--help'\'')]' \
+'-h[Print help]' \
+'--help[Print help]' \
 '-V[Print version]' \
 '--version[Print version]' \
 '::FILE -- Filepath:_files' \

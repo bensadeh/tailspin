@@ -23,7 +23,7 @@ _tspin() {
 
     case "${cmd}" in
         tspin)
-            opts="-f -p -e -h -V --follow --print --config-path --exec --highlight --enable --disable --disable-builtin-keywords --pager --generate-bash-completions --generate-fish-completions --generate-zsh-completions --help --version [FILE]"
+            opts="-f -p -e -h -V --follow --print --config-path --exec --highlight --enable --disable --extras --disable-builtin-keywords --pager --generate-bash-completions --generate-fish-completions --generate-zsh-completions --help --version [FILE]"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -46,11 +46,15 @@ _tspin() {
                     return 0
                     ;;
                 --enable)
-                    COMPREPLY=($(compgen -W "numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "numbers urls emails pointers dates paths quotes key-value-pairs uuids ipv4 processes json" -- "${cur}"))
                     return 0
                     ;;
                 --disable)
-                    COMPREPLY=($(compgen -W "numbers urls pointers dates paths quotes key-value-pairs uuids ip-addresses processes json" -- "${cur}"))
+                    COMPREPLY=($(compgen -W "numbers urls emails pointers dates paths quotes key-value-pairs uuids ipv4 processes json" -- "${cur}"))
+                    return 0
+                    ;;
+                --extras)
+                    COMPREPLY=($(compgen -W "ipv6" -- "${cur}"))
                     return 0
                     ;;
                 --pager)

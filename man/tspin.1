@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: tspin
 .\"    Author: [see the "AUTHOR(S)" section]
-.\" Generator: Asciidoctor 2.0.23
-.\"      Date: 2025-06-08
+.\" Generator: Asciidoctor 2.0.26
+.\"      Date: 2026-04-06
 .\"    Manual: tailspin
-.\"    Source: tailspin 5.4.5
+.\"    Source: tailspin 6.0.0
 .\"  Language: English
 .\"
-.TH "TSPIN" "1" "2025-06-08" "tailspin 5.4.5" "tailspin"
+.TH "TSPIN" "1" "2026-04-06" "tailspin 6.0.0" "tailspin"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -31,7 +31,7 @@
 tspin \- A log file highlighter
 .SH "SYNOPSIS"
 .sp
-\fBtspin\fP [\fIOPTION\fP]... [\fIFILE\fP]...
+\fBtspin\fP [\fIOPTION\fP].\|.\|. [\fIFILE\fP].\|.\|.
 .SH "DESCRIPTION"
 .sp
 tailspin is a command line tool that highlights log files.
@@ -40,7 +40,7 @@ tailspin is a command line tool that highlights log files.
 \fI\-f, \-\-follow\fP
 .RS 4
 Follow (tail) the contents of the file.
-Always true when using the \fI\-\-follow\-command\fP flag.
+Always true when using the \fI\-\-exec\fP flag.
 .RE
 .sp
 \fI\-p, \-\-print\fP
@@ -72,7 +72,7 @@ tspin \-\-listen\-command \*(Aqkubectl logs \-f pod_name\*(Aq
 .if n .RE
 .RE
 .sp
-\fI\-\-highlight\fP \fBCOLOR1\fP:\fIword1,word2,...\fP \fBCOLOR2\fP:\fIword3,word4,...\fP
+\fI\-\-highlight\fP \fBCOLOR1\fP:\fIword1,word2,.\|.\|.\fP \fBCOLOR2\fP:\fIword3,word4,.\|.\|.\fP
 .RS 4
 Highlight the provided comma\-separated words in the specified color.
 Possible colors are red, green, yellow, blue, magenta, and cyan.

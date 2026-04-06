@@ -27,6 +27,11 @@ use tailspin::Highlighter;
     styles = get_styles(),
     max_term_width = 120,
     disable_help_flag = true,
+    arg(clap::Arg::new("help")
+        .short('h')
+        .long("help")
+        .help("Print help")
+        .action(ArgAction::HelpShort)),
 )]
 pub struct Arguments {
     /// Filepath
@@ -74,10 +79,6 @@ pub struct Arguments {
     /// Override the default pager command used by tspin. (e.g. `--pager="ov -f [FILE]"`)
     #[clap(long = "pager", env = "TAILSPIN_PAGER")]
     pub pager: Option<String>,
-
-    /// Print help
-    #[arg(short = 'h', long = "help", action = ArgAction::HelpShort)]
-    help: bool,
 
     /// Print bash completions to stdout
     #[clap(long = "generate-bash-completions", hide = true)]
