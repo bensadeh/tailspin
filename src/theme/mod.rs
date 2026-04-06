@@ -63,7 +63,7 @@ pub struct NumberToml {
 pub struct UuidToml {
     pub number: Option<Style>,
     pub letter: Option<Style>,
-    pub dash: Option<Style>,
+    pub separator: Option<Style>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -116,8 +116,6 @@ pub struct EmailToml {
 pub struct PointerToml {
     pub number: Option<Style>,
     pub letter: Option<Style>,
-    pub separator: Option<Style>,
-    pub separator_token: Option<char>,
     pub x: Option<Style>,
 }
 

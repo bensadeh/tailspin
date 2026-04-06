@@ -65,7 +65,7 @@ impl From<UuidToml> for UuidConfig {
         UuidConfig {
             number: uuid_toml.number.unwrap_or(default_config.number),
             letter: uuid_toml.letter.unwrap_or(default_config.letter),
-            dash: uuid_toml.dash.unwrap_or(default_config.dash),
+            separator: uuid_toml.separator.unwrap_or(default_config.separator),
         }
     }
 }
@@ -167,8 +167,6 @@ impl From<PointerToml> for PointerConfig {
         PointerConfig {
             number: pointer_toml.number.unwrap_or(default_config.number),
             letter: pointer_toml.letter.unwrap_or(default_config.letter),
-            separator: pointer_toml.separator.unwrap_or(default_config.separator),
-            separator_token: pointer_toml.separator_token.unwrap_or(default_config.separator_token),
             x: pointer_toml.x.unwrap_or(default_config.x),
         }
     }

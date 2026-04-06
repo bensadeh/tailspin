@@ -109,6 +109,53 @@ fn default_should_not_highlight_ipv6() {
 }
 
 #[test]
+fn regex_overriding_keyword_badge_suppresses_padding() {
+    // Regex (added first → higher priority) partially overlaps a padded keyword.
+    // The keyword badge fragments should NOT get padding.
+    let highlighter = Highlighter::builder()
+        .with_regex_highlighter(RegexConfig {
+            regex: "ERR".to_string(),
+            style: Style::new().fg(Color::Green),
+        })
+        .with_keyword_highlighter(vec![KeywordConfig {
+            words: vec!["ERROR".to_string()],
+            style: Style::new().on(Color::Red).fg(Color::White),
+        }])
+        .build()
+        .unwrap();
+
+    let result = highlighter.apply("level ERROR here");
+    let output = result.as_ref();
+
+    // The keyword badge should NOT have padding spaces since it was fragmented.
+    // "ERR" gets regex style, "OR" gets keyword style, neither is padded.
+    assert!(!output.contains(" ERR"), "fragmented badge should not be padded");
+    assert!(!output.contains("OR "), "fragmented badge should not be padded");
+
+    // Both fragments should still be highlighted (contain ANSI codes)
+    assert_ne!(output, "level ERROR here", "fragments should still be styled");
+}
+
+#[test]
+fn keyword_badge_without_overlap_still_padded() {
+    // Verify the fix didn't break normal (unfragmented) badge padding.
+    let highlighter = Highlighter::builder()
+        .with_number_highlighter(NumberConfig::default())
+        .with_keyword_highlighter(vec![KeywordConfig {
+            words: vec!["ERROR".to_string()],
+            style: Style::new().on(Color::Red).fg(Color::White),
+        }])
+        .build()
+        .unwrap();
+
+    let result = highlighter.apply("level ERROR 42 here");
+    let output = result.as_ref();
+
+    // ERROR badge should have padding (no overlap with number)
+    assert!(output.contains(" ERROR "), "unfragmented badge should be padded");
+}
+
+#[test]
 fn builder_with_ipv6_should_highlight() {
     let highlighter = Highlighter::builder()
         .with_ip_v6_highlighter(IpV6Config::default())

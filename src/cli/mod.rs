@@ -158,7 +158,7 @@ pub fn get_config() -> Result<FullConfig> {
     let keywords_from_toml = theme.keywords.clone();
     let keywords_from_cli = get_keywords_from_cli(&cli);
 
-    let keywords = vec![]
+    let keywords: Vec<_> = vec![]
         .into_iter()
         .chain(keywords_builtin)
         .chain(keywords_from_toml)
