@@ -1,8 +1,9 @@
 # Changelog
 ## 6.1.0
 
+### Performance
 
-
+- Cache ANSI style prefixes in a thread-local, avoiding per-line allocation in the render pipeline
 
 ## 6.0.0
 

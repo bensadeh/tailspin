@@ -1,4 +1,5 @@
 use std::borrow::Cow;
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Range;
 
@@ -10,23 +11,13 @@ use super::merge::ResolvedSpan;
 
 const RESET: &str = "\x1b[0m";
 
-/// Cache of `Style` -> ANSI prefix string, computed lazily.
-struct PrefixCache {
-    cache: HashMap<Style, String>,
+thread_local! {
+    static PREFIX_CACHE: RefCell<HashMap<Style, String>> = RefCell::new(HashMap::new());
 }
 
-impl PrefixCache {
-    fn new() -> Self {
-        Self { cache: HashMap::new() }
-    }
-
-    fn get(&mut self, style: Style) -> &str {
-        self.cache.entry(style).or_insert_with(|| {
-            let nu: NuStyle = style.into();
-            let styled = format!("{}", nu.paint(""));
-            styled.replace(RESET, "")
-        })
-    }
+fn compute_prefix(style: Style) -> String {
+    let nu: NuStyle = style.into();
+    nu.prefix().to_string()
 }
 
 /// Render the original input with resolved spans into an ANSI-colored string.
@@ -40,47 +31,50 @@ pub(crate) fn render<'a>(input: &'a str, spans: &[ResolvedSpan], padded_ranges: 
         return Cow::Borrowed(input);
     }
 
-    let mut output = String::with_capacity(input.len() + spans.len() * 16);
-    let mut cache = PrefixCache::new();
-    let mut pos = 0;
-    let mut pad_idx = 0;
+    PREFIX_CACHE.with_borrow_mut(|cache| {
+        let mut output = String::with_capacity(input.len() + spans.len() * 16);
+        let mut pos = 0;
+        let mut pad_idx = 0;
 
-    for span in spans {
-        if pos < span.start {
-            output.push_str(&input[pos..span.start]);
+        for span in spans {
+            if pos < span.start {
+                output.push_str(&input[pos..span.start]);
+            }
+
+            // Advance past padded ranges that end before this span
+            while pad_idx < padded_ranges.len() && padded_ranges[pad_idx].end <= span.start {
+                pad_idx += 1;
+            }
+            // Only pad if this span covers the entire padded range;
+            // fragments produced by higher-priority finders get no padding.
+            let padded = pad_idx < padded_ranges.len()
+                && padded_ranges[pad_idx].start == span.start
+                && span.end == padded_ranges[pad_idx].end;
+
+            let prefix = cache.entry(span.style).or_insert_with(|| compute_prefix(span.style));
+            output.push_str(prefix);
+            if padded {
+                output.push(' ');
+            }
+            output.push_str(&input[span.start..span.end]);
+            if padded {
+                output.push(' ');
+            }
+            output.push_str(RESET);
+
+            pos = span.end;
         }
 
-        // Advance past padded ranges that end before this span
-        while pad_idx < padded_ranges.len() && padded_ranges[pad_idx].end <= span.start {
-            pad_idx += 1;
+        if pos < input.len() {
+            output.push_str(&input[pos..]);
         }
-        // Only pad if this span covers the entire padded range;
-        // fragments produced by higher-priority finders get no padding.
-        let padded = pad_idx < padded_ranges.len()
-            && padded_ranges[pad_idx].start == span.start
-            && span.end == padded_ranges[pad_idx].end;
 
-        output.push_str(cache.get(span.style));
-        if padded {
-            output.push(' ');
-        }
-        output.push_str(&input[span.start..span.end]);
-        if padded {
-            output.push(' ');
-        }
-        output.push_str(RESET);
-
-        pos = span.end;
-    }
-
-    if pos < input.len() {
-        output.push_str(&input[pos..]);
-    }
-
-    Cow::Owned(output)
+        Cow::Owned(output)
+    })
 }
 
 #[cfg(test)]
+#[allow(clippy::single_range_in_vec_init)]
 mod tests {
     use super::*;
     use crate::core::tests::escape_code_converter::ConvertEscapeCodes;

@@ -162,7 +162,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_terminate_after_first_read() -> Result<()> {
-        let test_result = timeout(Duration::from_millis(1000), async {
+        let test_result = timeout(Duration::from_secs(1), async {
             let dir = tempdir().unwrap();
             let file_path = dir.path().join("test.log");
 
@@ -225,7 +225,7 @@ mod tests {
 
         sleep(Duration::from_millis(200)).await;
 
-        let event = timeout(Duration::from_millis(1000), reader.next())
+        let event = timeout(Duration::from_secs(1), reader.next())
             .await
             .context("Timed out waiting for appended1")?;
         match event? {
@@ -233,7 +233,7 @@ mod tests {
             _ => panic!("Expected StreamEvent::Line(...) with appended1"),
         }
 
-        let event = timeout(Duration::from_millis(1000), reader.next())
+        let event = timeout(Duration::from_secs(1), reader.next())
             .await
             .context("Timed out waiting for appended2")?;
         match event? {
@@ -246,7 +246,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_empty_file() -> Result<()> {
-        let test_result = timeout(Duration::from_millis(1000), async {
+        let test_result = timeout(Duration::from_secs(1), async {
             let dir = tempdir().unwrap();
             let file_path = dir.path().join("empty.log");
             File::create(&file_path).unwrap();
@@ -268,7 +268,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_no_trailing_newline() -> Result<()> {
-        let test_result = timeout(Duration::from_millis(1000), async {
+        let test_result = timeout(Duration::from_secs(1), async {
             let dir = tempdir().unwrap();
             let file_path = dir.path().join("no_trailing.log");
 
@@ -328,7 +328,7 @@ mod tests {
 
         sleep(Duration::from_millis(200)).await;
 
-        let event = timeout(Duration::from_millis(1000), reader.next())
+        let event = timeout(Duration::from_secs(1), reader.next())
             .await
             .context("Timed out waiting for appended CRLF line")?;
         match event? {
@@ -341,7 +341,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_non_utf8_content() -> Result<()> {
-        let test_result = timeout(Duration::from_millis(1000), async {
+        let test_result = timeout(Duration::from_secs(1), async {
             let dir = tempdir().unwrap();
             let file_path = dir.path().join("non_utf8.log");
 
@@ -399,7 +399,7 @@ mod tests {
 
         sleep(Duration::from_millis(200)).await;
 
-        let event = timeout(Duration::from_millis(1000), reader.next())
+        let event = timeout(Duration::from_secs(1), reader.next())
             .await
             .context("Timed out waiting for non-UTF-8 line")?;
         match event? {
@@ -443,7 +443,7 @@ mod tests {
 
         sleep(Duration::from_millis(200)).await;
 
-        let event = timeout(Duration::from_millis(1000), reader.next())
+        let event = timeout(Duration::from_secs(1), reader.next())
             .await
             .context("Timed out waiting for line after truncation")?;
         match event? {
@@ -456,7 +456,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_large_file_streams_in_batches() -> Result<()> {
-        let test_result = timeout(Duration::from_millis(5000), async {
+        let test_result = timeout(Duration::from_secs(5), async {
             let dir = tempdir().unwrap();
             let file_path = dir.path().join("large.log");
 
