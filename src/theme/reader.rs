@@ -36,21 +36,23 @@ fn expand_var_os(key: &str) -> Option<PathBuf> {
         .map(|s| shellexpand::tilde(&s).into_owned().into())
 }
 fn read_and_parse_toml(path: &Path) -> Result<TomlTheme, ThemeError> {
+    let display_path = || path.display().to_string();
+
     let content = fs::read_to_string(path).map_err(|err| match err.kind() {
         io::ErrorKind::NotFound => ThemeError::FileNotFound,
-        _ => ThemeError::Read(err),
+        _ => ThemeError::Read(display_path(), err),
     })?;
 
-    toml::from_str::<TomlTheme>(&content).map_err(ThemeError::Parsing)
+    toml::from_str::<TomlTheme>(&content).map_err(|err| ThemeError::Parsing(display_path(), err))
 }
 
 #[derive(Debug, Error)]
 pub enum ThemeError {
-    #[error("could not read the TOML file: {0}")]
-    Read(#[source] io::Error),
+    #[error("could not read {0}: {1}")]
+    Read(String, #[source] io::Error),
 
-    #[error(transparent)]
-    Parsing(#[from] toml::de::Error),
+    #[error("could not parse {0}: {1}")]
+    Parsing(String, #[source] toml::de::Error),
 
     #[error("could not find the TOML file")]
     FileNotFound,

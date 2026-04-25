@@ -220,8 +220,8 @@ To edit the different highlight groups, include them in your `theme.toml` file. 
 highlight group, add the following to your `theme.toml`:
 
 ```toml
-[date]
-style = { fg = "green" }
+[dates]
+date = { fg = "green" }
 ```
 
 Expand the section below to see the default config for the highlight groups:
@@ -254,7 +254,7 @@ query_params_value = { fg = "cyan" }
 symbols = { fg = "red" }
 
 [numbers]
-style = { fg = "cyan" }
+number = { fg = "cyan" }
 
 [ip_addresses]
 number = { fg = "blue", italic = true }
@@ -263,7 +263,7 @@ separator = { fg = "red" }
 
 [quotes]
 style = { fg = "yellow" }
-token = '"'
+quote_token = '"'
 
 [paths]
 segment = { fg = "green", italic = true }
@@ -284,7 +284,7 @@ separator = { fg = "white" }
 
 [processes]
 name = { fg = "green" }
-separator = { fg = "red" }
+bracket = { fg = "red" }
 id = { fg = "yellow" }
 
 [json]

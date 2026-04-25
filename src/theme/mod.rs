@@ -25,6 +25,7 @@ pub struct Theme {
 }
 
 #[derive(Deserialize, Debug, Default)]
+#[serde(deny_unknown_fields)]
 pub struct TomlTheme {
     pub keywords: Option<Vec<KeywordToml>>,
     pub regexes: Option<Vec<RegexToml>>,
@@ -43,23 +44,27 @@ pub struct TomlTheme {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct KeywordToml {
     pub words: Vec<String>,
     pub style: Style,
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct RegexToml {
     pub regex: String,
     pub style: Style,
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct NumberToml {
     pub number: Option<Style>,
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct UuidToml {
     pub number: Option<Style>,
     pub letter: Option<Style>,
@@ -67,12 +72,14 @@ pub struct UuidToml {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct QuotesToml {
     pub quote_token: Option<char>,
     pub style: Option<Style>,
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
+#[serde(deny_unknown_fields)]
 pub struct IpToml {
     pub number: Option<Style>,
     pub letter: Option<Style>,
@@ -80,6 +87,7 @@ pub struct IpToml {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct DateToml {
     pub date: Option<Style>,
     pub time: Option<Style>,
@@ -88,12 +96,14 @@ pub struct DateToml {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct PathToml {
     pub segment: Option<Style>,
     pub separator: Option<Style>,
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct UrlToml {
     pub http: Option<Style>,
     pub https: Option<Style>,
@@ -105,6 +115,7 @@ pub struct UrlToml {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct EmailToml {
     pub local_part: Option<Style>,
     pub at_sign: Option<Style>,
@@ -113,6 +124,7 @@ pub struct EmailToml {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct PointerToml {
     pub number: Option<Style>,
     pub letter: Option<Style>,
@@ -120,6 +132,7 @@ pub struct PointerToml {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct UnixProcessToml {
     pub name: Option<Style>,
     pub id: Option<Style>,
@@ -127,12 +140,14 @@ pub struct UnixProcessToml {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct KeyValueToml {
     pub key: Option<Style>,
     pub separator: Option<Style>,
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
 pub struct JsonToml {
     pub key: Option<Style>,
     pub quote_token: Option<Style>,

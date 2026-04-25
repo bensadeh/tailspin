@@ -1,9 +1,15 @@
 # Changelog
+
 ## 6.1.0
 
 ### Performance
 
 - Cache ANSI style prefixes in a thread-local, avoiding per-line allocation in the render pipeline
+
+### Fixed
+
+- Theme parse and read errors now include the path of the offending file
+- Reject unknown fields in `theme.toml` so they surface as errors instead of being silently ignored
 
 ## 6.0.0
 
