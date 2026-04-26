@@ -20,14 +20,7 @@ use tailspin::Highlighter;
 use tokio::task::JoinHandle;
 
 #[tokio::main(flavor = "current_thread")]
-async fn main() {
-    if let Err(err) = run().await {
-        eprintln!("{} {err}", nu_ansi_term::Color::Red.paint("Error:"));
-        std::process::exit(1);
-    }
-}
-
-async fn run() -> anyhow::Result<()> {
+async fn main() -> anyhow::Result<()> {
     let FullConfig {
         source,
         target,
