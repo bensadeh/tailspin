@@ -1,8 +1,5 @@
-mod initial_read;
-mod presenter;
-mod reader;
-mod run;
-mod setup;
-mod writer;
-
-pub use run::run;
+pub mod initial_read;
+pub mod presenter;
+pub mod reader;
+pub mod setup;
+pub mod writer;
