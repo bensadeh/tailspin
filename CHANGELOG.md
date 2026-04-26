@@ -10,6 +10,8 @@
 
 - Theme parse and read errors now include the path of the offending file
 - Reject unknown fields in `theme.toml` so they surface as errors instead of being silently ignored
+- `--exec` no longer tears down the pager the moment the spawned subprocess exits
+- Kill the pager when tailspin exits due to a stream error, instead of leaving it orphaned
 
 ## 6.0.0
 

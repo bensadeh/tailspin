@@ -3,8 +3,16 @@ pub mod command;
 pub mod file_reader;
 pub mod stdin;
 
-use crate::io::controller::Reader;
+use crate::io::reader::command::CommandReader;
+use crate::io::reader::file_reader::FileReader;
+use crate::io::reader::stdin::StdinReader;
 use anyhow::Result;
+
+pub enum Reader {
+    File(FileReader),
+    Stdin(StdinReader),
+    Command(CommandReader),
+}
 
 #[derive(Debug)]
 pub enum StreamEvent {

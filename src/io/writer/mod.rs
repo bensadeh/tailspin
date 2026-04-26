@@ -1,8 +1,14 @@
 pub mod stdout;
 pub mod temp_file;
 
-use crate::io::controller::Writer;
+use crate::io::writer::stdout::StdoutWriter;
+use crate::io::writer::temp_file::TempFile;
 use anyhow::Result;
+
+pub enum Writer {
+    TempFile(TempFile),
+    Stdout(StdoutWriter),
+}
 
 pub trait AsyncLineWriter {
     async fn write(&mut self, line: &str) -> Result<()>;

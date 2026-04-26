@@ -1,58 +1,36 @@
-use crate::cli::get_config;
 use crate::config::{Source, Target};
-use crate::io::initial_read::{InitialReadCompleteReceiver, InitialReadCompleteSender, initial_read_complete_channel};
+use crate::io::presenter::Presenter;
 use crate::io::presenter::pager::{CustomPagerOptions, LessPagerOptions, Pager, PagerOptions};
 use crate::io::presenter::stdout::StdoutPresenter;
+use crate::io::reader::Reader;
 use crate::io::reader::command::CommandReader;
 use crate::io::reader::file_reader::FileReader;
 use crate::io::reader::stdin::StdinReader;
+use crate::io::writer::Writer;
 use crate::io::writer::stdout::StdoutWriter;
 use crate::io::writer::temp_file::TempFile;
 use anyhow::{Context, Result};
 use std::path::PathBuf;
-use tailspin::Highlighter;
 use tempfile::TempDir;
 use tokio::fs::File;
 use tokio::io::BufWriter;
 
-pub enum Reader {
-    File(FileReader),
-    Stdin(StdinReader),
-    Command(CommandReader),
+pub struct IoSetup {
+    pub reader: Reader,
+    pub writer: Writer,
+    pub presenter: Presenter,
 }
 
-pub enum Writer {
-    TempFile(TempFile),
-    Stdout(StdoutWriter),
-}
-
-pub enum Presenter {
-    Pager(Pager),
-    StdOut(StdoutPresenter),
-}
-
-pub async fn initialize_io() -> Result<(
-    Reader,
-    Writer,
-    Presenter,
-    Highlighter,
-    InitialReadCompleteSender,
-    InitialReadCompleteReceiver,
-    Option<TempDir>,
-)> {
-    let config = get_config()?;
-    let (read_complete_sender, read_complete_receiver) = initial_read_complete_channel();
-
-    let reader = get_reader(config.source).await?;
-    let (writer, presenter, temp_dir) = get_writer_presenter_and_temp_dir(config.target).await?;
+pub async fn initialize_io(source: Source, target: Target) -> Result<(IoSetup, Option<TempDir>)> {
+    let reader = get_reader(source).await?;
+    let (writer, presenter, temp_dir) = get_writer_presenter_and_temp_dir(target).await?;
 
     Ok((
-        reader,
-        writer,
-        presenter,
-        config.highlighter,
-        read_complete_sender,
-        read_complete_receiver,
+        IoSetup {
+            reader,
+            writer,
+            presenter,
+        },
         temp_dir,
     ))
 }

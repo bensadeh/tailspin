@@ -75,7 +75,7 @@ fn get_less_pager_command(follow: bool, path: &Path) -> Command {
 
     let mut cmd = Command::new("less");
 
-    cmd.env("LESSSECURE", "1").args(&args).arg(path);
+    cmd.env("LESSSECURE", "1").args(&args).arg(path).kill_on_drop(true);
 
     cmd
 }
@@ -85,7 +85,7 @@ fn get_custom_pager_command(command: String, args: Vec<String>, path: &Path) -> 
 
     let mut cmd = Command::new(command);
 
-    cmd.args(replaced_args);
+    cmd.args(replaced_args).kill_on_drop(true);
 
     cmd
 }
