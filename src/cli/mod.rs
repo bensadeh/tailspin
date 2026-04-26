@@ -1,14 +1,14 @@
 mod completions;
 mod keywords;
+pub(crate) mod resolution;
 mod styles;
 
 use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
-use crate::cli::keywords::get_keywords_from_cli;
+use crate::cli::keywords::collect_keywords;
+use crate::cli::resolution::{BaseSet, resolve_extras};
 use crate::cli::styles::get_styles;
 use crate::config::{Source, Target, get_io_config};
-use crate::highlighter_builder;
-use crate::highlighter_builder::builtins::get_builtin_keywords;
-use crate::highlighter_builder::groups;
+use crate::highlighter_builder::{build_highlighter, build_pipeline};
 use crate::theme::reader;
 use anyhow::Result;
 use clap::{ArgAction, Parser, ValueEnum};
@@ -62,15 +62,15 @@ pub struct Arguments {
 
     /// Enable specific highlighters
     #[clap(long = "enable", value_enum, use_value_delimiter = true)]
-    pub enabled_highlighters: Vec<HighlighterGroup>,
+    pub enabled: Vec<Base>,
 
     /// Disable specific highlighters
     #[clap(long = "disable", value_enum, use_value_delimiter = true)]
-    pub disabled_highlighters: Vec<HighlighterGroup>,
+    pub disabled: Vec<Base>,
 
     /// Enable extra highlighters (e.g., --extras ipv6)
     #[clap(long = "extras", value_enum, use_value_delimiter = true)]
-    pub extras: Vec<Extras>,
+    pub extras: Vec<Extra>,
 
     /// Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)
     #[clap(long = "disable-builtin-keywords")]
@@ -115,13 +115,13 @@ pub enum KeywordColor {
     Cyan,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-pub enum Extras {
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Hash)]
+pub enum Extra {
     Ipv6,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-pub enum HighlighterGroup {
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Hash)]
+pub enum Base {
     Numbers,
     Urls,
     Emails,
@@ -134,6 +134,23 @@ pub enum HighlighterGroup {
     Ipv4,
     Processes,
     Json,
+}
+
+impl Base {
+    pub const ALL: &[Base] = &[
+        Self::Numbers,
+        Self::Urls,
+        Self::Emails,
+        Self::Pointers,
+        Self::Dates,
+        Self::Paths,
+        Self::Quotes,
+        Self::KeyValuePairs,
+        Self::Uuids,
+        Self::Ipv4,
+        Self::Processes,
+        Self::Json,
+    ];
 }
 
 pub struct FullConfig {
@@ -156,22 +173,15 @@ pub fn get_config() -> Result<FullConfig> {
     }
 
     let io_config = get_io_config(&cli)?;
-    let mut highlighter_groups = groups::get_highlighter_groups(&cli.enabled_highlighters, &cli.disabled_highlighters)?;
-    highlighter_groups.ip_v6 = cli.extras.contains(&Extras::Ipv6);
 
-    let theme = reader::parse_theme(cli.config_path.as_ref())?;
-    let keywords_builtin = get_builtin_keywords(cli.disable_builtin_keywords);
-    let keywords_from_toml = theme.keywords.clone();
-    let keywords_from_cli = get_keywords_from_cli(&cli);
+    let base = BaseSet::resolve(&cli.enabled, &cli.disabled)?;
+    let extras = resolve_extras(&cli.extras);
 
-    let keywords: Vec<_> = vec![]
-        .into_iter()
-        .chain(keywords_builtin)
-        .chain(keywords_from_toml)
-        .chain(keywords_from_cli)
-        .collect();
+    let mut theme = reader::parse_theme(cli.config_path.as_ref())?;
+    let keywords = collect_keywords(&cli, std::mem::take(&mut theme.keywords));
 
-    let highlighter = highlighter_builder::get_highlighter(highlighter_groups, theme, keywords)?;
+    let stages = build_pipeline(&base, &extras, theme, keywords);
+    let highlighter = build_highlighter(stages)?;
 
     Ok(FullConfig {
         source: io_config.source,
