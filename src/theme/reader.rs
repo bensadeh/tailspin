@@ -52,7 +52,7 @@ pub enum ThemeError {
     Read(String, #[source] io::Error),
 
     #[error("could not parse {0}: {1}")]
-    Parsing(String, #[source] toml::de::Error),
+    Parsing(String, toml::de::Error),
 
     #[error("could not find the TOML file")]
     FileNotFound,
