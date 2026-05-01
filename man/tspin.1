@@ -1,13 +1,16 @@
 '\" t
+.\"
+.\" === DO NOT EDIT — generated from util/tspin.adoc by util/generate_man_pages.sh ===
+.\"
 .\"     Title: tspin
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2026-04-06
+.\"      Date: 2026-05-01
 .\"    Manual: tailspin
-.\"    Source: tailspin 6.0.0
+.\"    Source: tailspin 6.1.0
 .\"  Language: English
 .\"
-.TH "TSPIN" "1" "2026-04-06" "tailspin 6.0.0" "tailspin"
+.TH "TSPIN" "1" "2026-05-01" "tailspin 6.1.0" "tailspin"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -66,7 +69,7 @@ The command traps the interrupt signal to allow for cancelling and resuming foll
 .if n .RS 4
 .nf
 .fam C
-tspin \-\-listen\-command \*(Aqkubectl logs \-f pod_name\*(Aq
+tspin \-\-exec \*(Aqkubectl logs \-f pod_name\*(Aq
 .fam
 .fi
 .if n .RE
@@ -94,6 +97,7 @@ tspin logfile.txt \-\-highlight red:error,fail \-\-highlight green:success,ok
 Disable all highlighting groups except the ones specified.
 Comma separated list of groups.
 Cannot be used with \fB\-\-disable=[HIGHLIGHT_GROUP]\fP.
+Possible groups: numbers, urls, emails, pointers, dates, paths, quotes, key\-value\-pairs, uuids, ipv4, processes, json.
 .RE
 .sp
 \fI\-\-disable=[HIGHLIGHT_GROUP]\fP
@@ -101,32 +105,52 @@ Cannot be used with \fB\-\-disable=[HIGHLIGHT_GROUP]\fP.
 Disable the specified highlighting groups.
 Comma separated list of groups.
 Cannot be used with \fB\-\-enable=[HIGHLIGHT_GROUP]\fP.
+Possible groups: numbers, urls, emails, pointers, dates, paths, quotes, key\-value\-pairs, uuids, ipv4, processes, json.
 .RE
 .sp
 \fI\-\-extras=[EXTRA]\fP
 .RS 4
-Enable extra highlighter groups that are off by default.
+Enable extra highlighters.
 Comma separated list of extras.
-Available: \fBipv6\fP, \fBjvm\-stack\-trace\fP.
+Possible values: ipv6, jvm\-stack\-trace.
 Can also be set via the \fITAILSPIN_EXTRAS\fP environment variable.
+.RE
+.sp
+\fI\-\-pager\fP \fBCOMMAND\fP
+.RS 4
+Override the default pager command used by tspin.
+The command must include the string \fI[FILE]\fP which will be replaced with the file path internally.
+.sp
+.B Example:
+.br
+.sp
+.if n .RS 4
+.nf
+.fam C
+tspin logfile.txt \-\-pager "ov \-f [FILE]"
+.fam
+.fi
+.if n .RE
 .RE
 .sp
 \fI\-\-disable\-builtin\-keywords\fP
 .RS 4
-Disables the highlighting of all builtin keyword groups (booleans, severity and REST).
+Disables the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs).
 .RE
 .SH "ENVIRONMENT VARIABLES"
 .sp
 \fBTAILSPIN_PAGER\fP
 .RS 4
 Set the \fITAILSPIN_PAGER\fP environment variable to override the default pager.
+Equivalent to the \fB\-\-pager\fP flag.
 The command must include the string \fI[FILE]\fP which will be replaced with the file path internally.
 For example, \fI"ov \-f [FILE]"\fP.
 .RE
 .sp
 \fBTAILSPIN_EXTRAS\fP
 .RS 4
-Comma separated list of extras to enable by default, equivalent to passing \fI\-\-extras\fP.
+Comma separated list of extras to enable by default.
+Equivalent to the \fB\-\-extras\fP flag.
 For example, \fI"jvm\-stack\-trace"\fP or \fI"ipv6,jvm\-stack\-trace"\fP.
 .RE
 .SH "SEE ALSO"

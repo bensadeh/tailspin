@@ -72,7 +72,8 @@ Possible groups: numbers, urls, emails, pointers, dates, paths, quotes, key-valu
 _--extras=[EXTRA]_::
 Enable extra highlighters.
 Comma separated list of extras.
-Possible values: ipv6.
+Possible values: ipv6, jvm-stack-trace.
+Can also be set via the _TAILSPIN_EXTRAS_ environment variable.
 
 _--pager_ *COMMAND*::
 Override the default pager command used by tspin.
@@ -94,6 +95,11 @@ Set the _TAILSPIN_PAGER_ environment variable to override the default pager.
 Equivalent to the *--pager* flag.
 The command must include the string _[FILE]_ which will be replaced with the file path internally.
 For example, _"ov -f [FILE]"_.
+
+*TAILSPIN_EXTRAS*::
+Comma separated list of extras to enable by default.
+Equivalent to the *--extras* flag.
+For example, _"jvm-stack-trace"_ or _"ipv6,jvm-stack-trace"_.
 
 == SEE ALSO
 
