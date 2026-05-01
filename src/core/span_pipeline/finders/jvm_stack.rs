@@ -48,7 +48,7 @@ impl JvmStackFinder {
             .expect("hardcoded JVM stack trace header regex must compile");
 
         let frame_pattern = r"(?xm)
-            ^(?P<indent>\s*)
+            ^(?P<indent>\s+)
             (?P<at>at\s+)
             (?P<fqname>
                 (?:[a-zA-Z_$][a-zA-Z0-9_$.]*/)?      # optional JDK module/loader prefix
@@ -65,7 +65,7 @@ impl JvmStackFinder {
 
         let file_line_pattern = r"(?x)
             ^
-            (?P<file>[A-Za-z_$][A-Za-z0-9_$]*\.[a-zA-Z][a-zA-Z0-9]*)
+            (?P<file>[A-Za-z_$][A-Za-z0-9_$.]*\.[a-zA-Z][a-zA-Z0-9]*)
             (?:(?P<colon>:)(?P<line>\d+))?
             $
         ";
@@ -275,6 +275,22 @@ mod tests {
     }
 
     #[test]
+    fn frame_with_kotlin_multiplatform_file() {
+        // Kotlin Multiplatform files have a platform infix: EventLoop.common.kt, Foo.jvm.kt, etc.
+        let input = "        at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)";
+        let f = make_finder();
+        let result = spans(input);
+        let file_span = result
+            .iter()
+            .find(|s| span_text(input, s) == "EventLoop.common.kt")
+            .expect("multi-dot file name should be highlighted");
+        assert_eq!(file_span.2, f.file);
+
+        let line_span = result.iter().find(|s| span_text(input, s) == "263").unwrap();
+        assert_eq!(line_span.2, f.line_number);
+    }
+
+    #[test]
     fn frame_with_jdk_module_prefix() {
         let input = "        at java.base/sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:276)";
         let result = spans(input);
@@ -296,6 +312,22 @@ mod tests {
         let f = make_finder();
         let marker = result.iter().find(|s| span_text(input, s) == "Caused by:").unwrap();
         assert_eq!(marker.2, f.caused_by);
+    }
+
+    #[test]
+    fn frame_at_column_zero_is_not_matched() {
+        // Stack frames are always indented; "at X.y(...)" at column 0 is prose.
+        let input = "We meet at home.foo(now) for dinner";
+        assert!(spans(input).is_empty(), "prose with 'at X.y(...)' must not match");
+    }
+
+    #[test]
+    fn at_keyword_without_dotted_name_does_not_match() {
+        let input = "        at run-stage(123)";
+        // `run-stage` has no dot, fqname requires at least one — no match.
+        let result = spans(input);
+        let texts: Vec<&str> = result.iter().map(|s| span_text(input, s)).collect();
+        assert!(!texts.iter().any(|t| t.starts_with("at ")));
     }
 
     #[test]

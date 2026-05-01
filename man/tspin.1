@@ -103,6 +103,14 @@ Comma separated list of groups.
 Cannot be used with \fB\-\-enable=[HIGHLIGHT_GROUP]\fP.
 .RE
 .sp
+\fI\-\-extras=[EXTRA]\fP
+.RS 4
+Enable extra highlighter groups that are off by default.
+Comma separated list of extras.
+Available: \fBipv6\fP, \fBjvm\-stack\-trace\fP.
+Can also be set via the \fITAILSPIN_EXTRAS\fP environment variable.
+.RE
+.sp
 \fI\-\-disable\-builtin\-keywords\fP
 .RS 4
 Disables the highlighting of all builtin keyword groups (booleans, severity and REST).
@@ -114,6 +122,12 @@ Disables the highlighting of all builtin keyword groups (booleans, severity and 
 Set the \fITAILSPIN_PAGER\fP environment variable to override the default pager.
 The command must include the string \fI[FILE]\fP which will be replaced with the file path internally.
 For example, \fI"ov \-f [FILE]"\fP.
+.RE
+.sp
+\fBTAILSPIN_EXTRAS\fP
+.RS 4
+Comma separated list of extras to enable by default, equivalent to passing \fI\-\-extras\fP.
+For example, \fI"jvm\-stack\-trace"\fP or \fI"ipv6,jvm\-stack\-trace"\fP.
 .RE
 .SH "SEE ALSO"
 .sp

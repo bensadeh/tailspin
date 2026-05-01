@@ -205,6 +205,13 @@ Available extras:
 | `ipv6`              | Highlight IPv6 addresses                               |
 | `jvm-stack-trace`   | Highlight JVM stack traces (Java, Kotlin, Scala, etc.) |
 
+To enable extras by default without passing the flag every time, set the `TAILSPIN_EXTRAS` environment variable
+(comma-separated):
+
+```console
+export TAILSPIN_EXTRAS=jvm-stack-trace
+```
+
 ## Customizing Highlight Groups
 
 ### Overview

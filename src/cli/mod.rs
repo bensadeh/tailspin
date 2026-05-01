@@ -69,7 +69,7 @@ pub struct Arguments {
     pub disabled: Vec<Base>,
 
     /// Enable extra highlighters (e.g., --extras ipv6)
-    #[clap(long = "extras", value_enum, use_value_delimiter = true)]
+    #[clap(long = "extras", value_enum, use_value_delimiter = true, env = "TAILSPIN_EXTRAS")]
     pub extras: Vec<Extra>,
 
     /// Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)
