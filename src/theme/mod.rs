@@ -22,6 +22,7 @@ pub struct Theme {
     pub processes: UnixProcessConfig,
     pub key_value_pairs: KeyValueConfig,
     pub json: JsonConfig,
+    pub jvm_stack_traces: JvmStackTraceConfig,
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -41,6 +42,7 @@ pub struct TomlTheme {
     pub processes: Option<UnixProcessToml>,
     pub key_value_pairs: Option<KeyValueToml>,
     pub json: Option<JsonToml>,
+    pub jvm_stack_traces: Option<JvmStackTraceToml>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -155,4 +157,16 @@ pub struct JsonToml {
     pub square_bracket: Option<Style>,
     pub comma: Option<Style>,
     pub colon: Option<Style>,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct JvmStackTraceToml {
+    pub caused_by: Option<Style>,
+    pub package: Option<Style>,
+    pub exception: Option<Style>,
+    pub frame: Option<Style>,
+    pub file: Option<Style>,
+    pub unknown_source: Option<Style>,
+    pub line_number: Option<Style>,
 }

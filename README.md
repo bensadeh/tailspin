@@ -200,9 +200,10 @@ tspin application.log --enable urls,numbers --extras ipv6
 
 Available extras:
 
-| Name   | Description                |
-|--------|----------------------------|
-| `ipv6` | Highlight IPv6 addresses   |
+| Name                | Description                                            |
+|---------------------|--------------------------------------------------------|
+| `ipv6`              | Highlight IPv6 addresses                               |
+| `jvm-stack-trace`   | Highlight JVM stack traces (Java, Kotlin, Scala, etc.) |
 
 ## Customizing Highlight Groups
 

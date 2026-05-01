@@ -58,6 +58,24 @@ fn bench_individual_highlighters(c: &mut Criterion) {
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
+    group.bench_function("jvm_stack", |b| {
+        let h = Highlighter::builder()
+            .with_jvm_stack_trace_highlighter(JvmStackTraceConfig::default())
+            .build()
+            .unwrap();
+        b.iter(|| h.apply(black_box(LOG_LINE)));
+    });
+
+    group.bench_function("jvm_stack_match", |b| {
+        let h = Highlighter::builder()
+            .with_jvm_stack_trace_highlighter(JvmStackTraceConfig::default())
+            .build()
+            .unwrap();
+        let stack_input =
+            "        at com.example.notifications.email.MessageService.sendBrokerMessage(MessageService.kt:171)";
+        b.iter(|| h.apply(black_box(stack_input)));
+    });
+
     group.bench_function("email", |b| {
         let h = Highlighter::builder()
             .with_email_highlighter(EmailConfig::default())

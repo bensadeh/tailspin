@@ -6,6 +6,7 @@ use crate::core::span_pipeline::finders::email::EmailFinder;
 use crate::core::span_pipeline::finders::ip_v4::IpV4Finder;
 use crate::core::span_pipeline::finders::ip_v6::IpV6Finder;
 use crate::core::span_pipeline::finders::json::JsonFinder;
+use crate::core::span_pipeline::finders::jvm_stack::JvmStackFinder;
 use crate::core::span_pipeline::finders::key_value::KeyValueFinder;
 use crate::core::span_pipeline::finders::keyword::KeywordFinder;
 use crate::core::span_pipeline::finders::number::NumberFinder;
@@ -141,6 +142,20 @@ impl HighlighterBuilder {
     /// Adds a highlighter for IPv6 addresses.
     pub fn with_ip_v6_highlighter(mut self, config: IpV6Config) -> Self {
         self.add_finder(IpV6Finder::new(config.number, config.letter, config.separator));
+        self
+    }
+
+    /// Adds a highlighter for JVM stack traces (Java, Kotlin, Scala, etc.).
+    pub fn with_jvm_stack_trace_highlighter(mut self, config: JvmStackTraceConfig) -> Self {
+        self.add_finder(JvmStackFinder::new(
+            config.caused_by,
+            config.package,
+            config.exception,
+            config.frame,
+            config.file,
+            config.unknown_source,
+            config.line_number,
+        ));
         self
     }
 

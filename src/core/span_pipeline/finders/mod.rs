@@ -4,6 +4,7 @@ pub(crate) mod email;
 pub(crate) mod ip_v4;
 pub(crate) mod ip_v6;
 pub(crate) mod json;
+pub(crate) mod jvm_stack;
 pub(crate) mod key_value;
 pub(crate) mod keyword;
 pub(crate) mod number;

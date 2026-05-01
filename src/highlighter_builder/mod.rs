@@ -6,8 +6,9 @@ use crate::theme::Theme;
 use std::collections::HashSet;
 use tailspin::Highlighter;
 use tailspin::config::{
-    DateTimeConfig, EmailConfig, IpV4Config, IpV6Config, JsonConfig, KeyValueConfig, KeywordConfig, NumberConfig,
-    PointerConfig, QuoteConfig, RegexConfig, UnixPathConfig, UnixProcessConfig, UrlConfig, UuidConfig,
+    DateTimeConfig, EmailConfig, IpV4Config, IpV6Config, JsonConfig, JvmStackTraceConfig, KeyValueConfig,
+    KeywordConfig, NumberConfig, PointerConfig, QuoteConfig, RegexConfig, UnixPathConfig, UnixProcessConfig, UrlConfig,
+    UuidConfig,
 };
 
 #[derive(Debug)]
@@ -17,6 +18,7 @@ pub(crate) enum Stage {
     Dates(DateTimeConfig),
     Ipv4(IpV4Config),
     Ipv6(IpV6Config),
+    JvmStackTrace(JvmStackTraceConfig),
     Urls(UrlConfig),
     Emails(EmailConfig),
     Paths(UnixPathConfig),
@@ -51,6 +53,7 @@ pub(crate) fn build_pipeline(
         processes,
         key_value_pairs,
         json,
+        jvm_stack_traces,
     } = theme;
 
     let mut stages = Vec::new();
@@ -67,6 +70,9 @@ pub(crate) fn build_pipeline(
     }
     if extras.contains(&Extra::Ipv6) {
         stages.push(Stage::Ipv6(ip_v6_addresses));
+    }
+    if extras.contains(&Extra::JvmStackTrace) {
+        stages.push(Stage::JvmStackTrace(jvm_stack_traces));
     }
     if base.contains(Base::Urls) {
         stages.push(Stage::Urls(urls));
@@ -111,6 +117,7 @@ pub(crate) fn build_highlighter(stages: Vec<Stage>) -> Result<Highlighter, tails
             Stage::Dates(c) => b.with_date_time_highlighters(c),
             Stage::Ipv4(c) => b.with_ip_v4_highlighter(c),
             Stage::Ipv6(c) => b.with_ip_v6_highlighter(c),
+            Stage::JvmStackTrace(c) => b.with_jvm_stack_trace_highlighter(c),
             Stage::Urls(c) => b.with_url_highlighter(c),
             Stage::Emails(c) => b.with_email_highlighter(c),
             Stage::Paths(c) => b.with_unix_path_highlighter(c),

@@ -20,6 +20,9 @@ impl From<TomlTheme> for Theme {
             emails: toml.emails.map_or_else(EmailConfig::default, EmailConfig::from),
             pointers: toml.pointers.map_or_else(PointerConfig::default, PointerConfig::from),
             json: toml.json.map_or_else(JsonConfig::default, JsonConfig::from),
+            jvm_stack_traces: toml
+                .jvm_stack_traces
+                .map_or_else(JvmStackTraceConfig::default, JvmStackTraceConfig::from),
             processes: toml
                 .processes
                 .map_or_else(UnixProcessConfig::default, UnixProcessConfig::from),
@@ -191,6 +194,22 @@ impl From<UnixProcessToml> for UnixProcessConfig {
             name: process_toml.name.unwrap_or(default_config.name),
             id: process_toml.id.unwrap_or(default_config.id),
             bracket: process_toml.bracket.unwrap_or(default_config.bracket),
+        }
+    }
+}
+
+impl From<JvmStackTraceToml> for JvmStackTraceConfig {
+    fn from(toml: JvmStackTraceToml) -> Self {
+        let default_config = JvmStackTraceConfig::default();
+
+        JvmStackTraceConfig {
+            caused_by: toml.caused_by.unwrap_or(default_config.caused_by),
+            package: toml.package.unwrap_or(default_config.package),
+            exception: toml.exception.unwrap_or(default_config.exception),
+            frame: toml.frame.unwrap_or(default_config.frame),
+            file: toml.file.unwrap_or(default_config.file),
+            unknown_source: toml.unknown_source.unwrap_or(default_config.unknown_source),
+            line_number: toml.line_number.unwrap_or(default_config.line_number),
         }
     }
 }

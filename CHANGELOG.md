@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `--extras jvm-stack-trace` highlights JVM stack traces (Java, Kotlin, Scala, etc.)
+
 ## 6.1.0
 
 ### Performance

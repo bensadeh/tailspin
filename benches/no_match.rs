@@ -49,6 +49,14 @@ fn bench_no_match(c: &mut Criterion) {
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
+    group.bench_function("jvm_stack", |b| {
+        let h = Highlighter::builder()
+            .with_jvm_stack_trace_highlighter(JvmStackTraceConfig::default())
+            .build()
+            .unwrap();
+        b.iter(|| h.apply(black_box(LOG_LINE)));
+    });
+
     group.bench_function("email", |b| {
         let h = Highlighter::builder()
             .with_email_highlighter(EmailConfig::default())

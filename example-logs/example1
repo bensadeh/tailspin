@@ -118,3 +118,13 @@ cron[101]: Running scheduled job ID 23456
 
 # email
 Contact admin@example.com or support@sub.domain.co.uk for help
+
+# JVM stack trace
+2026-05-01T05:15:00.378+02:00 ERROR [nio-8080-exec-9] notification-backend                       : Failed to send message, exception was: No recipients for broker message for ad 12345678
+ adId: 12345678: com.example.notifications.email.MessageDeliveryException: No recipients for broker message for ad 12345678
+        at com.example.notifications.email.MessageService.sendBrokerMessage(MessageService.kt:171)
+        at com.example.notifications.email.MessageService.access$sendBrokerMessage(MessageService.kt:32)
+        at com.example.notifications.email.MessageService$sendBrokerMessage$1.invokeSuspend(MessageService.kt)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Unknown Source)
+Caused by: java.io.IOException: connection reset
+        at java.base/sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:276)

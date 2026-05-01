@@ -149,6 +149,25 @@ pub struct QuoteConfig {
     pub style: Style,
 }
 
+/// Configuration for highlighting JVM stack traces (Java, Kotlin, Scala, etc.).
+#[derive(Debug, Clone, Copy)]
+pub struct JvmStackTraceConfig {
+    /// Style for the `Caused by:` marker that prefixes nested exception headers.
+    pub caused_by: Style,
+    /// Style for the package portion of the exception class name in the header line.
+    pub package: Style,
+    /// Style for the exception class name itself.
+    pub exception: Style,
+    /// Style for the surrounding scaffold: `at <fqname>(`, `)`, and `:` separators.
+    pub frame: Style,
+    /// Style for the source file name (e.g. `EmailService.kt`).
+    pub file: Style,
+    /// Style for the literal `Unknown Source` placeholder.
+    pub unknown_source: Style,
+    /// Style for the line number.
+    pub line_number: Style,
+}
+
 /// Configuration for highlighting custom keywords.
 #[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Clone)]
 pub struct KeywordConfig {
@@ -287,6 +306,20 @@ impl Default for JsonConfig {
             square_bracket: Style::new().faint(),
             comma: Style::new().faint(),
             colon: Style::new().faint(),
+        }
+    }
+}
+
+impl Default for JvmStackTraceConfig {
+    fn default() -> Self {
+        JvmStackTraceConfig {
+            caused_by: Style::new().bold(),
+            package: Style::new().fg(Color::Red).faint(),
+            exception: Style::new().fg(Color::Red),
+            frame: Style::new().fg(Color::Red).faint(),
+            file: Style::new().fg(Color::Yellow),
+            unknown_source: Style::new().fg(Color::Yellow).faint(),
+            line_number: Style::new().fg(Color::Cyan),
         }
     }
 }
