@@ -54,7 +54,7 @@ mod tests {
     #[test]
     fn finds_numbers() {
         let finder = NumberFinder::new(Style::new().fg(Color::Cyan));
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans("hello 42 world 3.14", &mut collector);
 
         let spans = collector.into_spans();
@@ -66,7 +66,7 @@ mod tests {
     #[test]
     fn no_match_produces_no_spans() {
         let finder = NumberFinder::new(Style::new().fg(Color::Cyan));
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans("no numbers here", &mut collector);
         assert!(collector.into_spans().is_empty());
     }

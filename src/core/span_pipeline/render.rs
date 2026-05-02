@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::ops::Range;
 
 use nu_ansi_term::Style as NuStyle;
@@ -11,8 +11,11 @@ use super::merge::ResolvedSpan;
 
 const RESET: &str = "\x1b[0m";
 
+// BTreeMap (not HashMap) because Style is small and Ord; we hit this on every
+// span emit, and SipHash showed up at ~9% of work in profiles. Tree lookup over
+// the few-dozen distinct styles is faster than rehashing.
 thread_local! {
-    static PREFIX_CACHE: RefCell<HashMap<Style, String>> = RefCell::new(HashMap::new());
+    static PREFIX_CACHE: RefCell<BTreeMap<Style, String>> = const { RefCell::new(BTreeMap::new()) };
 }
 
 fn compute_prefix(style: Style) -> String {

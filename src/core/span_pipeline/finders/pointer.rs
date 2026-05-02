@@ -68,13 +68,13 @@ mod tests {
     }
 
     fn span_count(input: &str) -> usize {
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         make_finder().find_spans(input, &mut collector);
         collector.into_spans().len()
     }
 
     fn matched_range(input: &str) -> Option<(usize, usize)> {
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         make_finder().find_spans(input, &mut collector);
         let spans = collector.into_spans();
         if spans.is_empty() {
@@ -103,7 +103,7 @@ mod tests {
         let finder = make_finder();
         // Must be exactly 8 hex chars after 0x to match 32-bit pattern
         let input = "0xab12cd34";
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
         let spans = collector.into_spans();
         // Per-char spans coalesced by style: "0" (number), "x" (x), "ab" (letter),

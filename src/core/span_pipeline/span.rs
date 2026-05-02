@@ -35,11 +35,11 @@ pub(crate) struct Collector {
 }
 
 impl Collector {
-    pub fn new(priority: u16) -> Self {
+    pub const fn new() -> Self {
         Self {
             spans: Vec::new(),
             padded_ranges: Vec::new(),
-            priority,
+            priority: 0,
         }
     }
 
@@ -111,7 +111,7 @@ mod tests {
     #[test]
     fn coalesces_adjacent_same_style() {
         let style = Style::new().fg(Color::Red);
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         collector.push(0, 1, style);
         collector.push(1, 2, style);
         collector.push(2, 3, style);
@@ -126,7 +126,7 @@ mod tests {
     fn does_not_coalesce_different_styles() {
         let red = Style::new().fg(Color::Red);
         let blue = Style::new().fg(Color::Blue);
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         collector.push(0, 1, red);
         collector.push(1, 2, blue);
         collector.push(2, 3, red);
@@ -138,7 +138,7 @@ mod tests {
     #[test]
     fn does_not_coalesce_non_adjacent() {
         let style = Style::new().fg(Color::Red);
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         collector.push(0, 1, style);
         collector.push(3, 4, style);
 
@@ -149,7 +149,8 @@ mod tests {
     #[test]
     fn sets_priority_from_collector() {
         let style = Style::new().fg(Color::Red);
-        let mut collector = Collector::new(5);
+        let mut collector = Collector::new();
+        collector.reset(5);
         collector.push(0, 3, style);
 
         let spans = collector.into_spans();

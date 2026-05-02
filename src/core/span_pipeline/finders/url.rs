@@ -174,7 +174,7 @@ mod tests {
     }
 
     fn spans_text<'a>(input: &'a str, finder: &UrlFinder) -> Vec<&'a str> {
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
         collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
     }
@@ -216,7 +216,7 @@ mod tests {
     #[test]
     fn no_match_returns_no_spans() {
         let f = finder();
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         f.find_spans("no urls here", &mut collector);
         assert!(collector.into_spans().is_empty());
     }

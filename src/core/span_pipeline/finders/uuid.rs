@@ -75,7 +75,7 @@ mod tests {
             Style::new().fg(Color::Red),
         );
         let input = "id=550e8400-e29b-41d4-a716-446655440000 done";
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
 
         let spans = collector.into_spans();
@@ -98,7 +98,7 @@ mod tests {
             Style::new().fg(Color::Yellow),
             Style::new().fg(Color::Red),
         );
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans("no dashes here at all", &mut collector);
         assert!(collector.into_spans().is_empty());
     }

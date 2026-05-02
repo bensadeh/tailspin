@@ -142,7 +142,7 @@ mod tests {
     }
 
     fn span_texts<'a>(input: &'a str, finder: &JsonFinder) -> Vec<&'a str> {
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
         collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
     }
@@ -202,14 +202,14 @@ mod tests {
 
     #[test]
     fn not_json_no_match() {
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         make_finder().find_spans("No jsons here!", &mut collector);
         assert!(collector.into_spans().is_empty());
     }
 
     #[test]
     fn invalid_json_no_match() {
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         make_finder().find_spans("{not valid json", &mut collector);
         assert!(collector.into_spans().is_empty());
     }

@@ -79,7 +79,7 @@ mod tests {
     }
 
     fn span_texts<'a>(input: &'a str, finder: &UnixPathFinder) -> Vec<&'a str> {
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
         collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
     }
@@ -135,7 +135,7 @@ mod tests {
         assert!(texts.contains(&"local"));
         // The matched text should not end with a trailing slash
         let finder = make_finder();
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans("/usr/local/", &mut collector);
         let spans = collector.into_spans();
         let last = spans.last().unwrap();

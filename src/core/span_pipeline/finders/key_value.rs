@@ -54,7 +54,7 @@ mod tests {
     }
 
     fn span_texts<'a>(input: &'a str, finder: &KeyValueFinder) -> Vec<&'a str> {
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
         collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
     }

@@ -153,7 +153,7 @@ mod tests {
     }
 
     fn spans(input: &str) -> Vec<(usize, usize, Style)> {
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         make_finder().find_spans(input, &mut collector);
         collector
             .into_spans()

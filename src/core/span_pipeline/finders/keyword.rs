@@ -60,7 +60,7 @@ mod tests {
     #[test]
     fn finds_keywords() {
         let finder = KeywordFinder::new(&["null", "true", "false"], Style::new().fg(Color::Red)).unwrap();
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans("value is null or true", &mut collector);
 
         let spans = collector.into_spans();
@@ -72,7 +72,7 @@ mod tests {
     #[test]
     fn respects_word_boundaries() {
         let finder = KeywordFinder::new(&["null"], Style::new().fg(Color::Red)).unwrap();
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans("nullable is not null", &mut collector);
 
         let spans = collector.into_spans();
@@ -83,7 +83,7 @@ mod tests {
     #[test]
     fn background_style_produces_padded_ranges() {
         let finder = KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap();
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans("level ERROR here", &mut collector);
 
         let (spans, padded) = collector.into_parts();
@@ -95,7 +95,7 @@ mod tests {
     #[test]
     fn foreground_only_produces_no_padded_ranges() {
         let finder = KeywordFinder::new(&["ERROR"], Style::new().fg(Color::Red)).unwrap();
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans("level ERROR here", &mut collector);
 
         let (spans, padded) = collector.into_parts();

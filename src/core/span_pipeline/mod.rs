@@ -4,10 +4,35 @@ pub(crate) mod render;
 pub(crate) mod span;
 
 use std::borrow::Cow;
+use std::cell::RefCell;
+use std::ops::Range;
 
 use merge::merge_spans;
 use render::render;
-use span::{Collector, Finder};
+use span::{Collector, Finder, Span};
+
+/// Per-call scratch buffers reused across `apply_sequential` invocations on
+/// the same thread. Pooling avoids the per-line allocations for the spans
+/// list, padded-ranges list, and collector internals.
+struct Scratch {
+    collector: Collector,
+    all_spans: Vec<Span>,
+    padded_ranges: Vec<Range<usize>>,
+}
+
+impl Scratch {
+    const fn new() -> Self {
+        Self {
+            collector: Collector::new(),
+            all_spans: Vec::new(),
+            padded_ranges: Vec::new(),
+        }
+    }
+}
+
+thread_local! {
+    static SCRATCH: RefCell<Scratch> = const { RefCell::new(Scratch::new()) };
+}
 
 /// Span-based highlighter pipeline.
 ///
@@ -33,21 +58,22 @@ impl Pipeline {
 
     /// Apply all finders sequentially, merge, render.
     pub(crate) fn apply_sequential<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        let mut all_spans = Vec::new();
-        let mut padded_ranges = Vec::new();
-        let mut collector = Collector::new(0);
+        SCRATCH.with_borrow_mut(|s| {
+            s.all_spans.clear();
+            s.padded_ranges.clear();
 
-        for (priority, finder) in self.finders.iter().enumerate() {
-            #[allow(clippy::cast_possible_truncation)]
-            collector.reset(priority as u16);
-            finder.find_spans(input, &mut collector);
-            collector.drain_into(&mut all_spans, &mut padded_ranges);
-        }
+            for (priority, finder) in self.finders.iter().enumerate() {
+                #[allow(clippy::cast_possible_truncation)]
+                s.collector.reset(priority as u16);
+                finder.find_spans(input, &mut s.collector);
+                s.collector.drain_into(&mut s.all_spans, &mut s.padded_ranges);
+            }
 
-        padded_ranges.sort_unstable_by_key(|r| r.start);
+            s.padded_ranges.sort_unstable_by_key(|r| r.start);
 
-        let resolved = merge_spans(input.len(), &all_spans);
-        render(input, &resolved, &padded_ranges)
+            let resolved = merge_spans(input.len(), &s.all_spans);
+            render(input, &resolved, &s.padded_ranges)
+        })
     }
 }
 

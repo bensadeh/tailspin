@@ -84,7 +84,7 @@ mod tests {
     #[test]
     fn finds_email() {
         let finder = make_finder();
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans("contact user@example.com today", &mut collector);
 
         let (spans, _) = collector.into_parts();
@@ -104,7 +104,7 @@ mod tests {
     fn email_with_plus_and_subdomains() {
         let finder = make_finder();
         let input = "first.last+tag@sub.domain.co.uk";
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
 
         let (spans, _) = collector.into_parts();
@@ -118,7 +118,7 @@ mod tests {
     fn multiple_emails() {
         let finder = make_finder();
         let input = "From alice@a.com to bob@b.org";
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
 
         let (spans, _) = collector.into_parts();
@@ -130,7 +130,7 @@ mod tests {
     #[test]
     fn no_email_no_match() {
         let finder = make_finder();
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         finder.find_spans("No email here!", &mut collector);
         assert!(collector.into_spans().is_empty());
     }
@@ -138,7 +138,7 @@ mod tests {
     #[test]
     fn double_dot_domain_does_not_panic() {
         let finder = make_finder();
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         // a..com has consecutive dots — should not panic in any build mode
         finder.find_spans("user@a..com", &mut collector);
 

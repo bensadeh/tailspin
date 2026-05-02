@@ -76,13 +76,13 @@ mod tests {
     }
 
     fn span_count(input: &str) -> usize {
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         make_finder().find_spans(input, &mut collector);
         collector.into_spans().len()
     }
 
     fn matched_range(input: &str) -> Option<(usize, usize)> {
-        let mut collector = Collector::new(0);
+        let mut collector = Collector::new();
         make_finder().find_spans(input, &mut collector);
         let spans = collector.into_spans();
         if spans.is_empty() {
