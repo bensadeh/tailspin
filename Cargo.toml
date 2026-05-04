@@ -37,7 +37,7 @@ strip = true
 aho-corasick = "1.1.4"
 anyhow = { version = "1.0.102", optional = true }
 clap = { version = "4.6.1", features = ["derive", "env", "wrap_help"], optional = true }
-clap_complete = { version = "4.6.2", optional = true }
+clap_complete = { version = "4.6.3", optional = true }
 memchr = "2.8.0"
 nu-ansi-term = "0.50.3"
 rayon = { version = "1.12.0", optional = true }
