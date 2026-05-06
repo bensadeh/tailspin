@@ -105,6 +105,10 @@ impl Finder for JvmStackFinder {
             let pkg = caps.name("package").unwrap();
             let cls = caps.name("class").unwrap();
             let colon = caps.name("colon").unwrap();
+            let cls_text = &input[cls.start()..cls.end()];
+            if !cls_text.ends_with("Exception") && !cls_text.ends_with("Error") {
+                continue;
+            }
             collector.push(pkg.start(), pkg.end(), self.package);
             collector.push(cls.start(), cls.end(), self.exception);
             collector.push(colon.start(), colon.end(), self.frame);
@@ -328,6 +332,29 @@ mod tests {
         let result = spans(input);
         let texts: Vec<&str> = result.iter().map(|s| span_text(input, s)).collect();
         assert!(!texts.iter().any(|t| t.starts_with("at ")));
+    }
+
+    #[test]
+    fn header_requires_exception_or_error_suffix() {
+        // Dotted token followed by ":" is not enough — the class must look like an exception type.
+        let cases = [
+            "Connecting to db.example.com.MasterServer: ready",
+            "Reading from /var/log/foo.bar.Baz: ok",
+            "config: app.module.Name: production",
+            "www.spring.io.Foo: redirect",
+            "sentence ending with com.example.Class: trailing",
+        ];
+        for input in cases {
+            assert!(spans(input).is_empty(), "should not match header in: {input}");
+        }
+    }
+
+    #[test]
+    fn header_matches_error_suffix() {
+        let input = "java.lang.OutOfMemoryError: Java heap space";
+        let result = spans(input);
+        let texts: Vec<&str> = result.iter().map(|s| span_text(input, s)).collect();
+        assert_eq!(texts, ["java.lang.", "OutOfMemoryError", ":"]);
     }
 
     #[test]
