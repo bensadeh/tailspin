@@ -1,6 +1,6 @@
 # Changelog
 
-## 6.1.0 (Unreleased)
+## 6.1.0
 
 ### Added
 
