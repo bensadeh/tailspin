@@ -11,7 +11,7 @@ use merge::merge_spans;
 use render::render;
 use span::{Collector, Finder, Span};
 
-/// Per-call scratch buffers reused across `apply_sequential` invocations on
+/// Per-call scratch buffers reused across `apply` invocations on
 /// the same thread. Pooling avoids the per-line allocations for the spans
 /// list, priorities list, padded-ranges list, and collector internals.
 struct Scratch {
@@ -67,7 +67,7 @@ impl Pipeline {
     }
 
     /// Apply all finders sequentially, merge, render.
-    pub(crate) fn apply_sequential<'a>(&self, input: &'a str) -> Cow<'a, str> {
+    pub(crate) fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         SCRATCH.with_borrow_mut(|s| {
             // Reset all scratch state up front. The collector is normally left
             // empty by `drain_into` at the end of each finder's iteration, but
@@ -106,7 +106,7 @@ mod tests {
     fn end_to_end_number_highlighter() {
         let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(Style::new().fg(Color::Cyan)))]);
 
-        let result = highlighter.apply_sequential("hello 42 world");
+        let result = highlighter.apply("hello 42 world");
         assert_eq!(result.to_string().convert_escape_codes(), "hello [cyan]42[reset] world");
     }
 
@@ -114,7 +114,7 @@ mod tests {
     fn no_match_returns_borrowed() {
         let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(Style::new().fg(Color::Cyan)))]);
 
-        let result = highlighter.apply_sequential("no numbers here");
+        let result = highlighter.apply("no numbers here");
         assert!(matches!(result, Cow::Borrowed(_)));
     }
 
@@ -126,7 +126,7 @@ mod tests {
             Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
         ]);
 
-        let result = highlighter.apply_sequential(r#"count is "value 42 here" end"#);
+        let result = highlighter.apply(r#"count is "value 42 here" end"#);
         let readable = result.to_string().convert_escape_codes();
 
         // Number 42 should be cyan, quote region should be yellow, outside should be unstyled
@@ -143,7 +143,7 @@ mod tests {
             Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
         ]);
 
-        let result = highlighter.apply_sequential(r#""port 8080 and 443""#);
+        let result = highlighter.apply(r#""port 8080 and 443""#);
         let readable = result.to_string().convert_escape_codes();
         assert_eq!(
             readable,
@@ -158,7 +158,7 @@ mod tests {
             Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
         ]);
 
-        let result = highlighter.apply_sequential("status 200 ok");
+        let result = highlighter.apply("status 200 ok");
         assert_eq!(result.to_string().convert_escape_codes(), "status [cyan]200[reset] ok");
     }
 
@@ -168,7 +168,7 @@ mod tests {
             KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap(),
         )]);
 
-        let result = highlighter.apply_sequential("level ERROR here");
+        let result = highlighter.apply("level ERROR here");
         assert_eq!(
             result.to_string().convert_escape_codes(),
             "level [bg_red] ERROR [reset] here"
@@ -181,7 +181,7 @@ mod tests {
             KeywordFinder::new(&["ERROR"], Style::new().fg(Color::Red)).unwrap(),
         )]);
 
-        let result = highlighter.apply_sequential("level ERROR here");
+        let result = highlighter.apply("level ERROR here");
         assert_eq!(
             result.to_string().convert_escape_codes(),
             "level [red]ERROR[reset] here"
@@ -198,7 +198,7 @@ mod tests {
             Box::new(KeywordFinder::new(&["WARN"], Style::new().on(Color::Yellow)).unwrap()),
         ]);
 
-        let result = highlighter.apply_sequential("WARN then ERROR");
+        let result = highlighter.apply("WARN then ERROR");
         let readable = result.to_string().convert_escape_codes();
         assert_eq!(readable, "[bg_yellow] WARN [reset] then [bg_red] ERROR [reset]");
     }
@@ -212,7 +212,7 @@ mod tests {
             Box::new(KeywordFinder::new(&["DEBUG"], Style::new().on(Color::Cyan)).unwrap()),
         ]);
 
-        let result = highlighter.apply_sequential("DEBUG WARN TRACE");
+        let result = highlighter.apply("DEBUG WARN TRACE");
         let readable = result.to_string().convert_escape_codes();
         assert_eq!(
             readable,
@@ -228,7 +228,7 @@ mod tests {
             Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
         ]);
 
-        let result = highlighter.apply_sequential("");
+        let result = highlighter.apply("");
         assert!(matches!(result, Cow::Borrowed(_)));
         assert_eq!(&*result, "");
     }
@@ -243,7 +243,7 @@ mod tests {
         ]);
 
         // "200" is inside quotes, matched by all three finders — number (priority 0) wins
-        let result = highlighter.apply_sequential(r#""status 200 ok""#);
+        let result = highlighter.apply(r#""status 200 ok""#);
         let readable = result.to_string().convert_escape_codes();
         assert_eq!(
             readable,
@@ -255,7 +255,7 @@ mod tests {
     fn multibyte_utf8_with_numbers() {
         let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(Style::new().fg(Color::Cyan)))]);
 
-        let result = highlighter.apply_sequential("café 42 résumé");
+        let result = highlighter.apply("café 42 résumé");
         assert_eq!(result.to_string().convert_escape_codes(), "café [cyan]42[reset] résumé");
     }
 
@@ -266,7 +266,7 @@ mod tests {
             Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
         ]);
 
-        let result = highlighter.apply_sequential(r#"日本語 "hello 42" 世界"#);
+        let result = highlighter.apply(r#"日本語 "hello 42" 世界"#);
         let readable = result.to_string().convert_escape_codes();
         assert_eq!(
             readable,
@@ -280,7 +280,7 @@ mod tests {
             KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap(),
         )]);
 
-        let result = highlighter.apply_sequential("ERROR");
+        let result = highlighter.apply("ERROR");
         assert_eq!(result.to_string().convert_escape_codes(), "[bg_red] ERROR [reset]");
     }
 
@@ -293,7 +293,7 @@ mod tests {
             Box::new(KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap()),
         ]);
 
-        let result = highlighter.apply_sequential("level ERROR here");
+        let result = highlighter.apply("level ERROR here");
         let readable = result.to_string().convert_escape_codes();
         // "ERR" gets regex style, "OR" gets keyword style — neither fragment is padded
         assert_eq!(readable, "level [cyan]ERR[reset][bg_red]OR[reset] here");
@@ -308,7 +308,7 @@ mod tests {
             Box::new(KeywordFinder::new(&["200"], Style::new().on(Color::Red)).unwrap()),
         ]);
 
-        let result = highlighter.apply_sequential("status 200 ok");
+        let result = highlighter.apply("status 200 ok");
         let readable = result.to_string().convert_escape_codes();
         assert_eq!(readable, "status [cyan] 200 [reset] ok");
     }
@@ -320,7 +320,7 @@ mod tests {
         let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(Style::new().fg(Color::Cyan)))]);
 
         let input = "\x1b[31mhello\x1b[0m 42";
-        let result = highlighter.apply_sequential(input);
+        let result = highlighter.apply(input);
         let readable = result.to_string().convert_escape_codes();
         // The 42 is still highlighted; ANSI codes are treated as opaque text
         assert!(readable.contains("[cyan]42[reset]"));

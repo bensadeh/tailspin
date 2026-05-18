@@ -52,7 +52,7 @@ impl Highlighter {
     /// Applies the configured highlights to the given input string.
     #[must_use]
     pub fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        self.inner.apply_sequential(input)
+        self.inner.apply(input)
     }
 }
 
