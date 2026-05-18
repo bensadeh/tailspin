@@ -13,10 +13,19 @@ use span::{Collector, Finder, Span};
 
 /// Per-call scratch buffers reused across `apply_sequential` invocations on
 /// the same thread. Pooling avoids the per-line allocations for the spans
-/// list, padded-ranges list, and collector internals.
+/// list, priorities list, padded-ranges list, and collector internals.
 struct Scratch {
     collector: Collector,
     all_spans: Vec<Span>,
+    /// Parallel to `all_spans`: `priorities[i]` is the priority of `all_spans[i]`,
+    /// taken directly from the finder's index in `Pipeline::finders`. Lower
+    /// numbers win conflicts in merge.
+    priorities: Vec<usize>,
+    /// Byte ranges of matches pushed via `Collector::push_padded`. A match in
+    /// this list renders with surrounding spaces (a leading and trailing space
+    /// inside the ANSI color) ONLY when merge preserves it as a single
+    /// `ResolvedSpan` whose endpoints match exactly. If a higher-priority
+    /// finder fragments the match, neither fragment gets padding.
     padded_ranges: Vec<Range<usize>>,
 }
 
@@ -25,6 +34,7 @@ impl Scratch {
         Self {
             collector: Collector::new(),
             all_spans: Vec::new(),
+            priorities: Vec::new(),
             padded_ranges: Vec::new(),
         }
     }
@@ -59,19 +69,24 @@ impl Pipeline {
     /// Apply all finders sequentially, merge, render.
     pub(crate) fn apply_sequential<'a>(&self, input: &'a str) -> Cow<'a, str> {
         SCRATCH.with_borrow_mut(|s| {
+            // Reset all scratch state up front. The collector is normally left
+            // empty by `drain_into` at the end of each finder's iteration, but
+            // a panic mid-call could leave it dirty for the next invocation.
             s.all_spans.clear();
+            s.priorities.clear();
             s.padded_ranges.clear();
+            s.collector.reset();
 
             for (priority, finder) in self.finders.iter().enumerate() {
-                #[allow(clippy::cast_possible_truncation)]
-                s.collector.reset(priority as u16);
                 finder.find_spans(input, &mut s.collector);
                 s.collector.drain_into(&mut s.all_spans, &mut s.padded_ranges);
+                s.priorities.resize(s.all_spans.len(), priority);
             }
+            debug_assert_eq!(s.priorities.len(), s.all_spans.len());
 
             s.padded_ranges.sort_unstable_by_key(|r| r.start);
 
-            let resolved = merge_spans(input.len(), &s.all_spans);
+            let resolved = merge_spans(input.len(), &s.all_spans, &s.priorities);
             render(input, &resolved, &s.padded_ranges)
         })
     }

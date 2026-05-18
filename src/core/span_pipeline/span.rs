@@ -6,23 +6,20 @@ use crate::style::Style;
 ///
 /// `start` and `end` are byte offsets into the original unstyled input.
 /// Invariant: `start < end`, offsets are valid UTF-8 boundaries.
+///
+/// Priority is not stored here — it is a property of the finder that produced
+/// the span, tracked by the pipeline alongside the span list.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Span {
     pub start: usize,
     pub end: usize,
     pub style: Style,
-    pub priority: u16,
 }
 
 #[cfg(test)]
 impl Span {
-    pub fn new(start: usize, end: usize, style: Style, priority: u16) -> Self {
-        Self {
-            start,
-            end,
-            style,
-            priority,
-        }
+    pub fn new(start: usize, end: usize, style: Style) -> Self {
+        Self { start, end, style }
     }
 }
 
@@ -31,7 +28,6 @@ impl Span {
 pub(crate) struct Collector {
     spans: Vec<Span>,
     padded_ranges: Vec<Range<usize>>,
-    priority: u16,
 }
 
 impl Collector {
@@ -39,7 +35,6 @@ impl Collector {
         Self {
             spans: Vec::new(),
             padded_ranges: Vec::new(),
-            priority: 0,
         }
     }
 
@@ -57,12 +52,7 @@ impl Collector {
             last.end = end;
             return;
         }
-        self.spans.push(Span {
-            start,
-            end,
-            style,
-            priority: self.priority,
-        });
+        self.spans.push(Span { start, end, style });
     }
 
     /// Push a span with padding. Render will insert a space before and after
@@ -78,10 +68,9 @@ impl Collector {
         self.spans
     }
 
-    pub fn reset(&mut self, priority: u16) {
+    pub fn reset(&mut self) {
         self.spans.clear();
         self.padded_ranges.clear();
-        self.priority = priority;
     }
 
     pub fn drain_into(&mut self, spans: &mut Vec<Span>, padded: &mut Vec<Range<usize>>) {
@@ -147,13 +136,14 @@ mod tests {
     }
 
     #[test]
-    fn sets_priority_from_collector() {
+    fn reset_clears_spans_and_padded() {
         let style = Style::new().fg(Color::Red);
-        let mut collector = Collector::new();
-        collector.reset(5);
-        collector.push(0, 3, style);
 
-        let spans = collector.into_spans();
-        assert_eq!(spans[0].priority, 5);
+        let mut collector = Collector::new();
+        collector.push_padded(0, 3, style);
+        collector.reset();
+        let (spans, padded) = collector.into_parts();
+        assert!(spans.is_empty());
+        assert!(padded.is_empty());
     }
 }

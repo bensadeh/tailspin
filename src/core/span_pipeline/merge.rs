@@ -12,22 +12,33 @@ pub(crate) struct ResolvedSpan {
 
 /// Merge overlapping spans into non-overlapping `ResolvedSpan`s.
 ///
-/// Lower `priority` number wins conflicts (earlier highlighters take precedence).
+/// `priorities[i]` is the priority of `spans[i]`; lower numbers win conflicts
+/// (earlier finders take precedence). The two slices must be the same length.
 /// Returns spans sorted by position with no gaps or overlaps.
-pub(crate) fn merge_spans(input_len: usize, spans: &[Span]) -> Vec<ResolvedSpan> {
+pub(crate) fn merge_spans(input_len: usize, spans: &[Span], priorities: &[usize]) -> Vec<ResolvedSpan> {
+    debug_assert_eq!(spans.len(), priorities.len());
+
     if spans.is_empty() {
         return Vec::new();
     }
 
-    // Phase 1: Fill a style-per-byte array, lower priority wins
+    // Phase 1: Fill a style-per-byte array, lower priority wins.
+    // Slot uses `u16` (not `usize`) to keep the byte-map dense — benchmarked
+    // a 5% regression with `(Style, usize)` slots on a busy line, since this
+    // is the hottest per-byte loop in the pipeline. `u16` gives 65k finder
+    // headroom; realistic configs have ~13. Not pooled across calls: also
+    // benchmarked, no measurable win.
     let mut style_map: Vec<Option<(Style, u16)>> = vec![None; input_len];
 
-    for span in spans {
+    for (span, &priority) in spans.iter().zip(priorities.iter()) {
+        debug_assert!(u16::try_from(priority).is_ok(), "finder count exceeds u16 slot range");
+        #[allow(clippy::cast_possible_truncation)]
+        let priority = priority as u16;
         for slot in &mut style_map[span.start..span.end] {
             match slot {
-                None => *slot = Some((span.style, span.priority)),
-                Some((_, existing_pri)) if span.priority < *existing_pri => {
-                    *slot = Some((span.style, span.priority));
+                None => *slot = Some((span.style, priority)),
+                Some((_, existing_pri)) if priority < *existing_pri => {
+                    *slot = Some((span.style, priority));
                 }
                 _ => {}
             }
@@ -71,7 +82,7 @@ mod tests {
 
     #[test]
     fn empty_spans() {
-        let result = merge_spans(10, &[]);
+        let result = merge_spans(10, &[], &[]);
         assert!(result.is_empty());
     }
 
@@ -81,31 +92,31 @@ mod tests {
 
     #[test]
     fn single_span() {
-        let spans = [Span::new(2, 5, red(), 0)];
-        let result = merge_spans(10, &spans);
+        let spans = [Span::new(2, 5, red())];
+        let result = merge_spans(10, &spans, &[0]);
         assert_eq!(result, vec![resolved(2, 5, red())]);
     }
 
     #[test]
     fn non_overlapping_spans() {
-        let spans = [Span::new(0, 3, red(), 0), Span::new(5, 8, blue(), 1)];
-        let result = merge_spans(10, &spans);
+        let spans = [Span::new(0, 3, red()), Span::new(5, 8, blue())];
+        let result = merge_spans(10, &spans, &[0, 1]);
         assert_eq!(result, vec![resolved(0, 3, red()), resolved(5, 8, blue())]);
     }
 
     #[test]
     fn overlapping_higher_priority_wins() {
         // Red (priority 0) overlaps with blue (priority 1) at bytes 3-5
-        let spans = [Span::new(0, 6, red(), 0), Span::new(3, 8, blue(), 1)];
-        let result = merge_spans(10, &spans);
+        let spans = [Span::new(0, 6, red()), Span::new(3, 8, blue())];
+        let result = merge_spans(10, &spans, &[0, 1]);
         assert_eq!(result, vec![resolved(0, 6, red()), resolved(6, 8, blue())]);
     }
 
     #[test]
     fn lower_priority_fills_gaps() {
         // Number (priority 0) at "42", quote (priority 1) wraps entire region
-        let spans = [Span::new(5, 7, red(), 0), Span::new(0, 10, yellow(), 1)];
-        let result = merge_spans(10, &spans);
+        let spans = [Span::new(5, 7, red()), Span::new(0, 10, yellow())];
+        let result = merge_spans(10, &spans, &[0, 1]);
         assert_eq!(
             result,
             vec![
@@ -118,8 +129,8 @@ mod tests {
 
     #[test]
     fn adjacent_different_styles() {
-        let spans = [Span::new(0, 3, red(), 0), Span::new(3, 6, blue(), 0)];
-        let result = merge_spans(6, &spans);
+        let spans = [Span::new(0, 3, red()), Span::new(3, 6, blue())];
+        let result = merge_spans(6, &spans, &[0, 0]);
         assert_eq!(result, vec![resolved(0, 3, red()), resolved(3, 6, blue())]);
     }
 }

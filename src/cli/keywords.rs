@@ -51,7 +51,7 @@ mod tests {
 
     fn kw(words: &[&str], style: Style) -> KeywordConfig {
         KeywordConfig {
-            words: words.iter().map(|s| s.to_string()).collect(),
+            words: words.iter().map(ToString::to_string).collect(),
             style,
         }
     }
