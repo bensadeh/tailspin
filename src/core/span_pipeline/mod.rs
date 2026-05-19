@@ -86,8 +86,8 @@ impl Pipeline {
 
             s.padded_ranges.sort_unstable_by_key(|r| r.start);
 
-            let resolved = merge_spans(input.len(), &s.all_spans, &s.priorities);
-            render(input, &resolved, &s.padded_ranges)
+            let resolved = merge_spans(input.len(), &s.all_spans, &s.priorities, &s.padded_ranges);
+            render(input, &resolved)
         })
     }
 }
