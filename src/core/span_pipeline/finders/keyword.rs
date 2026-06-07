@@ -81,25 +81,24 @@ mod tests {
     }
 
     #[test]
-    fn background_style_produces_padded_ranges() {
+    fn background_style_marks_span_padded() {
         let finder = KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap();
         let mut collector = Collector::new();
         finder.find_spans("level ERROR here", &mut collector);
 
-        let (spans, padded) = collector.into_parts();
+        let spans = collector.into_spans();
         assert_eq!(spans.len(), 1);
-        assert_eq!(padded.len(), 1);
-        assert_eq!(padded[0], spans[0].start..spans[0].end);
+        assert!(spans[0].padded);
     }
 
     #[test]
-    fn foreground_only_produces_no_padded_ranges() {
+    fn foreground_only_leaves_span_unpadded() {
         let finder = KeywordFinder::new(&["ERROR"], Style::new().fg(Color::Red)).unwrap();
         let mut collector = Collector::new();
         finder.find_spans("level ERROR here", &mut collector);
 
-        let (spans, padded) = collector.into_parts();
+        let spans = collector.into_spans();
         assert_eq!(spans.len(), 1);
-        assert!(padded.is_empty());
+        assert!(!spans[0].padded);
     }
 }

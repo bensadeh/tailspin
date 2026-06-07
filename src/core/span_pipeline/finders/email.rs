@@ -87,7 +87,7 @@ mod tests {
         let mut collector = Collector::new();
         finder.find_spans("contact user@example.com today", &mut collector);
 
-        let (spans, _) = collector.into_parts();
+        let spans = collector.into_spans();
         // local("user") + at("@") + domain("example") + dot(".") + domain("com")
         assert_eq!(spans.len(), 5);
         assert_eq!(&"contact user@example.com today"[spans[0].start..spans[0].end], "user");
@@ -107,7 +107,7 @@ mod tests {
         let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
 
-        let (spans, _) = collector.into_parts();
+        let spans = collector.into_spans();
         assert_eq!(&input[spans[0].start..spans[0].end], "first.last+tag");
         assert_eq!(&input[spans[1].start..spans[1].end], "@");
         // Domain parts: sub, ., domain, ., co, ., uk
@@ -121,7 +121,7 @@ mod tests {
         let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
 
-        let (spans, _) = collector.into_parts();
+        let spans = collector.into_spans();
         let texts: Vec<&str> = spans.iter().map(|s| &input[s.start..s.end]).collect();
         assert!(texts.contains(&"alice"));
         assert!(texts.contains(&"bob"));
@@ -142,7 +142,7 @@ mod tests {
         // a..com has consecutive dots — should not panic in any build mode
         finder.find_spans("user@a..com", &mut collector);
 
-        let (spans, _) = collector.into_parts();
+        let spans = collector.into_spans();
         // Should produce spans without panicking.
         // The consecutive dot is skipped rather than producing a zero-width span.
         assert!(spans.iter().all(|s| s.start < s.end));

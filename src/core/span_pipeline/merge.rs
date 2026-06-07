@@ -1,5 +1,3 @@
-use std::ops::Range;
-
 use crate::style::Style;
 
 use super::span::Span;
@@ -20,23 +18,14 @@ pub(crate) struct ResolvedSpan {
 
 /// Merge overlapping spans into non-overlapping `ResolvedSpan`s.
 ///
-/// `priorities[i]` is the priority of `spans[i]`; lower numbers win conflicts
-/// (earlier finders take precedence). The two slices must be the same length.
-///
-/// `padded_ranges` must be sorted by start. Any resolved fragment whose
-/// `(start, end)` exactly matches an entry in `padded_ranges` gets
-/// `padded = true`. Fragments that don't match exactly get `padded = false`
-/// — this is how a fragmented badge loses its surrounding spaces.
+/// Each span carries its own `priority` (lower numbers win conflicts, so
+/// earlier finders take precedence) and `padded` flag. Any resolved fragment
+/// whose `(start, end)` exactly matches a padded span gets `padded = true`;
+/// fragments that don't match exactly get `padded = false` — this is how a
+/// fragmented badge loses its surrounding spaces.
 ///
 /// Returns spans sorted by position with no gaps or overlaps.
-pub(crate) fn merge_spans(
-    input_len: usize,
-    spans: &[Span],
-    priorities: &[usize],
-    padded_ranges: &[Range<usize>],
-) -> Vec<ResolvedSpan> {
-    debug_assert_eq!(spans.len(), priorities.len());
-
+pub(crate) fn merge_spans(input_len: usize, spans: &[Span]) -> Vec<ResolvedSpan> {
     if spans.is_empty() {
         return Vec::new();
     }
@@ -49,23 +38,26 @@ pub(crate) fn merge_spans(
     // benchmarked, no measurable win.
     let mut style_map: Vec<Option<(Style, u16)>> = vec![None; input_len];
 
-    for (span, &priority) in spans.iter().zip(priorities.iter()) {
-        debug_assert!(u16::try_from(priority).is_ok(), "finder count exceeds u16 slot range");
-        #[allow(clippy::cast_possible_truncation)]
-        let priority = priority as u16;
+    for span in spans {
         for slot in &mut style_map[span.start..span.end] {
             match slot {
-                None => *slot = Some((span.style, priority)),
-                Some((_, existing_pri)) if priority < *existing_pri => {
-                    *slot = Some((span.style, priority));
+                None => *slot = Some((span.style, span.priority)),
+                Some((_, existing_pri)) if span.priority < *existing_pri => {
+                    *slot = Some((span.style, span.priority));
                 }
                 _ => {}
             }
         }
     }
 
+    // Padded spans, sorted by start, so phase 2 can slide through them linearly.
+    // Padding is rare (only background-styled keywords), so this is usually
+    // empty and allocates nothing.
+    let mut padded_ranges: Vec<(usize, usize)> = spans.iter().filter(|s| s.padded).map(|s| (s.start, s.end)).collect();
+    padded_ranges.sort_unstable_by_key(|&(start, _)| start);
+
     // Phase 2: Run-length encode into ResolvedSpans, setting `padded` for
-    // fragments whose endpoints exactly match a padded range. `pad_idx` slides
+    // fragments whose endpoints exactly match a padded span. `pad_idx` slides
     // forward as we emit; both lists are sorted by start, so the scan is linear.
     let mut result = Vec::new();
     let mut pad_idx = 0;
@@ -76,12 +68,11 @@ pub(crate) fn merge_spans(
             while i < input_len && style_map[i].is_some_and(|(s, _)| s == style) {
                 i += 1;
             }
-            while pad_idx < padded_ranges.len() && padded_ranges[pad_idx].end <= start {
+            while pad_idx < padded_ranges.len() && padded_ranges[pad_idx].1 <= start {
                 pad_idx += 1;
             }
-            let padded = pad_idx < padded_ranges.len()
-                && padded_ranges[pad_idx].start == start
-                && padded_ranges[pad_idx].end == i;
+            let padded =
+                pad_idx < padded_ranges.len() && padded_ranges[pad_idx].0 == start && padded_ranges[pad_idx].1 == i;
             result.push(ResolvedSpan {
                 start,
                 end: i,
@@ -97,7 +88,6 @@ pub(crate) fn merge_spans(
 }
 
 #[cfg(test)]
-#[allow(clippy::single_range_in_vec_init)]
 mod tests {
     use super::*;
     use crate::style::Color;
@@ -114,9 +104,19 @@ mod tests {
         Style::new().fg(Color::Yellow)
     }
 
+    fn padded_span(start: usize, end: usize, style: Style, priority: u16) -> Span {
+        Span {
+            start,
+            end,
+            style,
+            priority,
+            padded: true,
+        }
+    }
+
     #[test]
     fn empty_spans() {
-        let result = merge_spans(10, &[], &[], &[]);
+        let result = merge_spans(10, &[]);
         assert!(result.is_empty());
     }
 
@@ -140,31 +140,31 @@ mod tests {
 
     #[test]
     fn single_span() {
-        let spans = [Span::new(2, 5, red())];
-        let result = merge_spans(10, &spans, &[0], &[]);
+        let spans = [Span::new(2, 5, red(), 0)];
+        let result = merge_spans(10, &spans);
         assert_eq!(result, vec![resolved(2, 5, red())]);
     }
 
     #[test]
     fn non_overlapping_spans() {
-        let spans = [Span::new(0, 3, red()), Span::new(5, 8, blue())];
-        let result = merge_spans(10, &spans, &[0, 1], &[]);
+        let spans = [Span::new(0, 3, red(), 0), Span::new(5, 8, blue(), 1)];
+        let result = merge_spans(10, &spans);
         assert_eq!(result, vec![resolved(0, 3, red()), resolved(5, 8, blue())]);
     }
 
     #[test]
     fn overlapping_higher_priority_wins() {
         // Red (priority 0) overlaps with blue (priority 1) at bytes 3-5
-        let spans = [Span::new(0, 6, red()), Span::new(3, 8, blue())];
-        let result = merge_spans(10, &spans, &[0, 1], &[]);
+        let spans = [Span::new(0, 6, red(), 0), Span::new(3, 8, blue(), 1)];
+        let result = merge_spans(10, &spans);
         assert_eq!(result, vec![resolved(0, 6, red()), resolved(6, 8, blue())]);
     }
 
     #[test]
     fn lower_priority_fills_gaps() {
         // Number (priority 0) at "42", quote (priority 1) wraps entire region
-        let spans = [Span::new(5, 7, red()), Span::new(0, 10, yellow())];
-        let result = merge_spans(10, &spans, &[0, 1], &[]);
+        let spans = [Span::new(5, 7, red(), 0), Span::new(0, 10, yellow(), 1)];
+        let result = merge_spans(10, &spans);
         assert_eq!(
             result,
             vec![
@@ -177,25 +177,25 @@ mod tests {
 
     #[test]
     fn adjacent_different_styles() {
-        let spans = [Span::new(0, 3, red()), Span::new(3, 6, blue())];
-        let result = merge_spans(6, &spans, &[0, 0], &[]);
+        let spans = [Span::new(0, 3, red(), 0), Span::new(3, 6, blue(), 0)];
+        let result = merge_spans(6, &spans);
         assert_eq!(result, vec![resolved(0, 3, red()), resolved(3, 6, blue())]);
     }
 
     #[test]
     fn intact_padded_span_keeps_padded_flag() {
         // Single keyword-style match that survives merge as-is.
-        let spans = [Span::new(2, 7, red())];
-        let result = merge_spans(10, &spans, &[0], &[2..7]);
+        let spans = [padded_span(2, 7, red(), 0)];
+        let result = merge_spans(10, &spans);
         assert_eq!(result, vec![padded(2, 7, red())]);
     }
 
     #[test]
     fn fragmented_padded_span_loses_padded_flag() {
-        // Keyword span 2..7 (priority 1), overridden in 4..5 by a higher-priority
+        // Padded span 2..7 (priority 1), overridden in 4..5 by a higher-priority
         // finder (priority 0). Both fragments must have padded=false.
-        let spans = [Span::new(4, 5, blue()), Span::new(2, 7, red())];
-        let result = merge_spans(10, &spans, &[0, 1], &[2..7]);
+        let spans = [Span::new(4, 5, blue(), 0), padded_span(2, 7, red(), 1)];
+        let result = merge_spans(10, &spans);
         assert_eq!(
             result,
             vec![resolved(2, 4, red()), resolved(4, 5, blue()), resolved(5, 7, red()),]
@@ -205,8 +205,8 @@ mod tests {
     #[test]
     fn multiple_padded_ranges_in_order() {
         // Two badges far apart — both should survive padded.
-        let spans = [Span::new(0, 4, red()), Span::new(6, 10, blue())];
-        let result = merge_spans(10, &spans, &[0, 1], &[0..4, 6..10]);
+        let spans = [padded_span(0, 4, red(), 0), padded_span(6, 10, blue(), 1)];
+        let result = merge_spans(10, &spans);
         assert_eq!(result, vec![padded(0, 4, red()), padded(6, 10, blue())]);
     }
 }

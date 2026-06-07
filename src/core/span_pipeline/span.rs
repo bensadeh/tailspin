@@ -1,5 +1,3 @@
-use std::ops::Range;
-
 use crate::style::Style;
 
 /// A styled region within the original input text.
@@ -7,19 +5,32 @@ use crate::style::Style;
 /// `start` and `end` are byte offsets into the original unstyled input.
 /// Invariant: `start < end`, offsets are valid UTF-8 boundaries.
 ///
-/// Priority is not stored here — it is a property of the finder that produced
-/// the span, tracked by the pipeline alongside the span list.
+/// `priority` is the index of the finder that produced the span; lower numbers
+/// win conflicts in merge. It is `0` on a span freshly built by a `Collector`
+/// and stamped with the real value when the pipeline drains the collector (see
+/// [`Collector::drain_into`]).
+///
+/// `padded` asks render to surround the span text with a space on each side (a
+/// "badge"), but only if merge preserves the span intact.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct Span {
     pub start: usize,
     pub end: usize,
     pub style: Style,
+    pub priority: u16,
+    pub padded: bool,
 }
 
 #[cfg(test)]
 impl Span {
-    pub fn new(start: usize, end: usize, style: Style) -> Self {
-        Self { start, end, style }
+    pub fn new(start: usize, end: usize, style: Style, priority: u16) -> Self {
+        Self {
+            start,
+            end,
+            style,
+            priority,
+            padded: false,
+        }
     }
 }
 
@@ -27,40 +38,50 @@ impl Span {
 #[derive(Debug)]
 pub(crate) struct Collector {
     spans: Vec<Span>,
-    padded_ranges: Vec<Range<usize>>,
 }
 
 impl Collector {
     pub const fn new() -> Self {
-        Self {
-            spans: Vec::new(),
-            padded_ranges: Vec::new(),
-        }
+        Self { spans: Vec::new() }
     }
 
-    /// Push a span. If it is contiguous with the last span and has the same
-    /// style, extend the last span rather than pushing a new one.
+    /// Push a span. If it is contiguous with the last span and shares its style
+    /// and padding, extend the last span rather than pushing a new one.
     pub fn push(&mut self, start: usize, end: usize, style: Style) {
-        if start >= end {
-            return;
-        }
-
-        if let Some(last) = self.spans.last_mut()
-            && last.style == style
-            && last.end == start
-        {
-            last.end = end;
-            return;
-        }
-        self.spans.push(Span { start, end, style });
+        self.push_impl(start, end, style, false);
     }
 
     /// Push a span with padding. Render will insert a space before and after
     /// the span text, inside the ANSI color (creating a "badge" effect for
     /// keywords with background colors).
     pub fn push_padded(&mut self, start: usize, end: usize, style: Style) {
-        self.push(start, end, style);
-        self.padded_ranges.push(start..end);
+        self.push_impl(start, end, style, true);
+    }
+
+    fn push_impl(&mut self, start: usize, end: usize, style: Style, padded: bool) {
+        if start >= end {
+            return;
+        }
+
+        // Coalesce only into a span that shares both style and padding. A padded
+        // badge must not merge with an adjacent same-style plain span, because
+        // merge decides padding by whole-span extent — a merged span would
+        // either over- or under-pad.
+        if let Some(last) = self.spans.last_mut()
+            && last.style == style
+            && last.padded == padded
+            && last.end == start
+        {
+            last.end = end;
+            return;
+        }
+        self.spans.push(Span {
+            start,
+            end,
+            style,
+            priority: 0,
+            padded,
+        });
     }
 
     #[cfg(test)]
@@ -70,17 +91,15 @@ impl Collector {
 
     pub fn reset(&mut self) {
         self.spans.clear();
-        self.padded_ranges.clear();
     }
 
-    pub fn drain_into(&mut self, spans: &mut Vec<Span>, padded: &mut Vec<Range<usize>>) {
+    /// Append this collector's spans to `spans`, stamping each with `priority`
+    /// (the producing finder's index). Leaves the collector empty for reuse.
+    pub fn drain_into(&mut self, spans: &mut Vec<Span>, priority: u16) {
+        for span in &mut self.spans {
+            span.priority = priority;
+        }
         spans.append(&mut self.spans);
-        padded.append(&mut self.padded_ranges);
-    }
-
-    #[cfg(test)]
-    pub(crate) fn into_parts(self) -> (Vec<Span>, Vec<Range<usize>>) {
-        (self.spans, self.padded_ranges)
     }
 }
 
@@ -136,14 +155,36 @@ mod tests {
     }
 
     #[test]
-    fn reset_clears_spans_and_padded() {
+    fn reset_clears_spans() {
         let style = Style::new().fg(Color::Red);
 
         let mut collector = Collector::new();
         collector.push_padded(0, 3, style);
         collector.reset();
-        let (spans, padded) = collector.into_parts();
-        assert!(spans.is_empty());
-        assert!(padded.is_empty());
+        assert!(collector.into_spans().is_empty());
+    }
+
+    #[test]
+    fn push_padded_marks_span_padded() {
+        let style = Style::new().fg(Color::Red);
+        let mut collector = Collector::new();
+        collector.push_padded(0, 3, style);
+
+        let spans = collector.into_spans();
+        assert_eq!(spans.len(), 1);
+        assert!(spans[0].padded);
+    }
+
+    #[test]
+    fn does_not_coalesce_padded_with_plain() {
+        let style = Style::new().fg(Color::Red);
+        let mut collector = Collector::new();
+        collector.push(0, 1, style);
+        collector.push_padded(1, 2, style);
+
+        let spans = collector.into_spans();
+        assert_eq!(spans.len(), 2);
+        assert!(!spans[0].padded);
+        assert!(spans[1].padded);
     }
 }

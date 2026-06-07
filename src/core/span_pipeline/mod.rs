@@ -5,28 +5,18 @@ pub(crate) mod span;
 
 use std::borrow::Cow;
 use std::cell::RefCell;
-use std::ops::Range;
 
 use merge::merge_spans;
 use render::render;
 use span::{Collector, Finder, Span};
 
-/// Per-call scratch buffers reused across `apply` invocations on
-/// the same thread. Pooling avoids the per-line allocations for the spans
-/// list, priorities list, padded-ranges list, and collector internals.
+/// Per-call scratch buffers reused across `apply` invocations on the same
+/// thread. Pooling avoids the per-line allocations for the spans list and the
+/// collector internals. Each span carries its own priority and padding flag,
+/// so there are no parallel side-lists to keep in sync.
 struct Scratch {
     collector: Collector,
     all_spans: Vec<Span>,
-    /// Parallel to `all_spans`: `priorities[i]` is the priority of `all_spans[i]`,
-    /// taken directly from the finder's index in `Pipeline::finders`. Lower
-    /// numbers win conflicts in merge.
-    priorities: Vec<usize>,
-    /// Byte ranges of matches pushed via `Collector::push_padded`. A match in
-    /// this list renders with surrounding spaces (a leading and trailing space
-    /// inside the ANSI color) ONLY when merge preserves it as a single
-    /// `ResolvedSpan` whose endpoints match exactly. If a higher-priority
-    /// finder fragments the match, neither fragment gets padding.
-    padded_ranges: Vec<Range<usize>>,
 }
 
 impl Scratch {
@@ -34,8 +24,6 @@ impl Scratch {
         Self {
             collector: Collector::new(),
             all_spans: Vec::new(),
-            priorities: Vec::new(),
-            padded_ranges: Vec::new(),
         }
     }
 }
@@ -73,20 +61,23 @@ impl Pipeline {
             // empty by `drain_into` at the end of each finder's iteration, but
             // a panic mid-call could leave it dirty for the next invocation.
             s.all_spans.clear();
-            s.priorities.clear();
-            s.padded_ranges.clear();
             s.collector.reset();
 
             for (priority, finder) in self.finders.iter().enumerate() {
+                // Priority is the finder's index; it lives in a `u16` slot in
+                // merge's byte-map, so confine the one narrowing cast here.
+                debug_assert!(
+                    u16::try_from(priority).is_ok(),
+                    "finder count exceeds u16 priority range"
+                );
+                #[allow(clippy::cast_possible_truncation)]
+                let priority = priority as u16;
+
                 finder.find_spans(input, &mut s.collector);
-                s.collector.drain_into(&mut s.all_spans, &mut s.padded_ranges);
-                s.priorities.resize(s.all_spans.len(), priority);
+                s.collector.drain_into(&mut s.all_spans, priority);
             }
-            debug_assert_eq!(s.priorities.len(), s.all_spans.len());
 
-            s.padded_ranges.sort_unstable_by_key(|r| r.start);
-
-            let resolved = merge_spans(input.len(), &s.all_spans, &s.priorities, &s.padded_ranges);
+            let resolved = merge_spans(input.len(), &s.all_spans);
             render(input, &resolved)
         })
     }
@@ -191,7 +182,7 @@ mod tests {
     #[test]
     fn multiple_keyword_groups_padding_out_of_position_order() {
         // Finder 0 matches "ERROR" (later in string), finder 1 matches "WARN" (earlier).
-        // padded_ranges are collected in finder order, not position order.
+        // Padded spans reach merge in finder order, not position order.
         // Both must still get badge padding.
         let highlighter = Pipeline::new(vec![
             Box::new(KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap()),
@@ -311,6 +302,21 @@ mod tests {
         let result = highlighter.apply("status 200 ok");
         let readable = result.to_string().convert_escape_codes();
         assert_eq!(readable, "status [cyan] 200 [reset] ok");
+    }
+
+    #[test]
+    fn adjacent_background_keywords_do_not_merge_into_one_badge() {
+        // "INFOWARN" has no separator, so the word-boundary guard rejects both
+        // matches — real keyword finders can't produce byte-adjacent same-style
+        // badges, which is the only thing the collector's padded-coalesce path
+        // would merge. Nothing matches, so the input passes through untouched.
+        let highlighter = Pipeline::new(vec![Box::new(
+            KeywordFinder::new(&["INFO", "WARN"], Style::new().on(Color::Red)).unwrap(),
+        )]);
+
+        let result = highlighter.apply("INFOWARN");
+        assert!(matches!(result, Cow::Borrowed(_)));
+        assert_eq!(result.to_string().convert_escape_codes(), "INFOWARN");
     }
 
     #[test]
