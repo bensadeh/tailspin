@@ -2,32 +2,25 @@ use memchr::memchr;
 use regex::{Regex, RegexBuilder};
 use std::net::Ipv6Addr;
 
-use crate::style::Style;
+use crate::core::config::IpV6Config;
 
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
 pub(crate) struct IpV6Finder {
     regex: Regex,
-    number: Style,
-    letter: Style,
-    separator: Style,
+    config: IpV6Config,
 }
 
 impl IpV6Finder {
-    pub fn new(number: Style, letter: Style, separator: Style) -> Self {
+    pub fn new(config: IpV6Config) -> Self {
         let pattern = r"([0-9a-fA-F:.]{3,})(?:(/)(\d{1,3}))?";
         let regex = RegexBuilder::new(pattern)
             .unicode(false)
             .build()
             .expect("hardcoded IPv6 regex must compile");
 
-        Self {
-            regex,
-            number,
-            letter,
-            separator,
-        }
+        Self { regex, config }
     }
 }
 
@@ -37,6 +30,12 @@ impl Finder for IpV6Finder {
             return;
         }
 
+        let IpV6Config {
+            number,
+            letter,
+            separator,
+        } = self.config;
+
         for caps in self.regex.captures_iter(input) {
             if caps[1].parse::<Ipv6Addr>().is_ok() {
                 let addr_match = caps.get(1).unwrap();
@@ -45,17 +44,17 @@ impl Finder for IpV6Finder {
 
                 for (i, c) in addr.char_indices() {
                     let style = match c {
-                        '0'..='9' => self.number,
-                        'a'..='f' | 'A'..='F' => self.letter,
-                        ':' | '.' => self.separator,
+                        '0'..='9' => number,
+                        'a'..='f' | 'A'..='F' => letter,
+                        ':' | '.' => separator,
                         _ => continue,
                     };
                     collector.push(offset + i, offset + i + c.len_utf8(), style);
                 }
 
                 if let (Some(slash), Some(netmask)) = (caps.get(2), caps.get(3)) {
-                    collector.push(slash.start(), slash.end(), self.separator);
-                    collector.push(netmask.start(), netmask.end(), self.number);
+                    collector.push(slash.start(), slash.end(), separator);
+                    collector.push(netmask.start(), netmask.end(), number);
                 }
             }
         }
@@ -65,14 +64,14 @@ impl Finder for IpV6Finder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
+    use crate::style::{Color, Style};
 
     fn make_finder() -> IpV6Finder {
-        IpV6Finder::new(
-            Style::new().fg(Color::Blue),
-            Style::new().fg(Color::Yellow),
-            Style::new().fg(Color::Red),
-        )
+        IpV6Finder::new(IpV6Config {
+            number: Style::new().fg(Color::Blue),
+            letter: Style::new().fg(Color::Yellow),
+            separator: Style::new().fg(Color::Red),
+        })
     }
 
     fn span_count(input: &str) -> usize {

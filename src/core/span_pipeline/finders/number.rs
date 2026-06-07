@@ -1,18 +1,18 @@
 use memchr::{memchr, memchr3};
 use regex::{Regex, RegexBuilder};
 
-use crate::style::Style;
+use crate::core::config::NumberConfig;
 
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
 pub(crate) struct NumberFinder {
     regex: Regex,
-    style: Style,
+    config: NumberConfig,
 }
 
 impl NumberFinder {
-    pub fn new(style: Style) -> Self {
+    pub fn new(config: NumberConfig) -> Self {
         let pattern = r"(?x)
             \b          # start of number
             \d+         # integer part
@@ -25,7 +25,7 @@ impl NumberFinder {
             .build()
             .expect("hardcoded number regex must compile");
 
-        Self { regex, style }
+        Self { regex, config }
     }
 }
 
@@ -40,8 +40,10 @@ impl Finder for NumberFinder {
             return;
         }
 
+        let NumberConfig { style } = self.config;
+
         for m in self.regex.find_iter(input) {
-            collector.push(m.start(), m.end(), self.style);
+            collector.push(m.start(), m.end(), style);
         }
     }
 }
@@ -49,11 +51,13 @@ impl Finder for NumberFinder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
+    use crate::style::{Color, Style};
 
     #[test]
     fn finds_numbers() {
-        let finder = NumberFinder::new(Style::new().fg(Color::Cyan));
+        let finder = NumberFinder::new(NumberConfig {
+            style: Style::new().fg(Color::Cyan),
+        });
         let mut collector = Collector::new();
         finder.find_spans("hello 42 world 3.14", &mut collector);
 
@@ -65,7 +69,9 @@ mod tests {
 
     #[test]
     fn no_match_produces_no_spans() {
-        let finder = NumberFinder::new(Style::new().fg(Color::Cyan));
+        let finder = NumberFinder::new(NumberConfig {
+            style: Style::new().fg(Color::Cyan),
+        });
         let mut collector = Collector::new();
         finder.find_spans("no numbers here", &mut collector);
         assert!(collector.into_spans().is_empty());

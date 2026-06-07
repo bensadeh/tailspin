@@ -1,7 +1,7 @@
 use memchr::memchr;
 use regex::{Regex, RegexBuilder};
 
-use crate::style::Style;
+use crate::core::config::JvmStackTraceConfig;
 
 use super::super::span::{Collector, Finder};
 
@@ -12,25 +12,11 @@ pub(crate) struct JvmStackFinder {
     frame_regex: Regex,
     file_line_regex: Regex,
     more_regex: Regex,
-    caused_by: Style,
-    package: Style,
-    exception: Style,
-    frame: Style,
-    file: Style,
-    unknown_source: Style,
-    line_number: Style,
+    config: JvmStackTraceConfig,
 }
 
 impl JvmStackFinder {
-    pub fn new(
-        caused_by: Style,
-        package: Style,
-        exception: Style,
-        frame: Style,
-        file: Style,
-        unknown_source: Style,
-        line_number: Style,
-    ) -> Self {
+    pub fn new(config: JvmStackTraceConfig) -> Self {
         let marker_pattern = r"(?m)^\s*(?P<marker>(?:Caused by|Suppressed):)";
         let marker_regex = RegexBuilder::new(marker_pattern)
             .unicode(false)
@@ -91,13 +77,7 @@ impl JvmStackFinder {
             frame_regex,
             file_line_regex,
             more_regex,
-            caused_by,
-            package,
-            exception,
-            frame,
-            file,
-            unknown_source,
-            line_number,
+            config,
         }
     }
 }
@@ -108,9 +88,19 @@ impl Finder for JvmStackFinder {
             return;
         }
 
+        let JvmStackTraceConfig {
+            caused_by,
+            package,
+            exception,
+            frame,
+            file,
+            unknown_source,
+            line_number,
+        } = self.config;
+
         for caps in self.marker_regex.captures_iter(input) {
             let marker = caps.name("marker").unwrap();
-            collector.push(marker.start(), marker.end(), self.caused_by);
+            collector.push(marker.start(), marker.end(), caused_by);
         }
 
         for caps in self.header_regex.captures_iter(input) {
@@ -121,34 +111,34 @@ impl Finder for JvmStackFinder {
             if !cls_text.ends_with("Exception") && !cls_text.ends_with("Error") {
                 continue;
             }
-            collector.push(pkg.start(), pkg.end(), self.package);
-            collector.push(cls.start(), cls.end(), self.exception);
-            collector.push(colon.start(), colon.end(), self.frame);
+            collector.push(pkg.start(), pkg.end(), package);
+            collector.push(cls.start(), cls.end(), exception);
+            collector.push(colon.start(), colon.end(), frame);
         }
 
         for caps in self.frame_regex.captures_iter(input) {
             let at = caps.name("at").unwrap();
             let open = caps.name("open").unwrap();
             let close = caps.name("close").unwrap();
-            collector.push(at.start(), open.end(), self.frame);
-            collector.push(close.start(), close.end(), self.frame);
+            collector.push(at.start(), open.end(), frame);
+            collector.push(close.start(), close.end(), frame);
 
             let contents = caps.name("contents").unwrap();
             let cstart = contents.start();
             let cstr = &input[cstart..contents.end()];
 
             if cstr == "Unknown Source" || cstr == "<generated>" || cstr == "Native Method" {
-                collector.push(cstart, contents.end(), self.unknown_source);
+                collector.push(cstart, contents.end(), unknown_source);
             } else if let Some(inner) = self.file_line_regex.captures(cstr) {
-                let file = inner.name("file").unwrap();
-                collector.push(cstart + file.start(), cstart + file.end(), self.file);
+                let file_match = inner.name("file").unwrap();
+                collector.push(cstart + file_match.start(), cstart + file_match.end(), file);
                 if let (Some(c), Some(ln)) = (inner.name("colon"), inner.name("line")) {
-                    collector.push(cstart + c.start(), cstart + c.end(), self.frame);
-                    collector.push(cstart + ln.start(), cstart + ln.end(), self.line_number);
+                    collector.push(cstart + c.start(), cstart + c.end(), frame);
+                    collector.push(cstart + ln.start(), cstart + ln.end(), line_number);
                 }
                 if let (Some(c), Some(col)) = (inner.name("col_colon"), inner.name("col")) {
-                    collector.push(cstart + c.start(), cstart + c.end(), self.frame);
-                    collector.push(cstart + col.start(), cstart + col.end(), self.line_number);
+                    collector.push(cstart + c.start(), cstart + c.end(), frame);
+                    collector.push(cstart + col.start(), cstart + col.end(), line_number);
                 }
             }
         }
@@ -157,9 +147,9 @@ impl Finder for JvmStackFinder {
             let ellipsis = caps.name("ellipsis").unwrap();
             let count = caps.name("count").unwrap();
             let more = caps.name("more").unwrap();
-            collector.push(ellipsis.start(), ellipsis.end(), self.frame);
-            collector.push(count.start(), count.end(), self.line_number);
-            collector.push(more.start(), more.end(), self.frame);
+            collector.push(ellipsis.start(), ellipsis.end(), frame);
+            collector.push(count.start(), count.end(), line_number);
+            collector.push(more.start(), more.end(), frame);
         }
     }
 }
@@ -167,18 +157,18 @@ impl Finder for JvmStackFinder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
+    use crate::style::{Color, Style};
 
     fn make_finder() -> JvmStackFinder {
-        JvmStackFinder::new(
-            Style::new().bold(),
-            Style::new().fg(Color::Red).faint(),
-            Style::new().fg(Color::Red),
-            Style::new().fg(Color::Red).faint(),
-            Style::new().fg(Color::Yellow),
-            Style::new().fg(Color::Yellow).faint(),
-            Style::new().fg(Color::Cyan),
-        )
+        JvmStackFinder::new(JvmStackTraceConfig {
+            caused_by: Style::new().bold(),
+            package: Style::new().fg(Color::Red).faint(),
+            exception: Style::new().fg(Color::Red),
+            frame: Style::new().fg(Color::Red).faint(),
+            file: Style::new().fg(Color::Yellow),
+            unknown_source: Style::new().fg(Color::Yellow).faint(),
+            line_number: Style::new().fg(Color::Cyan),
+        })
     }
 
     fn spans(input: &str) -> Vec<(usize, usize, Style)> {
@@ -203,9 +193,9 @@ mod tests {
         assert_eq!(texts, ["no.finntech.statistics.email.", "EmailNotSentException", ":"]);
 
         let f = make_finder();
-        assert_eq!(result[0].2, f.package);
-        assert_eq!(result[1].2, f.exception);
-        assert_eq!(result[2].2, f.frame);
+        assert_eq!(result[0].2, f.config.package);
+        assert_eq!(result[1].2, f.config.exception);
+        assert_eq!(result[2].2, f.config.frame);
     }
 
     #[test]
@@ -213,7 +203,11 @@ mod tests {
         let input = "        at no.finntech.statistics.email.EmailService.sendBrokerEmail(EmailService.kt:171)";
         let f = make_finder();
         let result = spans(input);
-        let header_styles: Vec<&Style> = result.iter().map(|s| &s.2).filter(|s| **s == f.exception).collect();
+        let header_styles: Vec<&Style> = result
+            .iter()
+            .map(|s| &s.2)
+            .filter(|s| **s == f.config.exception)
+            .collect();
         assert!(
             header_styles.is_empty(),
             "exception style must not appear in a frame line"
@@ -234,12 +228,12 @@ mod tests {
         assert!(texts.contains(&")"));
 
         let line_span = result.iter().find(|s| span_text(input, s) == "171").unwrap();
-        assert_eq!(line_span.2, f.line_number);
+        assert_eq!(line_span.2, f.config.line_number);
         let file_span = result
             .iter()
             .find(|s| span_text(input, s) == "EmailService.kt")
             .unwrap();
-        assert_eq!(file_span.2, f.file);
+        assert_eq!(file_span.2, f.config.file);
     }
 
     #[test]
@@ -268,7 +262,7 @@ mod tests {
         let f = make_finder();
         let result = spans(input);
         let unknown = result.iter().find(|s| span_text(input, s) == "Unknown Source").unwrap();
-        assert_eq!(unknown.2, f.unknown_source);
+        assert_eq!(unknown.2, f.config.unknown_source);
     }
 
     #[test]
@@ -280,7 +274,7 @@ mod tests {
             .iter()
             .find(|s| span_text(input, s) == "Native Method")
             .expect("Native Method contents should be styled");
-        assert_eq!(native.2, f.unknown_source);
+        assert_eq!(native.2, f.config.unknown_source);
     }
 
     #[test]
@@ -315,10 +309,10 @@ mod tests {
             .iter()
             .find(|s| span_text(input, s) == "EventLoop.common.kt")
             .expect("multi-dot file name should be highlighted");
-        assert_eq!(file_span.2, f.file);
+        assert_eq!(file_span.2, f.config.file);
 
         let line_span = result.iter().find(|s| span_text(input, s) == "263").unwrap();
-        assert_eq!(line_span.2, f.line_number);
+        assert_eq!(line_span.2, f.config.line_number);
     }
 
     #[test]
@@ -342,7 +336,7 @@ mod tests {
 
         let f = make_finder();
         let marker = result.iter().find(|s| span_text(input, s) == "Caused by:").unwrap();
-        assert_eq!(marker.2, f.caused_by);
+        assert_eq!(marker.2, f.config.caused_by);
     }
 
     #[test]
@@ -399,7 +393,7 @@ mod tests {
             .iter()
             .find(|s| span_text(input, s) == "<generated>")
             .expect("<generated> contents should be styled");
-        assert_eq!(generated.2, f.unknown_source);
+        assert_eq!(generated.2, f.config.unknown_source);
     }
 
     #[test]
@@ -485,7 +479,7 @@ mod tests {
             .iter()
             .find(|s| span_text(input, s) == "Suppressed:")
             .expect("Suppressed marker should be styled");
-        assert_eq!(marker.2, f.caused_by);
+        assert_eq!(marker.2, f.config.caused_by);
     }
 
     #[test]
@@ -499,9 +493,9 @@ mod tests {
         assert!(texts.contains(&"more"));
 
         let count = result.iter().find(|s| span_text(input, s) == "42").unwrap();
-        assert_eq!(count.2, f.line_number);
+        assert_eq!(count.2, f.config.line_number);
         let ellipsis = result.iter().find(|s| span_text(input, s) == "...").unwrap();
-        assert_eq!(ellipsis.2, f.frame);
+        assert_eq!(ellipsis.2, f.config.frame);
     }
 
     #[test]
@@ -524,6 +518,6 @@ mod tests {
         assert!(texts.contains(&"13"));
 
         let col = result.iter().find(|s| span_text(input, s) == "13").unwrap();
-        assert_eq!(col.2, f.line_number);
+        assert_eq!(col.2, f.config.line_number);
     }
 }

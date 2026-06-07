@@ -86,6 +86,7 @@ impl Pipeline {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::core::config::{NumberConfig, QuoteConfig};
     use crate::core::tests::escape_code_converter::ConvertEscapeCodes;
     use crate::style::{Color, Style};
     use finders::keyword::KeywordFinder;
@@ -95,7 +96,9 @@ mod tests {
 
     #[test]
     fn end_to_end_number_highlighter() {
-        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(Style::new().fg(Color::Cyan)))]);
+        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(NumberConfig {
+            style: Style::new().fg(Color::Cyan),
+        }))]);
 
         let result = highlighter.apply("hello 42 world");
         assert_eq!(result.to_string().convert_escape_codes(), "hello [cyan]42[reset] world");
@@ -103,7 +106,9 @@ mod tests {
 
     #[test]
     fn no_match_returns_borrowed() {
-        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(Style::new().fg(Color::Cyan)))]);
+        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(NumberConfig {
+            style: Style::new().fg(Color::Cyan),
+        }))]);
 
         let result = highlighter.apply("no numbers here");
         assert!(matches!(result, Cow::Borrowed(_)));
@@ -113,8 +118,13 @@ mod tests {
     fn number_plus_quote_priority() {
         // Number (priority 0) should win inside quoted region (priority 1)
         let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(Style::new().fg(Color::Cyan))),
-            Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
+            Box::new(NumberFinder::new(NumberConfig {
+                style: Style::new().fg(Color::Cyan),
+            })),
+            Box::new(QuoteFinder::new(QuoteConfig {
+                quote_token: b'"',
+                style: Style::new().fg(Color::Yellow),
+            })),
         ]);
 
         let result = highlighter.apply(r#"count is "value 42 here" end"#);
@@ -130,8 +140,13 @@ mod tests {
     #[test]
     fn multiple_numbers_inside_quotes() {
         let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(Style::new().fg(Color::Cyan))),
-            Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
+            Box::new(NumberFinder::new(NumberConfig {
+                style: Style::new().fg(Color::Cyan),
+            })),
+            Box::new(QuoteFinder::new(QuoteConfig {
+                quote_token: b'"',
+                style: Style::new().fg(Color::Yellow),
+            })),
         ]);
 
         let result = highlighter.apply(r#""port 8080 and 443""#);
@@ -145,8 +160,13 @@ mod tests {
     #[test]
     fn no_quotes_only_numbers() {
         let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(Style::new().fg(Color::Cyan))),
-            Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
+            Box::new(NumberFinder::new(NumberConfig {
+                style: Style::new().fg(Color::Cyan),
+            })),
+            Box::new(QuoteFinder::new(QuoteConfig {
+                quote_token: b'"',
+                style: Style::new().fg(Color::Yellow),
+            })),
         ]);
 
         let result = highlighter.apply("status 200 ok");
@@ -214,9 +234,14 @@ mod tests {
     #[test]
     fn empty_input_returns_borrowed() {
         let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(Style::new().fg(Color::Cyan))),
+            Box::new(NumberFinder::new(NumberConfig {
+                style: Style::new().fg(Color::Cyan),
+            })),
             Box::new(KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap()),
-            Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
+            Box::new(QuoteFinder::new(QuoteConfig {
+                quote_token: b'"',
+                style: Style::new().fg(Color::Yellow),
+            })),
         ]);
 
         let result = highlighter.apply("");
@@ -228,9 +253,14 @@ mod tests {
     fn three_finders_overlapping_same_region() {
         // Number (priority 0), keyword (priority 1), quote (priority 2) all cover "200"
         let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(Style::new().fg(Color::Cyan))),
+            Box::new(NumberFinder::new(NumberConfig {
+                style: Style::new().fg(Color::Cyan),
+            })),
             Box::new(KeywordFinder::new(&["200"], Style::new().fg(Color::Green)).unwrap()),
-            Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
+            Box::new(QuoteFinder::new(QuoteConfig {
+                quote_token: b'"',
+                style: Style::new().fg(Color::Yellow),
+            })),
         ]);
 
         // "200" is inside quotes, matched by all three finders — number (priority 0) wins
@@ -244,7 +274,9 @@ mod tests {
 
     #[test]
     fn multibyte_utf8_with_numbers() {
-        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(Style::new().fg(Color::Cyan)))]);
+        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(NumberConfig {
+            style: Style::new().fg(Color::Cyan),
+        }))]);
 
         let result = highlighter.apply("café 42 résumé");
         assert_eq!(result.to_string().convert_escape_codes(), "café [cyan]42[reset] résumé");
@@ -253,8 +285,13 @@ mod tests {
     #[test]
     fn multibyte_utf8_with_quotes() {
         let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(Style::new().fg(Color::Cyan))),
-            Box::new(QuoteFinder::new(b'"', Style::new().fg(Color::Yellow))),
+            Box::new(NumberFinder::new(NumberConfig {
+                style: Style::new().fg(Color::Cyan),
+            })),
+            Box::new(QuoteFinder::new(QuoteConfig {
+                quote_token: b'"',
+                style: Style::new().fg(Color::Yellow),
+            })),
         ]);
 
         let result = highlighter.apply(r#"日本語 "hello 42" 世界"#);
@@ -295,7 +332,9 @@ mod tests {
         // Number (priority 0) covers the exact same range as a padded keyword (priority 1).
         // The number style wins but the padded range still matches exactly — padding applies.
         let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(Style::new().fg(Color::Cyan))),
+            Box::new(NumberFinder::new(NumberConfig {
+                style: Style::new().fg(Color::Cyan),
+            })),
             Box::new(KeywordFinder::new(&["200"], Style::new().on(Color::Red)).unwrap()),
         ]);
 
@@ -323,7 +362,9 @@ mod tests {
     fn ansi_input_passes_through() {
         // Pre-styled input: finders won't match inside ANSI codes,
         // but the pipeline should not panic or corrupt output
-        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(Style::new().fg(Color::Cyan)))]);
+        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(NumberConfig {
+            style: Style::new().fg(Color::Cyan),
+        }))]);
 
         let input = "\x1b[31mhello\x1b[0m 42";
         let result = highlighter.apply(input);

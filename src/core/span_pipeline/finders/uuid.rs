@@ -1,32 +1,25 @@
 use memchr::memchr;
 use regex::{Regex, RegexBuilder};
 
-use crate::style::Style;
+use crate::core::config::UuidConfig;
 
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
 pub(crate) struct UuidFinder {
     regex: Regex,
-    number: Style,
-    letter: Style,
-    separator: Style,
+    config: UuidConfig,
 }
 
 impl UuidFinder {
-    pub fn new(number: Style, letter: Style, separator: Style) -> Self {
+    pub fn new(config: UuidConfig) -> Self {
         let pattern = r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b";
         let regex = RegexBuilder::new(pattern)
             .unicode(false)
             .build()
             .expect("hardcoded UUID regex must compile");
 
-        Self {
-            regex,
-            number,
-            letter,
-            separator,
-        }
+        Self { regex, config }
     }
 }
 
@@ -47,13 +40,19 @@ impl Finder for UuidFinder {
             return;
         }
 
+        let UuidConfig {
+            number,
+            letter,
+            separator,
+        } = self.config;
+
         for m in self.regex.find_iter(input) {
             let matched = &input[m.start()..m.end()];
             for (i, c) in matched.char_indices() {
                 let style = match c {
-                    '0'..='9' => self.number,
-                    'a'..='f' | 'A'..='F' => self.letter,
-                    '-' => self.separator,
+                    '0'..='9' => number,
+                    'a'..='f' | 'A'..='F' => letter,
+                    '-' => separator,
                     _ => continue,
                 };
                 collector.push(m.start() + i, m.start() + i + c.len_utf8(), style);
@@ -65,15 +64,15 @@ impl Finder for UuidFinder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
+    use crate::style::{Color, Style};
 
     #[test]
     fn finds_uuid_with_coalesced_spans() {
-        let finder = UuidFinder::new(
-            Style::new().fg(Color::Blue),
-            Style::new().fg(Color::Yellow),
-            Style::new().fg(Color::Red),
-        );
+        let finder = UuidFinder::new(UuidConfig {
+            number: Style::new().fg(Color::Blue),
+            letter: Style::new().fg(Color::Yellow),
+            separator: Style::new().fg(Color::Red),
+        });
         let input = "id=550e8400-e29b-41d4-a716-446655440000 done";
         let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
@@ -93,11 +92,11 @@ mod tests {
 
     #[test]
     fn no_match_without_enough_dashes() {
-        let finder = UuidFinder::new(
-            Style::new().fg(Color::Blue),
-            Style::new().fg(Color::Yellow),
-            Style::new().fg(Color::Red),
-        );
+        let finder = UuidFinder::new(UuidConfig {
+            number: Style::new().fg(Color::Blue),
+            letter: Style::new().fg(Color::Yellow),
+            separator: Style::new().fg(Color::Red),
+        });
         let mut collector = Collector::new();
         finder.find_spans("no dashes here at all", &mut collector);
         assert!(collector.into_spans().is_empty());

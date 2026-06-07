@@ -1,19 +1,18 @@
 use memchr::memchr2;
 use regex::{Regex, RegexBuilder};
 
-use crate::style::Style;
+use crate::core::config::DateTimeConfig;
 
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
 pub(crate) struct DateDashFinder {
     regex: Regex,
-    date: Style,
-    separator: Style,
+    config: DateTimeConfig,
 }
 
 impl DateDashFinder {
-    pub fn new(date: Style, separator: Style) -> Self {
+    pub fn new(config: DateTimeConfig) -> Self {
         // Both branches are exactly 10 bytes (4+1+2+1+2), so we can use
         // find_iter and compute component offsets arithmetically.
         let pattern = r"(?x)
@@ -29,7 +28,7 @@ impl DateDashFinder {
             .build()
             .expect("hardcoded date-dash regex must compile");
 
-        Self { regex, date, separator }
+        Self { regex, config }
     }
 }
 
@@ -38,6 +37,8 @@ impl Finder for DateDashFinder {
         if memchr2(b'-', b'/', input.as_bytes()).is_none() {
             return;
         }
+
+        let DateTimeConfig { date, separator, .. } = self.config;
 
         for m in self.regex.find_iter(input) {
             let s = m.start();
@@ -48,18 +49,18 @@ impl Finder for DateDashFinder {
             // or position 2 is a separator (Branch B: MM-DD-YYYY).
             if bytes[4] == b'-' || bytes[4] == b'/' {
                 // Branch A: YYYY-MM-DD
-                collector.push(s, s + 4, self.date);
-                collector.push(s + 4, s + 5, self.separator);
-                collector.push(s + 5, s + 7, self.date);
-                collector.push(s + 7, s + 8, self.separator);
-                collector.push(s + 8, s + 10, self.date);
+                collector.push(s, s + 4, date);
+                collector.push(s + 4, s + 5, separator);
+                collector.push(s + 5, s + 7, date);
+                collector.push(s + 7, s + 8, separator);
+                collector.push(s + 8, s + 10, date);
             } else {
                 // Branch B: MM-DD-YYYY
-                collector.push(s, s + 2, self.date);
-                collector.push(s + 2, s + 3, self.separator);
-                collector.push(s + 3, s + 5, self.date);
-                collector.push(s + 5, s + 6, self.separator);
-                collector.push(s + 6, s + 10, self.date);
+                collector.push(s, s + 2, date);
+                collector.push(s + 2, s + 3, separator);
+                collector.push(s + 3, s + 5, date);
+                collector.push(s + 5, s + 6, separator);
+                collector.push(s + 6, s + 10, date);
             }
         }
     }
@@ -68,10 +69,14 @@ impl Finder for DateDashFinder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
+    use crate::style::{Color, Style};
 
     fn make_finder() -> DateDashFinder {
-        DateDashFinder::new(Style::new().fg(Color::Magenta), Style::new().fg(Color::Blue))
+        DateDashFinder::new(DateTimeConfig {
+            date: Style::new().fg(Color::Magenta),
+            separator: Style::new().fg(Color::Blue),
+            ..Default::default()
+        })
     }
 
     fn span_texts<'a>(input: &'a str, finder: &DateDashFinder) -> Vec<&'a str> {

@@ -1,36 +1,17 @@
 use serde::Deserialize;
 
-use crate::style::Style;
+use crate::core::config::JsonConfig;
 
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
 pub(crate) struct JsonFinder {
-    key: Style,
-    quote_token: Style,
-    curly_bracket: Style,
-    square_bracket: Style,
-    comma: Style,
-    colon: Style,
+    config: JsonConfig,
 }
 
 impl JsonFinder {
-    pub fn new(
-        key: Style,
-        quote_token: Style,
-        curly_bracket: Style,
-        square_bracket: Style,
-        comma: Style,
-        colon: Style,
-    ) -> Self {
-        Self {
-            key,
-            quote_token,
-            curly_bracket,
-            square_bracket,
-            comma,
-            colon,
-        }
+    pub fn new(config: JsonConfig) -> Self {
+        Self { config }
     }
 }
 
@@ -52,6 +33,15 @@ impl Finder for JsonFinder {
             return;
         }
 
+        let JsonConfig {
+            key,
+            quote_token,
+            curly_bracket,
+            square_bracket,
+            comma,
+            colon,
+        } = self.config;
+
         let bytes = input.as_bytes();
         let mut in_string = false;
         let mut escape_next = false;
@@ -70,7 +60,7 @@ impl Finder for JsonFinder {
                 if b == b'\\' {
                     escape_next = true;
                 } else if b == b'"' {
-                    collector.push(i, i + 1, self.quote_token);
+                    collector.push(i, i + 1, quote_token);
                     in_string = false;
                 }
                 i += 1;
@@ -78,12 +68,12 @@ impl Finder for JsonFinder {
             }
 
             match b {
-                b'{' | b'}' => collector.push(i, i + 1, self.curly_bracket),
-                b'[' | b']' => collector.push(i, i + 1, self.square_bracket),
-                b',' => collector.push(i, i + 1, self.comma),
-                b':' => collector.push(i, i + 1, self.colon),
+                b'{' | b'}' => collector.push(i, i + 1, curly_bracket),
+                b'[' | b']' => collector.push(i, i + 1, square_bracket),
+                b',' => collector.push(i, i + 1, comma),
+                b':' => collector.push(i, i + 1, colon),
                 b'"' => {
-                    collector.push(i, i + 1, self.quote_token);
+                    collector.push(i, i + 1, quote_token);
                     in_string = true;
 
                     // A quoted string is a key unless preceded by `:`.
@@ -106,9 +96,9 @@ impl Finder for JsonFinder {
                             }
                             if bytes[j] == b'"' {
                                 if start < j {
-                                    collector.push(start, j, self.key);
+                                    collector.push(start, j, key);
                                 }
-                                collector.push(j, j + 1, self.quote_token);
+                                collector.push(j, j + 1, quote_token);
                                 in_string = false;
                                 i = j;
                                 break;
@@ -128,17 +118,17 @@ impl Finder for JsonFinder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
+    use crate::style::{Color, Style};
 
     fn make_finder() -> JsonFinder {
-        JsonFinder::new(
-            Style::new().fg(Color::Yellow),
-            Style::new().fg(Color::Blue),
-            Style::new().fg(Color::Cyan),
-            Style::new().fg(Color::Green),
-            Style::new().fg(Color::Red),
-            Style::new().fg(Color::Magenta),
-        )
+        JsonFinder::new(JsonConfig {
+            key: Style::new().fg(Color::Yellow),
+            quote_token: Style::new().fg(Color::Blue),
+            curly_bracket: Style::new().fg(Color::Cyan),
+            square_bracket: Style::new().fg(Color::Green),
+            comma: Style::new().fg(Color::Red),
+            colon: Style::new().fg(Color::Magenta),
+        })
     }
 
     fn span_texts<'a>(input: &'a str, finder: &JsonFinder) -> Vec<&'a str> {

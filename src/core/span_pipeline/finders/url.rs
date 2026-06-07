@@ -2,7 +2,7 @@ use memchr::memchr_iter;
 use memchr::memmem;
 use regex::{Regex, RegexBuilder};
 
-use crate::style::Style;
+use crate::core::config::UrlConfig;
 
 use super::super::span::{Collector, Finder};
 
@@ -10,25 +10,11 @@ use super::super::span::{Collector, Finder};
 pub(crate) struct UrlFinder {
     url_regex: Regex,
     query_params_regex: Regex,
-    http: Style,
-    https: Style,
-    host: Style,
-    path: Style,
-    query_params_key: Style,
-    query_params_value: Style,
-    symbols: Style,
+    config: UrlConfig,
 }
 
 impl UrlFinder {
-    pub fn new(
-        http: Style,
-        https: Style,
-        host: Style,
-        path: Style,
-        query_params_key: Style,
-        query_params_value: Style,
-        symbols: Style,
-    ) -> Self {
+    pub fn new(config: UrlConfig) -> Self {
         let url_pattern = r"(?x)
             (?P<protocol>https?) (:) (//)
             (?P<host>[A-Za-z0-9._\-]+)
@@ -53,13 +39,7 @@ impl UrlFinder {
         Self {
             url_regex,
             query_params_regex,
-            http,
-            https,
-            host,
-            path,
-            query_params_key,
-            query_params_value,
-            symbols,
+            config,
         }
     }
 }
@@ -84,39 +64,45 @@ impl Finder for UrlFinder {
             return;
         }
 
+        let UrlConfig {
+            http,
+            https,
+            host,
+            path,
+            query_params_key,
+            query_params_value,
+            symbols,
+        } = self.config;
+
         for caps in self.url_regex.captures_iter(input) {
             let full_match = caps.get(0).unwrap();
             let full_str = full_match.as_str();
             let trim_count = count_unbalanced_trailing_parens(full_str);
 
             if let Some(protocol) = caps.name("protocol") {
-                let style = if protocol.as_str() == "https" {
-                    self.https
-                } else {
-                    self.http
-                };
+                let style = if protocol.as_str() == "https" { https } else { http };
                 collector.push(protocol.start(), protocol.end(), style);
                 // "://" is not styled — left as plain text
             }
 
-            if let Some(host) = caps.name("host") {
-                collector.push(host.start(), host.end(), self.host);
+            if let Some(host_match) = caps.name("host") {
+                collector.push(host_match.start(), host_match.end(), host);
             }
 
             if let Some(port) = caps.name("port") {
                 let sep = caps.name("port_sep").unwrap();
-                collector.push(sep.start(), sep.end(), self.symbols);
-                collector.push(port.start(), port.end(), self.host);
+                collector.push(sep.start(), sep.end(), symbols);
+                collector.push(port.start(), port.end(), host);
             }
 
-            if let Some(path) = caps.name("path") {
+            if let Some(path_match) = caps.name("path") {
                 let end = if caps.name("query").is_none() && trim_count > 0 {
-                    path.end() - trim_count
+                    path_match.end() - trim_count
                 } else {
-                    path.end()
+                    path_match.end()
                 };
-                if path.start() < end {
-                    collector.push(path.start(), end, self.path);
+                if path_match.start() < end {
+                    collector.push(path_match.start(), end, path);
                 }
             }
 
@@ -131,24 +117,20 @@ impl Finder for UrlFinder {
 
                 for query_caps in self.query_params_regex.captures_iter(query_str) {
                     if let Some(d) = query_caps.name("delimiter") {
-                        collector.push(query_offset + d.start(), query_offset + d.end(), self.symbols);
+                        collector.push(query_offset + d.start(), query_offset + d.end(), symbols);
                     }
                     if let Some(k) = query_caps.name("key")
                         && !k.as_str().is_empty()
                     {
-                        collector.push(query_offset + k.start(), query_offset + k.end(), self.query_params_key);
+                        collector.push(query_offset + k.start(), query_offset + k.end(), query_params_key);
                     }
                     if let Some(e) = query_caps.name("equal") {
-                        collector.push(query_offset + e.start(), query_offset + e.end(), self.symbols);
+                        collector.push(query_offset + e.start(), query_offset + e.end(), symbols);
                     }
                     if let Some(v) = query_caps.name("value")
                         && !v.as_str().is_empty()
                     {
-                        collector.push(
-                            query_offset + v.start(),
-                            query_offset + v.end(),
-                            self.query_params_value,
-                        );
+                        collector.push(query_offset + v.start(), query_offset + v.end(), query_params_value);
                     }
                 }
             }
@@ -159,18 +141,18 @@ impl Finder for UrlFinder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
+    use crate::style::{Color, Style};
 
     fn finder() -> UrlFinder {
-        UrlFinder::new(
-            Style::new().fg(Color::Red),
-            Style::new().fg(Color::Green),
-            Style::new().fg(Color::Blue),
-            Style::new().fg(Color::Cyan),
-            Style::new().fg(Color::Magenta),
-            Style::new().fg(Color::Yellow),
-            Style::new().fg(Color::White),
-        )
+        UrlFinder::new(UrlConfig {
+            http: Style::new().fg(Color::Red),
+            https: Style::new().fg(Color::Green),
+            host: Style::new().fg(Color::Blue),
+            path: Style::new().fg(Color::Cyan),
+            query_params_key: Style::new().fg(Color::Magenta),
+            query_params_value: Style::new().fg(Color::Yellow),
+            symbols: Style::new().fg(Color::White),
+        })
     }
 
     fn spans_text<'a>(input: &'a str, finder: &UrlFinder) -> Vec<&'a str> {

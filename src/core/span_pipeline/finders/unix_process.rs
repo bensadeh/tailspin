@@ -1,20 +1,18 @@
 use memchr::memchr;
 use regex::{Regex, RegexBuilder};
 
-use crate::style::Style;
+use crate::core::config::UnixProcessConfig;
 
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
 pub(crate) struct UnixProcessFinder {
     regex: Regex,
-    name: Style,
-    id: Style,
-    bracket: Style,
+    config: UnixProcessConfig,
 }
 
 impl UnixProcessFinder {
-    pub fn new(name: Style, id: Style, bracket: Style) -> Self {
+    pub fn new(config: UnixProcessConfig) -> Self {
         // Match structure: name[pid] — we find '[' in the match to split the parts.
         let pattern = r"(?:\([A-Za-z0-9._ +:/-]+\)|[A-Za-z0-9_/-]+)\[\d+]";
         let regex = RegexBuilder::new(pattern)
@@ -22,12 +20,7 @@ impl UnixProcessFinder {
             .build()
             .expect("hardcoded Unix process regex must compile");
 
-        Self {
-            regex,
-            name,
-            id,
-            bracket,
-        }
+        Self { regex, config }
     }
 }
 
@@ -37,16 +30,18 @@ impl Finder for UnixProcessFinder {
             return;
         }
 
+        let UnixProcessConfig { name, id, bracket } = self.config;
+
         for m in self.regex.find_iter(input) {
             let s = m.start();
             let bytes = m.as_str().as_bytes();
 
             // Match structure: name[pid]
-            let bracket = memchr(b'[', bytes).unwrap();
-            collector.push(s, s + bracket, self.name);
-            collector.push(s + bracket, s + bracket + 1, self.bracket);
-            collector.push(s + bracket + 1, s + bytes.len() - 1, self.id);
-            collector.push(s + bytes.len() - 1, s + bytes.len(), self.bracket);
+            let bracket_pos = memchr(b'[', bytes).unwrap();
+            collector.push(s, s + bracket_pos, name);
+            collector.push(s + bracket_pos, s + bracket_pos + 1, bracket);
+            collector.push(s + bracket_pos + 1, s + bytes.len() - 1, id);
+            collector.push(s + bytes.len() - 1, s + bytes.len(), bracket);
         }
     }
 }
@@ -54,14 +49,14 @@ impl Finder for UnixProcessFinder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
+    use crate::style::{Color, Style};
 
     fn make_finder() -> UnixProcessFinder {
-        UnixProcessFinder::new(
-            Style::new().fg(Color::Magenta),
-            Style::new().fg(Color::Green),
-            Style::new().fg(Color::Blue),
-        )
+        UnixProcessFinder::new(UnixProcessConfig {
+            name: Style::new().fg(Color::Magenta),
+            id: Style::new().fg(Color::Green),
+            bracket: Style::new().fg(Color::Blue),
+        })
     }
 
     fn span_texts<'a>(input: &'a str, finder: &UnixProcessFinder) -> Vec<&'a str> {

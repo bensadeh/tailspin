@@ -1,24 +1,25 @@
 use memchr::memchr_iter;
 
-use crate::style::Style;
+use crate::core::config::QuoteConfig;
 
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug)]
 pub(crate) struct QuoteFinder {
-    quote_token: u8,
-    style: Style,
+    config: QuoteConfig,
 }
 
 impl QuoteFinder {
-    pub fn new(quote_token: u8, style: Style) -> Self {
-        Self { quote_token, style }
+    pub fn new(config: QuoteConfig) -> Self {
+        Self { config }
     }
 }
 
 impl Finder for QuoteFinder {
     fn find_spans(&self, input: &str, collector: &mut Collector) {
-        let positions: Vec<usize> = memchr_iter(self.quote_token, input.as_bytes()).collect();
+        let QuoteConfig { quote_token, style } = self.config;
+
+        let positions: Vec<usize> = memchr_iter(quote_token, input.as_bytes()).collect();
 
         if positions.len() < 2 || !positions.len().is_multiple_of(2) {
             return;
@@ -26,7 +27,7 @@ impl Finder for QuoteFinder {
 
         for pair in positions.chunks(2) {
             // Span covers opening quote through closing quote (inclusive)
-            collector.push(pair[0], pair[1] + 1, self.style);
+            collector.push(pair[0], pair[1] + 1, style);
         }
     }
 }
@@ -34,11 +35,14 @@ impl Finder for QuoteFinder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
+    use crate::style::{Color, Style};
 
     #[test]
     fn finds_quoted_regions() {
-        let finder = QuoteFinder::new(b'"', Style::new().fg(Color::Yellow));
+        let finder = QuoteFinder::new(QuoteConfig {
+            quote_token: b'"',
+            style: Style::new().fg(Color::Yellow),
+        });
         let input = r#"hello "world" end"#;
         let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
@@ -50,7 +54,10 @@ mod tests {
 
     #[test]
     fn odd_quotes_produces_no_spans() {
-        let finder = QuoteFinder::new(b'"', Style::new().fg(Color::Yellow));
+        let finder = QuoteFinder::new(QuoteConfig {
+            quote_token: b'"',
+            style: Style::new().fg(Color::Yellow),
+        });
         let input = r#"hello "world end"#;
         let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
@@ -59,7 +66,10 @@ mod tests {
 
     #[test]
     fn multiple_quoted_regions() {
-        let finder = QuoteFinder::new(b'"', Style::new().fg(Color::Yellow));
+        let finder = QuoteFinder::new(QuoteConfig {
+            quote_token: b'"',
+            style: Style::new().fg(Color::Yellow),
+        });
         let input = r#""hello" and "world""#;
         let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
@@ -72,7 +82,10 @@ mod tests {
 
     #[test]
     fn adjacent_quoted_strings() {
-        let finder = QuoteFinder::new(b'"', Style::new().fg(Color::Yellow));
+        let finder = QuoteFinder::new(QuoteConfig {
+            quote_token: b'"',
+            style: Style::new().fg(Color::Yellow),
+        });
         let input = r#""hello""world""#;
         let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
@@ -85,7 +98,10 @@ mod tests {
 
     #[test]
     fn empty_quoted_string() {
-        let finder = QuoteFinder::new(b'"', Style::new().fg(Color::Yellow));
+        let finder = QuoteFinder::new(QuoteConfig {
+            quote_token: b'"',
+            style: Style::new().fg(Color::Yellow),
+        });
         let input = r#"before "" after"#;
         let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
@@ -97,7 +113,10 @@ mod tests {
 
     #[test]
     fn single_quote_token() {
-        let finder = QuoteFinder::new(b'\'', Style::new().fg(Color::Yellow));
+        let finder = QuoteFinder::new(QuoteConfig {
+            quote_token: b'\'',
+            style: Style::new().fg(Color::Yellow),
+        });
         let input = "msg 'hello world' done";
         let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
@@ -109,7 +128,10 @@ mod tests {
 
     #[test]
     fn three_quotes_produces_no_spans() {
-        let finder = QuoteFinder::new(b'"', Style::new().fg(Color::Yellow));
+        let finder = QuoteFinder::new(QuoteConfig {
+            quote_token: b'"',
+            style: Style::new().fg(Color::Yellow),
+        });
         let input = r#"a "b" c "d"#;
         let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);

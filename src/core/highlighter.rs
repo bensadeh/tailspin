@@ -104,95 +104,74 @@ impl fmt::Debug for HighlighterBuilder {
 impl HighlighterBuilder {
     /// Adds a highlighter for numbers.
     pub fn with_number_highlighter(mut self, config: NumberConfig) -> Self {
-        self.add_finder(NumberFinder::new(config.style));
+        self.add_finder(NumberFinder::new(config));
         self
     }
 
     /// Adds a highlighter for UUIDs.
     pub fn with_uuid_highlighter(mut self, config: UuidConfig) -> Self {
-        self.add_finder(UuidFinder::new(config.number, config.letter, config.separator));
+        self.add_finder(UuidFinder::new(config));
         self
     }
 
     /// Adds a highlighter for Unix file paths.
     pub fn with_unix_path_highlighter(mut self, config: UnixPathConfig) -> Self {
-        self.add_finder(UnixPathFinder::new(config.segment, config.separator));
+        self.add_finder(UnixPathFinder::new(config));
         self
     }
 
     /// Adds a highlighter for Unix processes.
     pub fn with_unix_process_highlighter(mut self, config: UnixProcessConfig) -> Self {
-        self.add_finder(UnixProcessFinder::new(config.name, config.id, config.bracket));
+        self.add_finder(UnixProcessFinder::new(config));
         self
     }
 
     /// Adds a highlighter for key-value pairs.
     pub fn with_key_value_highlighter(mut self, config: KeyValueConfig) -> Self {
-        self.add_finder(KeyValueFinder::new(config.key, config.separator));
+        self.add_finder(KeyValueFinder::new(config));
         self
     }
 
     /// Adds highlighters for dates and times.
     pub fn with_date_time_highlighters(mut self, config: DateTimeConfig) -> Self {
-        self.add_finder(DateTimeFinder::new(config.time, config.zone, config.separator));
-        self.add_finder(DateDashFinder::new(config.date, config.separator));
+        self.add_finder(DateTimeFinder::new(config));
+        self.add_finder(DateDashFinder::new(config));
         self
     }
 
     /// Adds a highlighter for IPv6 addresses.
     pub fn with_ip_v6_highlighter(mut self, config: IpV6Config) -> Self {
-        self.add_finder(IpV6Finder::new(config.number, config.letter, config.separator));
+        self.add_finder(IpV6Finder::new(config));
         self
     }
 
     /// Adds a highlighter for JVM stack traces (Java, Kotlin, Scala, etc.).
     pub fn with_jvm_stack_trace_highlighter(mut self, config: JvmStackTraceConfig) -> Self {
-        self.add_finder(JvmStackFinder::new(
-            config.caused_by,
-            config.package,
-            config.exception,
-            config.frame,
-            config.file,
-            config.unknown_source,
-            config.line_number,
-        ));
+        self.add_finder(JvmStackFinder::new(config));
         self
     }
 
     /// Adds a highlighter for IPv4 addresses.
     pub fn with_ip_v4_highlighter(mut self, config: IpV4Config) -> Self {
-        self.add_finder(IpV4Finder::new(config.number, config.separator));
+        self.add_finder(IpV4Finder::new(config));
         self
     }
 
     /// Adds a highlighter for URLs.
     pub fn with_url_highlighter(mut self, config: UrlConfig) -> Self {
-        self.add_finder(UrlFinder::new(
-            config.http,
-            config.https,
-            config.host,
-            config.path,
-            config.query_params_key,
-            config.query_params_value,
-            config.symbols,
-        ));
+        self.add_finder(UrlFinder::new(config));
         self
     }
 
     /// Adds a highlighter for email addresses.
     pub fn with_email_highlighter(mut self, config: EmailConfig) -> Self {
-        self.add_finder(EmailFinder::new(
-            config.local_part,
-            config.at_sign,
-            config.domain,
-            config.dot,
-        ));
+        self.add_finder(EmailFinder::new(config));
         self
     }
 
     /// Adds a highlighter for memory pointers.
     pub fn with_pointer_highlighter(mut self, config: PointerConfig) -> Self {
-        self.add_finder(PointerFinder::new(config.number, config.letter, config.x));
+        self.add_finder(PointerFinder::new(config));
         self
     }
 
@@ -210,20 +189,13 @@ impl HighlighterBuilder {
 
     /// Adds a highlighter for quoted text.
     pub fn with_quote_highlighter(mut self, config: QuoteConfig) -> Self {
-        self.add_finder(QuoteFinder::new(config.quote_token, config.style));
+        self.add_finder(QuoteFinder::new(config));
         self
     }
 
     /// Adds a highlighter for JSON structures.
     pub fn with_json_highlighter(mut self, config: JsonConfig) -> Self {
-        self.add_finder(JsonFinder::new(
-            config.key,
-            config.quote_token,
-            config.curly_bracket,
-            config.square_bracket,
-            config.comma,
-            config.colon,
-        ));
+        self.add_finder(JsonFinder::new(config));
         self
     }
 
