@@ -16,11 +16,16 @@ impl DateDashFinder {
         // Both branches are exactly 10 bytes (4+1+2+1+2), so we can use
         // find_iter and compute component offsets arithmetically.
         let pattern = r"(?x)
-            # Branch A: YYYY-xx-xx
-            (?: (?: 19\d{2} | 20\d{2} ) [-/] (?: 0[1-9] | [12]\d | 3[01] ) [-/] (?: 0[1-9] | [12]\d | 3[01] ) )
-            |
-            # Branch B: xx-xx-YYYY
-            (?: (?: 0[1-9] | [12]\d | 3[01] ) [-/] (?: 0[1-9] | [12]\d | 3[01] ) [-/] (?: 19\d{2} | 20\d{2} ) )
+            # Leading \b only: a trailing one would reject the `T` in ISO-8601
+            # timestamps (2022-09-22T07:46:34), whose date half we highlight.
+            \b
+            (?:
+                # Branch A: YYYY-xx-xx
+                (?: (?: 19\d{2} | 20\d{2} ) [-/] (?: 0[1-9] | [12]\d | 3[01] ) [-/] (?: 0[1-9] | [12]\d | 3[01] ) )
+                |
+                # Branch B: xx-xx-YYYY
+                (?: (?: 0[1-9] | [12]\d | 3[01] ) [-/] (?: 0[1-9] | [12]\d | 3[01] ) [-/] (?: 19\d{2} | 20\d{2} ) )
+            )
         ";
 
         let regex = RegexBuilder::new(pattern)
@@ -127,5 +132,16 @@ mod tests {
     #[test]
     fn no_dates_no_match() {
         assert!(span_texts("No dates here!", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn embedded_in_longer_number_no_match() {
+        assert!(span_texts("12022-09-09", &make_finder()).is_empty());
+    }
+
+    #[test]
+    fn date_in_iso8601_timestamp_matches() {
+        let texts = span_texts("2022-09-22T07:46:34.171800155Z", &make_finder());
+        assert_eq!(texts, ["2022", "-", "09", "-", "22"]);
     }
 }
