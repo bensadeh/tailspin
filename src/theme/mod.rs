@@ -2,7 +2,6 @@ use serde::Deserialize;
 use tailspin::config::*;
 use tailspin::style::Style;
 
-mod mappers;
 pub mod reader;
 
 #[derive(Debug)]
@@ -25,62 +24,107 @@ pub struct Theme {
     pub jvm_stack_traces: JvmStackTraceConfig,
 }
 
+/// `theme.toml` as written by the user. Most tables deserialize directly into
+/// the core config structs; the `*Toml` wrappers below exist only where the
+/// TOML shape differs from the config struct it produces.
 #[derive(Deserialize, Debug, Default)]
-#[serde(deny_unknown_fields)]
+#[serde(default, deny_unknown_fields)]
 pub struct TomlTheme {
-    pub keywords: Option<Vec<KeywordToml>>,
-    pub regexes: Option<Vec<RegexToml>>,
-    pub numbers: Option<NumberToml>,
-    pub uuids: Option<UuidToml>,
-    pub quotes: Option<QuotesToml>,
-    pub ip_addresses: Option<IpToml>,
-    pub dates: Option<DateToml>,
-    pub paths: Option<PathToml>,
-    pub urls: Option<UrlToml>,
-    pub emails: Option<EmailToml>,
-    pub pointers: Option<PointerToml>,
-    pub processes: Option<UnixProcessToml>,
-    pub key_value_pairs: Option<KeyValueToml>,
-    pub json: Option<JsonToml>,
-    pub jvm_stack_traces: Option<JvmStackTraceToml>,
+    pub keywords: Vec<KeywordConfig>,
+    pub regexes: Vec<RegexConfig>,
+    pub numbers: NumberToml,
+    pub uuids: UuidConfig,
+    pub quotes: QuotesToml,
+    pub ip_addresses: IpToml,
+    pub dates: DateTimeConfig,
+    pub paths: UnixPathConfig,
+    pub urls: UrlConfig,
+    pub emails: EmailConfig,
+    pub pointers: PointerConfig,
+    pub processes: UnixProcessConfig,
+    pub key_value_pairs: KeyValueConfig,
+    pub json: JsonConfig,
+    pub jvm_stack_traces: JvmStackTraceConfig,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct KeywordToml {
-    pub words: Vec<String>,
-    pub style: Style,
+impl From<TomlTheme> for Theme {
+    fn from(toml: TomlTheme) -> Self {
+        Theme {
+            keywords: toml.keywords,
+            regexes: toml.regexes,
+            numbers: toml.numbers.into(),
+            uuids: toml.uuids,
+            quotes: toml.quotes.into(),
+            ip_v4_addresses: toml.ip_addresses.into(),
+            ip_v6_addresses: toml.ip_addresses.into(),
+            dates: toml.dates,
+            paths: toml.paths,
+            urls: toml.urls,
+            emails: toml.emails,
+            pointers: toml.pointers,
+            processes: toml.processes,
+            key_value_pairs: toml.key_value_pairs,
+            json: toml.json,
+            jvm_stack_traces: toml.jvm_stack_traces,
+        }
+    }
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct RegexToml {
-    pub regex: String,
-    pub style: Style,
-}
-
-#[derive(Deserialize, Debug)]
+/// `[numbers]` styles its single field under the key `number`, while
+/// `NumberConfig` calls it `style`.
+#[derive(Deserialize, Debug, Default)]
 #[serde(deny_unknown_fields)]
 pub struct NumberToml {
     pub number: Option<Style>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct UuidToml {
-    pub number: Option<Style>,
-    pub letter: Option<Style>,
-    pub separator: Option<Style>,
+impl From<NumberToml> for NumberConfig {
+    fn from(toml: NumberToml) -> Self {
+        NumberConfig {
+            style: toml.number.unwrap_or(NumberConfig::default().style),
+        }
+    }
 }
 
-#[derive(Deserialize, Debug)]
+/// `[quotes]` takes the quote character as a `char`, while `QuoteConfig`
+/// stores an ASCII byte. Non-ASCII characters are rejected at parse time.
+#[derive(Deserialize, Debug, Default)]
 #[serde(deny_unknown_fields)]
 pub struct QuotesToml {
-    pub quote_token: Option<char>,
+    #[serde(default, deserialize_with = "ascii_char")]
+    pub quote_token: Option<u8>,
     pub style: Option<Style>,
 }
 
-#[derive(Deserialize, Debug, Copy, Clone)]
+fn ascii_char<'de, D>(deserializer: D) -> Result<Option<u8>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let ch = char::deserialize(deserializer)?;
+
+    if ch.is_ascii() {
+        Ok(Some(ch as u8))
+    } else {
+        Err(serde::de::Error::custom(format!(
+            "quote_token must be an ASCII character, got `{ch}`"
+        )))
+    }
+}
+
+impl From<QuotesToml> for QuoteConfig {
+    fn from(toml: QuotesToml) -> Self {
+        let default = QuoteConfig::default();
+
+        QuoteConfig {
+            quote_token: toml.quote_token.unwrap_or(default.quote_token),
+            style: toml.style.unwrap_or(default.style),
+        }
+    }
+}
+
+/// The single `[ip_addresses]` table styles both IPv4 and IPv6 addresses;
+/// `letter` only applies to IPv6.
+#[derive(Deserialize, Debug, Default, Clone, Copy)]
 #[serde(deny_unknown_fields)]
 pub struct IpToml {
     pub number: Option<Style>,
@@ -88,85 +132,128 @@ pub struct IpToml {
     pub separator: Option<Style>,
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct DateToml {
-    pub date: Option<Style>,
-    pub time: Option<Style>,
-    pub zone: Option<Style>,
-    pub separator: Option<Style>,
+impl From<IpToml> for IpV4Config {
+    fn from(toml: IpToml) -> Self {
+        let default = IpV4Config::default();
+
+        IpV4Config {
+            number: toml.number.unwrap_or(default.number),
+            separator: toml.separator.unwrap_or(default.separator),
+        }
+    }
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct PathToml {
-    pub segment: Option<Style>,
-    pub separator: Option<Style>,
+impl From<IpToml> for IpV6Config {
+    fn from(toml: IpToml) -> Self {
+        let default = IpV6Config::default();
+
+        IpV6Config {
+            number: toml.number.unwrap_or(default.number),
+            letter: toml.letter.unwrap_or(default.letter),
+            separator: toml.separator.unwrap_or(default.separator),
+        }
+    }
 }
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct UrlToml {
-    pub http: Option<Style>,
-    pub https: Option<Style>,
-    pub host: Option<Style>,
-    pub path: Option<Style>,
-    pub query_params_key: Option<Style>,
-    pub query_params_value: Option<Style>,
-    pub symbols: Option<Style>,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tailspin::style::Color;
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct EmailToml {
-    pub local_part: Option<Style>,
-    pub at_sign: Option<Style>,
-    pub domain: Option<Style>,
-    pub dot: Option<Style>,
-}
+    fn parse(input: &str) -> Theme {
+        Theme::from(toml::from_str::<TomlTheme>(input).unwrap())
+    }
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct PointerToml {
-    pub number: Option<Style>,
-    pub letter: Option<Style>,
-    pub x: Option<Style>,
-}
+    #[test]
+    fn empty_input_yields_defaults() {
+        let theme = parse("");
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct UnixProcessToml {
-    pub name: Option<Style>,
-    pub id: Option<Style>,
-    pub bracket: Option<Style>,
-}
+        assert!(theme.keywords.is_empty());
+        assert!(theme.regexes.is_empty());
+        assert_eq!(theme.uuids.letter, UuidConfig::default().letter);
+        assert_eq!(theme.quotes.quote_token, b'"');
+    }
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct KeyValueToml {
-    pub key: Option<Style>,
-    pub separator: Option<Style>,
-}
+    #[test]
+    fn partial_table_keeps_defaults_for_missing_fields() {
+        let theme = parse(
+            r#"[uuids]
+number = { fg = "red" }"#,
+        );
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct JsonToml {
-    pub key: Option<Style>,
-    pub quote_token: Option<Style>,
-    pub curly_bracket: Option<Style>,
-    pub square_bracket: Option<Style>,
-    pub comma: Option<Style>,
-    pub colon: Option<Style>,
-}
+        assert_eq!(theme.uuids.number, Style::new().fg(Color::Red));
+        assert_eq!(theme.uuids.letter, UuidConfig::default().letter);
+        assert_eq!(theme.uuids.separator, UuidConfig::default().separator);
+    }
 
-#[derive(Deserialize, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct JvmStackTraceToml {
-    pub caused_by: Option<Style>,
-    pub package: Option<Style>,
-    pub exception: Option<Style>,
-    pub frame: Option<Style>,
-    pub file: Option<Style>,
-    pub unknown_source: Option<Style>,
-    pub line_number: Option<Style>,
+    #[test]
+    fn unknown_keys_are_rejected() {
+        assert!(toml::from_str::<TomlTheme>("bogus = 1").is_err());
+        assert!(toml::from_str::<TomlTheme>("[uuids]\nbogus = { fg = \"red\" }").is_err());
+    }
+
+    #[test]
+    fn ip_addresses_table_styles_both_v4_and_v6() {
+        let theme = parse(
+            r#"[ip_addresses]
+separator = { fg = "yellow" }"#,
+        );
+
+        assert_eq!(theme.ip_v4_addresses.separator, Style::new().fg(Color::Yellow));
+        assert_eq!(theme.ip_v6_addresses.separator, Style::new().fg(Color::Yellow));
+        assert_eq!(theme.ip_v6_addresses.letter, IpV6Config::default().letter);
+    }
+
+    #[test]
+    fn numbers_table_uses_the_number_key() {
+        let theme = parse(
+            r#"[numbers]
+number = { fg = "green" }"#,
+        );
+
+        assert_eq!(theme.numbers.style, Style::new().fg(Color::Green));
+    }
+
+    #[test]
+    fn keywords_and_regexes_parse_into_config_lists() {
+        let theme = parse(
+            r#"[[keywords]]
+words = ["foo"]
+style = { bold = true }
+
+[[regexes]]
+regex = "x+"
+style = { fg = "blue" }"#,
+        );
+
+        assert_eq!(
+            theme.keywords,
+            vec![KeywordConfig {
+                words: vec!["foo".to_string()],
+                style: Style::new().bold(),
+            }]
+        );
+        assert_eq!(theme.regexes[0].regex, "x+");
+    }
+
+    #[test]
+    fn ascii_quote_token_is_accepted() {
+        let theme = parse(
+            r#"[quotes]
+quote_token = "'""#,
+        );
+
+        assert_eq!(theme.quotes.quote_token, b'\'');
+    }
+
+    #[test]
+    fn non_ascii_quote_token_is_rejected() {
+        let error = toml::from_str::<TomlTheme>(
+            r#"[quotes]
+quote_token = "«""#,
+        )
+        .unwrap_err();
+
+        assert!(error.to_string().contains("ASCII"));
+    }
 }

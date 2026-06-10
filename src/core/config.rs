@@ -1,4 +1,5 @@
 use crate::style::{Color, Style};
+use serde::Deserialize;
 
 /// Configuration for highlighting numeric values.
 #[derive(Debug, Clone, Copy)]
@@ -8,7 +9,8 @@ pub struct NumberConfig {
 }
 
 /// Configuration for highlighting UUIDs.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct UuidConfig {
     /// Style applied to numeric characters.
     pub number: Style,
@@ -19,7 +21,8 @@ pub struct UuidConfig {
 }
 
 /// Configuration for highlighting email addresses.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct EmailConfig {
     /// Style for the local part (before `@`).
     pub local_part: Style,
@@ -32,7 +35,8 @@ pub struct EmailConfig {
 }
 
 /// Configuration for highlighting key-value pairs.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct KeyValueConfig {
     /// Style for the key portion.
     pub key: Style,
@@ -41,7 +45,8 @@ pub struct KeyValueConfig {
 }
 
 /// Configuration for highlighting date-time strings.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct DateTimeConfig {
     /// Style for dates.
     pub date: Style,
@@ -74,7 +79,8 @@ pub struct IpV6Config {
 }
 
 /// Configuration for highlighting URLs.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct UrlConfig {
     /// Style for "http" scheme.
     pub http: Style,
@@ -93,7 +99,8 @@ pub struct UrlConfig {
 }
 
 /// Configuration for highlighting Unix file paths.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct UnixPathConfig {
     /// Style for path segments.
     pub segment: Style,
@@ -102,7 +109,8 @@ pub struct UnixPathConfig {
 }
 
 /// Configuration for highlighting memory pointers.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct PointerConfig {
     /// Style for numeric digits.
     pub number: Style,
@@ -113,7 +121,8 @@ pub struct PointerConfig {
 }
 
 /// Configuration for highlighting Unix processes.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct UnixProcessConfig {
     /// Style for process name.
     pub name: Style,
@@ -124,7 +133,8 @@ pub struct UnixProcessConfig {
 }
 
 /// Configuration for highlighting JSON structures.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct JsonConfig {
     /// Style for JSON keys.
     pub key: Style,
@@ -150,7 +160,8 @@ pub struct QuoteConfig {
 }
 
 /// Configuration for highlighting JVM stack traces (Java, Kotlin, Scala, etc.).
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct JvmStackTraceConfig {
     /// Style for the `Caused by:` marker that prefixes nested exception headers.
     pub caused_by: Style,
@@ -169,7 +180,8 @@ pub struct JvmStackTraceConfig {
 }
 
 /// Configuration for highlighting custom keywords.
-#[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Clone)]
+#[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct KeywordConfig {
     /// List of keywords to highlight.
     pub words: Vec<String>,
@@ -178,7 +190,8 @@ pub struct KeywordConfig {
 }
 
 /// Configuration for highlighting custom regex patterns.
-#[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Clone)]
+#[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RegexConfig {
     /// Regex pattern for matching text.
     pub regex: String,
