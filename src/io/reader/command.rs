@@ -1,6 +1,6 @@
 use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
 use crate::io::reader::{AsyncLineReader, StreamEvent};
-use anyhow::{Context, Result, anyhow};
+use anyhow::{Context, Result, anyhow, ensure};
 use std::process::Stdio;
 use tokio::io::BufReader;
 use tokio::process::{Child, ChildStdout, Command};
@@ -64,7 +64,8 @@ impl AsyncLineReader for CommandReader {
 
         let event = match read_lines(&mut self.reader).await? {
             ReadResult::Eof => {
-                let _ = self.child.wait().await;
+                let status = self.child.wait().await?;
+                ensure!(status.success(), "--exec command failed ({status})");
                 StreamEvent::Ended
             }
             ReadResult::Line(line) => StreamEvent::Line(line),
