@@ -48,8 +48,8 @@ pub enum ConfigError {
     #[error("Missing filename ({} for help)", Magenta.paint("tspin --help").to_string())]
     MissingFilename,
 
-    #[error("Cannot read from both file and {}", Magenta.paint("--listen-command").to_string())]
-    CannotReadBothFileAndListenCommand,
+    #[error("Cannot read from both file and {}", Magenta.paint("--exec").to_string())]
+    CannotReadBothFileAndExec,
 
     #[error("Could not determine input type")]
     CouldNotDetermineInputType,
@@ -82,7 +82,7 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
     }
 
     if args.file_path.is_some() && args.exec.is_some() {
-        return Err(ConfigError::CannotReadBothFileAndListenCommand);
+        return Err(ConfigError::CannotReadBothFileAndExec);
     }
 
     if let Some(path) = &args.file_path {
