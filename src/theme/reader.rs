@@ -15,9 +15,8 @@ pub fn parse_theme(custom_config_path: Option<&PathBuf>) -> Result<Theme, ThemeE
     let default_path = get_config_dir()?.join("tailspin").join("theme.toml");
 
     let toml_theme = match read_and_parse_toml(&default_path) {
-        Ok(theme) => theme,
-        Err(ThemeError::FileNotFound) => TomlTheme::default(),
-        Err(e) => return Err(e),
+        Err(ThemeError::Read(_, err)) if err.kind() == io::ErrorKind::NotFound => TomlTheme::default(),
+        other => other?,
     };
 
     Ok(Theme::from(toml_theme))
@@ -38,24 +37,18 @@ fn expand_var_os(key: &str) -> Option<PathBuf> {
 fn read_and_parse_toml(path: &Path) -> Result<TomlTheme, ThemeError> {
     let display_path = || path.display().to_string();
 
-    let content = fs::read_to_string(path).map_err(|err| match err.kind() {
-        io::ErrorKind::NotFound => ThemeError::FileNotFound,
-        _ => ThemeError::Read(display_path(), err),
-    })?;
+    let content = fs::read_to_string(path).map_err(|err| ThemeError::Read(display_path(), err))?;
 
     toml::from_str::<TomlTheme>(&content).map_err(|err| ThemeError::Parsing(display_path(), err))
 }
 
 #[derive(Debug, Error)]
 pub enum ThemeError {
-    #[error("could not read {0}: {1}")]
+    #[error("could not read {0}")]
     Read(String, #[source] io::Error),
 
     #[error("could not parse {0}: {1}")]
     Parsing(String, toml::de::Error),
-
-    #[error("could not find the TOML file")]
-    FileNotFound,
 
     #[error("could not determine the home environment: {0}")]
     HomeEnvironment(#[source] VarError),
