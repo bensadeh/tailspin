@@ -45,9 +45,6 @@ pub struct CustomPagerOptions {
 
 #[derive(Debug, Error)]
 pub enum ConfigError {
-    #[error("Missing filename ({} for help)", Magenta.paint("tspin --help").to_string())]
-    MissingFilename,
-
     #[error("Cannot read from both file and {}", Magenta.paint("--exec").to_string())]
     CannotReadBothFileAndExec,
 
@@ -76,10 +73,6 @@ pub fn get_io_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError>
 
 fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
     let std_in_has_data = !stdin().is_terminal();
-
-    if args.file_path.is_none() && !std_in_has_data && args.exec.is_none() {
-        return Err(ConfigError::MissingFilename);
-    }
 
     if args.file_path.is_some() && args.exec.is_some() {
         return Err(ConfigError::CannotReadBothFileAndExec);
