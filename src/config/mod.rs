@@ -83,12 +83,12 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
         return process_path_input(path.into(), terminate_after_first_read);
     }
 
-    if std_in_has_data {
-        return Ok(Source::Stdin);
-    }
-
     if let Some(command) = &args.exec {
         return Ok(Source::Command(command.clone()));
+    }
+
+    if std_in_has_data {
+        return Ok(Source::Stdin);
     }
 
     Err(ConfigError::CouldNotDetermineInputType)
