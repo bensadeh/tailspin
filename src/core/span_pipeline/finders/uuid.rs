@@ -1,5 +1,6 @@
-use memchr::memchr;
-use regex::{Regex, RegexBuilder};
+use super::build_regex;
+use memchr::memchr_iter;
+use regex::Regex;
 
 use crate::core::config::UuidConfig;
 
@@ -14,29 +15,15 @@ pub(crate) struct UuidFinder {
 impl UuidFinder {
     pub fn new(config: UuidConfig) -> Self {
         let pattern = r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b";
-        let regex = RegexBuilder::new(pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded UUID regex must compile");
+        let regex = build_regex(pattern);
 
         Self { regex, config }
     }
 }
 
-fn has_at_least_n_dashes(bytes: &[u8], n: usize) -> bool {
-    let mut start = 0;
-    for _ in 0..n {
-        match memchr(b'-', &bytes[start..]) {
-            Some(pos) => start += pos + 1,
-            None => return false,
-        }
-    }
-    true
-}
-
 impl Finder for UuidFinder {
     fn find_spans(&self, input: &str, collector: &mut Collector) {
-        if !has_at_least_n_dashes(input.as_bytes(), 4) {
+        if memchr_iter(b'-', input.as_bytes()).nth(3).is_none() {
             return;
         }
 
@@ -47,7 +34,7 @@ impl Finder for UuidFinder {
         } = self.config;
 
         for m in self.regex.find_iter(input) {
-            let matched = &input[m.start()..m.end()];
+            let matched = m.as_str();
             for (i, c) in matched.char_indices() {
                 let style = match c {
                     '0'..='9' => number,

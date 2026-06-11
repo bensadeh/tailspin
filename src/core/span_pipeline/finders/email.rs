@@ -1,5 +1,6 @@
+use super::build_regex;
 use memchr::memchr;
-use regex::{Regex, RegexBuilder};
+use regex::Regex;
 
 use crate::core::config::EmailConfig;
 
@@ -15,10 +16,7 @@ impl EmailFinder {
     pub fn new(config: EmailConfig) -> Self {
         // Match structure: local@domain — we find '@' in the match to split the parts.
         let pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}";
-        let regex = RegexBuilder::new(pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded email regex must compile");
+        let regex = build_regex(pattern);
 
         Self { regex, config }
     }

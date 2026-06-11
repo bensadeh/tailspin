@@ -1,5 +1,6 @@
+use super::build_regex;
 use memchr::memchr;
-use regex::{Regex, RegexBuilder};
+use regex::Regex;
 
 use crate::core::config::DateTimeConfig;
 
@@ -24,10 +25,7 @@ impl DateTimeFinder {
             Z?
         ";
 
-        let regex = RegexBuilder::new(pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded date-time regex must compile");
+        let regex = build_regex(pattern);
 
         Self { regex, config }
     }

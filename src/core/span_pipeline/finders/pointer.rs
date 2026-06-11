@@ -1,5 +1,6 @@
+use super::build_regex;
 use memchr::memchr2;
-use regex::{Regex, RegexBuilder};
+use regex::Regex;
 
 use crate::core::config::PointerConfig;
 
@@ -17,10 +18,7 @@ impl PointerFinder {
         // Both branches produce the same character classes, so find_iter
         // is sufficient — we just classify each byte by style.
         let pattern = r"(?i)\b0x(?:[0-9a-f]{16}|[0-9a-f]{8})\b";
-        let regex = RegexBuilder::new(pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded pointer regex must compile");
+        let regex = build_regex(pattern);
 
         Self { regex, config }
     }

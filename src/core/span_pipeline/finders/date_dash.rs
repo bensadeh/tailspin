@@ -1,5 +1,6 @@
+use super::build_regex;
 use memchr::memchr2;
-use regex::{Regex, RegexBuilder};
+use regex::Regex;
 
 use crate::core::config::DateTimeConfig;
 
@@ -28,10 +29,7 @@ impl DateDashFinder {
             )
         ";
 
-        let regex = RegexBuilder::new(pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded date-dash regex must compile");
+        let regex = build_regex(pattern);
 
         Self { regex, config }
     }

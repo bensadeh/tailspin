@@ -1,5 +1,6 @@
+use super::build_regex;
 use memchr::memchr;
-use regex::{Regex, RegexBuilder};
+use regex::Regex;
 
 use crate::core::config::KeyValueConfig;
 
@@ -16,10 +17,7 @@ impl KeyValueFinder {
         // The (?:^|\s) anchor is zero-width at start-of-string or consumes one
         // whitespace byte. We use find_iter and skip that leading byte manually.
         let pattern = r"(?:^|\s)\w+\b=";
-        let regex = RegexBuilder::new(pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded key-value regex must compile");
+        let regex = build_regex(pattern);
 
         Self { regex, config }
     }

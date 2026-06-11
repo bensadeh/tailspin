@@ -1,5 +1,6 @@
+use super::build_regex;
 use memchr::memchr;
-use regex::{Regex, RegexBuilder};
+use regex::Regex;
 
 use crate::core::config::JvmStackTraceConfig;
 
@@ -18,10 +19,7 @@ pub(crate) struct JvmStackFinder {
 impl JvmStackFinder {
     pub fn new(config: JvmStackTraceConfig) -> Self {
         let marker_pattern = r"(?m)^\s*(?P<marker>(?:Caused by|Suppressed):)";
-        let marker_regex = RegexBuilder::new(marker_pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded JVM stack trace marker regex must compile");
+        let marker_regex = build_regex(marker_pattern);
 
         let header_pattern = r"(?x)
             \b
@@ -29,10 +27,7 @@ impl JvmStackFinder {
             (?P<class>[A-Z][a-zA-Z0-9_$]*)
             (?P<colon>:)
         ";
-        let header_regex = RegexBuilder::new(header_pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded JVM stack trace header regex must compile");
+        let header_regex = build_regex(header_pattern);
 
         let frame_pattern = r"(?xm)
             ^(?P<indent>\s+)
@@ -47,10 +42,7 @@ impl JvmStackFinder {
             (?P<contents>(?u:[^)\n]*))   # (?u:) because a byte-mode negated class could match invalid UTF-8, which the str API rejects
             (?P<close>\))
         ";
-        let frame_regex = RegexBuilder::new(frame_pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded JVM stack trace frame regex must compile");
+        let frame_regex = build_regex(frame_pattern);
 
         let file_line_pattern = r"(?x)
             ^
@@ -61,16 +53,10 @@ impl JvmStackFinder {
             )?
             $
         ";
-        let file_line_regex = RegexBuilder::new(file_line_pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded JVM stack trace file/line regex must compile");
+        let file_line_regex = build_regex(file_line_pattern);
 
         let more_pattern = r"(?m)^\s+(?P<ellipsis>\.\.\.)\s+(?P<count>\d+)\s+(?P<more>more)\s*$";
-        let more_regex = RegexBuilder::new(more_pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded JVM stack trace 'N more' regex must compile");
+        let more_regex = build_regex(more_pattern);
 
         Self {
             marker_regex,
@@ -108,7 +94,7 @@ impl Finder for JvmStackFinder {
             let pkg = caps.name("package").unwrap();
             let cls = caps.name("class").unwrap();
             let colon = caps.name("colon").unwrap();
-            let cls_text = &input[cls.start()..cls.end()];
+            let cls_text = cls.as_str();
             if !cls_text.ends_with("Exception") && !cls_text.ends_with("Error") {
                 continue;
             }
@@ -126,7 +112,7 @@ impl Finder for JvmStackFinder {
 
             let contents = caps.name("contents").unwrap();
             let cstart = contents.start();
-            let cstr = &input[cstart..contents.end()];
+            let cstr = contents.as_str();
 
             if cstr == "Unknown Source" || cstr == "<generated>" || cstr == "Native Method" {
                 collector.push(cstart, contents.end(), unknown_source);

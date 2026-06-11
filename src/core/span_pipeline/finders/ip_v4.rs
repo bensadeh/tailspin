@@ -1,5 +1,6 @@
+use super::build_regex;
 use memchr::memchr;
-use regex::{Regex, RegexBuilder};
+use regex::Regex;
 
 use crate::core::config::IpV4Config;
 
@@ -20,10 +21,7 @@ impl IpV4Finder {
             (?P<o4>\d{1,3})
             (?:(?P<slash>/)(?P<mask>\d{1,2}))?
             \b";
-        let regex = RegexBuilder::new(pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded IPv4 regex must compile");
+        let regex = build_regex(pattern);
 
         Self { regex, config }
     }

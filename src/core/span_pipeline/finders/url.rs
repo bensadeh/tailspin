@@ -1,6 +1,7 @@
+use super::build_regex;
 use memchr::memchr_iter;
 use memchr::memmem;
-use regex::{Regex, RegexBuilder};
+use regex::Regex;
 
 use crate::core::config::UrlConfig;
 
@@ -21,20 +22,14 @@ impl UrlFinder {
             (?:(?P<port_sep>:)(?P<port>\d{1,5}))?
             (?P<path>(?:/[A-Za-z0-9._~\-/%+()]*)?)
             (?P<query>\?[A-Za-z0-9._~\-/%+&=;,@!*()?:]*)?";
-        let url_regex = RegexBuilder::new(url_pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded URL regex must compile");
+        let url_regex = build_regex(url_pattern);
 
         let query_params_pattern = r"(?x)
             (?P<delimiter>[?&])
             (?P<key>   [A-Za-z0-9._~\-+%]*)
             (?P<equal> =)
             (?P<value> [A-Za-z0-9._~\-+%]*)";
-        let query_params_regex = RegexBuilder::new(query_params_pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded URL query-params regex must compile");
+        let query_params_regex = build_regex(query_params_pattern);
 
         Self {
             url_regex,

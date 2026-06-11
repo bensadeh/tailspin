@@ -1,5 +1,6 @@
+use super::build_regex;
 use memchr::memchr;
-use regex::{Regex, RegexBuilder};
+use regex::Regex;
 use std::net::Ipv6Addr;
 
 use crate::core::config::IpV6Config;
@@ -15,10 +16,7 @@ pub(crate) struct IpV6Finder {
 impl IpV6Finder {
     pub fn new(config: IpV6Config) -> Self {
         let pattern = r"([0-9a-fA-F:.]{3,})(?:(/)(\d{1,3}))?";
-        let regex = RegexBuilder::new(pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded IPv6 regex must compile");
+        let regex = build_regex(pattern);
 
         Self { regex, config }
     }

@@ -1,5 +1,6 @@
+use super::build_regex;
 use memchr::memchr;
-use regex::{Regex, RegexBuilder};
+use regex::Regex;
 
 use crate::core::config::UnixProcessConfig;
 
@@ -15,10 +16,7 @@ impl UnixProcessFinder {
     pub fn new(config: UnixProcessConfig) -> Self {
         // Match structure: name[pid] — we find '[' in the match to split the parts.
         let pattern = r"(?:\([A-Za-z0-9._ +:/-]+\)|[A-Za-z0-9_/-]+)\[\d+]";
-        let regex = RegexBuilder::new(pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded Unix process regex must compile");
+        let regex = build_regex(pattern);
 
         Self { regex, config }
     }
@@ -40,8 +38,8 @@ impl Finder for UnixProcessFinder {
             let bracket_pos = memchr(b'[', bytes).unwrap();
             collector.push(s, s + bracket_pos, name);
             collector.push(s + bracket_pos, s + bracket_pos + 1, bracket);
-            collector.push(s + bracket_pos + 1, s + bytes.len() - 1, id);
-            collector.push(s + bytes.len() - 1, s + bytes.len(), bracket);
+            collector.push(s + bracket_pos + 1, m.end() - 1, id);
+            collector.push(m.end() - 1, m.end(), bracket);
         }
     }
 }

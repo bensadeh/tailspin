@@ -1,5 +1,6 @@
+use super::build_regex;
 use memchr::{memchr, memchr3};
-use regex::{Regex, RegexBuilder};
+use regex::Regex;
 
 use crate::core::config::NumberConfig;
 
@@ -20,10 +21,7 @@ impl NumberFinder {
             \b          # end of number
         ";
 
-        let regex = RegexBuilder::new(pattern)
-            .unicode(false)
-            .build()
-            .expect("hardcoded number regex must compile");
+        let regex = build_regex(pattern);
 
         Self { regex, config }
     }
