@@ -1,6 +1,6 @@
 use crate::io::reader::StreamEvent;
 use crate::io::reader::StreamEvent::{Ended, Started};
-use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
+use crate::io::reader::line_batcher::{BUF_READER_CAPACITY, ReadResult, read_lines};
 use anyhow::{Context, Result};
 use std::path::Path;
 use std::time::Duration;
@@ -22,7 +22,7 @@ impl FileReader {
 
         let file = tokio::fs::File::open(&file_path).await.context("Could not open file")?;
 
-        let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, file);
+        let reader = BufReader::with_capacity(BUF_READER_CAPACITY, file);
 
         Ok(Self {
             reader,

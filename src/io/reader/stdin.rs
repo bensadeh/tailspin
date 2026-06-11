@@ -1,5 +1,5 @@
 use crate::io::reader::StreamEvent;
-use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
+use crate::io::reader::line_batcher::{BUF_READER_CAPACITY, ReadResult, read_lines};
 use anyhow::Result;
 use tokio::io::{BufReader, Stdin, stdin};
 
@@ -10,7 +10,7 @@ pub struct StdinReader {
 
 impl StdinReader {
     pub fn new() -> StdinReader {
-        let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, stdin());
+        let reader = BufReader::with_capacity(BUF_READER_CAPACITY, stdin());
         let stream_started = false;
 
         StdinReader { reader, stream_started }

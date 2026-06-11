@@ -1,6 +1,6 @@
-mod buffer_line_counter;
 pub mod command;
 pub mod file_reader;
+mod line_batcher;
 pub mod stdin;
 
 use crate::io::reader::command::CommandReader;

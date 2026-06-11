@@ -1,5 +1,5 @@
 use crate::io::reader::StreamEvent;
-use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
+use crate::io::reader::line_batcher::{BUF_READER_CAPACITY, ReadResult, read_lines};
 use anyhow::{Context, Result, anyhow, ensure};
 use std::process::Stdio;
 use tokio::io::BufReader;
@@ -34,7 +34,7 @@ async fn spawn_command(command: String) -> Result<CommandReader> {
         .take()
         .ok_or_else(|| anyhow!("Could not capture stdout of spawned process"))?;
 
-    let reader = BufReader::with_capacity(BUFF_READER_CAPACITY, stdout);
+    let reader = BufReader::with_capacity(BUF_READER_CAPACITY, stdout);
 
     Ok(CommandReader {
         reader,

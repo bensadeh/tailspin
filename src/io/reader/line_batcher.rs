@@ -1,8 +1,8 @@
-use anyhow::{Result, anyhow};
-use memchr::memchr;
+use anyhow::Result;
+use memchr::{memchr, memrchr};
 use tokio::io::{AsyncBufRead, AsyncBufReadExt};
 
-pub const BUFF_READER_CAPACITY: usize = 64 * 1024;
+pub const BUF_READER_CAPACITY: usize = 64 * 1024;
 
 pub enum ReadResult {
     Eof,
@@ -10,47 +10,31 @@ pub enum ReadResult {
     Batch(Vec<String>),
 }
 
-/// Peeks at the buffered reader to classify available data, then dispatches
-/// to a handler. The peek/handle split exists because `fill_buf()` borrows
-/// the reader — we must drop that borrow before calling `read_until` or
-/// `consume` in the handlers.
+/// Returns the complete lines already buffered in `reader`: a `Batch` when
+/// several are available, otherwise a single `Line` (awaiting more input if
+/// the buffered line is partial).
 pub async fn read_lines<R>(reader: &mut R) -> Result<ReadResult>
-where
-    R: AsyncBufRead + Unpin,
-{
-    match peek_buffer(reader).await? {
-        PeekResult::Eof => Ok(ReadResult::Eof),
-        PeekResult::SingleOrNoNewline => handle_single_or_no_newline(reader).await,
-        PeekResult::MultipleNewlines => handle_multiple_newlines(reader).await,
-    }
-}
-
-enum PeekResult {
-    Eof,
-    SingleOrNoNewline,
-    MultipleNewlines,
-}
-
-async fn peek_buffer<R>(reader: &mut R) -> Result<PeekResult>
 where
     R: AsyncBufRead + Unpin,
 {
     let buf = reader.fill_buf().await?;
 
     if buf.is_empty() {
-        return Ok(PeekResult::Eof);
+        return Ok(ReadResult::Eof);
     }
 
-    match memchr(b'\n', buf) {
-        None => Ok(PeekResult::SingleOrNoNewline),
-        Some(pos) => match memchr(b'\n', &buf[pos + 1..]) {
-            None => Ok(PeekResult::SingleOrNoNewline),
-            Some(_) => Ok(PeekResult::MultipleNewlines),
-        },
+    match memrchr(b'\n', buf) {
+        Some(last) if memchr(b'\n', &buf[..last]).is_some() => {
+            let lines = split_lines(&buf[..last]);
+            reader.consume(last + 1);
+
+            Ok(ReadResult::Batch(lines))
+        }
+        _ => read_line(reader).await,
     }
 }
 
-async fn handle_single_or_no_newline<R>(reader: &mut R) -> Result<ReadResult>
+async fn read_line<R>(reader: &mut R) -> Result<ReadResult>
 where
     R: AsyncBufRead + Unpin,
 {
@@ -64,43 +48,16 @@ where
         buf.pop();
     }
 
-    let line = String::from_utf8_lossy(&buf).to_string();
-    Ok(ReadResult::Line(line))
+    Ok(ReadResult::Line(String::from_utf8_lossy(&buf).into_owned()))
 }
 
-async fn handle_multiple_newlines<R>(reader: &mut R) -> Result<ReadResult>
-where
-    R: AsyncBufRead + Unpin,
-{
-    let buf = reader.fill_buf().await?;
-
-    if let Some(last_newline_pos) = buf.iter().rposition(|&b| b == b'\n') {
-        let consumed_buf = &buf[..=last_newline_pos];
-        let lines = parse_buffer(consumed_buf);
-        reader.consume(last_newline_pos + 1);
-
-        return Ok(ReadResult::Batch(lines));
-    }
-
-    Err(anyhow!("Expected multiple newlines, but none found"))
-}
-
-fn parse_buffer(buf: &[u8]) -> Vec<String> {
-    let mut parts = buf
-        .split(|&b| b == b'\n')
-        .map(|slice| {
-            let slice = slice.strip_suffix(b"\r").unwrap_or(slice);
-            String::from_utf8_lossy(slice).to_string()
+fn split_lines(buf: &[u8]) -> Vec<String> {
+    buf.split(|&b| b == b'\n')
+        .map(|line| {
+            let line = line.strip_suffix(b"\r").unwrap_or(line);
+            String::from_utf8_lossy(line).into_owned()
         })
-        .collect::<Vec<String>>();
-
-    if let Some(last) = parts.last()
-        && last.is_empty()
-    {
-        parts.pop();
-    }
-
-    parts
+        .collect()
 }
 
 #[cfg(test)]
