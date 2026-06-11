@@ -3,7 +3,6 @@ pub mod style;
 
 pub mod config;
 pub(crate) mod span_pipeline;
-mod utils;
 
 #[cfg(test)]
 mod tests {
