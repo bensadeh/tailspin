@@ -1,6 +1,6 @@
 use crate::config::{Source, Target};
 use crate::io::presenter::Presenter;
-use crate::io::presenter::pager::{CustomPagerOptions, LessPagerOptions, Pager, PagerOptions};
+use crate::io::presenter::pager::{Pager, PagerOptions};
 use crate::io::reader::Reader;
 use crate::io::reader::command::CommandReader;
 use crate::io::reader::file_reader::FileReader;
@@ -44,26 +44,15 @@ async fn get_reader(input: Source) -> Result<Reader> {
 }
 
 async fn get_writer_presenter_and_temp_dir(output: Target) -> Result<(Writer, Presenter, Option<TempDir>)> {
-    match output {
-        Target::Less(opts) => {
-            let less_pager_options = LessPagerOptions { follow: opts.follow };
-            let pager_opts = PagerOptions::Less(less_pager_options);
-            let (writer, presenter, temp_dir) = get_temp_file_and_pager(pager_opts).await?;
+    let pager_opts = match output {
+        Target::Less(opts) => PagerOptions::Less(opts),
+        Target::CustomPager(opts) => PagerOptions::Custom(opts),
+        Target::Stdout => return Ok((Writer::Stdout, Presenter::StdOut, None)),
+    };
 
-            Ok((writer, presenter, Some(temp_dir)))
-        }
-        Target::CustomPager(opts) => {
-            let custom_pager_options = CustomPagerOptions {
-                command: opts.command,
-                args: opts.args,
-            };
-            let pager_options = PagerOptions::Custom(custom_pager_options);
-            let (writer, presenter, temp_dir) = get_temp_file_and_pager(pager_options).await?;
+    let (writer, presenter, temp_dir) = get_temp_file_and_pager(pager_opts).await?;
 
-            Ok((writer, presenter, Some(temp_dir)))
-        }
-        Target::Stdout => Ok((Writer::Stdout, Presenter::StdOut, None)),
-    }
+    Ok((writer, presenter, Some(temp_dir)))
 }
 
 async fn get_temp_file_and_pager(pager_opts: PagerOptions) -> Result<(Writer, Presenter, TempDir)> {

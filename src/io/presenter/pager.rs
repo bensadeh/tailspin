@@ -1,3 +1,4 @@
+use crate::config::{CustomPagerOptions, LessOptions};
 use anyhow::Result;
 use std::path::{Path, PathBuf};
 use thiserror::Error;
@@ -9,17 +10,8 @@ pub struct Pager {
 }
 
 pub enum PagerOptions {
-    Less(LessPagerOptions),
+    Less(LessOptions),
     Custom(CustomPagerOptions),
-}
-
-pub struct LessPagerOptions {
-    pub follow: bool,
-}
-
-pub struct CustomPagerOptions {
-    pub command: String,
-    pub args: Vec<String>,
 }
 
 #[derive(Debug, Error)]
