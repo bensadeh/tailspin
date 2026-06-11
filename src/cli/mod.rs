@@ -1,14 +1,13 @@
 mod completions;
-mod keywords;
+pub(crate) mod keywords;
 pub(crate) mod resolution;
 mod styles;
 
 use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
-use crate::cli::keywords::collect_keywords;
 use crate::cli::resolution::{BaseSet, resolve_extras};
 use crate::cli::styles::get_styles;
 use crate::config::{Source, Target, get_io_config};
-use crate::highlighter_builder::{build_highlighter, build_pipeline};
+use crate::highlighter_builder::build_highlighter;
 use crate::theme::reader;
 use anyhow::Result;
 use clap::{ArgAction, Parser, ValueEnum};
@@ -178,11 +177,8 @@ pub fn get_config() -> Result<FullConfig> {
     let base = BaseSet::resolve(&cli.enabled, &cli.disabled)?;
     let extras = resolve_extras(&cli.extras);
 
-    let mut theme = reader::parse_theme(cli.config_path.as_ref())?;
-    let keywords = collect_keywords(&cli, std::mem::take(&mut theme.keywords));
-
-    let stages = build_pipeline(&base, &extras, theme, keywords);
-    let highlighter = build_highlighter(stages)?;
+    let theme = reader::parse_theme(cli.config_path.as_ref())?;
+    let highlighter = build_highlighter(&cli, &base, &extras, theme)?;
 
     Ok(FullConfig {
         source: io_config.source,

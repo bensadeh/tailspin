@@ -1,44 +1,20 @@
 pub mod builtins;
 
+use crate::cli::keywords::collect_keywords;
 use crate::cli::resolution::BaseSet;
-use crate::cli::{Base, Extra};
+use crate::cli::{Arguments, Base, Extra};
 use crate::theme::Theme;
 use std::collections::HashSet;
-use tailspin::Highlighter;
-use tailspin::config::{
-    DateTimeConfig, EmailConfig, IpV4Config, IpV6Config, JsonConfig, JvmStackTraceConfig, KeyValueConfig,
-    KeywordConfig, NumberConfig, PointerConfig, QuoteConfig, RegexConfig, UnixPathConfig, UnixProcessConfig, UrlConfig,
-    UuidConfig,
-};
+use tailspin::{Highlighter, HighlighterBuilder};
 
-#[derive(Debug)]
-pub(crate) enum Stage {
-    Json(JsonConfig),
-    Regexes(Vec<RegexConfig>),
-    Dates(DateTimeConfig),
-    Ipv4(IpV4Config),
-    Ipv6(IpV6Config),
-    JvmStackTrace(JvmStackTraceConfig),
-    Urls(UrlConfig),
-    Emails(EmailConfig),
-    Paths(UnixPathConfig),
-    KeyValuePairs(KeyValueConfig),
-    Uuids(UuidConfig),
-    Pointers(PointerConfig),
-    Processes(UnixProcessConfig),
-    Numbers(NumberConfig),
-    Keywords(Vec<KeywordConfig>),
-    Quotes(QuoteConfig),
-}
-
-pub(crate) fn build_pipeline(
+pub(crate) fn build_highlighter(
+    cli: &Arguments,
     base: &BaseSet,
     extras: &HashSet<Extra>,
     theme: Theme,
-    keywords: Vec<KeywordConfig>,
-) -> Vec<Stage> {
+) -> Result<Highlighter, tailspin::Error> {
     let Theme {
-        keywords: _, // merged ahead of build_pipeline by cli::keywords::collect_keywords
+        keywords,
         regexes,
         numbers,
         uuids,
@@ -56,79 +32,58 @@ pub(crate) fn build_pipeline(
         jvm_stack_traces,
     } = theme;
 
-    let mut stages = Vec::new();
+    let keywords = collect_keywords(cli, keywords);
+
+    let mut b = Highlighter::builder();
 
     if base.contains(Base::Json) {
-        stages.push(Stage::Json(json));
+        b = b.with_json_highlighter(json);
     }
-    stages.push(Stage::Regexes(regexes));
+
+    b = regexes.into_iter().fold(b, HighlighterBuilder::with_regex_highlighter);
+
     if base.contains(Base::Dates) {
-        stages.push(Stage::Dates(dates));
+        b = b.with_date_time_highlighters(dates);
     }
     if base.contains(Base::Ipv4) {
-        stages.push(Stage::Ipv4(ip_v4_addresses));
+        b = b.with_ip_v4_highlighter(ip_v4_addresses);
     }
     if extras.contains(&Extra::Ipv6) {
-        stages.push(Stage::Ipv6(ip_v6_addresses));
+        b = b.with_ip_v6_highlighter(ip_v6_addresses);
     }
     if extras.contains(&Extra::JvmStackTrace) {
-        stages.push(Stage::JvmStackTrace(jvm_stack_traces));
+        b = b.with_jvm_stack_trace_highlighter(jvm_stack_traces);
     }
     if base.contains(Base::Urls) {
-        stages.push(Stage::Urls(urls));
+        b = b.with_url_highlighter(urls);
     }
     if base.contains(Base::Emails) {
-        stages.push(Stage::Emails(emails));
+        b = b.with_email_highlighter(emails);
     }
     if base.contains(Base::Paths) {
-        stages.push(Stage::Paths(paths));
+        b = b.with_unix_path_highlighter(paths);
     }
     if base.contains(Base::KeyValuePairs) {
-        stages.push(Stage::KeyValuePairs(key_value_pairs));
+        b = b.with_key_value_highlighter(key_value_pairs);
     }
     if base.contains(Base::Uuids) {
-        stages.push(Stage::Uuids(uuids));
+        b = b.with_uuid_highlighter(uuids);
     }
     if base.contains(Base::Pointers) {
-        stages.push(Stage::Pointers(pointers));
+        b = b.with_pointer_highlighter(pointers);
     }
     if base.contains(Base::Processes) {
-        stages.push(Stage::Processes(processes));
+        b = b.with_unix_process_highlighter(processes);
     }
     if base.contains(Base::Numbers) {
-        stages.push(Stage::Numbers(numbers));
+        b = b.with_number_highlighter(numbers);
     }
-    stages.push(Stage::Keywords(keywords));
+
+    b = b.with_keyword_highlighter(keywords);
+
     if base.contains(Base::Quotes) {
-        stages.push(Stage::Quotes(quotes));
+        b = b.with_quote_highlighter(quotes);
     }
 
-    stages
-}
-
-pub(crate) fn build_highlighter(stages: Vec<Stage>) -> Result<Highlighter, tailspin::Error> {
-    let mut b = Highlighter::builder();
-    for stage in stages {
-        b = match stage {
-            Stage::Json(c) => b.with_json_highlighter(c),
-            Stage::Regexes(rs) => rs
-                .into_iter()
-                .fold(b, tailspin::HighlighterBuilder::with_regex_highlighter),
-            Stage::Dates(c) => b.with_date_time_highlighters(c),
-            Stage::Ipv4(c) => b.with_ip_v4_highlighter(c),
-            Stage::Ipv6(c) => b.with_ip_v6_highlighter(c),
-            Stage::JvmStackTrace(c) => b.with_jvm_stack_trace_highlighter(c),
-            Stage::Urls(c) => b.with_url_highlighter(c),
-            Stage::Emails(c) => b.with_email_highlighter(c),
-            Stage::Paths(c) => b.with_unix_path_highlighter(c),
-            Stage::KeyValuePairs(c) => b.with_key_value_highlighter(c),
-            Stage::Uuids(c) => b.with_uuid_highlighter(c),
-            Stage::Pointers(c) => b.with_pointer_highlighter(c),
-            Stage::Processes(c) => b.with_unix_process_highlighter(c),
-            Stage::Numbers(c) => b.with_number_highlighter(c),
-            Stage::Keywords(ks) => b.with_keyword_highlighter(ks),
-            Stage::Quotes(c) => b.with_quote_highlighter(c),
-        };
-    }
     b.build()
 }
