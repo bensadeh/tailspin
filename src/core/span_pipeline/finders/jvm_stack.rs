@@ -44,10 +44,11 @@ impl JvmStackFinder {
                 \.(?:[a-zA-Z_$][a-zA-Z0-9_$\-]*|<(?:init|clinit)>) # final segment: '-' permits Kotlin inline-class mangling; <init>/<clinit> are constructor/static-init
             )
             (?P<open>\()
-            (?P<contents>[^)\n]*)
+            (?P<contents>(?u:[^)\n]*))   # (?u:) because a byte-mode negated class could match invalid UTF-8, which the str API rejects
             (?P<close>\))
         ";
         let frame_regex = RegexBuilder::new(frame_pattern)
+            .unicode(false)
             .build()
             .expect("hardcoded JVM stack trace frame regex must compile");
 
@@ -212,6 +213,15 @@ mod tests {
             header_styles.is_empty(),
             "exception style must not appear in a frame line"
         );
+    }
+
+    #[test]
+    fn frame_with_non_ascii_contents_matches() {
+        // Guards the (?u:) on the contents class: the rest of the pattern is
+        // byte-mode, but parenthesized contents may hold arbitrary UTF-8.
+        let input = "        at com.example.Soknad.behandle(Søknad.kt:42)";
+        let texts: Vec<&str> = spans(input).iter().map(|s| span_text(input, s)).collect();
+        assert!(texts.iter().any(|t| t.contains("com.example")));
     }
 
     #[test]
