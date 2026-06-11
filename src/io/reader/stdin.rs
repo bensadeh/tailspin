@@ -1,5 +1,5 @@
+use crate::io::reader::StreamEvent;
 use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
-use crate::io::reader::{AsyncLineReader, StreamEvent};
 use anyhow::Result;
 use tokio::io::{BufReader, Stdin, stdin};
 
@@ -17,8 +17,8 @@ impl StdinReader {
     }
 }
 
-impl AsyncLineReader for StdinReader {
-    async fn next(&mut self) -> Result<StreamEvent> {
+impl StdinReader {
+    pub async fn next(&mut self) -> Result<StreamEvent> {
         if !self.stream_started {
             self.stream_started = true;
 

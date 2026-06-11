@@ -1,4 +1,3 @@
-use crate::io::writer::AsyncLineWriter;
 use anyhow::Result;
 use std::io::{self, Write as _};
 use thiserror::Error;
@@ -16,21 +15,9 @@ impl BrokenPipe {
     }
 }
 
-pub struct StdoutWriter {
-    _private: (),
-}
-
-impl StdoutWriter {
-    pub const fn new() -> StdoutWriter {
-        StdoutWriter { _private: () }
-    }
-}
-
-impl AsyncLineWriter for StdoutWriter {
-    async fn write(&mut self, line: &str) -> Result<()> {
-        match writeln!(io::stdout(), "{line}") {
-            Err(e) if e.kind() == io::ErrorKind::BrokenPipe => Err(BrokenPipe)?,
-            result => Ok(result?),
-        }
+pub fn write_line(line: &str) -> Result<()> {
+    match writeln!(io::stdout(), "{line}") {
+        Err(e) if e.kind() == io::ErrorKind::BrokenPipe => Err(BrokenPipe)?,
+        result => Ok(result?),
     }
 }

@@ -1,6 +1,6 @@
+use crate::io::reader::StreamEvent;
 use crate::io::reader::StreamEvent::{Ended, Started};
 use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
-use crate::io::reader::{AsyncLineReader, StreamEvent};
 use anyhow::{Context, Result};
 use std::path::Path;
 use std::time::Duration;
@@ -85,8 +85,8 @@ impl FileReader {
     }
 }
 
-impl AsyncLineReader for FileReader {
-    async fn next(&mut self) -> Result<StreamEvent> {
+impl FileReader {
+    pub async fn next(&mut self) -> Result<StreamEvent> {
         if !self.initial_read_done {
             match read_lines(&mut self.reader).await? {
                 ReadResult::Eof => {

@@ -1,4 +1,3 @@
-use crate::io::writer::AsyncLineWriter;
 use anyhow::{Context, Result};
 use tokio::fs::File;
 use tokio::io::{AsyncWriteExt, BufWriter};
@@ -14,8 +13,8 @@ impl TempFile {
     }
 }
 
-impl AsyncLineWriter for TempFile {
-    async fn write(&mut self, line: &str) -> Result<()> {
+impl TempFile {
+    pub async fn write(&mut self, line: &str) -> Result<()> {
         self.writer
             .write_all(line.as_bytes())
             .await

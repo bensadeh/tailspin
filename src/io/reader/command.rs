@@ -1,5 +1,5 @@
+use crate::io::reader::StreamEvent;
 use crate::io::reader::buffer_line_counter::{BUFF_READER_CAPACITY, ReadResult, read_lines};
-use crate::io::reader::{AsyncLineReader, StreamEvent};
 use anyhow::{Context, Result, anyhow, ensure};
 use std::process::Stdio;
 use tokio::io::BufReader;
@@ -54,8 +54,8 @@ impl Drop for CommandReader {
     }
 }
 
-impl AsyncLineReader for CommandReader {
-    async fn next(&mut self) -> Result<StreamEvent> {
+impl CommandReader {
+    pub async fn next(&mut self) -> Result<StreamEvent> {
         if !self.ready {
             self.ready = true;
 

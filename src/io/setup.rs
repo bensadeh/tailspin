@@ -6,7 +6,6 @@ use crate::io::reader::command::CommandReader;
 use crate::io::reader::file_reader::FileReader;
 use crate::io::reader::stdin::StdinReader;
 use crate::io::writer::Writer;
-use crate::io::writer::stdout::StdoutWriter;
 use crate::io::writer::temp_file::TempFile;
 use anyhow::{Context, Result};
 use std::path::PathBuf;
@@ -63,7 +62,7 @@ async fn get_writer_presenter_and_temp_dir(output: Target) -> Result<(Writer, Pr
 
             Ok((writer, presenter, Some(temp_dir)))
         }
-        Target::Stdout => Ok((Writer::Stdout(StdoutWriter::new()), Presenter::StdOut, None)),
+        Target::Stdout => Ok((Writer::Stdout, Presenter::StdOut, None)),
     }
 }
 

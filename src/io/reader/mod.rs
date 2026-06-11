@@ -22,12 +22,8 @@ pub enum StreamEvent {
     Lines(Vec<String>),
 }
 
-pub trait AsyncLineReader {
-    async fn next(&mut self) -> Result<StreamEvent>;
-}
-
-impl AsyncLineReader for Reader {
-    async fn next(&mut self) -> Result<StreamEvent> {
+impl Reader {
+    pub async fn next(&mut self) -> Result<StreamEvent> {
         match self {
             Reader::File(r) => r.next().await,
             Reader::Stdin(r) => r.next().await,
