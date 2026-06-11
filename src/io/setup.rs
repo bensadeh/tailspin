@@ -1,7 +1,6 @@
 use crate::config::{Source, Target};
 use crate::io::presenter::Presenter;
 use crate::io::presenter::pager::{CustomPagerOptions, LessPagerOptions, Pager, PagerOptions};
-use crate::io::presenter::stdout::StdoutPresenter;
 use crate::io::reader::Reader;
 use crate::io::reader::command::CommandReader;
 use crate::io::reader::file_reader::FileReader;
@@ -64,11 +63,7 @@ async fn get_writer_presenter_and_temp_dir(output: Target) -> Result<(Writer, Pr
 
             Ok((writer, presenter, Some(temp_dir)))
         }
-        Target::Stdout => Ok((
-            Writer::Stdout(StdoutWriter::new()),
-            Presenter::StdOut(StdoutPresenter::new()),
-            None,
-        )),
+        Target::Stdout => Ok((Writer::Stdout(StdoutWriter::new()), Presenter::StdOut, None)),
     }
 }
 

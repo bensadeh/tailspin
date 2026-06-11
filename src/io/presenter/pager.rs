@@ -1,4 +1,3 @@
-use crate::io::presenter::Present;
 use anyhow::Result;
 use std::path::{Path, PathBuf};
 use thiserror::Error;
@@ -39,10 +38,8 @@ impl Pager {
     pub const fn new(path: PathBuf, pager_options: PagerOptions) -> Self {
         Self { path, pager_options }
     }
-}
 
-impl Present for Pager {
-    async fn present(&self) -> Result<()> {
+    pub async fn present(&self) -> Result<()> {
         #[cfg(unix)]
         let _sigint = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt())
             .map_err(PagerError::SignalSetup)?;

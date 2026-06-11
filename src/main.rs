@@ -8,8 +8,8 @@ mod theme;
 
 use cli::{FullConfig, get_config};
 use io::initial_read::{InitialReadCompleteSender, initial_read_complete_channel};
+use io::presenter::Presenter;
 use io::presenter::pager::Pager;
-use io::presenter::{Present, Presenter};
 use io::reader::{AsyncLineReader, Reader, StreamEvent};
 use io::setup::initialize_io;
 use io::writer::stdout::BrokenPipe;
@@ -37,7 +37,7 @@ async fn main() -> anyhow::Result<()> {
     }
 
     match io.presenter {
-        Presenter::StdOut(_) => BrokenPipe::suppress(process_stream_task.await?),
+        Presenter::StdOut => BrokenPipe::suppress(process_stream_task.await?),
         Presenter::Pager(pager) => race_pager_against_stream(pager, process_stream_task).await,
     }
 }
