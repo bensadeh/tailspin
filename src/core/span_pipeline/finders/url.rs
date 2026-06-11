@@ -135,6 +135,7 @@ impl Finder for UrlFinder {
 
 #[cfg(test)]
 mod tests {
+    use super::super::span_texts;
     use super::*;
     use crate::style::{Color, Style};
 
@@ -150,17 +151,11 @@ mod tests {
         })
     }
 
-    fn spans_text<'a>(input: &'a str, finder: &UrlFinder) -> Vec<&'a str> {
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
-    }
-
     #[test]
     fn matches_url_with_port() {
         let f = finder();
         let input = "http://localhost:8080/path";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"http"));
         assert!(texts.contains(&"localhost"));
         assert!(texts.contains(&":"));
@@ -172,7 +167,7 @@ mod tests {
     fn matches_url_without_port() {
         let f = finder();
         let input = "https://example.com/foo";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"https"));
         assert!(texts.contains(&"example.com"));
         assert!(texts.contains(&"/foo"));
@@ -183,7 +178,7 @@ mod tests {
     fn matches_url_with_port_and_query() {
         let f = finder();
         let input = "http://api.dev:3000/v1?key=val";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"api.dev"));
         assert!(texts.contains(&"3000"));
         assert!(texts.contains(&"key"));
@@ -203,7 +198,7 @@ mod tests {
         // Trailing ) should be excluded when it's unbalanced
         let f = finder();
         let input = "(http://example.com/path)";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"http"));
         assert!(texts.contains(&"example.com"));
         assert!(texts.contains(&"/path"));
@@ -216,7 +211,7 @@ mod tests {
         // Wikipedia-style URLs with balanced parens should keep them
         let f = finder();
         let input = "http://en.wikipedia.org/wiki/Rust_(programming_language)";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"http"));
         assert!(texts.contains(&"en.wikipedia.org"));
         // Path should include the balanced parens
@@ -228,7 +223,7 @@ mod tests {
     fn url_with_query_wrapped_in_parens() {
         let f = finder();
         let input = "(http://example.com/path?key=val)";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"key"));
         assert!(texts.contains(&"val"));
         assert!(!texts.contains(&")"));
@@ -238,7 +233,7 @@ mod tests {
     fn multiple_query_params() {
         let f = finder();
         let input = "http://api.dev/v1?a=1&b=2";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"a"));
         assert!(texts.contains(&"1"));
         assert!(texts.contains(&"b"));
@@ -249,7 +244,7 @@ mod tests {
     fn url_with_balanced_parens_wrapped_in_parens() {
         let f = finder();
         let input = "(https://en.wikipedia.org/wiki/Foo_(bar))";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"https"));
         assert!(texts.contains(&"en.wikipedia.org"));
         // The outer closing paren should be excluded
@@ -261,7 +256,7 @@ mod tests {
     fn url_in_single_quotes() {
         let f = finder();
         let input = "'https://example.com/path'";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"https"));
         assert!(texts.contains(&"example.com"));
         // Single quote should not be part of any span
@@ -272,7 +267,7 @@ mod tests {
     fn multiple_parenthesized_urls() {
         let f = finder();
         let input = "(https://a.com/x) and (https://b.com/y)";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"a.com"));
         assert!(texts.contains(&"b.com"));
     }
@@ -281,7 +276,7 @@ mod tests {
     fn parens_in_query_string() {
         let f = finder();
         let input = "https://example.com/api?filter=(name)";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"https"));
         assert!(texts.contains(&"example.com"));
     }
@@ -290,7 +285,7 @@ mod tests {
     fn double_paren_wrapping() {
         let f = finder();
         let input = "((https://example.com))";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"https"));
         assert!(texts.contains(&"example.com"));
         // Neither closing paren should be in any span
@@ -301,7 +296,7 @@ mod tests {
     fn nested_parens_in_path() {
         let f = finder();
         let input = "https://en.wikipedia.org/wiki/Foo_(bar_(baz))";
-        let texts = spans_text(input, &f);
+        let texts = span_texts(input, &f);
         assert!(texts.contains(&"https"));
         let path_span = texts.iter().find(|t| t.contains("Foo_(")).unwrap();
         assert!(path_span.contains("baz))"));

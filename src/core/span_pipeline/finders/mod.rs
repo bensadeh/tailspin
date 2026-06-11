@@ -26,3 +26,11 @@ pub(crate) fn build_regex(pattern: &str) -> Regex {
         .build()
         .expect("hardcoded finder regex must compile")
 }
+
+/// The texts of all spans a finder produces for `input`.
+#[cfg(test)]
+pub(crate) fn span_texts<'a>(input: &'a str, finder: &impl super::span::Finder) -> Vec<&'a str> {
+    let mut collector = super::span::Collector::new();
+    finder.find_spans(input, &mut collector);
+    collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
+}

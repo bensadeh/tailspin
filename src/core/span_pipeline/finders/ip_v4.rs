@@ -66,6 +66,7 @@ impl Finder for IpV4Finder {
 
 #[cfg(test)]
 mod tests {
+    use super::super::span_texts;
     use super::*;
     use crate::style::{Color, Style};
 
@@ -74,12 +75,6 @@ mod tests {
             number: Style::new().fg(Color::Blue),
             separator: Style::new().fg(Color::Red),
         })
-    }
-
-    fn span_texts<'a>(input: &'a str, finder: &IpV4Finder) -> Vec<&'a str> {
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
     }
 
     #[test]

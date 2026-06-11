@@ -65,6 +65,7 @@ impl Finder for EmailFinder {
 
 #[cfg(test)]
 mod tests {
+    use super::super::span_texts;
     use super::*;
     use crate::style::{Color, Style};
 
@@ -79,56 +80,29 @@ mod tests {
 
     #[test]
     fn finds_email() {
-        let finder = make_finder();
-        let mut collector = Collector::new();
-        finder.find_spans("contact user@example.com today", &mut collector);
-
-        let spans = collector.into_spans();
-        // local("user") + at("@") + domain("example") + dot(".") + domain("com")
-        assert_eq!(spans.len(), 5);
-        assert_eq!(&"contact user@example.com today"[spans[0].start..spans[0].end], "user");
-        assert_eq!(&"contact user@example.com today"[spans[1].start..spans[1].end], "@");
-        assert_eq!(
-            &"contact user@example.com today"[spans[2].start..spans[2].end],
-            "example"
-        );
-        assert_eq!(&"contact user@example.com today"[spans[3].start..spans[3].end], ".");
-        assert_eq!(&"contact user@example.com today"[spans[4].start..spans[4].end], "com");
+        let texts = span_texts("contact user@example.com today", &make_finder());
+        assert_eq!(texts, ["user", "@", "example", ".", "com"]);
     }
 
     #[test]
     fn email_with_plus_and_subdomains() {
-        let finder = make_finder();
-        let input = "first.last+tag@sub.domain.co.uk";
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-
-        let spans = collector.into_spans();
-        assert_eq!(&input[spans[0].start..spans[0].end], "first.last+tag");
-        assert_eq!(&input[spans[1].start..spans[1].end], "@");
-        // Domain parts: sub, ., domain, ., co, ., uk
-        assert_eq!(spans.len(), 9);
+        let texts = span_texts("first.last+tag@sub.domain.co.uk", &make_finder());
+        assert_eq!(
+            texts,
+            ["first.last+tag", "@", "sub", ".", "domain", ".", "co", ".", "uk"]
+        );
     }
 
     #[test]
     fn multiple_emails() {
-        let finder = make_finder();
-        let input = "From alice@a.com to bob@b.org";
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-
-        let spans = collector.into_spans();
-        let texts: Vec<&str> = spans.iter().map(|s| &input[s.start..s.end]).collect();
+        let texts = span_texts("From alice@a.com to bob@b.org", &make_finder());
         assert!(texts.contains(&"alice"));
         assert!(texts.contains(&"bob"));
     }
 
     #[test]
     fn no_email_no_match() {
-        let finder = make_finder();
-        let mut collector = Collector::new();
-        finder.find_spans("No email here!", &mut collector);
-        assert!(collector.into_spans().is_empty());
+        assert!(span_texts("No email here!", &make_finder()).is_empty());
     }
 
     #[test]

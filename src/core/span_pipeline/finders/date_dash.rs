@@ -71,6 +71,7 @@ impl Finder for DateDashFinder {
 
 #[cfg(test)]
 mod tests {
+    use super::super::span_texts;
     use super::*;
     use crate::style::{Color, Style};
 
@@ -80,12 +81,6 @@ mod tests {
             separator: Style::new().fg(Color::Blue),
             ..Default::default()
         })
-    }
-
-    fn span_texts<'a>(input: &'a str, finder: &DateDashFinder) -> Vec<&'a str> {
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
     }
 
     #[test]

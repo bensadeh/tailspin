@@ -34,108 +34,56 @@ impl Finder for QuoteFinder {
 
 #[cfg(test)]
 mod tests {
+    use super::super::span_texts;
     use super::*;
     use crate::style::{Color, Style};
 
+    fn make_finder(quote_token: u8) -> QuoteFinder {
+        QuoteFinder::new(QuoteConfig {
+            quote_token,
+            style: Style::new().fg(Color::Yellow),
+        })
+    }
+
     #[test]
     fn finds_quoted_regions() {
-        let finder = QuoteFinder::new(QuoteConfig {
-            quote_token: b'"',
-            style: Style::new().fg(Color::Yellow),
-        });
-        let input = r#"hello "world" end"#;
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-
-        let spans = collector.into_spans();
-        assert_eq!(spans.len(), 1);
-        assert_eq!(&input[spans[0].start..spans[0].end], r#""world""#);
+        let texts = span_texts(r#"hello "world" end"#, &make_finder(b'"'));
+        assert_eq!(texts, [r#""world""#]);
     }
 
     #[test]
     fn odd_quotes_produces_no_spans() {
-        let finder = QuoteFinder::new(QuoteConfig {
-            quote_token: b'"',
-            style: Style::new().fg(Color::Yellow),
-        });
-        let input = r#"hello "world end"#;
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-        assert!(collector.into_spans().is_empty());
+        assert!(span_texts(r#"hello "world end"#, &make_finder(b'"')).is_empty());
     }
 
     #[test]
     fn multiple_quoted_regions() {
-        let finder = QuoteFinder::new(QuoteConfig {
-            quote_token: b'"',
-            style: Style::new().fg(Color::Yellow),
-        });
-        let input = r#""hello" and "world""#;
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-
-        let spans = collector.into_spans();
-        assert_eq!(spans.len(), 2);
-        assert_eq!(&input[spans[0].start..spans[0].end], r#""hello""#);
-        assert_eq!(&input[spans[1].start..spans[1].end], r#""world""#);
+        let texts = span_texts(r#""hello" and "world""#, &make_finder(b'"'));
+        assert_eq!(texts, [r#""hello""#, r#""world""#]);
     }
 
     #[test]
     fn adjacent_quoted_strings() {
-        let finder = QuoteFinder::new(QuoteConfig {
-            quote_token: b'"',
-            style: Style::new().fg(Color::Yellow),
-        });
-        let input = r#""hello""world""#;
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-
-        let spans = collector.into_spans();
         // Adjacent same-style spans get coalesced by the Collector
-        assert_eq!(spans.len(), 1);
-        assert_eq!(&input[spans[0].start..spans[0].end], r#""hello""world""#);
+        let texts = span_texts(r#""hello""world""#, &make_finder(b'"'));
+        assert_eq!(texts, [r#""hello""world""#]);
     }
 
     #[test]
     fn empty_quoted_string() {
-        let finder = QuoteFinder::new(QuoteConfig {
-            quote_token: b'"',
-            style: Style::new().fg(Color::Yellow),
-        });
-        let input = r#"before "" after"#;
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-
-        let spans = collector.into_spans();
-        assert_eq!(spans.len(), 1);
-        assert_eq!(&input[spans[0].start..spans[0].end], r#""""#);
+        let texts = span_texts(r#"before "" after"#, &make_finder(b'"'));
+        assert_eq!(texts, [r#""""#]);
     }
 
     #[test]
     fn single_quote_token() {
-        let finder = QuoteFinder::new(QuoteConfig {
-            quote_token: b'\'',
-            style: Style::new().fg(Color::Yellow),
-        });
-        let input = "msg 'hello world' done";
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-
-        let spans = collector.into_spans();
-        assert_eq!(spans.len(), 1);
-        assert_eq!(&input[spans[0].start..spans[0].end], "'hello world'");
+        let texts = span_texts("msg 'hello world' done", &make_finder(b'\''));
+        assert_eq!(texts, ["'hello world'"]);
     }
 
     #[test]
     fn three_quotes_produces_no_spans() {
-        let finder = QuoteFinder::new(QuoteConfig {
-            quote_token: b'"',
-            style: Style::new().fg(Color::Yellow),
-        });
-        let input = r#"a "b" c "d"#;
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
         // 3 quotes is odd — should produce no spans
-        assert!(collector.into_spans().is_empty());
+        assert!(span_texts(r#"a "b" c "d"#, &make_finder(b'"')).is_empty());
     }
 }

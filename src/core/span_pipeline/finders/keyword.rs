@@ -60,13 +60,8 @@ mod tests {
     #[test]
     fn finds_keywords() {
         let finder = KeywordFinder::new(&["null", "true", "false"], Style::new().fg(Color::Red)).unwrap();
-        let mut collector = Collector::new();
-        finder.find_spans("value is null or true", &mut collector);
-
-        let spans = collector.into_spans();
-        assert_eq!(spans.len(), 2);
-        assert_eq!(&"value is null or true"[spans[0].start..spans[0].end], "null");
-        assert_eq!(&"value is null or true"[spans[1].start..spans[1].end], "true");
+        let texts = super::super::span_texts("value is null or true", &finder);
+        assert_eq!(texts, ["null", "true"]);
     }
 
     #[test]

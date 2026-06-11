@@ -117,6 +117,7 @@ impl Finder for JsonFinder {
 
 #[cfg(test)]
 mod tests {
+    use super::super::span_texts;
     use super::*;
     use crate::style::{Color, Style};
 
@@ -129,12 +130,6 @@ mod tests {
             comma: Style::new().fg(Color::Red),
             colon: Style::new().fg(Color::Magenta),
         })
-    }
-
-    fn span_texts<'a>(input: &'a str, finder: &JsonFinder) -> Vec<&'a str> {
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
     }
 
     #[test]

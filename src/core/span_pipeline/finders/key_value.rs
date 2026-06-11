@@ -45,6 +45,7 @@ impl Finder for KeyValueFinder {
 
 #[cfg(test)]
 mod tests {
+    use super::super::span_texts;
     use super::*;
     use crate::style::{Color, Style};
 
@@ -53,12 +54,6 @@ mod tests {
             key: Style::new().fg(Color::Red),
             separator: Style::new().fg(Color::Yellow),
         })
-    }
-
-    fn span_texts<'a>(input: &'a str, finder: &KeyValueFinder) -> Vec<&'a str> {
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
     }
 
     #[test]

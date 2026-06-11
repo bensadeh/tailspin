@@ -48,30 +48,24 @@ impl Finder for NumberFinder {
 
 #[cfg(test)]
 mod tests {
+    use super::super::span_texts;
     use super::*;
     use crate::style::{Color, Style};
 
+    fn make_finder() -> NumberFinder {
+        NumberFinder::new(NumberConfig {
+            style: Style::new().fg(Color::Cyan),
+        })
+    }
+
     #[test]
     fn finds_numbers() {
-        let finder = NumberFinder::new(NumberConfig {
-            style: Style::new().fg(Color::Cyan),
-        });
-        let mut collector = Collector::new();
-        finder.find_spans("hello 42 world 3.14", &mut collector);
-
-        let spans = collector.into_spans();
-        assert_eq!(spans.len(), 2);
-        assert_eq!(&"hello 42 world 3.14"[spans[0].start..spans[0].end], "42");
-        assert_eq!(&"hello 42 world 3.14"[spans[1].start..spans[1].end], "3.14");
+        let texts = span_texts("hello 42 world 3.14", &make_finder());
+        assert_eq!(texts, ["42", "3.14"]);
     }
 
     #[test]
     fn no_match_produces_no_spans() {
-        let finder = NumberFinder::new(NumberConfig {
-            style: Style::new().fg(Color::Cyan),
-        });
-        let mut collector = Collector::new();
-        finder.find_spans("no numbers here", &mut collector);
-        assert!(collector.into_spans().is_empty());
+        assert!(span_texts("no numbers here", &make_finder()).is_empty());
     }
 }

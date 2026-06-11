@@ -66,6 +66,7 @@ impl Finder for UnixPathFinder {
 
 #[cfg(test)]
 mod tests {
+    use super::super::span_texts;
     use super::*;
     use crate::style::{Color, Style};
 
@@ -74,12 +75,6 @@ mod tests {
             segment: Style::new().fg(Color::Green),
             separator: Style::new().fg(Color::Yellow),
         })
-    }
-
-    fn span_texts<'a>(input: &'a str, finder: &UnixPathFinder) -> Vec<&'a str> {
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
     }
 
     #[test]

@@ -46,6 +46,7 @@ impl Finder for UnixProcessFinder {
 
 #[cfg(test)]
 mod tests {
+    use super::super::span_texts;
     use super::*;
     use crate::style::{Color, Style};
 
@@ -55,12 +56,6 @@ mod tests {
             id: Style::new().fg(Color::Green),
             bracket: Style::new().fg(Color::Blue),
         })
-    }
-
-    fn span_texts<'a>(input: &'a str, finder: &UnixProcessFinder) -> Vec<&'a str> {
-        let mut collector = Collector::new();
-        finder.find_spans(input, &mut collector);
-        collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
     }
 
     #[test]

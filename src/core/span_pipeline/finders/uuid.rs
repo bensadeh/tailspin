@@ -84,8 +84,6 @@ mod tests {
             letter: Style::new().fg(Color::Yellow),
             separator: Style::new().fg(Color::Red),
         });
-        let mut collector = Collector::new();
-        finder.find_spans("no dashes here at all", &mut collector);
-        assert!(collector.into_spans().is_empty());
+        assert!(super::super::span_texts("no dashes here at all", &finder).is_empty());
     }
 }
