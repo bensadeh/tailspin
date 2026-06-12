@@ -1,0 +1,12 @@
+---
+source: tests/e2e.rs
+expression: readable(&output)
+---
+␛[35m2024␛[0m␛[2m-␛[0m␛[35m09␛[0m␛[2m-␛[0m␛[35m14␛[0m␛[31mT␛[0m␛[34m07␛[0m␛[2m:␛[0m␛[34m57␛[0m␛[2m:␛[0m␛[34m30␛[0m␛[2m.␛[0m␛[34m659␛[0m␛[31mZ␛[0m ␛[37mINFO␛[0m Starting server on ␛[3;34m192␛[0m␛[31m.␛[0m␛[3;34m168␛[0m␛[31m.␛[0m␛[3;34m1␛[0m␛[31m.␛[0m␛[3;34m100␛[0m:␛[36m8080␛[0m
+␛[42;30m GET ␛[0m ␛[2;32mhttps␛[0m://␛[2;34mapi.example.com␛[0m␛[34m/v1/users␛[0m␛[31m?␛[0m␛[35mid␛[0m␛[31m=␛[0m␛[36m42␛[0m␛[31m&␛[0m␛[35msort␛[0m␛[31m=␛[0m␛[36masc␛[0m took 35ms
+␛[2muser␛[0m␛[37m=␛[0malice ␛[2memail␛[0m␛[37m=␛[0m␛[4;32malice␛[0m␛[31m@␛[0m␛[4;32mexample␛[0m␛[31m.␛[0m␛[4;32mcom␛[0m ␛[2msession␛[0m␛[37m=␛[0m␛[3;34m550␛[0m␛[3;35me␛[0m␛[3;34m8400␛[0m␛[31m-␛[0m␛[3;35me␛[0m␛[3;34m29␛[0m␛[3;35mb␛[0m␛[31m-␛[0m␛[3;34m41␛[0m␛[3;35md␛[0m␛[3;34m4␛[0m␛[31m-␛[0m␛[3;35ma␛[0m␛[3;34m716␛[0m␛[31m-␛[0m␛[3;34m446655440000␛[0m
+␛[33mWARN␛[0m disk usage at ␛[36m91.5␛[0m% on ␛[33m/␛[0m␛[32mvar␛[0m␛[33m/␛[0m␛[32mlib␛[0m␛[33m/␛[0m␛[32mpostgres␛[0m␛[33m/␛[0m␛[32mdata␛[0m
+␛[33msshd␛[0m␛[31m[␛[0m␛[36m4242␛[0m␛[31m]␛[0m: Accepted publickey for root
+␛[31mERROR␛[0m Connection refused: ␛[33m"retry in 5s"␛[0m ␛[3;31mnull␛[0m
+␛[35m12␛[0m␛[2m/␛[0m␛[35m31␛[0m␛[2m/␛[0m␛[35m2023␛[0m␛[31m ␛[0m␛[34m23␛[0m␛[2m:␛[0m␛[34m59␛[0m␛[2m:␛[0m␛[34m59␛[0m job finished ␛[3;32mtrue␛[0m
+pointer ␛[3;34m0␛[0m␛[31mx␛[0m␛[3;35mDEADBEEF␛[0m seen near {␛[33m"level"␛[0m:␛[33m"info"␛[0m,␛[33m"count"␛[0m:␛[36m7␛[0m}

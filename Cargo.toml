@@ -52,7 +52,14 @@ tokio = { version = "1.52.3", features = ["fs", "io-std", "io-util", "macros", "
 toml = { version = "1.1.2", optional = true }
 
 [dev-dependencies]
+assert_cmd = "2.2.2"
 criterion = "0.8.2"
+insta = "1.48.0"
+tempfile = "3.27.0"
+
+[[test]]
+name = "e2e"
+required-features = ["cli"]
 
 [[bench]]
 name = "highlighters"

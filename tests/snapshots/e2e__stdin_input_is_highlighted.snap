@@ -1,0 +1,5 @@
+---
+source: tests/e2e.rs
+expression: readable(&output)
+---
+status ␛[36m200␛[0m ␛[3;31mnull␛[0m
