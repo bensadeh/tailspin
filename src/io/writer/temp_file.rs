@@ -7,8 +7,7 @@ pub struct TempFile {
 }
 
 impl TempFile {
-    #[allow(clippy::unused_async)]
-    pub async fn new(writer: BufWriter<File>) -> Self {
+    pub const fn new(writer: BufWriter<File>) -> Self {
         TempFile { writer }
     }
 }

@@ -26,7 +26,7 @@ async fn main() -> anyhow::Result<()> {
         target,
         highlighter,
     } = get_config()?;
-    let (io, _temp_dir) = initialize_io(source, target).await?;
+    let io = initialize_io(source, target).await?;
 
     let (initial_read_tx, initial_read_rx) = initial_read_complete_channel();
 

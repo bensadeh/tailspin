@@ -1,12 +1,13 @@
 use crate::config::{CustomPagerOptions, LessOptions};
 use anyhow::Result;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use tempfile::TempPath;
 use thiserror::Error;
 use tokio::process::Command;
 
 pub struct Pager {
-    path: PathBuf,
-    pager_options: PagerOptions,
+    path: TempPath,
+    options: PagerOptions,
 }
 
 pub enum PagerOptions {
@@ -27,16 +28,18 @@ pub enum PagerError {
 }
 
 impl Pager {
-    pub const fn new(path: PathBuf, pager_options: PagerOptions) -> Self {
-        Self { path, pager_options }
+    pub const fn new(path: TempPath, options: PagerOptions) -> Self {
+        Self { path, options }
     }
 
     pub async fn present(&self) -> Result<()> {
+        // Installs a process-global SIGINT handler so Ctrl+C (sent to the whole
+        // process group) stops at the pager instead of also killing tspin behind it.
         #[cfg(unix)]
-        let _sigint = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt())
+        let _ignore_sigint = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt())
             .map_err(PagerError::SignalSetup)?;
 
-        let mut command = match &self.pager_options {
+        let mut command = match &self.options {
             PagerOptions::Less(less) => get_less_pager_command(less.follow, &self.path),
             PagerOptions::Custom(custom) => {
                 get_custom_pager_command(custom.command.clone(), custom.args.clone(), &self.path)
