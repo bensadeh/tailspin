@@ -21,22 +21,25 @@ use crate::core::span_pipeline::span::Finder;
 use crate::style::Style;
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::fmt;
 use thiserror::Error;
 
 /// A pattern-based log highlighter.
 ///
 /// `Highlighter` applies configured pattern-based highlighters to text inputs,
 /// returning highlighted output with ANSI colors.
+#[derive(Debug)]
 pub struct Highlighter {
     inner: Pipeline,
 }
 
+/// An error produced while building a [`Highlighter`].
 #[derive(Debug, Error)]
 pub enum Error {
+    /// A custom regex pattern failed to compile.
     #[error("Regex error: {0}")]
     RegexError(#[from] regex::Error),
 
+    /// A keyword set could not be compiled into a keyword searcher.
     #[error("Pattern error: {0}")]
     PatternError(#[from] aho_corasick::BuildError),
 }
@@ -54,12 +57,6 @@ impl Highlighter {
     #[must_use]
     pub fn apply<'a>(&self, input: &'a str) -> Cow<'a, str> {
         self.inner.apply(input)
-    }
-}
-
-impl fmt::Debug for Highlighter {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Highlighter").field("pipeline", &self.inner).finish()
     }
 }
 
@@ -87,19 +84,11 @@ impl Default for Highlighter {
 }
 
 /// Builder for configuring a [`Highlighter`].
+#[derive(Debug)]
 #[must_use]
 pub struct HighlighterBuilder {
     finders: Vec<Box<dyn Finder>>,
     first_error: Option<Error>,
-}
-
-impl fmt::Debug for HighlighterBuilder {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("HighlighterBuilder")
-            .field("finders", &self.finders.len())
-            .field("has_error", &self.first_error.is_some())
-            .finish()
-    }
 }
 
 impl HighlighterBuilder {
@@ -178,13 +167,7 @@ impl HighlighterBuilder {
 
     /// Adds a highlighter using a custom regex pattern.
     pub fn with_regex_highlighter(mut self, config: RegexConfig) -> Self {
-        if self.first_error.is_some() {
-            return self;
-        }
-        match RegexFinder::new(&config.regex, config.style) {
-            Ok(f) => self.finders.push(Box::new(f)),
-            Err(e) => self.first_error = Some(Error::RegexError(e)),
-        }
+        self.try_add_finder(RegexFinder::new(&config.regex, config.style).map_err(Error::RegexError));
         self
     }
 
@@ -203,15 +186,8 @@ impl HighlighterBuilder {
     /// Adds keyword highlighters.
     pub fn with_keyword_highlighter(mut self, keyword_configs: Vec<KeywordConfig>) -> Self {
         for keyword_config in group_keywords_by_style(keyword_configs) {
-            if self.first_error.is_some() {
-                continue;
-            }
-
             let word_refs: Vec<&str> = keyword_config.words.iter().map(String::as_str).collect();
-            match KeywordFinder::new(&word_refs, keyword_config.style) {
-                Ok(f) => self.finders.push(Box::new(f)),
-                Err(e) => self.first_error = Some(Error::PatternError(e)),
-            }
+            self.try_add_finder(KeywordFinder::new(&word_refs, keyword_config.style).map_err(Error::PatternError));
         }
 
         self
@@ -229,8 +205,16 @@ impl HighlighterBuilder {
     }
 
     fn add_finder<F: Finder + 'static>(&mut self, finder: F) {
-        if self.first_error.is_none() {
-            self.finders.push(Box::new(finder));
+        self.try_add_finder(Ok(finder));
+    }
+
+    fn try_add_finder<F: Finder + 'static>(&mut self, finder: Result<F, Error>) {
+        if self.first_error.is_some() {
+            return;
+        }
+        match finder {
+            Ok(f) => self.finders.push(Box::new(f)),
+            Err(e) => self.first_error = Some(e),
         }
     }
 }
@@ -346,6 +330,19 @@ mod tests {
         let actual = highlighter.apply(input);
 
         assert_eq!(actual.to_string().convert_escape_codes(), expected);
+    }
+
+    #[test]
+    fn invalid_regex_fails_build_and_first_error_wins() {
+        let result = Highlighter::builder()
+            .with_regex_highlighter(RegexConfig {
+                regex: "(unclosed".to_string(),
+                style: Style::default(),
+            })
+            .with_keyword_highlighter(vec![kw(&["ok"], Style::default())])
+            .build();
+
+        assert!(matches!(result, Err(Error::RegexError(_))));
     }
 
     fn kw(words: &[&str], style: Style) -> KeywordConfig {

@@ -107,7 +107,7 @@ impl Collector {
 ///
 /// Implementations run on the original unstyled input and push spans
 /// into the collector.
-pub(crate) trait Finder: Sync + Send {
+pub(crate) trait Finder: std::fmt::Debug + Sync + Send {
     fn find_spans(&self, input: &str, collector: &mut Collector);
 }
 
