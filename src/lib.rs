@@ -29,8 +29,8 @@
 //! ## Example
 //!
 //! ```rust
-//! use tailspin::config::*;
 //! use tailspin::Highlighter;
+//! use tailspin::config::{NumberConfig, QuoteConfig, UuidConfig};
 //! use tailspin::style::{Color, Style};
 //!
 //! let highlighter = Highlighter::builder()
@@ -64,7 +64,11 @@ pub use core::highlighter::{Error, Highlighter, HighlighterBuilder};
 
 /// Configuration support for custom highlighting themes and regex rules.
 pub mod config {
-    pub use super::core::config::*;
+    pub use super::core::config::{
+        DateTimeConfig, EmailConfig, IpV4Config, IpV6Config, JsonConfig, JvmStackTraceConfig, KeyValueConfig,
+        KeywordConfig, NumberConfig, PointerConfig, QuoteConfig, RegexConfig, UnixPathConfig, UnixProcessConfig,
+        UrlConfig, UuidConfig,
+    };
 }
 
 /// ANSI style and color definitions for highlighted output.

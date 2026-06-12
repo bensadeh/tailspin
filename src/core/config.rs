@@ -180,7 +180,7 @@ pub struct JvmStackTraceConfig {
 }
 
 /// Configuration for highlighting custom keywords.
-#[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Clone, Deserialize)]
+#[derive(PartialEq, Eq, Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct KeywordConfig {
     /// List of keywords to highlight.
@@ -190,7 +190,7 @@ pub struct KeywordConfig {
 }
 
 /// Configuration for highlighting custom regex patterns.
-#[derive(PartialEq, Eq, Ord, PartialOrd, Debug, Clone, Deserialize)]
+#[derive(PartialEq, Eq, Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RegexConfig {
     /// Regex pattern for matching text.

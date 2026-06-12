@@ -34,14 +34,15 @@ pub struct Highlighter {
 
 /// An error produced while building a [`Highlighter`].
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum Error {
     /// A custom regex pattern failed to compile.
     #[error("Regex error: {0}")]
-    RegexError(#[from] regex::Error),
+    Regex(#[from] regex::Error),
 
     /// A keyword set could not be compiled into a keyword searcher.
     #[error("Pattern error: {0}")]
-    PatternError(#[from] aho_corasick::BuildError),
+    Pattern(#[from] aho_corasick::BuildError),
 }
 
 impl Highlighter {
@@ -167,7 +168,7 @@ impl HighlighterBuilder {
 
     /// Adds a highlighter using a custom regex pattern.
     pub fn with_regex_highlighter(mut self, config: RegexConfig) -> Self {
-        self.try_add_finder(RegexFinder::new(&config.regex, config.style).map_err(Error::RegexError));
+        self.try_add_finder(RegexFinder::new(&config.regex, config.style).map_err(Error::Regex));
         self
     }
 
@@ -187,7 +188,7 @@ impl HighlighterBuilder {
     pub fn with_keyword_highlighter(mut self, keyword_configs: Vec<KeywordConfig>) -> Self {
         for keyword_config in group_keywords_by_style(keyword_configs) {
             let word_refs: Vec<&str> = keyword_config.words.iter().map(String::as_str).collect();
-            self.try_add_finder(KeywordFinder::new(&word_refs, keyword_config.style).map_err(Error::PatternError));
+            self.try_add_finder(KeywordFinder::new(&word_refs, keyword_config.style).map_err(Error::Pattern));
         }
 
         self
@@ -342,7 +343,7 @@ mod tests {
             .with_keyword_highlighter(vec![kw(&["ok"], Style::default())])
             .build();
 
-        assert!(matches!(result, Err(Error::RegexError(_))));
+        assert!(matches!(result, Err(Error::Regex(_))));
     }
 
     fn kw(words: &[&str], style: Style) -> KeywordConfig {
