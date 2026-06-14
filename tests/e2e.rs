@@ -176,6 +176,51 @@ fn tspin_survives_sigint_while_pager_runs() {
     assert!(stdout_of(&output).contains("Starting server"));
 }
 
+#[cfg(unix)]
+#[test]
+fn pager_killed_by_ctrl_c_is_a_quiet_quit() {
+    use std::time::{Duration, Instant};
+
+    // `tail -f` never exits on its own and does not trap SIGINT.
+    let child = std::process::Command::new(env!("CARGO_BIN_EXE_tspin"))
+        .arg(FIXTURE)
+        .args(["--pager", "tail -f [FILE]"])
+        .env("XDG_CONFIG_HOME", EMPTY_CONFIG_DIR.path())
+        .env_remove("TAILSPIN_PAGER")
+        .env_remove("TAILSPIN_EXTRAS")
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap();
+
+    let pager_pid = {
+        let deadline = Instant::now() + Duration::from_secs(10);
+        loop {
+            let pgrep = std::process::Command::new("pgrep")
+                .args(["-P", &child.id().to_string()])
+                .output()
+                .unwrap();
+            let pid = String::from_utf8_lossy(&pgrep.stdout).trim().to_string();
+            if !pid.is_empty() {
+                break pid;
+            }
+            assert!(Instant::now() < deadline, "pager never started");
+            std::thread::sleep(Duration::from_millis(20));
+        }
+    };
+
+    let kill = std::process::Command::new("kill")
+        .args(["-INT", &pager_pid])
+        .status()
+        .unwrap();
+    assert!(kill.success());
+
+    let output = child.wait_with_output().unwrap();
+    assert!(output.status.success(), "Ctrl+C in the pager is a quit, not an error");
+    assert_eq!(stderr_of(&output), "");
+}
+
 #[test]
 fn custom_theme_overrides_default_style() {
     let dir = tempfile::tempdir().unwrap();
