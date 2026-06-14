@@ -10,3 +10,6 @@ target/
 *.pdb
 
 .direnv/
+
+# Keep test fixtures even when a global gitignore excludes *.log
+!tests/files/*.log

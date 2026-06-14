@@ -1,0 +1,8 @@
+2024-09-14T07:57:30.659Z INFO Starting server on 192.168.1.100:8080
+GET https://api.example.com/v1/users?id=42&sort=asc took 35ms
+user=alice email=alice@example.com session=550e8400-e29b-41d4-a716-446655440000
+WARN disk usage at 91.5% on /var/lib/postgres/data
+sshd[4242]: Accepted publickey for root
+ERROR Connection refused: "retry in 5s" null
+12/31/2023 23:59:59 job finished true
+pointer 0xDEADBEEF seen near {"level":"info","count":7}
