@@ -1,13 +1,15 @@
+mod builtins;
 mod completions;
+mod highlighter;
 pub(crate) mod keywords;
 pub(crate) mod resolution;
 mod styles;
 
 use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
+use crate::cli::highlighter::build_highlighter;
 use crate::cli::resolution::{BaseSet, resolve_extras};
 use crate::cli::styles::get_styles;
-use crate::config::{Source, Target, get_io_config};
-use crate::highlighter_builder::build_highlighter;
+use crate::config::{IoArgs, Source, Target, get_io_config};
 use crate::theme::reader;
 use anyhow::Result;
 use clap::{ArgAction, Parser, ValueEnum};
@@ -172,7 +174,13 @@ pub fn get_config() -> Result<FullConfig> {
         std::process::exit(0);
     }
 
-    let io_config = get_io_config(&cli)?;
+    let io_config = get_io_config(IoArgs {
+        file_path: cli.file_path.clone(),
+        exec: cli.exec.clone(),
+        to_stdout: cli.to_stdout,
+        follow: cli.follow,
+        pager: cli.pager.clone(),
+    })?;
 
     let base = BaseSet::resolve(&cli.enabled, &cli.disabled)?;
     let extras = resolve_extras(&cli.extras);

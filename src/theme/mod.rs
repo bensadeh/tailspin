@@ -7,7 +7,7 @@ pub mod reader;
 /// `theme.toml` as written by the user. Most tables deserialize directly into
 /// the core config structs; the `*Toml` wrappers below exist only where the
 /// TOML shape differs from the config struct it produces. The builder converts
-/// those wrappers at point of use (see `highlighter_builder`).
+/// those wrappers at point of use (see `cli::highlighter`).
 #[derive(Deserialize, Debug, Default)]
 #[serde(default, deny_unknown_fields)]
 pub struct Theme {

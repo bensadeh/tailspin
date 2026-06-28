@@ -1,5 +1,5 @@
+use crate::cli::builtins::get_builtin_keywords;
 use crate::cli::{Arguments, KeywordColor};
-use crate::highlighter_builder::builtins::get_builtin_keywords;
 use std::collections::HashSet;
 use tailspin::config::KeywordConfig;
 use tailspin::style::{Color, Style};

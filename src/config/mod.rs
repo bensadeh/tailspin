@@ -1,4 +1,3 @@
-use crate::cli::Arguments;
 use nu_ansi_term::Color::{Magenta, Yellow};
 use std::cmp::PartialEq;
 use std::fs;
@@ -64,14 +63,23 @@ pub enum ConfigError {
     CouldNotParseCustomPagerCommand,
 }
 
-pub fn get_io_config(args: &Arguments) -> Result<InputOutputConfig, ConfigError> {
-    let source = get_source(args)?;
-    let target = get_target(args, &source)?;
+#[derive(Debug)]
+pub struct IoArgs {
+    pub file_path: Option<PathBuf>,
+    pub exec: Option<String>,
+    pub to_stdout: bool,
+    pub follow: bool,
+    pub pager: Option<String>,
+}
+
+pub fn get_io_config(args: IoArgs) -> Result<InputOutputConfig, ConfigError> {
+    let source = get_source(&args)?;
+    let target = get_target(&args, &source)?;
 
     Ok(InputOutputConfig { source, target })
 }
 
-fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
+fn get_source(args: &IoArgs) -> Result<Source, ConfigError> {
     let std_in_has_data = !stdin().is_terminal();
 
     if args.file_path.is_some() && args.exec.is_some() {
@@ -94,7 +102,7 @@ fn get_source(args: &Arguments) -> Result<Source, ConfigError> {
     Err(ConfigError::CouldNotDetermineInputType)
 }
 
-fn get_target(args: &Arguments, input: &Source) -> Result<Target, ConfigError> {
+fn get_target(args: &IoArgs, input: &Source) -> Result<Target, ConfigError> {
     if *input == Source::Stdin || args.to_stdout {
         return Ok(Target::Stdout);
     }

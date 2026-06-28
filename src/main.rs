@@ -2,7 +2,6 @@
 
 mod cli;
 mod config;
-mod highlighter_builder;
 mod io;
 mod theme;
 

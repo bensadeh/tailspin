@@ -1,5 +1,3 @@
-pub mod builtins;
-
 use crate::cli::keywords::collect_keywords;
 use crate::cli::resolution::BaseSet;
 use crate::cli::{Arguments, Base, Extra};
