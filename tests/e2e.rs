@@ -239,3 +239,30 @@ fn custom_theme_overrides_default_style() {
         "numbers should be green, not the default cyan"
     );
 }
+
+#[test]
+fn ip_addresses_table_styles_both_v4_and_v6() {
+    // A single `[ip_addresses]` table feeds both the v4 highlighter (a base,
+    // on by default) and the v6 one (an extra). Guards the fan-out in the
+    // builder, where one parsed table is converted into both configs.
+    let dir = tempfile::tempdir().unwrap();
+    let theme = dir.path().join("theme.toml");
+    std::fs::write(&theme, "[ip_addresses]\nseparator = { fg = \"magenta\" }\n").unwrap();
+
+    let output = tspin()
+        .args(["--extras", "ipv6", "--config-path", theme.to_str().unwrap()])
+        .write_stdin("ipv4 1.2.3.4 ipv6 2001:db8::1\n")
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    let stdout = stdout_of(&output);
+    assert!(
+        stdout.contains("\x1b[35m.\x1b[0m"),
+        "ipv4 separators should take the [ip_addresses] color"
+    );
+    assert!(
+        stdout.contains("\x1b[35m::\x1b[0m"),
+        "ipv6 separators should take the same [ip_addresses] table"
+    );
+}

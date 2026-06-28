@@ -4,32 +4,13 @@ use tailspin::style::Style;
 
 pub mod reader;
 
-#[derive(Debug)]
-pub struct Theme {
-    pub keywords: Vec<KeywordConfig>,
-    pub regexes: Vec<RegexConfig>,
-    pub numbers: NumberConfig,
-    pub uuids: UuidConfig,
-    pub quotes: QuoteConfig,
-    pub ip_v4_addresses: IpV4Config,
-    pub ip_v6_addresses: IpV6Config,
-    pub dates: DateTimeConfig,
-    pub paths: UnixPathConfig,
-    pub urls: UrlConfig,
-    pub emails: EmailConfig,
-    pub pointers: PointerConfig,
-    pub processes: UnixProcessConfig,
-    pub key_value_pairs: KeyValueConfig,
-    pub json: JsonConfig,
-    pub jvm_stack_traces: JvmStackTraceConfig,
-}
-
 /// `theme.toml` as written by the user. Most tables deserialize directly into
 /// the core config structs; the `*Toml` wrappers below exist only where the
-/// TOML shape differs from the config struct it produces.
+/// TOML shape differs from the config struct it produces. The builder converts
+/// those wrappers at point of use (see `highlighter_builder`).
 #[derive(Deserialize, Debug, Default)]
 #[serde(default, deny_unknown_fields)]
-pub struct TomlTheme {
+pub struct Theme {
     pub keywords: Vec<KeywordConfig>,
     pub regexes: Vec<RegexConfig>,
     pub numbers: NumberToml,
@@ -45,29 +26,6 @@ pub struct TomlTheme {
     pub key_value_pairs: KeyValueConfig,
     pub json: JsonConfig,
     pub jvm_stack_traces: JvmStackTraceConfig,
-}
-
-impl From<TomlTheme> for Theme {
-    fn from(toml: TomlTheme) -> Self {
-        Theme {
-            keywords: toml.keywords,
-            regexes: toml.regexes,
-            numbers: toml.numbers.into(),
-            uuids: toml.uuids,
-            quotes: toml.quotes.into(),
-            ip_v4_addresses: toml.ip_addresses.into(),
-            ip_v6_addresses: toml.ip_addresses.into(),
-            dates: toml.dates,
-            paths: toml.paths,
-            urls: toml.urls,
-            emails: toml.emails,
-            pointers: toml.pointers,
-            processes: toml.processes,
-            key_value_pairs: toml.key_value_pairs,
-            json: toml.json,
-            jvm_stack_traces: toml.jvm_stack_traces,
-        }
-    }
 }
 
 /// `[numbers]` styles its single field under the key `number`, while
@@ -161,7 +119,7 @@ mod tests {
     use tailspin::style::Color;
 
     fn parse(input: &str) -> Theme {
-        Theme::from(toml::from_str::<TomlTheme>(input).unwrap())
+        toml::from_str::<Theme>(input).unwrap()
     }
 
     #[test]
@@ -171,7 +129,7 @@ mod tests {
         assert!(theme.keywords.is_empty());
         assert!(theme.regexes.is_empty());
         assert_eq!(theme.uuids.letter, UuidConfig::default().letter);
-        assert_eq!(theme.quotes.quote_token, b'"');
+        assert_eq!(QuoteConfig::from(theme.quotes).quote_token, b'"');
     }
 
     #[test]
@@ -188,8 +146,8 @@ number = { fg = "red" }"#,
 
     #[test]
     fn unknown_keys_are_rejected() {
-        assert!(toml::from_str::<TomlTheme>("bogus = 1").is_err());
-        assert!(toml::from_str::<TomlTheme>("[uuids]\nbogus = { fg = \"red\" }").is_err());
+        assert!(toml::from_str::<Theme>("bogus = 1").is_err());
+        assert!(toml::from_str::<Theme>("[uuids]\nbogus = { fg = \"red\" }").is_err());
     }
 
     #[test]
@@ -199,9 +157,18 @@ number = { fg = "red" }"#,
 separator = { fg = "yellow" }"#,
         );
 
-        assert_eq!(theme.ip_v4_addresses.separator, Style::new().fg(Color::Yellow));
-        assert_eq!(theme.ip_v6_addresses.separator, Style::new().fg(Color::Yellow));
-        assert_eq!(theme.ip_v6_addresses.letter, IpV6Config::default().letter);
+        assert_eq!(
+            IpV4Config::from(theme.ip_addresses).separator,
+            Style::new().fg(Color::Yellow)
+        );
+        assert_eq!(
+            IpV6Config::from(theme.ip_addresses).separator,
+            Style::new().fg(Color::Yellow)
+        );
+        assert_eq!(
+            IpV6Config::from(theme.ip_addresses).letter,
+            IpV6Config::default().letter
+        );
     }
 
     #[test]
@@ -211,7 +178,7 @@ separator = { fg = "yellow" }"#,
 number = { fg = "green" }"#,
         );
 
-        assert_eq!(theme.numbers.style, Style::new().fg(Color::Green));
+        assert_eq!(NumberConfig::from(theme.numbers).style, Style::new().fg(Color::Green));
     }
 
     #[test]
@@ -243,12 +210,12 @@ style = { fg = "blue" }"#,
 quote_token = "'""#,
         );
 
-        assert_eq!(theme.quotes.quote_token, b'\'');
+        assert_eq!(QuoteConfig::from(theme.quotes).quote_token, b'\'');
     }
 
     #[test]
     fn non_ascii_quote_token_is_rejected() {
-        let error = toml::from_str::<TomlTheme>(
+        let error = toml::from_str::<Theme>(
             r#"[quotes]
 quote_token = "«""#,
         )

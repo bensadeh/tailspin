@@ -19,8 +19,7 @@ pub(crate) fn build_highlighter(
         numbers,
         uuids,
         quotes,
-        ip_v4_addresses,
-        ip_v6_addresses,
+        ip_addresses,
         dates,
         paths,
         urls,
@@ -46,10 +45,10 @@ pub(crate) fn build_highlighter(
         b = b.with_date_time_highlighters(dates);
     }
     if base.contains(Base::Ipv4) {
-        b = b.with_ip_v4_highlighter(ip_v4_addresses);
+        b = b.with_ip_v4_highlighter(ip_addresses.into());
     }
     if extras.contains(&Extra::Ipv6) {
-        b = b.with_ip_v6_highlighter(ip_v6_addresses);
+        b = b.with_ip_v6_highlighter(ip_addresses.into());
     }
     if extras.contains(&Extra::JvmStackTrace) {
         b = b.with_jvm_stack_trace_highlighter(jvm_stack_traces);
@@ -76,13 +75,13 @@ pub(crate) fn build_highlighter(
         b = b.with_unix_process_highlighter(processes);
     }
     if base.contains(Base::Numbers) {
-        b = b.with_number_highlighter(numbers);
+        b = b.with_number_highlighter(numbers.into());
     }
 
     b = b.with_keyword_highlighter(keywords);
 
     if base.contains(Base::Quotes) {
-        b = b.with_quote_highlighter(quotes);
+        b = b.with_quote_highlighter(quotes.into());
     }
 
     b.build()

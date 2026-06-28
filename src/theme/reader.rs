@@ -1,4 +1,4 @@
-use crate::theme::{Theme, TomlTheme};
+use crate::theme::Theme;
 use std::env;
 use std::env::VarError;
 use std::fs;
@@ -8,18 +8,15 @@ use thiserror::Error;
 
 pub fn parse_theme(custom_config_path: Option<&PathBuf>) -> Result<Theme, ThemeError> {
     if let Some(path) = custom_config_path {
-        let toml_theme = read_and_parse_toml(path)?;
-        return Ok(Theme::from(toml_theme));
+        return read_and_parse_toml(path);
     }
 
     let default_path = get_config_dir()?.join("tailspin").join("theme.toml");
 
-    let toml_theme = match read_and_parse_toml(&default_path) {
-        Err(ThemeError::Read(_, err)) if err.kind() == io::ErrorKind::NotFound => TomlTheme::default(),
-        other => other?,
-    };
-
-    Ok(Theme::from(toml_theme))
+    match read_and_parse_toml(&default_path) {
+        Err(ThemeError::Read(_, err)) if err.kind() == io::ErrorKind::NotFound => Ok(Theme::default()),
+        other => other,
+    }
 }
 
 fn get_config_dir() -> Result<PathBuf, ThemeError> {
@@ -34,12 +31,12 @@ fn expand_var_os(key: &str) -> Option<PathBuf> {
         .and_then(|os_str| os_str.into_string().ok())
         .map(|s| shellexpand::tilde(&s).into_owned().into())
 }
-fn read_and_parse_toml(path: &Path) -> Result<TomlTheme, ThemeError> {
+fn read_and_parse_toml(path: &Path) -> Result<Theme, ThemeError> {
     let display_path = || path.display().to_string();
 
     let content = fs::read_to_string(path).map_err(|err| ThemeError::Read(display_path(), err))?;
 
-    toml::from_str::<TomlTheme>(&content).map_err(|err| ThemeError::Parsing(display_path(), err))
+    toml::from_str::<Theme>(&content).map_err(|err| ThemeError::Parsing(display_path(), err))
 }
 
 #[derive(Debug, Error)]
