@@ -8,11 +8,16 @@ use tokio::io::{AsyncBufReadExt, AsyncSeekExt, BufReader};
 
 const POLL_INTERVAL: Duration = Duration::from_millis(100);
 
+enum Stage {
+    InitialRead,
+    Following,
+    Terminated,
+}
+
 pub struct FileReader {
     reader: BufReader<tokio::fs::File>,
     buf: Vec<u8>,
-    initial_read_done: bool,
-    has_emitted_start_event: bool,
+    stage: Stage,
     terminate_after_first_read: bool,
 }
 
@@ -27,8 +32,7 @@ impl FileReader {
         Ok(Self {
             reader,
             buf: Vec::new(),
-            initial_read_done: false,
-            has_emitted_start_event: false,
+            stage: Stage::InitialRead,
             terminate_after_first_read,
         })
     }
@@ -83,32 +87,24 @@ impl FileReader {
             tokio::time::sleep(POLL_INTERVAL).await;
         }
     }
-}
 
-impl FileReader {
     pub async fn next(&mut self) -> Result<StreamEvent> {
-        if !self.initial_read_done {
-            match read_lines(&mut self.reader).await? {
+        match self.stage {
+            Stage::InitialRead => match read_lines(&mut self.reader).await? {
+                ReadResult::Line(line) => Ok(StreamEvent::Line(line)),
+                ReadResult::Batch(lines) => Ok(StreamEvent::Lines(lines)),
                 ReadResult::Eof => {
-                    self.initial_read_done = true;
-                    // fall through to Started
+                    self.stage = if self.terminate_after_first_read {
+                        Stage::Terminated
+                    } else {
+                        Stage::Following
+                    };
+                    Ok(Started)
                 }
-                ReadResult::Line(line) => return Ok(StreamEvent::Line(line)),
-                ReadResult::Batch(lines) => return Ok(StreamEvent::Lines(lines)),
-            }
+            },
+            Stage::Following => Ok(StreamEvent::Line(self.next_line().await?)),
+            Stage::Terminated => Ok(Ended),
         }
-
-        if !self.has_emitted_start_event {
-            self.has_emitted_start_event = true;
-            return Ok(Started);
-        }
-
-        if self.terminate_after_first_read {
-            return Ok(Ended);
-        }
-
-        let line = self.next_line().await?;
-        Ok(StreamEvent::Line(line))
     }
 }
 
