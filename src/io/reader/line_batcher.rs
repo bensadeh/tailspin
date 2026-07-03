@@ -41,23 +41,18 @@ where
     let mut buf = Vec::new();
     reader.read_until(b'\n', &mut buf).await?;
 
-    if buf.last() == Some(&b'\n') {
-        buf.pop();
-    }
-    if buf.last() == Some(&b'\r') {
-        buf.pop();
-    }
-
-    Ok(ReadResult::Line(String::from_utf8_lossy(&buf).into_owned()))
+    Ok(ReadResult::Line(decode_line(&buf)))
 }
 
 fn split_lines(buf: &[u8]) -> Vec<String> {
-    buf.split(|&b| b == b'\n')
-        .map(|line| {
-            let line = line.strip_suffix(b"\r").unwrap_or(line);
-            String::from_utf8_lossy(line).into_owned()
-        })
-        .collect()
+    buf.split(|&b| b == b'\n').map(decode_line).collect()
+}
+
+/// Strips a trailing `\n` or `\r\n` and lossy-decodes the bytes.
+pub fn decode_line(bytes: &[u8]) -> String {
+    let bytes = bytes.strip_suffix(b"\n").unwrap_or(bytes);
+    let bytes = bytes.strip_suffix(b"\r").unwrap_or(bytes);
+    String::from_utf8_lossy(bytes).into_owned()
 }
 
 #[cfg(test)]

@@ -1,6 +1,6 @@
 use crate::io::reader::StreamEvent;
 use crate::io::reader::StreamEvent::{Ended, Started};
-use crate::io::reader::line_batcher::{BUF_READER_CAPACITY, ReadResult, read_lines};
+use crate::io::reader::line_batcher::{BUF_READER_CAPACITY, ReadResult, decode_line, read_lines};
 use anyhow::{Context, Result};
 use std::path::Path;
 use std::time::Duration;
@@ -73,12 +73,7 @@ impl FileReader {
             }
 
             if self.buf.ends_with(b"\n") {
-                let line_end = if self.buf.ends_with(b"\r\n") {
-                    self.buf.len() - 2
-                } else {
-                    self.buf.len() - 1
-                };
-                let line = String::from_utf8_lossy(&self.buf[..line_end]).into_owned();
+                let line = decode_line(&self.buf);
                 self.buf.clear();
                 return Ok(line);
             }
