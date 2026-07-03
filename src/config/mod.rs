@@ -1,7 +1,7 @@
 use nu_ansi_term::Color::{Magenta, Yellow};
 use std::cmp::PartialEq;
 use std::fs;
-use std::io::{self, IsTerminal, stdin};
+use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -70,6 +70,7 @@ pub struct IoArgs {
     pub to_stdout: bool,
     pub follow: bool,
     pub pager: Option<String>,
+    pub std_in_has_data: bool,
 }
 
 pub fn get_io_config(args: IoArgs) -> Result<InputOutputConfig, ConfigError> {
@@ -80,8 +81,6 @@ pub fn get_io_config(args: IoArgs) -> Result<InputOutputConfig, ConfigError> {
 }
 
 fn get_source(args: &IoArgs) -> Result<Source, ConfigError> {
-    let std_in_has_data = !stdin().is_terminal();
-
     if args.file_path.is_some() && args.exec.is_some() {
         return Err(ConfigError::CannotReadBothFileAndExec);
     }
@@ -95,7 +94,7 @@ fn get_source(args: &IoArgs) -> Result<Source, ConfigError> {
         return Ok(Source::Command(command.clone()));
     }
 
-    if std_in_has_data {
+    if args.std_in_has_data {
         return Ok(Source::Stdin);
     }
 

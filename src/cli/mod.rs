@@ -166,8 +166,8 @@ pub fn get_config() -> Result<FullConfig> {
 
     generate_shell_completions_and_exit_or_continue(&cli);
 
-    let std_in_has_no_data = stdin().is_terminal();
-    if cli.file_path.is_none() && cli.exec.is_none() && std_in_has_no_data {
+    let std_in_has_data = !stdin().is_terminal();
+    if cli.file_path.is_none() && cli.exec.is_none() && !std_in_has_data {
         let style = Style::new().fg(nu_ansi_term::Color::Cyan);
         println!("Missing filename ({} for help)", style.paint("tspin --help"));
 
@@ -180,6 +180,7 @@ pub fn get_config() -> Result<FullConfig> {
         to_stdout: cli.to_stdout,
         follow: cli.follow,
         pager: cli.pager.clone(),
+        std_in_has_data,
     })?;
 
     let base = BaseSet::resolve(&cli.enabled, &cli.disabled)?;
