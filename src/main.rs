@@ -1,7 +1,6 @@
 #![forbid(unsafe_code)]
 
 mod cli;
-mod config;
 mod io;
 mod theme;
 

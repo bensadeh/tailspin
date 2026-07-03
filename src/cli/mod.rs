@@ -9,7 +9,7 @@ use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
 use crate::cli::highlighter::build_highlighter;
 use crate::cli::resolution::{BaseSet, resolve_extras};
 use crate::cli::styles::get_styles;
-use crate::config::{IoArgs, Source, Target, get_io_config};
+use crate::io::routing::{self, IoArgs, Source, Target};
 use crate::theme::reader;
 use anyhow::Result;
 use clap::{ArgAction, Parser, ValueEnum};
@@ -174,7 +174,7 @@ pub fn get_config() -> Result<FullConfig> {
         std::process::exit(0);
     }
 
-    let io_config = get_io_config(IoArgs {
+    let (source, target) = routing::resolve(IoArgs {
         file_path: cli.file_path.clone(),
         exec: cli.exec.clone(),
         to_stdout: cli.to_stdout,
@@ -190,8 +190,8 @@ pub fn get_config() -> Result<FullConfig> {
     let highlighter = build_highlighter(&cli, &base, &extras, theme)?;
 
     Ok(FullConfig {
-        source: io_config.source,
-        target: io_config.target,
+        source,
+        target,
         highlighter,
     })
 }

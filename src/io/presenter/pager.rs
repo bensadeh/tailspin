@@ -1,4 +1,4 @@
-use crate::config::{CustomPagerOptions, LessOptions};
+use crate::io::routing::{CustomPagerOptions, LessOptions};
 use anyhow::Result;
 use std::path::Path;
 use tempfile::TempPath;

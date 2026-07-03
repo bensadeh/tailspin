@@ -1,10 +1,10 @@
-use crate::config::{Source, Target};
 use crate::io::presenter::Presenter;
 use crate::io::presenter::pager::{Pager, PagerOptions};
 use crate::io::reader::Reader;
 use crate::io::reader::command::CommandReader;
 use crate::io::reader::file_reader::FileReader;
 use crate::io::reader::stdin::StdinReader;
+use crate::io::routing::{Source, Target};
 use crate::io::writer::Writer;
 use crate::io::writer::temp_file::TempFile;
 use anyhow::{Context, Result};

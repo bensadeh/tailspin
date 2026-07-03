@@ -1,15 +1,8 @@
 use nu_ansi_term::Color::{Magenta, Yellow};
-use std::cmp::PartialEq;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
-
-#[derive(Debug)]
-pub struct InputOutputConfig {
-    pub source: Source,
-    pub target: Target,
-}
 
 #[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
 pub enum Source {
@@ -43,7 +36,7 @@ pub struct CustomPagerOptions {
 }
 
 #[derive(Debug, Error)]
-pub enum ConfigError {
+pub enum RoutingError {
     #[error("Cannot read from both file and {}", Magenta.paint("--exec").to_string())]
     CannotReadBothFileAndExec,
 
@@ -73,16 +66,16 @@ pub struct IoArgs {
     pub std_in_has_data: bool,
 }
 
-pub fn get_io_config(args: IoArgs) -> Result<InputOutputConfig, ConfigError> {
+pub fn resolve(args: IoArgs) -> Result<(Source, Target), RoutingError> {
     let source = get_source(&args)?;
     let target = get_target(&args, &source)?;
 
-    Ok(InputOutputConfig { source, target })
+    Ok((source, target))
 }
 
-fn get_source(args: &IoArgs) -> Result<Source, ConfigError> {
+fn get_source(args: &IoArgs) -> Result<Source, RoutingError> {
     if args.file_path.is_some() && args.exec.is_some() {
-        return Err(ConfigError::CannotReadBothFileAndExec);
+        return Err(RoutingError::CannotReadBothFileAndExec);
     }
 
     if let Some(path) = &args.file_path {
@@ -98,10 +91,10 @@ fn get_source(args: &IoArgs) -> Result<Source, ConfigError> {
         return Ok(Source::Stdin);
     }
 
-    Err(ConfigError::CouldNotDetermineInputType)
+    Err(RoutingError::CouldNotDetermineInputType)
 }
 
-fn get_target(args: &IoArgs, input: &Source) -> Result<Target, ConfigError> {
+fn get_target(args: &IoArgs, input: &Source) -> Result<Target, RoutingError> {
     if *input == Source::Stdin || args.to_stdout {
         return Ok(Target::Stdout);
     }
@@ -117,27 +110,27 @@ fn get_target(args: &IoArgs, input: &Source) -> Result<Target, ConfigError> {
     Ok(Target::Less(LessOptions { follow: follow_mode }))
 }
 
-fn split_custom_pager_command(raw_command: &str) -> Result<CustomPagerOptions, ConfigError> {
+fn split_custom_pager_command(raw_command: &str) -> Result<CustomPagerOptions, RoutingError> {
     let raw_args = shell_words::split(raw_command).unwrap_or_default();
 
     let (command, args) = match raw_args.split_first() {
         Some((first, rest)) if !rest.is_empty() => (first.clone(), rest.to_vec()),
-        Some(_) | None => return Err(ConfigError::CouldNotParseCustomPagerCommand),
+        Some(_) | None => return Err(RoutingError::CouldNotParseCustomPagerCommand),
     };
 
     Ok(CustomPagerOptions { command, args })
 }
 
-fn process_path_input(path: PathBuf, terminate_after_first_read: bool) -> Result<Source, ConfigError> {
+fn process_path_input(path: PathBuf, terminate_after_first_read: bool) -> Result<Source, RoutingError> {
     if !path.exists() {
         let path_display = path.display().to_string();
         let path_colored = Yellow.paint(path_display).to_string();
 
-        return Err(ConfigError::NoSuchFileOrDirectory(path_colored));
+        return Err(RoutingError::NoSuchFileOrDirectory(path_colored));
     }
 
     if !fs::metadata(&path)?.is_file() {
-        return Err(ConfigError::PathNotFile);
+        return Err(RoutingError::PathNotFile);
     }
 
     Ok(Source::File(FileInfo {
