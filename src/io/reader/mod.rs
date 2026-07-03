@@ -18,7 +18,6 @@ pub enum Reader {
 pub enum StreamEvent {
     InitialReadComplete,
     Ended,
-    Line(String),
     Lines(Vec<String>),
 }
 

@@ -86,7 +86,6 @@ impl FileReader {
     pub async fn next(&mut self) -> Result<StreamEvent> {
         match self.stage {
             Stage::InitialRead => match read_lines(&mut self.reader).await? {
-                ReadResult::Line(line) => Ok(StreamEvent::Line(line)),
                 ReadResult::Batch(lines) => Ok(StreamEvent::Lines(lines)),
                 ReadResult::Eof => {
                     self.stage = if self.terminate_after_first_read {
@@ -97,7 +96,7 @@ impl FileReader {
                     Ok(InitialReadComplete)
                 }
             },
-            Stage::Following => Ok(StreamEvent::Line(self.next_line().await?)),
+            Stage::Following => Ok(StreamEvent::Lines(vec![self.next_line().await?])),
             Stage::Terminated => Ok(Ended),
         }
     }
@@ -164,8 +163,8 @@ mod tests {
 
             let first_event = reader.next().await?;
             match first_event {
-                Line(line) => assert_eq!(line, "only_line"),
-                _ => panic!("Expected StreamEvent::Line(...)"),
+                Lines(lines) => assert_eq!(lines, vec!["only_line"]),
+                _ => panic!("Expected StreamEvent::Lines(...)"),
             }
 
             let second_event = reader.next().await?;
@@ -220,16 +219,16 @@ mod tests {
             .await
             .context("Timed out waiting for appended1")?;
         match event? {
-            Line(line) => assert_eq!(line, "appended1"),
-            _ => panic!("Expected StreamEvent::Line(...) with appended1"),
+            Lines(lines) => assert_eq!(lines, vec!["appended1"]),
+            _ => panic!("Expected StreamEvent::Lines(...) with appended1"),
         }
 
         let event = timeout(Duration::from_secs(1), reader.next())
             .await
             .context("Timed out waiting for appended2")?;
         match event? {
-            Line(line) => assert_eq!(line, "appended2"),
-            _ => panic!("Expected StreamEvent::Line(...) with appended2"),
+            Lines(lines) => assert_eq!(lines, vec!["appended2"]),
+            _ => panic!("Expected StreamEvent::Lines(...) with appended2"),
         }
 
         Ok(())
@@ -272,7 +271,6 @@ mod tests {
             loop {
                 let event = reader.next().await?;
                 match event {
-                    Line(line) => all_lines.push(line),
                     Lines(lines) => all_lines.extend(lines),
                     InitialReadComplete | Ended => break,
                 }
@@ -323,8 +321,8 @@ mod tests {
             .await
             .context("Timed out waiting for appended CRLF line")?;
         match event? {
-            Line(line) => assert_eq!(line, "appended"),
-            _ => panic!("Expected StreamEvent::Line(\"appended\")"),
+            Lines(lines) => assert_eq!(lines, vec!["appended"]),
+            _ => panic!("Expected StreamEvent::Lines(\"appended\")"),
         }
 
         Ok(())
@@ -346,12 +344,13 @@ mod tests {
 
             let event = reader.next().await?;
             match event {
-                Line(line) => {
-                    assert!(line.contains("hello"));
-                    assert!(line.contains("world"));
-                    assert!(line.contains('\u{FFFD}'));
+                Lines(lines) => {
+                    assert_eq!(lines.len(), 1);
+                    assert!(lines[0].contains("hello"));
+                    assert!(lines[0].contains("world"));
+                    assert!(lines[0].contains('\u{FFFD}'));
                 }
-                _ => panic!("Expected StreamEvent::Line(...)"),
+                _ => panic!("Expected StreamEvent::Lines(...)"),
             }
 
             Ok(())
@@ -375,8 +374,8 @@ mod tests {
 
         let event = reader.next().await?;
         match event {
-            Line(line) => assert_eq!(line, "initial"),
-            _ => panic!("Expected StreamEvent::Line(\"initial\")"),
+            Lines(lines) => assert_eq!(lines, vec!["initial"]),
+            _ => panic!("Expected StreamEvent::Lines(\"initial\")"),
         }
 
         let event = reader.next().await?;
@@ -394,11 +393,12 @@ mod tests {
             .await
             .context("Timed out waiting for non-UTF-8 line")?;
         match event? {
-            Line(line) => {
-                assert!(line.starts_with("caf"));
-                assert!(line.contains('\u{FFFD}'));
+            Lines(lines) => {
+                assert_eq!(lines.len(), 1);
+                assert!(lines[0].starts_with("caf"));
+                assert!(lines[0].contains('\u{FFFD}'));
             }
-            _ => panic!("Expected StreamEvent::Line(...)"),
+            _ => panic!("Expected StreamEvent::Lines(...)"),
         }
 
         Ok(())
@@ -438,8 +438,8 @@ mod tests {
             .await
             .context("Timed out waiting for line after truncation")?;
         match event? {
-            Line(line) => assert_eq!(line, "new"),
-            _ => panic!("Expected StreamEvent::Line(\"new\")"),
+            Lines(lines) => assert_eq!(lines, vec!["new"]),
+            _ => panic!("Expected StreamEvent::Lines(\"new\")"),
         }
 
         Ok(())
@@ -470,10 +470,6 @@ mod tests {
             loop {
                 let event = reader.next().await?;
                 match event {
-                    Line(_) => {
-                        event_count += 1;
-                        total_lines += 1;
-                    }
                     Lines(lines) => {
                         event_count += 1;
                         total_lines += lines.len();

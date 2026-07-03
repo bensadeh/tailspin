@@ -68,7 +68,6 @@ impl CommandReader {
                 ensure!(status.success(), "--exec command failed ({status})");
                 StreamEvent::Ended
             }
-            ReadResult::Line(line) => StreamEvent::Line(line),
             ReadResult::Batch(lines) => StreamEvent::Lines(lines),
         };
 

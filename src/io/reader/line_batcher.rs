@@ -6,13 +6,11 @@ pub const BUF_READER_CAPACITY: usize = 64 * 1024;
 
 pub enum ReadResult {
     Eof,
-    Line(String),
     Batch(Vec<String>),
 }
 
-/// Returns the complete lines already buffered in `reader`: a `Batch` when
-/// several are available, otherwise a single `Line` (awaiting more input if
-/// the buffered line is partial).
+/// Returns the complete lines already buffered in `reader` as a `Batch`,
+/// awaiting more input if the buffered line is partial.
 pub async fn read_lines<R>(reader: &mut R) -> Result<ReadResult>
 where
     R: AsyncBufRead + Unpin,
@@ -41,7 +39,7 @@ where
     let mut buf = Vec::new();
     reader.read_until(b'\n', &mut buf).await?;
 
-    Ok(ReadResult::Line(decode_line(&buf)))
+    Ok(ReadResult::Batch(vec![decode_line(&buf)]))
 }
 
 fn split_lines(buf: &[u8]) -> Vec<String> {
@@ -102,8 +100,8 @@ mod tests {
             lines = [lines, batch].concat();
         }
 
-        if let ReadResult::Line(line) = lines_second_read {
-            lines.push(line);
+        if let ReadResult::Batch(batch) = lines_second_read {
+            lines.extend(batch);
         }
 
         assert_eq!(lines, vec!["line 1", "line 2", "line 3"]);
@@ -114,10 +112,10 @@ mod tests {
         let input = b"incomplete line without newline";
         let mut reader = BufReader::new(&input[..]);
 
-        if let Ok(ReadResult::Line(line)) = read_lines(&mut reader).await {
-            assert_eq!(line, "incomplete line without newline");
+        if let Ok(ReadResult::Batch(lines)) = read_lines(&mut reader).await {
+            assert_eq!(lines, vec!["incomplete line without newline"]);
         } else {
-            panic!("Expected Ok(ReadResult::Line), got something else");
+            panic!("Expected Ok(ReadResult::Batch), got something else");
         }
     }
 
@@ -126,10 +124,10 @@ mod tests {
         let input = b"single complete line\n";
         let mut reader = BufReader::new(&input[..]);
 
-        if let Ok(ReadResult::Line(line)) = read_lines(&mut reader).await {
-            assert_eq!(line, "single complete line");
+        if let Ok(ReadResult::Batch(lines)) = read_lines(&mut reader).await {
+            assert_eq!(lines, vec!["single complete line"]);
         } else {
-            panic!("Expected Ok(ReadResult::Line), got something else");
+            panic!("Expected Ok(ReadResult::Batch), got something else");
         }
     }
 
@@ -220,10 +218,10 @@ mod tests {
         let input = b"line1\r\n";
         let mut reader = BufReader::new(&input[..]);
 
-        if let Ok(ReadResult::Line(line)) = read_lines(&mut reader).await {
-            assert_eq!(line, "line1");
+        if let Ok(ReadResult::Batch(lines)) = read_lines(&mut reader).await {
+            assert_eq!(lines, vec!["line1"]);
         } else {
-            panic!("Expected Ok(ReadResult::Line), got something else");
+            panic!("Expected Ok(ReadResult::Batch), got something else");
         }
     }
 
@@ -232,11 +230,12 @@ mod tests {
         let input = b"caf\xe9\n";
         let mut reader = BufReader::new(&input[..]);
 
-        if let Ok(ReadResult::Line(line)) = read_lines(&mut reader).await {
-            assert!(line.starts_with("caf"));
-            assert!(line.contains('\u{FFFD}'));
+        if let Ok(ReadResult::Batch(lines)) = read_lines(&mut reader).await {
+            assert_eq!(lines.len(), 1);
+            assert!(lines[0].starts_with("caf"));
+            assert!(lines[0].contains('\u{FFFD}'));
         } else {
-            panic!("Expected Ok(ReadResult::Line), got something else");
+            panic!("Expected Ok(ReadResult::Batch), got something else");
         }
     }
 

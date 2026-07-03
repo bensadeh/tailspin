@@ -29,7 +29,6 @@ impl StdinReader {
 
         match read_lines(&mut self.reader).await? {
             ReadResult::Eof => Ok(StreamEvent::Ended),
-            ReadResult::Line(line) => Ok(StreamEvent::Line(line)),
             ReadResult::Batch(lines) => Ok(StreamEvent::Lines(lines)),
         }
     }

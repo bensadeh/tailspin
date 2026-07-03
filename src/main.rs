@@ -77,15 +77,9 @@ async fn process_stream(
         match reader.next().await? {
             StreamEvent::InitialReadComplete => initial_read_complete.send()?,
             StreamEvent::Ended => return Ok(()),
-            StreamEvent::Line(line) => write_line(&mut writer, &highlighter, line.as_str()).await?,
             StreamEvent::Lines(lines) => write_lines(&mut writer, &highlighter, lines).await?,
         }
     }
-}
-
-async fn write_line(writer: &mut Writer, highlighter: &Highlighter, line: &str) -> anyhow::Result<()> {
-    let highlighted = highlighter.apply(line);
-    writer.write(&highlighted).await
 }
 
 async fn write_lines(writer: &mut Writer, highlighter: &Highlighter, lines: Vec<String>) -> anyhow::Result<()> {
