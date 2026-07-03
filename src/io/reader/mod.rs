@@ -16,7 +16,7 @@ pub enum Reader {
 
 #[derive(Debug)]
 pub enum StreamEvent {
-    Started,
+    InitialReadComplete,
     Ended,
     Line(String),
     Lines(Vec<String>),

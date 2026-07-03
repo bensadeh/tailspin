@@ -8,7 +8,7 @@ use tokio::process::{Child, ChildStdout, Command};
 pub struct CommandReader {
     reader: BufReader<ChildStdout>,
     child: Child,
-    ready: bool,
+    initial_read_complete_sent: bool,
 }
 
 impl CommandReader {
@@ -39,7 +39,7 @@ async fn spawn_command(command: String) -> Result<CommandReader> {
     Ok(CommandReader {
         reader,
         child,
-        ready: false,
+        initial_read_complete_sent: false,
     })
 }
 
@@ -56,10 +56,10 @@ impl Drop for CommandReader {
 
 impl CommandReader {
     pub async fn next(&mut self) -> Result<StreamEvent> {
-        if !self.ready {
-            self.ready = true;
+        if !self.initial_read_complete_sent {
+            self.initial_read_complete_sent = true;
 
-            return Ok(StreamEvent::Started);
+            return Ok(StreamEvent::InitialReadComplete);
         }
 
         let event = match read_lines(&mut self.reader).await? {

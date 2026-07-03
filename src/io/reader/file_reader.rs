@@ -1,5 +1,5 @@
 use crate::io::reader::StreamEvent;
-use crate::io::reader::StreamEvent::{Ended, Started};
+use crate::io::reader::StreamEvent::{Ended, InitialReadComplete};
 use crate::io::reader::line_batcher::{BUF_READER_CAPACITY, ReadResult, decode_line, read_lines};
 use anyhow::{Context, Result};
 use std::path::Path;
@@ -94,7 +94,7 @@ impl FileReader {
                     } else {
                         Stage::Following
                     };
-                    Ok(Started)
+                    Ok(InitialReadComplete)
                 }
             },
             Stage::Following => Ok(StreamEvent::Line(self.next_line().await?)),
@@ -137,8 +137,8 @@ mod tests {
 
         let event = reader.next().await?;
         match event {
-            Started => {}
-            _ => panic!("Expected StreamEvent::Started"),
+            InitialReadComplete => {}
+            _ => panic!("Expected StreamEvent::InitialReadComplete"),
         }
 
         let result = timeout(Duration::from_millis(200), reader.next()).await;
@@ -170,8 +170,8 @@ mod tests {
 
             let second_event = reader.next().await?;
             match second_event {
-                Started => {}
-                _ => panic!("Expected StreamEvent::Started"),
+                InitialReadComplete => {}
+                _ => panic!("Expected StreamEvent::InitialReadComplete"),
             }
 
             let third_event = reader.next().await?;
@@ -208,7 +208,7 @@ mod tests {
         }
 
         let event = reader.next().await?;
-        assert!(matches!(event, Started));
+        assert!(matches!(event, InitialReadComplete));
 
         let mut file = OpenOptions::new().append(true).open(&file_path)?;
         writeln!(file, "appended1")?;
@@ -245,7 +245,7 @@ mod tests {
             let mut reader = FileReader::new(file_path, true).await?;
 
             let event = reader.next().await?;
-            assert!(matches!(event, Started));
+            assert!(matches!(event, InitialReadComplete));
 
             let event = reader.next().await?;
             assert!(matches!(event, Ended));
@@ -274,7 +274,7 @@ mod tests {
                 match event {
                     Line(line) => all_lines.push(line),
                     Lines(lines) => all_lines.extend(lines),
-                    Started | Ended => break,
+                    InitialReadComplete | Ended => break,
                 }
             }
             assert_eq!(all_lines, vec!["line1", "line2"]);
@@ -309,7 +309,7 @@ mod tests {
         }
 
         let event = reader.next().await?;
-        assert!(matches!(event, Started));
+        assert!(matches!(event, InitialReadComplete));
 
         // Append a CRLF line in follow mode
         {
@@ -380,7 +380,7 @@ mod tests {
         }
 
         let event = reader.next().await?;
-        assert!(matches!(event, Started));
+        assert!(matches!(event, InitialReadComplete));
 
         // Append non-UTF-8 in follow mode
         {
@@ -426,7 +426,7 @@ mod tests {
         }
 
         let event = reader.next().await?;
-        assert!(matches!(event, Started));
+        assert!(matches!(event, InitialReadComplete));
 
         // Truncate the file and write new, shorter content
         let mut file = File::create(&file_path)?;
@@ -478,8 +478,8 @@ mod tests {
                         event_count += 1;
                         total_lines += lines.len();
                     }
-                    Started => break,
-                    Ended => panic!("Unexpected Ended before Started"),
+                    InitialReadComplete => break,
+                    Ended => panic!("Unexpected Ended before InitialReadComplete"),
                 }
             }
 
