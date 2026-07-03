@@ -5,6 +5,7 @@ use crate::theme::Theme;
 use std::collections::HashSet;
 use tailspin::{Highlighter, HighlighterBuilder};
 
+// Registration order below is highlight precedence: earlier finders win overlaps.
 pub(crate) fn build_highlighter(
     cli: &Arguments,
     base: &BaseSet,

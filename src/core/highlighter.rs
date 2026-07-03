@@ -85,6 +85,31 @@ impl Default for Highlighter {
 }
 
 /// Builder for configuring a [`Highlighter`].
+///
+/// When two highlighters match overlapping text, the one added first wins:
+///
+/// ```rust
+/// use tailspin::Highlighter;
+/// use tailspin::config::{NumberConfig, QuoteConfig};
+///
+/// let number_first = Highlighter::builder()
+///     .with_number_highlighter(NumberConfig::default())
+///     .with_quote_highlighter(QuoteConfig::default())
+///     .build()
+///     .unwrap();
+///
+/// // "42" keeps the number style (cyan) inside the quoted region
+/// assert!(number_first.apply(r#""code 42""#).contains("\x1b[36m42\x1b[0m"));
+///
+/// let quote_first = Highlighter::builder()
+///     .with_quote_highlighter(QuoteConfig::default())
+///     .with_number_highlighter(NumberConfig::default())
+///     .build()
+///     .unwrap();
+///
+/// // now the quote highlighter owns the whole region, including the 42
+/// assert!(!quote_first.apply(r#""code 42""#).contains("\x1b[36m42\x1b[0m"));
+/// ```
 #[derive(Debug)]
 #[must_use]
 pub struct HighlighterBuilder {
