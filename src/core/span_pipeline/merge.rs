@@ -50,17 +50,15 @@ pub(crate) fn merge_spans(input_len: usize, spans: &[Span]) -> Vec<ResolvedSpan>
         }
     }
 
-    // Padded spans, sorted by start, so phase 2 can slide through them linearly.
-    // Padding is rare (only background-styled keywords), so this is usually
-    // empty and allocates nothing.
+    // Padded spans, sorted for the exact-match lookup in phase 2. Padding is
+    // rare (only background-styled keywords), so this is usually empty and
+    // allocates nothing.
     let mut padded_ranges: Vec<(usize, usize)> = spans.iter().filter(|s| s.padded).map(|s| (s.start, s.end)).collect();
-    padded_ranges.sort_unstable_by_key(|&(start, _)| start);
+    padded_ranges.sort_unstable();
 
     // Phase 2: Run-length encode into ResolvedSpans, setting `padded` for
-    // fragments whose endpoints exactly match a padded span. `pad_idx` slides
-    // forward as we emit; both lists are sorted by start, so the scan is linear.
+    // fragments whose endpoints exactly match a padded span.
     let mut result = Vec::new();
-    let mut pad_idx = 0;
     let mut i = 0;
     while i < input_len {
         if let Some((style, _)) = style_map[i] {
@@ -68,11 +66,7 @@ pub(crate) fn merge_spans(input_len: usize, spans: &[Span]) -> Vec<ResolvedSpan>
             while i < input_len && style_map[i].is_some_and(|(s, _)| s == style) {
                 i += 1;
             }
-            while pad_idx < padded_ranges.len() && padded_ranges[pad_idx].1 <= start {
-                pad_idx += 1;
-            }
-            let padded =
-                pad_idx < padded_ranges.len() && padded_ranges[pad_idx].0 == start && padded_ranges[pad_idx].1 == i;
+            let padded = padded_ranges.binary_search(&(start, i)).is_ok();
             result.push(ResolvedSpan {
                 start,
                 end: i,
@@ -208,5 +202,14 @@ mod tests {
         let spans = [padded_span(0, 4, red(), 0), padded_span(6, 10, blue(), 1)];
         let result = merge_spans(10, &spans);
         assert_eq!(result, vec![padded(0, 4, red()), padded(6, 10, blue())]);
+    }
+
+    #[test]
+    fn overlapping_padded_ranges_keep_padding_on_the_intact_one() {
+        // Padded span 4..13 (priority 0) wins its whole range and stays
+        // intact; padded span 0..9 (priority 1) is fragmented down to 0..4.
+        let spans = [padded_span(4, 13, red(), 0), padded_span(0, 9, blue(), 1)];
+        let result = merge_spans(13, &spans);
+        assert_eq!(result, vec![resolved(0, 4, blue()), padded(4, 13, red())]);
     }
 }

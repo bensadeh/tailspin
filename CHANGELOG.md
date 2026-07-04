@@ -16,6 +16,7 @@
 - Dates embedded in longer digit runs (e.g. `12022-09-09`) no longer highlight as dates
 - Ctrl+C while the pager is open exits cleanly instead of printing an error
 - Keywords sharing a prefix with a shorter keyword (e.g. `WARNING` vs. `WARN`) are now highlighted
+- Overlapping background-styled keywords no longer lose their badge padding
 
 ### Build
 

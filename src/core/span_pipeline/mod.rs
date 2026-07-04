@@ -344,6 +344,23 @@ mod tests {
     }
 
     #[test]
+    fn overlapping_badges_keep_padding_on_the_winning_keyword() {
+        // Finder 0's badge wins its whole range and stays intact — it must
+        // keep its padding. Finder 1's badge is fragmented down to "SEE "
+        // and loses its padding.
+        let highlighter = Pipeline::new(vec![
+            Box::new(KeywordFinder::new(&[kw(&["ERROR NOW"], Style::new().on(Color::Red))]).unwrap()),
+            Box::new(KeywordFinder::new(&[kw(&["SEE ERROR"], Style::new().on(Color::Yellow))]).unwrap()),
+        ]);
+
+        let result = highlighter.apply("SEE ERROR NOW");
+        assert_eq!(
+            result.to_string().convert_escape_codes(),
+            "[bg_yellow]SEE [reset][bg_red] ERROR NOW [reset]"
+        );
+    }
+
+    #[test]
     fn adjacent_background_keywords_do_not_merge_into_one_badge() {
         // "INFOWARN" has no separator, so the word-boundary guard rejects both
         // matches — real keyword finders can't produce byte-adjacent same-style
