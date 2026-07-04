@@ -18,9 +18,7 @@ use crate::core::span_pipeline::finders::unix_process::UnixProcessFinder;
 use crate::core::span_pipeline::finders::url::UrlFinder;
 use crate::core::span_pipeline::finders::uuid::UuidFinder;
 use crate::core::span_pipeline::span::Finder;
-use crate::style::Style;
 use std::borrow::Cow;
-use std::collections::HashMap;
 use thiserror::Error;
 
 /// A pattern-based log highlighter.
@@ -211,11 +209,7 @@ impl HighlighterBuilder {
 
     /// Adds keyword highlighters.
     pub fn with_keyword_highlighter(mut self, keyword_configs: Vec<KeywordConfig>) -> Self {
-        for keyword_config in group_keywords_by_style(keyword_configs) {
-            let word_refs: Vec<&str> = keyword_config.words.iter().map(String::as_str).collect();
-            self.try_add_finder(KeywordFinder::new(&word_refs, keyword_config.style).map_err(Error::Pattern));
-        }
-
+        self.try_add_finder(KeywordFinder::new(&keyword_configs).map_err(Error::Pattern));
         self
     }
 
@@ -243,26 +237,6 @@ impl HighlighterBuilder {
             Err(e) => self.first_error = Some(e),
         }
     }
-}
-
-fn group_keywords_by_style(configs: Vec<KeywordConfig>) -> Vec<KeywordConfig> {
-    let mut grouped_configs: HashMap<Style, Vec<String>> = HashMap::new();
-
-    for config in configs {
-        grouped_configs.entry(config.style).or_default().extend(config.words);
-    }
-
-    let mut result: Vec<KeywordConfig> = grouped_configs
-        .into_iter()
-        .map(|(style, mut words)| {
-            words.sort();
-            KeywordConfig { words, style }
-        })
-        .collect();
-
-    result.sort_by_key(|a| a.style);
-
-    result
 }
 
 #[cfg(test)]
@@ -376,51 +350,5 @@ mod tests {
             words: words.iter().map(ToString::to_string).collect(),
             style,
         }
-    }
-
-    #[test]
-    fn groups_same_style_and_sorts_words() {
-        let red_bold = Style::new().fg(Color::Red).bold();
-        let green_underline = Style::new().fg(Color::Green).underline();
-
-        let configs = vec![
-            kw(&["hello", "world"], red_bold),
-            kw(&["foo", "bar"], red_bold),
-            kw(&["baz"], green_underline),
-        ];
-
-        let expected = vec![
-            kw(&["bar", "foo", "hello", "world"], red_bold),
-            kw(&["baz"], green_underline),
-        ];
-
-        assert_eq!(group_keywords_by_style(configs), expected);
-    }
-
-    #[test]
-    fn grouping_empty_input_returns_empty() {
-        assert!(group_keywords_by_style(vec![]).is_empty());
-    }
-
-    #[test]
-    fn does_not_group_slightly_different_styles() {
-        let configs = vec![
-            kw(&["error"], Style::new().fg(Color::Red).bold()),
-            kw(&["null"], Style::new().fg(Color::Red).italic()),
-        ];
-
-        let expected = vec![
-            kw(&["null"], Style::new().fg(Color::Red).italic()),
-            kw(&["error"], Style::new().fg(Color::Red).bold()),
-        ];
-
-        assert_eq!(group_keywords_by_style(configs), expected);
-    }
-
-    #[test]
-    fn single_group_passes_through() {
-        let configs = vec![kw(&["unique"], Style::new().fg(Color::Blue).italic())];
-
-        assert_eq!(group_keywords_by_style(configs.clone()), configs);
     }
 }

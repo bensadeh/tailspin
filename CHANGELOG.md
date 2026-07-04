@@ -6,10 +6,15 @@
 - `--exec` now takes precedence over piped `stdin` when both are present
 - `--exec` now exits with an error when the spawned command exits non-zero
 
+### Performance
+
+- Match all keyword groups with a single automaton instead of one per style
+
 ### Fixed
 
 - Dates embedded in longer digit runs (e.g. `12022-09-09`) no longer highlight as dates
 - Ctrl+C while the pager is open exits cleanly instead of printing an error
+- Keywords sharing a prefix with a shorter keyword (e.g. `WARNING` vs. `WARN`) are now highlighted
 
 ## 6.1.0
 

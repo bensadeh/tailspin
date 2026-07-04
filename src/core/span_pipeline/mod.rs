@@ -79,13 +79,20 @@ impl Pipeline {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::config::{NumberConfig, QuoteConfig};
+    use crate::core::config::{KeywordConfig, NumberConfig, QuoteConfig};
     use crate::core::tests::escape_code_converter::ConvertEscapeCodes;
     use crate::style::{Color, Style};
     use finders::keyword::KeywordFinder;
     use finders::number::NumberFinder;
     use finders::quote::QuoteFinder;
     use finders::regex::RegexFinder;
+
+    fn kw(words: &[&str], style: Style) -> KeywordConfig {
+        KeywordConfig {
+            words: words.iter().map(ToString::to_string).collect(),
+            style,
+        }
+    }
 
     #[test]
     fn end_to_end_number_highlighter() {
@@ -169,7 +176,7 @@ mod tests {
     #[test]
     fn keyword_with_background_gets_padding() {
         let highlighter = Pipeline::new(vec![Box::new(
-            KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap(),
+            KeywordFinder::new(&[kw(&["ERROR"], Style::new().on(Color::Red))]).unwrap(),
         )]);
 
         let result = highlighter.apply("level ERROR here");
@@ -182,7 +189,7 @@ mod tests {
     #[test]
     fn keyword_without_background_no_padding() {
         let highlighter = Pipeline::new(vec![Box::new(
-            KeywordFinder::new(&["ERROR"], Style::new().fg(Color::Red)).unwrap(),
+            KeywordFinder::new(&[kw(&["ERROR"], Style::new().fg(Color::Red))]).unwrap(),
         )]);
 
         let result = highlighter.apply("level ERROR here");
@@ -198,8 +205,8 @@ mod tests {
         // Padded spans reach merge in finder order, not position order.
         // Both must still get badge padding.
         let highlighter = Pipeline::new(vec![
-            Box::new(KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap()),
-            Box::new(KeywordFinder::new(&["WARN"], Style::new().on(Color::Yellow)).unwrap()),
+            Box::new(KeywordFinder::new(&[kw(&["ERROR"], Style::new().on(Color::Red))]).unwrap()),
+            Box::new(KeywordFinder::new(&[kw(&["WARN"], Style::new().on(Color::Yellow))]).unwrap()),
         ]);
 
         let result = highlighter.apply("WARN then ERROR");
@@ -211,9 +218,9 @@ mod tests {
     fn three_keyword_groups_padding_interleaved() {
         // Three finders whose matches appear in reverse finder order by position.
         let highlighter = Pipeline::new(vec![
-            Box::new(KeywordFinder::new(&["TRACE"], Style::new().on(Color::Blue)).unwrap()),
-            Box::new(KeywordFinder::new(&["WARN"], Style::new().on(Color::Yellow)).unwrap()),
-            Box::new(KeywordFinder::new(&["DEBUG"], Style::new().on(Color::Cyan)).unwrap()),
+            Box::new(KeywordFinder::new(&[kw(&["TRACE"], Style::new().on(Color::Blue))]).unwrap()),
+            Box::new(KeywordFinder::new(&[kw(&["WARN"], Style::new().on(Color::Yellow))]).unwrap()),
+            Box::new(KeywordFinder::new(&[kw(&["DEBUG"], Style::new().on(Color::Cyan))]).unwrap()),
         ]);
 
         let result = highlighter.apply("DEBUG WARN TRACE");
@@ -230,7 +237,7 @@ mod tests {
             Box::new(NumberFinder::new(NumberConfig {
                 style: Style::new().fg(Color::Cyan),
             })),
-            Box::new(KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap()),
+            Box::new(KeywordFinder::new(&[kw(&["ERROR"], Style::new().on(Color::Red))]).unwrap()),
             Box::new(QuoteFinder::new(QuoteConfig {
                 quote_token: b'"',
                 style: Style::new().fg(Color::Yellow),
@@ -249,7 +256,7 @@ mod tests {
             Box::new(NumberFinder::new(NumberConfig {
                 style: Style::new().fg(Color::Cyan),
             })),
-            Box::new(KeywordFinder::new(&["200"], Style::new().fg(Color::Green)).unwrap()),
+            Box::new(KeywordFinder::new(&[kw(&["200"], Style::new().fg(Color::Green))]).unwrap()),
             Box::new(QuoteFinder::new(QuoteConfig {
                 quote_token: b'"',
                 style: Style::new().fg(Color::Yellow),
@@ -298,7 +305,7 @@ mod tests {
     #[test]
     fn keyword_badge_is_entire_input() {
         let highlighter = Pipeline::new(vec![Box::new(
-            KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap(),
+            KeywordFinder::new(&[kw(&["ERROR"], Style::new().on(Color::Red))]).unwrap(),
         )]);
 
         let result = highlighter.apply("ERROR");
@@ -311,7 +318,7 @@ mod tests {
         // The keyword fragment should NOT get badge padding.
         let highlighter = Pipeline::new(vec![
             Box::new(RegexFinder::new("ERR", Style::new().fg(Color::Cyan)).unwrap()),
-            Box::new(KeywordFinder::new(&["ERROR"], Style::new().on(Color::Red)).unwrap()),
+            Box::new(KeywordFinder::new(&[kw(&["ERROR"], Style::new().on(Color::Red))]).unwrap()),
         ]);
 
         let result = highlighter.apply("level ERROR here");
@@ -328,7 +335,7 @@ mod tests {
             Box::new(NumberFinder::new(NumberConfig {
                 style: Style::new().fg(Color::Cyan),
             })),
-            Box::new(KeywordFinder::new(&["200"], Style::new().on(Color::Red)).unwrap()),
+            Box::new(KeywordFinder::new(&[kw(&["200"], Style::new().on(Color::Red))]).unwrap()),
         ]);
 
         let result = highlighter.apply("status 200 ok");
@@ -343,7 +350,7 @@ mod tests {
         // badges, which is the only thing the collector's padded-coalesce path
         // would merge. Nothing matches, so the input passes through untouched.
         let highlighter = Pipeline::new(vec![Box::new(
-            KeywordFinder::new(&["INFO", "WARN"], Style::new().on(Color::Red)).unwrap(),
+            KeywordFinder::new(&[kw(&["INFO", "WARN"], Style::new().on(Color::Red))]).unwrap(),
         )]);
 
         let result = highlighter.apply("INFOWARN");
