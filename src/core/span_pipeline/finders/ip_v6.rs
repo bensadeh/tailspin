@@ -35,7 +35,12 @@ impl Finder for IpV6Finder {
         } = self.config;
 
         for caps in self.regex.captures_iter(input) {
-            if caps[1].parse::<Ipv6Addr>().is_ok() {
+            let valid_addr = caps[1].parse::<Ipv6Addr>().is_ok();
+            let valid_mask = caps
+                .get(3)
+                .is_none_or(|m| m.as_str().parse::<u8>().is_ok_and(|v| v <= 128));
+
+            if valid_addr && valid_mask {
                 let addr_match = caps.get(1).unwrap();
                 let addr = addr_match.as_str();
                 let offset = addr_match.start();
@@ -115,6 +120,11 @@ mod tests {
         let (start, end) = matched_range(input).unwrap();
         assert_eq!(start, 0);
         assert_eq!(end, input.len());
+    }
+
+    #[test]
+    fn mask_over_128_no_match() {
+        assert_eq!(span_count("fe80::/129"), 0);
     }
 
     #[test]
