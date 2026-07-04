@@ -1,4 +1,4 @@
-use aho_corasick::{AhoCorasick, AhoCorasickBuilder, BuildError, MatchKind};
+use aho_corasick::{AhoCorasick, AhoCorasickBuilder, BuildError, Match, MatchKind};
 
 use crate::core::config::KeywordConfig;
 use crate::style::Style;
@@ -21,9 +21,7 @@ impl KeywordFinder {
             .flat_map(|config| config.words.iter().map(|_| config.style))
             .collect();
 
-        let ac = AhoCorasickBuilder::new()
-            .match_kind(MatchKind::LeftmostLongest)
-            .build(words)?;
+        let ac = AhoCorasickBuilder::new().match_kind(MatchKind::Standard).build(words)?;
 
         Ok(Self { ac, styles })
     }
@@ -42,14 +40,26 @@ fn is_word_boundary(hay: &[u8], start: usize, end: usize) -> bool {
 impl Finder for KeywordFinder {
     fn find_spans(&self, input: &str, collector: &mut Collector) {
         let bytes = input.as_bytes();
-        for m in self.ac.find_iter(bytes) {
-            if is_word_boundary(bytes, m.start(), m.end()) {
-                let style = self.styles[m.pattern().as_usize()];
-                if style.bg.is_some() {
-                    collector.push_padded(m.start(), m.end(), style);
-                } else {
-                    collector.push(m.start(), m.end(), style);
-                }
+
+        let mut matches: Vec<Match> = self
+            .ac
+            .find_overlapping_iter(bytes)
+            .filter(|m| is_word_boundary(bytes, m.start(), m.end()))
+            .collect();
+        matches.sort_by(|a, b| a.start().cmp(&b.start()).then(b.end().cmp(&a.end())));
+
+        let mut next_start = 0;
+        for m in matches {
+            if m.start() < next_start {
+                continue;
+            }
+            next_start = m.end();
+
+            let style = self.styles[m.pattern().as_usize()];
+            if style.bg.is_some() {
+                collector.push_padded(m.start(), m.end(), style);
+            } else {
+                collector.push(m.start(), m.end(), style);
             }
         }
     }
@@ -90,6 +100,39 @@ mod tests {
         let finder = KeywordFinder::new(&[kw(&["WARN", "WARNING"], Style::new().fg(Color::Yellow))]).unwrap();
         let texts = super::super::span_texts("level WARNING here", &finder);
         assert_eq!(texts, ["WARNING"]);
+    }
+
+    #[test]
+    fn longest_valid_keyword_wins_at_the_same_start() {
+        let finder = KeywordFinder::new(&[
+            kw(&["connection"], Style::new().fg(Color::Yellow)),
+            kw(&["connection lost"], Style::new().fg(Color::Red)),
+        ])
+        .unwrap();
+        let texts = super::super::span_texts("connection lost now", &finder);
+        assert_eq!(texts, ["connection lost"]);
+    }
+
+    #[test]
+    fn rejected_longer_keyword_does_not_shadow_its_prefix() {
+        let finder = KeywordFinder::new(&[
+            kw(&["connection lost"], Style::new().fg(Color::Red)),
+            kw(&["connection"], Style::new().fg(Color::Yellow)),
+        ])
+        .unwrap();
+        let texts = super::super::span_texts("connection lostness detected", &finder);
+        assert_eq!(texts, ["connection"]);
+    }
+
+    #[test]
+    fn rejected_longer_keyword_does_not_shadow_nested_keywords() {
+        let finder = KeywordFinder::new(&[
+            kw(&["connection lost"], Style::new().fg(Color::Red)),
+            kw(&["lost"], Style::new().fg(Color::Yellow)),
+        ])
+        .unwrap();
+        let texts = super::super::span_texts("myconnection lost", &finder);
+        assert_eq!(texts, ["lost"]);
     }
 
     #[test]
