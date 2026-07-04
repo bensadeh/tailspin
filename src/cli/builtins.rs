@@ -76,9 +76,8 @@ fn builtin_keywords() -> Vec<KeywordConfig> {
         },
     ];
 
-    vec![]
+    severity_levels
         .into_iter()
-        .chain(severity_levels)
         .chain(rest_keywords)
         .chain(booleans)
         .collect()
