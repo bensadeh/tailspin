@@ -1,7 +1,7 @@
 use crate::io::reader::StreamEvent;
 use crate::io::reader::line_batcher::{BUF_READER_CAPACITY, ReadResult, read_lines};
 use anyhow::Result;
-use tokio::io::{BufReader, Stdin, stdin};
+use std::io::{BufReader, Stdin, stdin};
 
 pub struct StdinReader {
     reader: BufReader<Stdin>,
@@ -20,14 +20,14 @@ impl StdinReader {
 }
 
 impl StdinReader {
-    pub async fn next(&mut self) -> Result<StreamEvent> {
+    pub fn next(&mut self) -> Result<StreamEvent> {
         if !self.initial_read_complete_sent {
             self.initial_read_complete_sent = true;
 
             return Ok(StreamEvent::InitialReadComplete);
         }
 
-        match read_lines(&mut self.reader).await? {
+        match read_lines(&mut self.reader)? {
             ReadResult::Eof => Ok(StreamEvent::Ended),
             ReadResult::Batch(lines) => Ok(StreamEvent::Lines(lines)),
         }

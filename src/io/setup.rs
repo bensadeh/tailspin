@@ -8,9 +8,9 @@ use crate::io::routing::{Source, Target};
 use crate::io::writer::Writer;
 use crate::io::writer::temp_file::TempFile;
 use anyhow::{Context, Result};
+use std::fs::File;
+use std::io::BufWriter;
 use tempfile::TempPath;
-use tokio::fs::File;
-use tokio::io::BufWriter;
 
 pub struct IoSetup {
     pub reader: Reader,
@@ -18,8 +18,8 @@ pub struct IoSetup {
     pub presenter: Presenter,
 }
 
-pub async fn initialize_io(source: Source, target: Target) -> Result<IoSetup> {
-    let reader = get_reader(source).await?;
+pub fn initialize_io(source: Source, target: Target) -> Result<IoSetup> {
+    let reader = get_reader(source)?;
     let (writer, presenter) = get_writer_and_presenter(target)?;
 
     Ok(IoSetup {
@@ -29,11 +29,11 @@ pub async fn initialize_io(source: Source, target: Target) -> Result<IoSetup> {
     })
 }
 
-async fn get_reader(input: Source) -> Result<Reader> {
+fn get_reader(input: Source) -> Result<Reader> {
     let reader = match input {
-        Source::File(file) => Reader::File(FileReader::new(file.path, file.terminate_after_first_read).await?),
+        Source::File(file) => Reader::File(FileReader::new(file.path, file.terminate_after_first_read)?),
         Source::Stdin => Reader::Stdin(StdinReader::new()),
-        Source::Command(cmd) => Reader::Command(CommandReader::new(cmd).await?),
+        Source::Command(cmd) => Reader::Command(CommandReader::new(cmd)?),
     };
 
     Ok(reader)
@@ -61,5 +61,5 @@ fn create_temp_file() -> Result<(TempPath, BufWriter<File>)> {
 
     let (file, path) = temp_file.into_parts();
 
-    Ok((path, BufWriter::new(File::from_std(file))))
+    Ok((path, BufWriter::new(file)))
 }

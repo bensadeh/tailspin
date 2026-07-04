@@ -18,7 +18,7 @@
 //! ## Dependency usage
 //!
 //! When using `tailspin` as a library, disable default features to avoid pulling in
-//! CLI-specific dependencies like `tokio`, `clap`, and `rayon`:
+//! CLI-specific dependencies like `clap` and `rayon`:
 //!
 //! ```toml
 //! [dependencies]

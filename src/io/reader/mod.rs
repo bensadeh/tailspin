@@ -7,6 +7,8 @@ use crate::io::reader::command::CommandReader;
 use crate::io::reader::file_reader::FileReader;
 use crate::io::reader::stdin::StdinReader;
 use anyhow::Result;
+use shared_child::SharedChild;
+use std::sync::Arc;
 
 pub enum Reader {
     File(FileReader),
@@ -22,11 +24,19 @@ pub enum StreamEvent {
 }
 
 impl Reader {
-    pub async fn next(&mut self) -> Result<StreamEvent> {
+    pub fn next(&mut self) -> Result<StreamEvent> {
         match self {
-            Reader::File(r) => r.next().await,
-            Reader::Stdin(r) => r.next().await,
-            Reader::Command(r) => r.next().await,
+            Reader::File(r) => r.next(),
+            Reader::Stdin(r) => r.next(),
+            Reader::Command(r) => r.next(),
+        }
+    }
+
+    /// Handle for killing an `--exec` child from another thread.
+    pub fn exec_child(&self) -> Option<Arc<SharedChild>> {
+        match self {
+            Reader::Command(r) => Some(r.child()),
+            Reader::File(_) | Reader::Stdin(_) => None,
         }
     }
 }

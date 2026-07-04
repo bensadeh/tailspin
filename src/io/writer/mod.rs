@@ -10,9 +10,9 @@ pub enum Writer {
 }
 
 impl Writer {
-    pub async fn write(&mut self, line: &str) -> Result<()> {
+    pub fn write(&mut self, line: &str) -> Result<()> {
         match self {
-            Writer::TempFile(w) => w.write(line).await,
+            Writer::TempFile(w) => w.write(line),
             Writer::Stdout => stdout::write_line(line),
         }
     }

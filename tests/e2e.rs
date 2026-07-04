@@ -172,6 +172,14 @@ fn process_matching(pattern: &str) -> bool {
         .success()
 }
 
+/// The kill must be asserted first: a leaked child holds tspin's piped
+/// stdout/stderr open, and reading them to EOF would block until it exits.
+#[cfg(unix)]
+fn output_once_killed(child: std::process::Child, what: &str, marker: &str) -> Output {
+    wait_until(what, || !process_matching(marker));
+    child.wait_with_output().unwrap()
+}
+
 #[cfg(unix)]
 #[test]
 fn quitting_the_pager_kills_the_exec_child() {
@@ -190,11 +198,26 @@ fn quitting_the_pager_kills_the_exec_child() {
     wait_until("the exec child to start", || exec_started.exists());
     std::fs::write(&quit_pager, "").unwrap();
 
-    let output = child.wait_with_output().unwrap();
+    let marker = format!("sleep {nap}");
+    let output = output_once_killed(child, "the exec child to be killed", &marker);
     assert!(output.status.success(), "quitting the pager is a clean exit");
+}
+
+#[cfg(unix)]
+#[test]
+fn failing_pager_spawn_kills_the_exec_child() {
+    let nap = format!("32.{:04}", std::process::id() % 10_000);
+    let exec = format!("exec sleep {nap}");
+
+    let mut child = spawn_tspin(&["--exec", &exec, "--pager", "definitely-not-a-real-pager [FILE]"]);
+
+    // Only tspin's exit proves the exec child was ever spawned
+    child.wait().unwrap();
 
     let marker = format!("sleep {nap}");
-    wait_until("the exec child to be killed", || !process_matching(&marker));
+    let output = output_once_killed(child, "the exec child to be killed", &marker);
+    assert_eq!(output.status.code(), Some(1));
+    assert!(stderr_of(&output).contains("Could not run pager"));
 }
 
 #[cfg(unix)]
@@ -211,12 +234,10 @@ fn stream_error_while_paging_kills_the_pager() {
 
     wait_until("the pager to start", || pager_started.exists());
 
-    let output = child.wait_with_output().unwrap();
+    let marker = format!("sleep {nap}");
+    let output = output_once_killed(child, "the pager to be killed", &marker);
     assert_eq!(output.status.code(), Some(1));
     assert!(stderr_of(&output).contains("--exec command failed (exit status: 3)"));
-
-    let marker = format!("sleep {nap}");
-    wait_until("the pager to be killed", || !process_matching(&marker));
 }
 
 #[cfg(unix)]
@@ -240,7 +261,7 @@ fn tspin_survives_sigint_while_pager_runs() {
         .spawn()
         .unwrap();
 
-    // A started pager proves the SIGINT handler is installed: present()
+    // A started pager proves the SIGINT handler is installed: Pager::spawn()
     // registers it before spawning the pager.
     let deadline = Instant::now() + Duration::from_secs(10);
     while !marker.exists() {

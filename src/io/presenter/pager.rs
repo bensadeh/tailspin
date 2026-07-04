@@ -1,9 +1,11 @@
 use crate::io::routing::{CustomPagerOptions, LessOptions};
 use anyhow::Result;
+use shared_child::SharedChild;
 use std::path::Path;
+use std::process::{Command, ExitStatus};
+use std::sync::Arc;
 use tempfile::TempPath;
 use thiserror::Error;
-use tokio::process::Command;
 
 pub struct Pager {
     path: TempPath,
@@ -23,8 +25,11 @@ pub enum PagerError {
     #[error("Could not run pager")]
     CommandSpawn(#[source] std::io::Error),
 
+    #[error("Could not wait for pager")]
+    Wait(#[source] std::io::Error),
+
     #[error("Pager exited with non-zero status: {0}")]
-    NonZeroExit(std::process::ExitStatus),
+    NonZeroExit(ExitStatus),
 }
 
 impl Pager {
@@ -32,8 +37,10 @@ impl Pager {
         Self { path, options }
     }
 
-    pub async fn present(&self) -> Result<()> {
-        let _sigint_guard = platform::ignore_sigint().map_err(PagerError::SignalSetup)?;
+    /// The temp file moves into the returned `PagerChild`, so it lives
+    /// exactly as long as the pager can still read it.
+    pub fn spawn(self) -> Result<PagerChild> {
+        platform::ignore_sigint().map_err(PagerError::SignalSetup)?;
 
         let mut command = match &self.options {
             PagerOptions::Less(less) => get_less_pager_command(less.follow, &self.path),
@@ -42,7 +49,37 @@ impl Pager {
             }
         };
 
-        let status = command.status().await.map_err(PagerError::CommandSpawn)?;
+        let child = SharedChild::spawn(&mut command).map_err(PagerError::CommandSpawn)?;
+
+        Ok(PagerChild {
+            child: Arc::new(child),
+            _path: self.path,
+        })
+    }
+}
+
+pub struct PagerChild {
+    child: Arc<SharedChild>,
+    _path: TempPath,
+}
+
+impl PagerChild {
+    pub fn waiter(&self) -> PagerWaiter {
+        PagerWaiter(self.child.clone())
+    }
+
+    pub fn kill(&self) {
+        let _ = self.child.kill();
+    }
+}
+
+/// Waits for the pager from another thread while `PagerChild` retains the
+/// ability to kill it.
+pub struct PagerWaiter(Arc<SharedChild>);
+
+impl PagerWaiter {
+    pub fn wait(self) -> Result<()> {
+        let status = self.0.wait().map_err(PagerError::Wait)?;
 
         if status.success() || platform::interrupted_by_user(status) {
             Ok(())
@@ -65,7 +102,7 @@ fn get_less_pager_command(follow: bool, path: &Path) -> Command {
 
     let mut cmd = Command::new("less");
 
-    cmd.env("LESSSECURE", "1").args(&args).arg(path).kill_on_drop(true);
+    cmd.env("LESSSECURE", "1").args(&args).arg(path);
 
     cmd
 }
@@ -75,7 +112,7 @@ fn get_custom_pager_command(command: String, args: Vec<String>, path: &Path) -> 
 
     let mut cmd = Command::new(command);
 
-    cmd.args(replaced_args).kill_on_drop(true);
+    cmd.args(replaced_args);
 
     cmd
 }
@@ -88,12 +125,14 @@ fn replace_file_placeholder(args: Vec<String>, path: &str) -> Vec<String> {
 mod platform {
     use std::os::unix::process::ExitStatusExt;
     use std::process::ExitStatus;
-    use tokio::signal::unix::{Signal, SignalKind, signal};
+    use std::sync::Arc;
+    use std::sync::atomic::AtomicBool;
 
     // Registering this handler makes Ctrl+C (sent to the whole process group) stop at
-    // the pager instead of killing tspin. The caller holds the guard; we never poll it.
-    pub fn ignore_sigint() -> std::io::Result<Signal> {
-        signal(SignalKind::interrupt())
+    // the pager instead of killing tspin. The flag is never read; the handler stays
+    // installed for the rest of the process.
+    pub fn ignore_sigint() -> std::io::Result<()> {
+        signal_hook::flag::register(signal_hook::consts::SIGINT, Arc::new(AtomicBool::new(false))).map(|_| ())
     }
 
     pub fn interrupted_by_user(status: ExitStatus) -> bool {
