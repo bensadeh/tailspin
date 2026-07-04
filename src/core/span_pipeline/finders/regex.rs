@@ -4,16 +4,22 @@ use crate::style::Style;
 
 use super::super::span::{Collector, Finder};
 
+/// With exactly one capture group, only the captured portion is styled
+/// (falling back to the full match when the group doesn't participate);
+/// otherwise the full match is styled.
 #[derive(Debug)]
 pub(crate) struct RegexFinder {
     regex: Regex,
     style: Style,
+    single_capture_group: bool,
 }
 
 impl RegexFinder {
     pub fn new(pattern: &str, style: Style) -> Result<Self, Error> {
+        let regex = Regex::new(pattern)?;
         Ok(Self {
-            regex: Regex::new(pattern)?,
+            single_capture_group: regex.captures_len() == 2,
+            regex,
             style,
         })
     }
@@ -21,23 +27,14 @@ impl RegexFinder {
 
 impl Finder for RegexFinder {
     fn find_spans(&self, input: &str, collector: &mut Collector) {
-        let capture_groups = self.regex.captures_len() - 1;
-
         for caps in self.regex.captures_iter(input) {
-            if let Some(entire_match) = caps.get(0) {
-                match capture_groups {
-                    1 => {
-                        if let Some(captured) = caps.get(1) {
-                            collector.push(captured.start(), captured.end(), self.style);
-                        } else {
-                            collector.push(entire_match.start(), entire_match.end(), self.style);
-                        }
-                    }
-                    _ => {
-                        collector.push(entire_match.start(), entire_match.end(), self.style);
-                    }
-                }
-            }
+            let entire_match = caps.get(0).unwrap();
+            let m = if self.single_capture_group {
+                caps.get(1).unwrap_or(entire_match)
+            } else {
+                entire_match
+            };
+            collector.push(m.start(), m.end(), self.style);
         }
     }
 }
