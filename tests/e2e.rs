@@ -137,6 +137,89 @@ fn malformed_theme_errors_with_unknown_field() {
 }
 
 #[cfg(unix)]
+fn spawn_tspin(args: &[&str]) -> std::process::Child {
+    std::process::Command::new(env!("CARGO_BIN_EXE_tspin"))
+        .args(args)
+        .env("XDG_CONFIG_HOME", EMPTY_CONFIG_DIR.path())
+        .env_remove("TAILSPIN_PAGER")
+        .env_remove("TAILSPIN_EXTRAS")
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .unwrap()
+}
+
+#[cfg(unix)]
+fn wait_until(what: &str, mut condition: impl FnMut() -> bool) {
+    use std::time::{Duration, Instant};
+
+    let deadline = Instant::now() + Duration::from_secs(10);
+    while !condition() {
+        assert!(Instant::now() < deadline, "timed out waiting for {what}");
+        std::thread::sleep(Duration::from_millis(20));
+    }
+}
+
+/// Whether any process has `pattern` in its command line.
+#[cfg(unix)]
+fn process_matching(pattern: &str) -> bool {
+    std::process::Command::new("pgrep")
+        .args(["-f", pattern])
+        .output()
+        .unwrap()
+        .status
+        .success()
+}
+
+#[cfg(unix)]
+#[test]
+fn quitting_the_pager_kills_the_exec_child() {
+    let dir = tempfile::tempdir().unwrap();
+    let exec_started = dir.path().join("exec-started");
+    let quit_pager = dir.path().join("quit-pager");
+
+    // `exec` keeps the uniquely named sleep as tspin's direct child (no grandchild).
+    let nap = format!("31.{:04}", std::process::id() % 10_000);
+    let exec = format!("touch {}; exec sleep {nap}", exec_started.display());
+    // A pager that "quits" the moment the test creates the quit file.
+    let pager = format!("sh -c 'until [ -e {} ]; do sleep 0.05; done'", quit_pager.display());
+
+    let child = spawn_tspin(&["--exec", &exec, "--pager", &pager]);
+
+    wait_until("the exec child to start", || exec_started.exists());
+    std::fs::write(&quit_pager, "").unwrap();
+
+    let output = child.wait_with_output().unwrap();
+    assert!(output.status.success(), "quitting the pager is a clean exit");
+
+    let marker = format!("sleep {nap}");
+    wait_until("the exec child to be killed", || !process_matching(&marker));
+}
+
+#[cfg(unix)]
+#[test]
+fn stream_error_while_paging_kills_the_pager() {
+    let dir = tempfile::tempdir().unwrap();
+    let pager_started = dir.path().join("pager-started");
+
+    // Unique sleep duration so pgrep identifies this test's pager and nothing else.
+    let nap = format!("30.{:04}", std::process::id() % 10_000);
+    let pager = format!("sh -c 'touch {}; exec sleep {nap}'", pager_started.display());
+
+    let child = spawn_tspin(&["--exec", "sleep 1; exit 3", "--pager", &pager]);
+
+    wait_until("the pager to start", || pager_started.exists());
+
+    let output = child.wait_with_output().unwrap();
+    assert_eq!(output.status.code(), Some(1));
+    assert!(stderr_of(&output).contains("--exec command failed (exit status: 3)"));
+
+    let marker = format!("sleep {nap}");
+    wait_until("the pager to be killed", || !process_matching(&marker));
+}
+
+#[cfg(unix)]
 #[test]
 fn tspin_survives_sigint_while_pager_runs() {
     use std::time::{Duration, Instant};
