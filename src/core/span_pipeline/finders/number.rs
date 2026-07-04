@@ -1,5 +1,4 @@
 use super::build_regex;
-use memchr::{memchr, memchr3};
 use regex::Regex;
 
 use crate::core::config::NumberConfig;
@@ -29,12 +28,7 @@ impl NumberFinder {
 
 impl Finder for NumberFinder {
     fn find_spans(&self, input: &str, collector: &mut Collector) {
-        let bytes = input.as_bytes();
-        if memchr3(b'0', b'1', b'2', bytes).is_none()
-            && memchr3(b'3', b'4', b'5', bytes).is_none()
-            && memchr3(b'6', b'7', b'8', bytes).is_none()
-            && memchr(b'9', bytes).is_none()
-        {
+        if !input.bytes().any(|b| b.is_ascii_digit()) {
             return;
         }
 
