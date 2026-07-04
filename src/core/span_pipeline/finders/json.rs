@@ -22,12 +22,8 @@ impl Finder for JsonFinder {
             return;
         }
 
-        // JSON highlighting rewrites the entire input (reformatting whitespace),
-        // so we can't produce byte-offset spans into the original input.
-        // Instead, we style the structural tokens at their original positions
-        // by walking the raw input string.
-        //
-        // Validate it's JSON without allocating the tree.
+        // Validate it's JSON without allocating the tree, then style the
+        // structural tokens at their original byte positions.
         let mut de = serde_json::Deserializer::from_str(input);
         if serde::de::IgnoredAny::deserialize(&mut de).is_err() || de.end().is_err() {
             return;
