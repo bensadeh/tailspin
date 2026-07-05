@@ -1,4 +1,5 @@
 use crate::cli::{Base, Extra};
+use clap::ValueEnum;
 use std::collections::HashSet;
 use thiserror::Error;
 
@@ -14,9 +15,13 @@ pub(crate) struct BaseSet(HashSet<Base>);
 impl BaseSet {
     pub(crate) fn resolve(enabled: &[Base], disabled: &[Base]) -> Result<Self, ResolveError> {
         let set = match (enabled.is_empty(), disabled.is_empty()) {
-            (true, true) => Base::ALL.iter().copied().collect(),
+            (true, true) => Base::value_variants().iter().copied().collect(),
             (false, true) => enabled.iter().copied().collect(),
-            (true, false) => Base::ALL.iter().copied().filter(|g| !disabled.contains(g)).collect(),
+            (true, false) => Base::value_variants()
+                .iter()
+                .copied()
+                .filter(|g| !disabled.contains(g))
+                .collect(),
             (false, false) => return Err(ResolveError::ConflictEnableDisable),
         };
         Ok(Self(set))
@@ -38,7 +43,7 @@ mod tests {
     #[test]
     fn empty_inputs_enable_all_base_groups() {
         let set = BaseSet::resolve(&[], &[]).unwrap();
-        for base in Base::ALL {
+        for base in Base::value_variants() {
             assert!(set.contains(*base), "expected {base:?} to be enabled");
         }
     }

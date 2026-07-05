@@ -138,23 +138,6 @@ pub enum Base {
     Json,
 }
 
-impl Base {
-    pub const ALL: &[Base] = &[
-        Self::Numbers,
-        Self::Urls,
-        Self::Emails,
-        Self::Pointers,
-        Self::Dates,
-        Self::Paths,
-        Self::Quotes,
-        Self::KeyValuePairs,
-        Self::Uuids,
-        Self::Ipv4,
-        Self::Processes,
-        Self::Json,
-    ];
-}
-
 pub struct FullConfig {
     pub source: Source,
     pub target: Target,
