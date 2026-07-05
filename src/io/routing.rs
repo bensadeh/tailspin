@@ -54,6 +54,9 @@ pub enum RoutingError {
 
     #[error("Could not parse custom pager command")]
     CouldNotParseCustomPagerCommand,
+
+    #[error("Custom pager command must include the {} placeholder", Magenta.paint("[FILE]").to_string())]
+    MissingFilePlaceholder,
 }
 
 #[derive(Debug)]
@@ -113,12 +116,21 @@ fn get_target(args: &IoArgs, input: &Source) -> Result<Target, RoutingError> {
 fn split_custom_pager_command(raw_command: &str) -> Result<CustomPagerOptions, RoutingError> {
     let raw_args = shell_words::split(raw_command).unwrap_or_default();
 
-    let (command, args) = match raw_args.split_first() {
-        Some((first, rest)) if !rest.is_empty() => (first.clone(), rest.to_vec()),
-        Some(_) | None => return Err(RoutingError::CouldNotParseCustomPagerCommand),
+    let Some((command, args)) = raw_args.split_first() else {
+        return Err(RoutingError::CouldNotParseCustomPagerCommand);
     };
 
-    Ok(CustomPagerOptions { command, args })
+    // The pager only receives the temp file through the [FILE] placeholder
+    // (see `io::presenter::pager`), so a command without one would spawn
+    // with nothing to page.
+    if !args.iter().any(|arg| arg.contains("[FILE]")) {
+        return Err(RoutingError::MissingFilePlaceholder);
+    }
+
+    Ok(CustomPagerOptions {
+        command: command.clone(),
+        args: args.to_vec(),
+    })
 }
 
 fn process_path_input(path: PathBuf, terminate_after_first_read: bool) -> Result<Source, RoutingError> {
@@ -137,4 +149,37 @@ fn process_path_input(path: PathBuf, terminate_after_first_read: bool) -> Result
         path,
         terminate_after_first_read,
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn pager_command_with_placeholder_splits_into_command_and_args() {
+        let options = split_custom_pager_command("ov -f [FILE]").unwrap();
+
+        assert_eq!(options.command, "ov");
+        assert_eq!(options.args, vec!["-f", "[FILE]"]);
+    }
+
+    #[test]
+    fn pager_command_without_placeholder_is_rejected() {
+        let err = split_custom_pager_command("ov -f").unwrap_err();
+        assert!(matches!(err, RoutingError::MissingFilePlaceholder));
+    }
+
+    #[test]
+    fn bare_pager_command_is_rejected() {
+        let err = split_custom_pager_command("ov").unwrap_err();
+        assert!(matches!(err, RoutingError::MissingFilePlaceholder));
+    }
+
+    #[test]
+    fn unparseable_pager_command_is_rejected() {
+        for raw in ["", "ov 'unclosed [FILE]"] {
+            let err = split_custom_pager_command(raw).unwrap_err();
+            assert!(matches!(err, RoutingError::CouldNotParseCustomPagerCommand));
+        }
+    }
 }

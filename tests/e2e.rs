@@ -190,8 +190,12 @@ fn quitting_the_pager_kills_the_exec_child() {
     // `exec` keeps the uniquely named sleep as tspin's direct child (no grandchild).
     let nap = format!("31.{:04}", std::process::id() % 10_000);
     let exec = format!("touch {}; exec sleep {nap}", exec_started.display());
-    // A pager that "quits" the moment the test creates the quit file.
-    let pager = format!("sh -c 'until [ -e {} ]; do sleep 0.05; done'", quit_pager.display());
+    // A pager that "quits" the moment the test creates the quit file. The
+    // [FILE] token only satisfies routing validation; the script ignores it.
+    let pager = format!(
+        "sh -c 'until [ -e {} ]; do sleep 0.05; done' [FILE]",
+        quit_pager.display()
+    );
 
     let child = spawn_tspin(&["--exec", &exec, "--pager", &pager]);
 
@@ -228,7 +232,7 @@ fn stream_error_while_paging_kills_the_pager() {
 
     // Unique sleep duration so pgrep identifies this test's pager and nothing else.
     let nap = format!("30.{:04}", std::process::id() % 10_000);
-    let pager = format!("sh -c 'touch {}; exec sleep {nap}'", pager_started.display());
+    let pager = format!("sh -c 'touch {}; exec sleep {nap}' [FILE]", pager_started.display());
 
     let child = spawn_tspin(&["--exec", "sleep 1; exit 3", "--pager", &pager]);
 
