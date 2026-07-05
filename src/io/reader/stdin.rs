@@ -17,9 +17,7 @@ impl StdinReader {
             initial_read_complete_sent: false,
         }
     }
-}
 
-impl StdinReader {
     pub fn next(&mut self) -> Result<StreamEvent> {
         if !self.initial_read_complete_sent {
             self.initial_read_complete_sent = true;

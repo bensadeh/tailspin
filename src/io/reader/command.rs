@@ -20,6 +20,25 @@ impl CommandReader {
     pub fn child(&self) -> Arc<SharedChild> {
         self.child.clone()
     }
+
+    pub fn next(&mut self) -> Result<StreamEvent> {
+        if !self.initial_read_complete_sent {
+            self.initial_read_complete_sent = true;
+
+            return Ok(StreamEvent::InitialReadComplete);
+        }
+
+        let event = match read_batch(&mut self.reader)? {
+            ReadResult::Eof => {
+                let status = self.child.wait()?;
+                ensure!(status.success(), "--exec command failed ({status})");
+                StreamEvent::Ended
+            }
+            ReadResult::Batch(batch) => StreamEvent::Lines(batch),
+        };
+
+        Ok(event)
+    }
 }
 
 #[cfg(not(windows))]
@@ -56,26 +75,5 @@ fn spawn_command(_command: String) -> Result<CommandReader> {
 impl Drop for CommandReader {
     fn drop(&mut self) {
         let _ = self.child.kill();
-    }
-}
-
-impl CommandReader {
-    pub fn next(&mut self) -> Result<StreamEvent> {
-        if !self.initial_read_complete_sent {
-            self.initial_read_complete_sent = true;
-
-            return Ok(StreamEvent::InitialReadComplete);
-        }
-
-        let event = match read_batch(&mut self.reader)? {
-            ReadResult::Eof => {
-                let status = self.child.wait()?;
-                ensure!(status.success(), "--exec command failed ({status})");
-                StreamEvent::Ended
-            }
-            ReadResult::Batch(batch) => StreamEvent::Lines(batch),
-        };
-
-        Ok(event)
     }
 }

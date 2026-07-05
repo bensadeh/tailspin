@@ -10,9 +10,7 @@ impl TempFile {
     pub const fn new(writer: BufWriter<File>) -> Self {
         TempFile { writer }
     }
-}
 
-impl TempFile {
     pub fn write_batch<'a>(&mut self, lines: impl Iterator<Item = &'a str>) -> Result<()> {
         for line in lines {
             self.writer
