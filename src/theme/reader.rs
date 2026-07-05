@@ -31,6 +31,7 @@ fn expand_var_os(key: &str) -> Option<PathBuf> {
         .and_then(|os_str| os_str.into_string().ok())
         .map(|s| shellexpand::tilde(&s).into_owned().into())
 }
+
 fn read_and_parse_toml(path: &Path) -> Result<Theme, ThemeError> {
     let display_path = || path.display().to_string();
 

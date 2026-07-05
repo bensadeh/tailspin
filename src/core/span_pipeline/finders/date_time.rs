@@ -14,7 +14,7 @@ pub(crate) struct DateTimeFinder {
 
 impl DateTimeFinder {
     pub fn new(config: DateTimeConfig) -> Self {
-        // Match structure: [T| ]? H?H:MM:SS [.,,:]digits? Z?
+        // Match structure: [T| ]? H?H:MM:SS [.,:]digits? Z?
         // We use find_iter and parse the fixed structure from match bytes.
         let pattern = r"(?x)
             [T\s]?
