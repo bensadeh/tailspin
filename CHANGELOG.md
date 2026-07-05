@@ -10,6 +10,7 @@
 ### Performance
 
 - Match all keyword groups with a single automaton instead of one per style
+- Batch lines in a shared buffer instead of allocating one string per line
 
 ### Fixed
 

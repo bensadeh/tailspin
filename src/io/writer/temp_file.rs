@@ -13,14 +13,16 @@ impl TempFile {
 }
 
 impl TempFile {
-    pub fn write(&mut self, line: &str) -> Result<()> {
-        self.writer
-            .write_all(line.as_bytes())
-            .context("Failed to write line to file")?;
+    pub fn write_batch<'a>(&mut self, lines: impl Iterator<Item = &'a str>) -> Result<()> {
+        for line in lines {
+            self.writer
+                .write_all(line.as_bytes())
+                .context("Failed to write line to file")?;
 
-        self.writer.write_all(b"\n").context("Failed to write line to file")?;
+            self.writer.write_all(b"\n").context("Failed to write line to file")?;
+        }
 
-        // Flush after each write so the pager (e.g. less +F) sees lines immediately
+        // Flush after each batch so the pager (e.g. less +F) sees lines immediately
         self.writer.flush().context("Error flushing temp file")?;
 
         Ok(())

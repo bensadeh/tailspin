@@ -7,7 +7,7 @@ mod theme;
 use cli::{FullConfig, get_config};
 use io::presenter::Presenter;
 use io::presenter::pager::Pager;
-use io::reader::{Reader, StreamEvent};
+use io::reader::{LineBatch, Reader, StreamEvent};
 use io::setup::{IoSetup, initialize_io};
 use io::writer::Writer;
 use io::writer::stdout::BrokenPipe;
@@ -119,17 +119,20 @@ fn process_stream(
                 let _ = initial_read_tx.send(());
             }
             StreamEvent::Ended => return Ok(()),
-            StreamEvent::Lines(lines) => write_lines(&mut writer, highlighter, lines)?,
+            StreamEvent::Lines(batch) => write_lines(&mut writer, highlighter, &batch)?,
         }
     }
 }
 
-fn write_lines(writer: &mut Writer, highlighter: &Highlighter, lines: Vec<String>) -> anyhow::Result<()> {
-    let highlighted = lines
+fn write_lines(writer: &mut Writer, highlighter: &Highlighter, batch: &LineBatch) -> anyhow::Result<()> {
+    let highlighted: Vec<String> = batch
+        .lines
         .par_iter()
-        .map(|line| highlighter.apply(line.as_str()))
-        .collect::<Vec<_>>()
-        .join("\n");
+        .map(|range| {
+            let line = String::from_utf8_lossy(&batch.buf[range.clone()]);
+            highlighter.apply(&line).into_owned()
+        })
+        .collect();
 
-    writer.write(&highlighted)
+    writer.write_batch(highlighted.iter().map(AsRef::as_ref))
 }

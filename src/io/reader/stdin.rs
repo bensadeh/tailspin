@@ -1,5 +1,5 @@
 use crate::io::reader::StreamEvent;
-use crate::io::reader::line_batcher::{BUF_READER_CAPACITY, ReadResult, read_lines};
+use crate::io::reader::line_batcher::{BUF_READER_CAPACITY, ReadResult, read_batch};
 use anyhow::Result;
 use std::io::{BufReader, Stdin, stdin};
 
@@ -27,9 +27,9 @@ impl StdinReader {
             return Ok(StreamEvent::InitialReadComplete);
         }
 
-        match read_lines(&mut self.reader)? {
+        match read_batch(&mut self.reader)? {
             ReadResult::Eof => Ok(StreamEvent::Ended),
-            ReadResult::Batch(lines) => Ok(StreamEvent::Lines(lines)),
+            ReadResult::Batch(batch) => Ok(StreamEvent::Lines(batch)),
         }
     }
 }

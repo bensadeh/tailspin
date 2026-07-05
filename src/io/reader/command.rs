@@ -1,5 +1,5 @@
 use crate::io::reader::StreamEvent;
-use crate::io::reader::line_batcher::{ReadResult, read_lines};
+use crate::io::reader::line_batcher::{ReadResult, read_batch};
 use anyhow::{Result, anyhow, ensure};
 use shared_child::SharedChild;
 use std::io::BufReader;
@@ -67,13 +67,13 @@ impl CommandReader {
             return Ok(StreamEvent::InitialReadComplete);
         }
 
-        let event = match read_lines(&mut self.reader)? {
+        let event = match read_batch(&mut self.reader)? {
             ReadResult::Eof => {
                 let status = self.child.wait()?;
                 ensure!(status.success(), "--exec command failed ({status})");
                 StreamEvent::Ended
             }
-            ReadResult::Batch(lines) => StreamEvent::Lines(lines),
+            ReadResult::Batch(batch) => StreamEvent::Lines(batch),
         };
 
         Ok(event)

@@ -1,6 +1,6 @@
 use crate::io::reader::StreamEvent;
 use crate::io::reader::StreamEvent::{Ended, InitialReadComplete};
-use crate::io::reader::line_batcher::{BUF_READER_CAPACITY, ReadResult, decode_line, read_lines};
+use crate::io::reader::line_batcher::{BUF_READER_CAPACITY, LineBatch, ReadResult, read_batch};
 use anyhow::{Context, Result};
 use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
@@ -39,7 +39,7 @@ impl FileReader {
         })
     }
 
-    fn next_line(&mut self) -> Result<String> {
+    fn next_line(&mut self) -> Result<LineBatch> {
         loop {
             let bytes_read = self
                 .reader
@@ -63,7 +63,7 @@ impl FileReader {
             }
 
             if self.buf.ends_with(b"\n") {
-                let line = decode_line(&self.buf);
+                let line = LineBatch::single_line(&self.buf);
                 self.buf.clear();
                 return Ok(line);
             }
@@ -75,8 +75,8 @@ impl FileReader {
 
     pub fn next(&mut self) -> Result<StreamEvent> {
         match self.stage {
-            Stage::InitialRead => match read_lines(&mut self.reader)? {
-                ReadResult::Batch(lines) => Ok(StreamEvent::Lines(lines)),
+            Stage::InitialRead => match read_batch(&mut self.reader)? {
+                ReadResult::Batch(batch) => Ok(StreamEvent::Lines(batch)),
                 ReadResult::Eof => {
                     self.stage = if self.terminate_after_first_read {
                         Stage::Terminated
@@ -86,7 +86,7 @@ impl FileReader {
                     Ok(InitialReadComplete)
                 }
             },
-            Stage::Following => Ok(StreamEvent::Lines(vec![self.next_line()?])),
+            Stage::Following => Ok(StreamEvent::Lines(self.next_line()?)),
             Stage::Terminated => Ok(Ended),
         }
     }
@@ -119,6 +119,10 @@ mod tests {
         rx
     }
 
+    fn texts(batch: &LineBatch) -> Vec<String> {
+        batch.iter().map(std::borrow::Cow::into_owned).collect()
+    }
+
     fn next_event(events: &Receiver<Result<StreamEvent>>) -> StreamEvent {
         events
             .recv_timeout(Duration::from_secs(5))
@@ -146,7 +150,7 @@ mod tests {
         let events = events_of(FileReader::new(file_path, false)?);
 
         match next_event(&events) {
-            Lines(lines) => assert_eq!(lines, vec!["line1", "line2", "line3"]),
+            Lines(batch) => assert_eq!(texts(&batch), vec!["line1", "line2", "line3"]),
             other => panic!("Expected StreamEvent::Lines(...), got {other:?}"),
         }
         assert!(matches!(next_event(&events), InitialReadComplete));
@@ -167,7 +171,7 @@ mod tests {
         let mut reader = FileReader::new(file_path, true)?;
 
         match reader.next()? {
-            Lines(lines) => assert_eq!(lines, vec!["only_line"]),
+            Lines(batch) => assert_eq!(texts(&batch), vec!["only_line"]),
             other => panic!("Expected StreamEvent::Lines(...), got {other:?}"),
         }
         assert!(matches!(reader.next()?, InitialReadComplete));
@@ -188,7 +192,7 @@ mod tests {
         let events = events_of(FileReader::new(file_path.as_path(), false)?);
 
         match next_event(&events) {
-            Lines(lines) => assert_eq!(lines, vec!["initial1", "initial2"]),
+            Lines(batch) => assert_eq!(texts(&batch), vec!["initial1", "initial2"]),
             other => panic!("Expected StreamEvent::Lines(...), got {other:?}"),
         }
         assert!(matches!(next_event(&events), InitialReadComplete));
@@ -198,11 +202,11 @@ mod tests {
         writeln!(file, "appended2")?;
 
         match next_event(&events) {
-            Lines(lines) => assert_eq!(lines, vec!["appended1"]),
+            Lines(batch) => assert_eq!(texts(&batch), vec!["appended1"]),
             other => panic!("Expected appended1, got {other:?}"),
         }
         match next_event(&events) {
-            Lines(lines) => assert_eq!(lines, vec!["appended2"]),
+            Lines(batch) => assert_eq!(texts(&batch), vec!["appended2"]),
             other => panic!("Expected appended2, got {other:?}"),
         }
 
@@ -234,8 +238,8 @@ mod tests {
         let mut reader = FileReader::new(file_path, true)?;
 
         let mut all_lines = Vec::new();
-        while let Lines(lines) = reader.next()? {
-            all_lines.extend(lines);
+        while let Lines(batch) = reader.next()? {
+            all_lines.extend(texts(&batch));
         }
         assert_eq!(all_lines, vec!["line1", "line2"]);
 
@@ -255,7 +259,7 @@ mod tests {
         let events = events_of(FileReader::new(file_path.as_path(), false)?);
 
         match next_event(&events) {
-            Lines(lines) => assert_eq!(lines, vec!["line1", "line2"]),
+            Lines(batch) => assert_eq!(texts(&batch), vec!["line1", "line2"]),
             other => panic!("Expected StreamEvent::Lines(...), got {other:?}"),
         }
         assert!(matches!(next_event(&events), InitialReadComplete));
@@ -267,7 +271,7 @@ mod tests {
         }
 
         match next_event(&events) {
-            Lines(lines) => assert_eq!(lines, vec!["appended"]),
+            Lines(batch) => assert_eq!(texts(&batch), vec!["appended"]),
             other => panic!("Expected StreamEvent::Lines(\"appended\"), got {other:?}"),
         }
 
@@ -288,7 +292,8 @@ mod tests {
         let mut reader = FileReader::new(file_path, true)?;
 
         match reader.next()? {
-            Lines(lines) => {
+            Lines(batch) => {
+                let lines = texts(&batch);
                 assert_eq!(lines.len(), 1);
                 assert!(lines[0].contains("hello"));
                 assert!(lines[0].contains("world"));
@@ -313,7 +318,7 @@ mod tests {
         let events = events_of(FileReader::new(file_path.as_path(), false)?);
 
         match next_event(&events) {
-            Lines(lines) => assert_eq!(lines, vec!["initial"]),
+            Lines(batch) => assert_eq!(texts(&batch), vec!["initial"]),
             other => panic!("Expected StreamEvent::Lines(\"initial\"), got {other:?}"),
         }
         assert!(matches!(next_event(&events), InitialReadComplete));
@@ -325,7 +330,8 @@ mod tests {
         }
 
         match next_event(&events) {
-            Lines(lines) => {
+            Lines(batch) => {
+                let lines = texts(&batch);
                 assert_eq!(lines.len(), 1);
                 assert!(lines[0].starts_with("caf"));
                 assert!(lines[0].contains('\u{FFFD}'));
@@ -348,7 +354,7 @@ mod tests {
         let events = events_of(FileReader::new(file_path.as_path(), false)?);
 
         match next_event(&events) {
-            Lines(lines) => assert_eq!(lines, vec!["original1", "original2"]),
+            Lines(batch) => assert_eq!(texts(&batch), vec!["original1", "original2"]),
             other => panic!("Expected StreamEvent::Lines(...), got {other:?}"),
         }
         assert!(matches!(next_event(&events), InitialReadComplete));
@@ -358,7 +364,7 @@ mod tests {
         writeln!(file, "new")?;
 
         match next_event(&events) {
-            Lines(lines) => assert_eq!(lines, vec!["new"]),
+            Lines(batch) => assert_eq!(texts(&batch), vec!["new"]),
             other => panic!("Expected StreamEvent::Lines(\"new\"), got {other:?}"),
         }
 
@@ -370,9 +376,12 @@ mod tests {
         let dir = tempdir().unwrap();
         let file_path = dir.path().join("large.log");
 
+        // Enough lines to overflow the read buffer, so the initial read
+        // must split into multiple batches.
+        let line_count = BUF_READER_CAPACITY * 2 / 68;
         {
             let mut file = File::create(&file_path).unwrap();
-            for i in 0..2000 {
+            for i in 0..line_count {
                 writeln!(
                     file,
                     "line {i:05} - padding to make this line reasonably long for testing"
@@ -388,16 +397,16 @@ mod tests {
 
         loop {
             match reader.next()? {
-                Lines(lines) => {
+                Lines(batch) => {
                     event_count += 1;
-                    total_lines += lines.len();
+                    total_lines += batch.lines.len();
                 }
                 InitialReadComplete => break,
                 Ended => panic!("Unexpected Ended before InitialReadComplete"),
             }
         }
 
-        assert_eq!(total_lines, 2000);
+        assert_eq!(total_lines, line_count);
         assert!(
             event_count > 1,
             "Large file should produce multiple events, got {event_count}"

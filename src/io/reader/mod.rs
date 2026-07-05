@@ -10,6 +10,8 @@ use anyhow::Result;
 use shared_child::SharedChild;
 use std::sync::Arc;
 
+pub use line_batcher::LineBatch;
+
 pub enum Reader {
     File(FileReader),
     Stdin(StdinReader),
@@ -20,7 +22,7 @@ pub enum Reader {
 pub enum StreamEvent {
     InitialReadComplete,
     Ended,
-    Lines(Vec<String>),
+    Lines(LineBatch),
 }
 
 impl Reader {

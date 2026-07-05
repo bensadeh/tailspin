@@ -6,6 +6,7 @@ use crate::io::reader::file_reader::FileReader;
 use crate::io::reader::stdin::StdinReader;
 use crate::io::routing::{Source, Target};
 use crate::io::writer::Writer;
+use crate::io::writer::stdout::StdoutWriter;
 use crate::io::writer::temp_file::TempFile;
 use anyhow::{Context, Result};
 use std::fs::File;
@@ -43,7 +44,7 @@ fn get_writer_and_presenter(output: Target) -> Result<(Writer, Presenter)> {
     let pager_opts = match output {
         Target::Less(opts) => PagerOptions::Less(opts),
         Target::CustomPager(opts) => PagerOptions::Custom(opts),
-        Target::Stdout => return Ok((Writer::Stdout, Presenter::StdOut)),
+        Target::Stdout => return Ok((Writer::Stdout(StdoutWriter::new()), Presenter::StdOut)),
     };
 
     let (path, buf_writer) = create_temp_file()?;
