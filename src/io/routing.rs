@@ -4,14 +4,14 @@ use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
 
-#[derive(Debug, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Source {
     File(FileInfo),
     Command(String),
     Stdin,
 }
 
-#[derive(Debug, PartialEq, Eq, Ord, PartialOrd)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct FileInfo {
     pub path: PathBuf,
     pub terminate_after_first_read: bool,
