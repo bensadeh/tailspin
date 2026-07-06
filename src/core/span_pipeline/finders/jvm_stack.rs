@@ -90,17 +90,19 @@ impl Finder for JvmStackFinder {
             collector.push(marker.start(), marker.end(), caused_by);
         }
 
-        for caps in self.header_regex.captures_iter(input) {
-            let pkg = caps.name("package").unwrap();
-            let cls = caps.name("class").unwrap();
-            let colon = caps.name("colon").unwrap();
-            let cls_text = cls.as_str();
-            if !cls_text.ends_with("Exception") && !cls_text.ends_with("Error") {
-                continue;
+        if input.contains("Exception") || input.contains("Error") {
+            for caps in self.header_regex.captures_iter(input) {
+                let pkg = caps.name("package").unwrap();
+                let cls = caps.name("class").unwrap();
+                let colon = caps.name("colon").unwrap();
+                let cls_text = cls.as_str();
+                if !cls_text.ends_with("Exception") && !cls_text.ends_with("Error") {
+                    continue;
+                }
+                collector.push(pkg.start(), pkg.end(), package);
+                collector.push(cls.start(), cls.end(), exception);
+                collector.push(colon.start(), colon.end(), frame);
             }
-            collector.push(pkg.start(), pkg.end(), package);
-            collector.push(cls.start(), cls.end(), exception);
-            collector.push(colon.start(), colon.end(), frame);
         }
 
         for caps in self.frame_regex.captures_iter(input) {
