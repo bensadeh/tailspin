@@ -5,7 +5,7 @@ use crate::core::config::NumberConfig;
 
 use super::super::span::{Collector, Finder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct NumberFinder {
     regex: Regex,
     config: NumberConfig,

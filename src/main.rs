@@ -14,6 +14,7 @@ use io::writer::stdout::BrokenPipe;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use shared_child::SharedChild;
+use std::cell::OnceCell;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::sync::mpsc;
 use std::thread;
@@ -124,13 +125,20 @@ fn process_stream(
     }
 }
 
+// Each rayon worker highlights through its own clone of the highlighter:
+// a cloned regex shares its compiled program but gets a fresh scratch-cache
+// pool, so per-line searches skip the contended cross-thread pool path.
+thread_local! {
+    static LOCAL_HIGHLIGHTER: OnceCell<Highlighter> = const { OnceCell::new() };
+}
+
 fn write_lines(writer: &mut Writer, highlighter: &Highlighter, batch: &LineBatch) -> anyhow::Result<()> {
     let highlighted: Vec<String> = batch
         .lines
         .par_iter()
         .map(|range| {
             let line = String::from_utf8_lossy(&batch.buf[range.clone()]);
-            highlighter.apply(&line).into_owned()
+            LOCAL_HIGHLIGHTER.with(|local| local.get_or_init(|| highlighter.clone()).apply(&line).into_owned())
         })
         .collect();
 

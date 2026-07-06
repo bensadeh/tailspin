@@ -25,7 +25,11 @@ use thiserror::Error;
 ///
 /// `Highlighter` applies configured pattern-based highlighters to text inputs,
 /// returning highlighted output with ANSI colors.
-#[derive(Debug)]
+///
+/// When highlighting from many threads, give each thread its own clone rather
+/// than sharing one instance: clones share the compiled patterns but keep
+/// separate regex scratch caches, which would otherwise contend across threads.
+#[derive(Debug, Clone)]
 pub struct Highlighter {
     inner: Pipeline,
 }

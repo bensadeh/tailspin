@@ -107,8 +107,26 @@ impl Collector {
 ///
 /// Implementations run on the original unstyled input and push spans
 /// into the collector.
-pub(crate) trait Finder: std::fmt::Debug + Sync + Send {
+pub(crate) trait Finder: std::fmt::Debug + Sync + Send + BoxedCloneFinder {
     fn find_spans(&self, input: &str, collector: &mut Collector);
+}
+
+/// Object-safe clone for boxed finders, blanket-implemented so finder
+/// types only need `#[derive(Clone)]`.
+pub(crate) trait BoxedCloneFinder {
+    fn boxed_clone(&self) -> Box<dyn Finder>;
+}
+
+impl<T: Finder + Clone + 'static> BoxedCloneFinder for T {
+    fn boxed_clone(&self) -> Box<dyn Finder> {
+        Box::new(self.clone())
+    }
+}
+
+impl Clone for Box<dyn Finder> {
+    fn clone(&self) -> Self {
+        self.as_ref().boxed_clone()
+    }
 }
 
 #[cfg(test)]

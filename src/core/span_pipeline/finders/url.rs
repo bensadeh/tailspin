@@ -7,7 +7,7 @@ use crate::core::config::UrlConfig;
 
 use super::super::span::{Collector, Finder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct UrlFinder {
     url_regex: Regex,
     query_params_regex: Regex,

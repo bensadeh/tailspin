@@ -7,7 +7,7 @@ use crate::core::config::IpV6Config;
 
 use super::super::span::{Collector, Finder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct IpV6Finder {
     regex: Regex,
     config: IpV6Config,

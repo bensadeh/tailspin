@@ -7,7 +7,7 @@ use super::super::span::{Collector, Finder};
 
 /// Matches all configured keywords with a single automaton; each pattern
 /// carries the style of the config it came from.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct KeywordFinder {
     ac: AhoCorasick,
     styles: Vec<Style>,

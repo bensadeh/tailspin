@@ -6,7 +6,7 @@ use crate::core::config::DateTimeConfig;
 
 use super::super::span::{Collector, Finder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct DateDashFinder {
     regex: Regex,
     config: DateTimeConfig,

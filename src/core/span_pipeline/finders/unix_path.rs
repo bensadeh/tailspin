@@ -6,7 +6,7 @@ use crate::core::config::UnixPathConfig;
 
 use super::super::span::{Collector, Finder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct UnixPathFinder {
     regex: Regex,
     config: UnixPathConfig,

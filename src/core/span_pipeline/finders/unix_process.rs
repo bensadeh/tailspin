@@ -6,7 +6,7 @@ use crate::core::config::UnixProcessConfig;
 
 use super::super::span::{Collector, Finder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct UnixProcessFinder {
     regex: Regex,
     config: UnixProcessConfig,

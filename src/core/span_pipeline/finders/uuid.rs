@@ -6,7 +6,7 @@ use crate::core::config::UuidConfig;
 
 use super::super::span::{Collector, Finder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct UuidFinder {
     regex: Regex,
     config: UuidConfig,

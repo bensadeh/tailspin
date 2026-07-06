@@ -6,7 +6,7 @@ use crate::core::config::PointerConfig;
 
 use super::super::span::{Collector, Finder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct PointerFinder {
     regex: Regex,
     config: PointerConfig,

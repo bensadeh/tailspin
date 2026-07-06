@@ -37,7 +37,7 @@ thread_local! {
 /// All finders run on the original unstyled input and produce spans.
 /// A merge step resolves overlaps by priority, and a single render pass
 /// produces the ANSI-colored output.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct Pipeline {
     finders: Vec<Box<dyn Finder>>,
 }

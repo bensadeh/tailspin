@@ -7,7 +7,7 @@ use super::super::span::{Collector, Finder};
 /// With exactly one capture group, only the captured portion is styled
 /// (falling back to the full match when the group doesn't participate);
 /// otherwise the full match is styled.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct RegexFinder {
     regex: Regex,
     style: Style,

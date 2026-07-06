@@ -6,7 +6,7 @@ use crate::core::config::KeyValueConfig;
 
 use super::super::span::{Collector, Finder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct KeyValueFinder {
     regex: Regex,
     config: KeyValueConfig,

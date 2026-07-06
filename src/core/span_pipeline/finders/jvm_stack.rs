@@ -6,7 +6,7 @@ use crate::core::config::JvmStackTraceConfig;
 
 use super::super::span::{Collector, Finder};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct JvmStackFinder {
     marker_regex: Regex,
     header_regex: Regex,
