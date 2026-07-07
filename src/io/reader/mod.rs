@@ -18,10 +18,20 @@ pub enum Reader {
     Command(CommandReader),
 }
 
+/// Events produced by [`Reader::next`].
 #[derive(Debug)]
 pub enum StreamEvent {
+    /// Emitted exactly once, always before `Ended`. File readers send it
+    /// after draining the content that existed at startup; stdin and command
+    /// readers send it immediately. The pager path spawns its pager on this
+    /// event, so a file's existing content is fully written to the temp file
+    /// before the pager opens, while `--exec` output streams in live.
     InitialReadComplete,
+
+    /// The stream is exhausted; no more events follow.
     Ended,
+
+    /// A batch of complete lines to highlight.
     Lines(LineBatch),
 }
 

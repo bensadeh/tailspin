@@ -82,6 +82,9 @@ fn get_source(args: &IoArgs) -> Result<Source, RoutingError> {
     }
 
     if let Some(path) = &args.file_path {
+        // Print mode without --follow is the only case that ends at EOF: with
+        // a pager the reader keeps following so the backing temp file picks
+        // up new lines the pager can reveal (reload or press F in less).
         let terminate_after_first_read = args.to_stdout && !args.follow;
         return process_path_input(path.into(), terminate_after_first_read);
     }
