@@ -11,6 +11,7 @@
 - `--exec` now takes precedence over piped `stdin` when both are present
 - `--exec` now exits with an error when the spawned command exits non-zero
 - `--pager` now rejects commands missing the `[FILE]` placeholder
+- Theme style tables now reject unknown keys
 
 ### Performance
 

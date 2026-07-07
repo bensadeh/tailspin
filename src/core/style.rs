@@ -16,18 +16,13 @@ use serde::Deserialize;
 /// let style = Style::default().fg(Color::Blue).bold();
 /// ```
 #[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy, Default, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct Style {
-    #[serde(default)]
     pub fg: Option<Color>,
-    #[serde(default)]
     pub bg: Option<Color>,
-    #[serde(default)]
     pub bold: bool,
-    #[serde(default)]
     pub faint: bool,
-    #[serde(default)]
     pub italic: bool,
-    #[serde(default)]
     pub underline: bool,
 }
 

@@ -148,6 +148,7 @@ number = { fg = "red" }"#,
     fn unknown_keys_are_rejected() {
         assert!(toml::from_str::<Theme>("bogus = 1").is_err());
         assert!(toml::from_str::<Theme>("[uuids]\nbogus = { fg = \"red\" }").is_err());
+        assert!(toml::from_str::<Theme>("[uuids]\nnumber = { fg = \"red\", itallic = true }").is_err());
     }
 
     #[test]
