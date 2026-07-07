@@ -4,5 +4,5 @@ use crate::io::presenter::pager::Pager;
 
 pub enum Presenter {
     Pager(Pager),
-    StdOut,
+    Stdout,
 }

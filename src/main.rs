@@ -38,7 +38,7 @@ fn main() -> anyhow::Result<()> {
     } = initialize_io(source, target)?;
 
     match presenter {
-        Presenter::StdOut => run_to_stdout(reader, writer, &highlighter),
+        Presenter::Stdout => run_to_stdout(reader, writer, &highlighter),
         Presenter::Pager(pager) => run_with_pager(reader, writer, highlighter, pager),
     }
 }
@@ -128,6 +128,8 @@ fn process_stream(
 // Each rayon worker highlights through its own clone of the highlighter:
 // a cloned regex shares its compiled program but gets a fresh scratch-cache
 // pool, so per-line searches skip the contended cross-thread pool path.
+// The cell caches whichever highlighter reaches it first, which assumes the
+// process builds exactly one — a second would silently get the first's clone.
 thread_local! {
     static LOCAL_HIGHLIGHTER: OnceCell<Highlighter> = const { OnceCell::new() };
 }
