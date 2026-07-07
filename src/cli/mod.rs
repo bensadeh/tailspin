@@ -152,7 +152,7 @@ pub fn get_config() -> Result<FullConfig> {
     let std_in_has_data = !stdin().is_terminal();
     if cli.file_path.is_none() && cli.exec.is_none() && !std_in_has_data {
         let style = Style::new().fg(nu_ansi_term::Color::Cyan);
-        println!("Missing filename ({} for help)", style.paint("tspin --help"));
+        eprintln!("Missing filename ({} for help)", style.paint("tspin --help"));
 
         std::process::exit(0);
     }
