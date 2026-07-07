@@ -15,7 +15,7 @@ use serde::Deserialize;
 ///
 /// let style = Style::default().fg(Color::Blue).bold();
 /// ```
-#[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy, Default, Deserialize)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy, Default, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Style {
     pub fg: Option<Color>,
@@ -77,7 +77,7 @@ impl Style {
 ///
 /// let cyan = Color::Cyan;
 /// ```
-#[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy, Default, Deserialize)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy, Default, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Color {
     #[default]
