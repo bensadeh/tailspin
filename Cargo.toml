@@ -39,7 +39,7 @@ aho-corasick = "1.1.4"
 anyhow = { version = "1.0.103", optional = true }
 clap = { version = "4.6.1", features = ["derive", "env", "wrap_help"], optional = true }
 clap_complete = { version = "4.6.7", optional = true }
-memchr = "2.8.1"
+memchr = "2.8.2"
 nu-ansi-term = "0.50.3"
 rayon = { version = "1.12.0", optional = true }
 regex = "1.12.4"
@@ -56,6 +56,7 @@ toml = { version = "1.1.2", optional = true }
 assert_cmd = "2.2.2"
 criterion = "0.8.2"
 insta = "1.48.0"
+proptest = "1.11.0"
 tempfile = "3.27.0"
 
 [[test]]
