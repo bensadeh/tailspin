@@ -1,5 +1,4 @@
-use crate::style::Style;
-
+use super::palette::StyleId;
 use super::span::Span;
 
 /// A resolved style assignment for a contiguous range.
@@ -12,7 +11,7 @@ use super::span::Span;
 pub(crate) struct ResolvedSpan {
     pub start: usize,
     pub end: usize,
-    pub style: Style,
+    pub style: StyleId,
     pub padded: bool,
 }
 
@@ -30,13 +29,10 @@ pub(crate) fn merge_spans(input_len: usize, spans: &[Span]) -> Vec<ResolvedSpan>
         return Vec::new();
     }
 
-    // Phase 1: Fill a style-per-byte array, lower priority wins.
-    // Slot uses `u16` (not `usize`) to keep the byte-map dense — benchmarked
-    // a 5% regression with `(Style, usize)` slots on a busy line, since this
-    // is the hottest per-byte loop in the pipeline. `u16` gives 65k finder
-    // headroom; realistic configs have ~13. Not pooled across calls: also
-    // benchmarked, no measurable win.
-    let mut style_map: Vec<Option<(Style, u16)>> = vec![None; input_len];
+    // Phase 1: Fill a style-per-byte array, lower priority wins. The slot is
+    // two u16s to keep the byte-map dense — this is the hottest per-byte loop
+    // in the pipeline. Not pooled across calls: benchmarked, no measurable win.
+    let mut style_map: Vec<Option<(StyleId, u16)>> = vec![None; input_len];
 
     for span in spans {
         for slot in &mut style_map[span.start..span.end] {
@@ -84,21 +80,20 @@ pub(crate) fn merge_spans(input_len: usize, spans: &[Span]) -> Vec<ResolvedSpan>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
 
-    fn red() -> Style {
-        Style::new().fg(Color::Red)
+    fn red() -> StyleId {
+        StyleId::new(0)
     }
 
-    fn blue() -> Style {
-        Style::new().fg(Color::Blue)
+    fn blue() -> StyleId {
+        StyleId::new(1)
     }
 
-    fn yellow() -> Style {
-        Style::new().fg(Color::Yellow)
+    fn yellow() -> StyleId {
+        StyleId::new(2)
     }
 
-    fn padded_span(start: usize, end: usize, style: Style, priority: u16) -> Span {
+    fn padded_span(start: usize, end: usize, style: StyleId, priority: u16) -> Span {
         Span {
             start,
             end,
@@ -114,7 +109,7 @@ mod tests {
         assert!(result.is_empty());
     }
 
-    fn resolved(start: usize, end: usize, style: Style) -> ResolvedSpan {
+    fn resolved(start: usize, end: usize, style: StyleId) -> ResolvedSpan {
         ResolvedSpan {
             start,
             end,
@@ -123,7 +118,7 @@ mod tests {
         }
     }
 
-    fn padded(start: usize, end: usize, style: Style) -> ResolvedSpan {
+    fn padded(start: usize, end: usize, style: StyleId) -> ResolvedSpan {
         ResolvedSpan {
             start,
             end,

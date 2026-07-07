@@ -4,16 +4,19 @@ use regex::Regex;
 
 use crate::core::config::DateTimeConfig;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug, Clone)]
 pub(crate) struct DateTimeFinder {
     regex: Regex,
-    config: DateTimeConfig,
+    time: StyleId,
+    zone: StyleId,
+    separator: StyleId,
 }
 
 impl DateTimeFinder {
-    pub fn new(config: DateTimeConfig) -> Self {
+    pub fn new(config: DateTimeConfig, palette: &mut Palette) -> Self {
         // Match structure: [T| ]? H?H:MM:SS [.,:]digits? Z?
         // We use find_iter and parse the fixed structure from match bytes.
         let pattern = r"(?x)
@@ -27,7 +30,12 @@ impl DateTimeFinder {
 
         let regex = build_regex(pattern);
 
-        Self { regex, config }
+        Self {
+            regex,
+            time: palette.intern(config.time),
+            zone: palette.intern(config.zone),
+            separator: palette.intern(config.separator),
+        }
     }
 }
 
@@ -37,10 +45,6 @@ impl Finder for DateTimeFinder {
             return;
         }
 
-        let DateTimeConfig {
-            time, zone, separator, ..
-        } = self.config;
-
         for m in self.regex.find_iter(input) {
             let s = m.start();
             let bytes = m.as_str().as_bytes();
@@ -48,28 +52,28 @@ impl Finder for DateTimeFinder {
 
             // Optional T or whitespace prefix
             if !bytes[0].is_ascii_digit() {
-                collector.push(s, s + 1, zone);
+                collector.push(s, s + 1, self.zone);
                 pos = 1;
             }
 
             // Hours (1 or 2 digits) — scan to first ':'
             let colon1 = bytes[pos..].iter().position(|&b| b == b':').unwrap() + pos;
-            collector.push(s + pos, s + colon1, time);
-            collector.push(s + colon1, s + colon1 + 1, separator);
+            collector.push(s + pos, s + colon1, self.time);
+            collector.push(s + colon1, s + colon1 + 1, self.separator);
             pos = colon1 + 1;
 
             // Minutes (2 digits) + ':'
-            collector.push(s + pos, s + pos + 2, time);
-            collector.push(s + pos + 2, s + pos + 3, separator);
+            collector.push(s + pos, s + pos + 2, self.time);
+            collector.push(s + pos + 2, s + pos + 3, self.separator);
             pos += 3;
 
             // Seconds (2 digits)
-            collector.push(s + pos, s + pos + 2, time);
+            collector.push(s + pos, s + pos + 2, self.time);
             pos += 2;
 
             // Optional fractional part: separator + digits
             if pos < bytes.len() && matches!(bytes[pos], b'.' | b',' | b':') {
-                collector.push(s + pos, s + pos + 1, separator);
+                collector.push(s + pos, s + pos + 1, self.separator);
                 pos += 1;
 
                 let digit_start = pos;
@@ -77,13 +81,13 @@ impl Finder for DateTimeFinder {
                     pos += 1;
                 }
                 if pos > digit_start {
-                    collector.push(s + digit_start, s + pos, time);
+                    collector.push(s + digit_start, s + pos, self.time);
                 }
             }
 
             // Optional Z suffix
             if pos < bytes.len() && bytes[pos] == b'Z' {
-                collector.push(s + pos, s + pos + 1, zone);
+                collector.push(s + pos, s + pos + 1, self.zone);
             }
         }
     }
@@ -96,12 +100,15 @@ mod tests {
     use crate::style::{Color, Style};
 
     fn make_finder() -> DateTimeFinder {
-        DateTimeFinder::new(DateTimeConfig {
-            time: Style::new().fg(Color::Red),
-            zone: Style::new().fg(Color::Blue),
-            separator: Style::new().fg(Color::Yellow),
-            ..Default::default()
-        })
+        DateTimeFinder::new(
+            DateTimeConfig {
+                time: Style::new().fg(Color::Red),
+                zone: Style::new().fg(Color::Blue),
+                separator: Style::new().fg(Color::Yellow),
+                ..Default::default()
+            },
+            &mut Palette::new(),
+        )
     }
 
     #[test]

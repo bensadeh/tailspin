@@ -1,4 +1,4 @@
-use crate::style::Style;
+use super::palette::StyleId;
 
 /// A styled region within the original input text.
 ///
@@ -16,14 +16,14 @@ use crate::style::Style;
 pub(crate) struct Span {
     pub start: usize,
     pub end: usize,
-    pub style: Style,
+    pub style: StyleId,
     pub priority: u16,
     pub padded: bool,
 }
 
 #[cfg(test)]
 impl Span {
-    pub fn new(start: usize, end: usize, style: Style, priority: u16) -> Self {
+    pub fn new(start: usize, end: usize, style: StyleId, priority: u16) -> Self {
         Self {
             start,
             end,
@@ -47,18 +47,18 @@ impl Collector {
 
     /// Push a span. If it is contiguous with the last span and shares its style
     /// and padding, extend the last span rather than pushing a new one.
-    pub fn push(&mut self, start: usize, end: usize, style: Style) {
+    pub fn push(&mut self, start: usize, end: usize, style: StyleId) {
         self.push_impl(start, end, style, false);
     }
 
     /// Push a span with padding. Render will insert a space before and after
     /// the span text, inside the ANSI color (creating a "badge" effect for
     /// keywords with background colors).
-    pub fn push_padded(&mut self, start: usize, end: usize, style: Style) {
+    pub fn push_padded(&mut self, start: usize, end: usize, style: StyleId) {
         self.push_impl(start, end, style, true);
     }
 
-    fn push_impl(&mut self, start: usize, end: usize, style: Style, padded: bool) {
+    fn push_impl(&mut self, start: usize, end: usize, style: StyleId, padded: bool) {
         if start >= end {
             return;
         }
@@ -132,11 +132,10 @@ impl Clone for Box<dyn Finder> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
 
     #[test]
     fn coalesces_adjacent_same_style() {
-        let style = Style::new().fg(Color::Red);
+        let style = StyleId::new(0);
         let mut collector = Collector::new();
         collector.push(0, 1, style);
         collector.push(1, 2, style);
@@ -150,8 +149,8 @@ mod tests {
 
     #[test]
     fn does_not_coalesce_different_styles() {
-        let red = Style::new().fg(Color::Red);
-        let blue = Style::new().fg(Color::Blue);
+        let red = StyleId::new(0);
+        let blue = StyleId::new(1);
         let mut collector = Collector::new();
         collector.push(0, 1, red);
         collector.push(1, 2, blue);
@@ -163,7 +162,7 @@ mod tests {
 
     #[test]
     fn does_not_coalesce_non_adjacent() {
-        let style = Style::new().fg(Color::Red);
+        let style = StyleId::new(0);
         let mut collector = Collector::new();
         collector.push(0, 1, style);
         collector.push(3, 4, style);
@@ -174,7 +173,7 @@ mod tests {
 
     #[test]
     fn reset_clears_spans() {
-        let style = Style::new().fg(Color::Red);
+        let style = StyleId::new(0);
 
         let mut collector = Collector::new();
         collector.push_padded(0, 3, style);
@@ -184,7 +183,7 @@ mod tests {
 
     #[test]
     fn push_padded_marks_span_padded() {
-        let style = Style::new().fg(Color::Red);
+        let style = StyleId::new(0);
         let mut collector = Collector::new();
         collector.push_padded(0, 3, style);
 
@@ -195,7 +194,7 @@ mod tests {
 
     #[test]
     fn does_not_coalesce_padded_with_plain() {
-        let style = Style::new().fg(Color::Red);
+        let style = StyleId::new(0);
         let mut collector = Collector::new();
         collector.push(0, 1, style);
         collector.push_padded(1, 2, style);

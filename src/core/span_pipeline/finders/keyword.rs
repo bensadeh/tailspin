@@ -1,24 +1,28 @@
 use aho_corasick::{AhoCorasick, AhoCorasickBuilder, BuildError, Match, MatchKind};
 
 use crate::core::config::KeywordConfig;
-use crate::style::Style;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 /// Matches all configured keywords with a single automaton; each pattern
-/// carries the style of the config it came from.
+/// carries the style of the config it came from, plus whether that style
+/// has a background and therefore renders as a padded badge.
 #[derive(Debug, Clone)]
 pub(crate) struct KeywordFinder {
     ac: AhoCorasick,
-    styles: Vec<Style>,
+    styles: Vec<(StyleId, bool)>,
 }
 
 impl KeywordFinder {
-    pub fn new(configs: &[KeywordConfig]) -> Result<Self, BuildError> {
+    pub fn new(configs: &[KeywordConfig], palette: &mut Palette) -> Result<Self, BuildError> {
         let words = configs.iter().flat_map(|config| &config.words);
         let styles = configs
             .iter()
-            .flat_map(|config| config.words.iter().map(|_| config.style))
+            .flat_map(|config| {
+                let style = (palette.intern(config.style), config.style.bg.is_some());
+                config.words.iter().map(move |_| style)
+            })
             .collect();
 
         let ac = AhoCorasickBuilder::new().match_kind(MatchKind::Standard).build(words)?;
@@ -55,8 +59,8 @@ impl Finder for KeywordFinder {
             }
             next_start = m.end();
 
-            let style = self.styles[m.pattern().as_usize()];
-            if style.bg.is_some() {
+            let (style, padded) = self.styles[m.pattern().as_usize()];
+            if padded {
                 collector.push_padded(m.start(), m.end(), style);
             } else {
                 collector.push(m.start(), m.end(), style);
@@ -68,7 +72,7 @@ impl Finder for KeywordFinder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::style::Color;
+    use crate::style::{Color, Style};
 
     fn kw(words: &[&str], style: Style) -> KeywordConfig {
         KeywordConfig {
@@ -77,16 +81,20 @@ mod tests {
         }
     }
 
+    fn finder(configs: &[KeywordConfig]) -> KeywordFinder {
+        KeywordFinder::new(configs, &mut Palette::new()).unwrap()
+    }
+
     #[test]
     fn finds_keywords() {
-        let finder = KeywordFinder::new(&[kw(&["null", "true", "false"], Style::new().fg(Color::Red))]).unwrap();
+        let finder = finder(&[kw(&["null", "true", "false"], Style::new().fg(Color::Red))]);
         let texts = super::super::span_texts("value is null or true", &finder);
         assert_eq!(texts, ["null", "true"]);
     }
 
     #[test]
     fn respects_word_boundaries() {
-        let finder = KeywordFinder::new(&[kw(&["null"], Style::new().fg(Color::Red))]).unwrap();
+        let finder = finder(&[kw(&["null"], Style::new().fg(Color::Red))]);
         let mut collector = Collector::new();
         finder.find_spans("nullable is not null", &mut collector);
 
@@ -97,40 +105,37 @@ mod tests {
 
     #[test]
     fn longer_keyword_wins_over_its_prefix() {
-        let finder = KeywordFinder::new(&[kw(&["WARN", "WARNING"], Style::new().fg(Color::Yellow))]).unwrap();
+        let finder = finder(&[kw(&["WARN", "WARNING"], Style::new().fg(Color::Yellow))]);
         let texts = super::super::span_texts("level WARNING here", &finder);
         assert_eq!(texts, ["WARNING"]);
     }
 
     #[test]
     fn longest_valid_keyword_wins_at_the_same_start() {
-        let finder = KeywordFinder::new(&[
+        let finder = finder(&[
             kw(&["connection"], Style::new().fg(Color::Yellow)),
             kw(&["connection lost"], Style::new().fg(Color::Red)),
-        ])
-        .unwrap();
+        ]);
         let texts = super::super::span_texts("connection lost now", &finder);
         assert_eq!(texts, ["connection lost"]);
     }
 
     #[test]
     fn rejected_longer_keyword_does_not_shadow_its_prefix() {
-        let finder = KeywordFinder::new(&[
+        let finder = finder(&[
             kw(&["connection lost"], Style::new().fg(Color::Red)),
             kw(&["connection"], Style::new().fg(Color::Yellow)),
-        ])
-        .unwrap();
+        ]);
         let texts = super::super::span_texts("connection lostness detected", &finder);
         assert_eq!(texts, ["connection"]);
     }
 
     #[test]
     fn rejected_longer_keyword_does_not_shadow_nested_keywords() {
-        let finder = KeywordFinder::new(&[
+        let finder = finder(&[
             kw(&["connection lost"], Style::new().fg(Color::Red)),
             kw(&["lost"], Style::new().fg(Color::Yellow)),
-        ])
-        .unwrap();
+        ]);
         let texts = super::super::span_texts("myconnection lost", &finder);
         assert_eq!(texts, ["lost"]);
     }
@@ -139,20 +144,22 @@ mod tests {
     fn each_keyword_keeps_the_style_of_its_config() {
         let red = Style::new().fg(Color::Red);
         let green = Style::new().fg(Color::Green);
-        let finder = KeywordFinder::new(&[kw(&["ERROR"], red), kw(&["SUCCESS"], green)]).unwrap();
+        let mut palette = Palette::new();
+        let finder = KeywordFinder::new(&[kw(&["ERROR"], red), kw(&["SUCCESS"], green)], &mut palette).unwrap();
 
         let mut collector = Collector::new();
         finder.find_spans("ERROR then SUCCESS", &mut collector);
 
+        // Re-interning a known style returns the id the finder was built with
         let spans = collector.into_spans();
         assert_eq!(spans.len(), 2);
-        assert_eq!(spans[0].style, red);
-        assert_eq!(spans[1].style, green);
+        assert_eq!(spans[0].style, palette.intern(red));
+        assert_eq!(spans[1].style, palette.intern(green));
     }
 
     #[test]
     fn background_style_marks_span_padded() {
-        let finder = KeywordFinder::new(&[kw(&["ERROR"], Style::new().on(Color::Red))]).unwrap();
+        let finder = finder(&[kw(&["ERROR"], Style::new().on(Color::Red))]);
         let mut collector = Collector::new();
         finder.find_spans("level ERROR here", &mut collector);
 
@@ -163,7 +170,7 @@ mod tests {
 
     #[test]
     fn foreground_only_leaves_span_unpadded() {
-        let finder = KeywordFinder::new(&[kw(&["ERROR"], Style::new().fg(Color::Red))]).unwrap();
+        let finder = finder(&[kw(&["ERROR"], Style::new().fg(Color::Red))]);
         let mut collector = Collector::new();
         finder.find_spans("level ERROR here", &mut collector);
 
@@ -176,7 +183,7 @@ mod tests {
     fn mixed_padded_and_plain_configs() {
         let badge = Style::new().on(Color::Red);
         let plain = Style::new().fg(Color::Green);
-        let finder = KeywordFinder::new(&[kw(&["ERROR"], badge), kw(&["ok"], plain)]).unwrap();
+        let finder = finder(&[kw(&["ERROR"], badge), kw(&["ok"], plain)]);
 
         let mut collector = Collector::new();
         finder.find_spans("ERROR but ok", &mut collector);

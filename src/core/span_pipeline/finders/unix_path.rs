@@ -4,16 +4,18 @@ use regex::Regex;
 
 use crate::core::config::UnixPathConfig;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug, Clone)]
 pub(crate) struct UnixPathFinder {
     regex: Regex,
-    config: UnixPathConfig,
+    segment: StyleId,
+    separator: StyleId,
 }
 
 impl UnixPathFinder {
-    pub fn new(config: UnixPathConfig) -> Self {
+    pub fn new(config: UnixPathConfig, palette: &mut Palette) -> Self {
         // The (?:^|\s) anchor is zero-width at start-of-string or consumes one
         // whitespace byte. We use find_iter and skip that leading byte manually.
         let pattern = r"(?x)
@@ -24,7 +26,11 @@ impl UnixPathFinder {
         ";
         let regex = build_regex(pattern);
 
-        Self { regex, config }
+        Self {
+            regex,
+            segment: palette.intern(config.segment),
+            separator: palette.intern(config.separator),
+        }
     }
 }
 
@@ -33,8 +39,6 @@ impl Finder for UnixPathFinder {
         if memchr(b'/', input.as_bytes()).is_none() {
             return;
         }
-
-        let UnixPathConfig { segment, separator } = self.config;
 
         for m in self.regex.find_iter(input) {
             let bytes = m.as_str().as_bytes();
@@ -49,16 +53,16 @@ impl Finder for UnixPathFinder {
             for (i, &b) in path.iter().enumerate() {
                 if b == b'/' {
                     if let Some(start) = seg_start.take() {
-                        collector.push(offset + start, offset + i, segment);
+                        collector.push(offset + start, offset + i, self.segment);
                     }
-                    collector.push(offset + i, offset + i + 1, separator);
+                    collector.push(offset + i, offset + i + 1, self.separator);
                 } else if seg_start.is_none() {
                     seg_start = Some(i);
                 }
             }
 
             if let Some(start) = seg_start {
-                collector.push(offset + start, offset + path.len(), segment);
+                collector.push(offset + start, offset + path.len(), self.segment);
             }
         }
     }
@@ -71,10 +75,13 @@ mod tests {
     use crate::style::{Color, Style};
 
     fn make_finder() -> UnixPathFinder {
-        UnixPathFinder::new(UnixPathConfig {
-            segment: Style::new().fg(Color::Green),
-            separator: Style::new().fg(Color::Yellow),
-        })
+        UnixPathFinder::new(
+            UnixPathConfig {
+                segment: Style::new().fg(Color::Green),
+                separator: Style::new().fg(Color::Yellow),
+            },
+            &mut Palette::new(),
+        )
     }
 
     #[test]

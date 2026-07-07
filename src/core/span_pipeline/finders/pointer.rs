@@ -4,23 +4,31 @@ use regex::Regex;
 
 use crate::core::config::PointerConfig;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug, Clone)]
 pub(crate) struct PointerFinder {
     regex: Regex,
-    config: PointerConfig,
+    number: StyleId,
+    letter: StyleId,
+    x: StyleId,
 }
 
 impl PointerFinder {
-    pub fn new(config: PointerConfig) -> Self {
+    pub fn new(config: PointerConfig, palette: &mut Palette) -> Self {
         // Matches 0x + 8 hex (32-bit) or 0x + 16 hex (64-bit).
         // Both branches produce the same character classes, so find_iter
         // is sufficient — we just classify each byte by style.
         let pattern = r"(?i)\b0x(?:[0-9a-f]{16}|[0-9a-f]{8})\b";
         let regex = build_regex(pattern);
 
-        Self { regex, config }
+        Self {
+            regex,
+            number: palette.intern(config.number),
+            letter: palette.intern(config.letter),
+            x: palette.intern(config.x),
+        }
     }
 }
 
@@ -30,15 +38,13 @@ impl Finder for PointerFinder {
             return;
         }
 
-        let PointerConfig { number, letter, x } = self.config;
-
         for m in self.regex.find_iter(input) {
             let offset = m.start();
             for (i, &b) in m.as_str().as_bytes().iter().enumerate() {
                 let style = match b {
-                    b'0'..=b'9' => number,
-                    b'x' | b'X' => x,
-                    b'a'..=b'f' | b'A'..=b'F' => letter,
+                    b'0'..=b'9' => self.number,
+                    b'x' | b'X' => self.x,
+                    b'a'..=b'f' | b'A'..=b'F' => self.letter,
                     _ => continue,
                 };
                 collector.push(offset + i, offset + i + 1, style);
@@ -53,11 +59,14 @@ mod tests {
     use crate::style::{Color, Style};
 
     fn make_finder() -> PointerFinder {
-        PointerFinder::new(PointerConfig {
-            number: Style::new().fg(Color::Blue),
-            letter: Style::new().fg(Color::Magenta),
-            x: Style::new().fg(Color::Red),
-        })
+        PointerFinder::new(
+            PointerConfig {
+                number: Style::new().fg(Color::Blue),
+                letter: Style::new().fg(Color::Magenta),
+                x: Style::new().fg(Color::Red),
+            },
+            &mut Palette::new(),
+        )
     }
 
     fn span_count(input: &str) -> usize {

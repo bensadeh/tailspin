@@ -4,21 +4,29 @@ use regex::Regex;
 
 use crate::core::config::UnixProcessConfig;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug, Clone)]
 pub(crate) struct UnixProcessFinder {
     regex: Regex,
-    config: UnixProcessConfig,
+    name: StyleId,
+    id: StyleId,
+    bracket: StyleId,
 }
 
 impl UnixProcessFinder {
-    pub fn new(config: UnixProcessConfig) -> Self {
+    pub fn new(config: UnixProcessConfig, palette: &mut Palette) -> Self {
         // Match structure: name[pid] — we find '[' in the match to split the parts.
         let pattern = r"(?:\([A-Za-z0-9._ +:/-]+\)|[A-Za-z0-9_/-]+)\[\d+]";
         let regex = build_regex(pattern);
 
-        Self { regex, config }
+        Self {
+            regex,
+            name: palette.intern(config.name),
+            id: palette.intern(config.id),
+            bracket: palette.intern(config.bracket),
+        }
     }
 }
 
@@ -28,18 +36,16 @@ impl Finder for UnixProcessFinder {
             return;
         }
 
-        let UnixProcessConfig { name, id, bracket } = self.config;
-
         for m in self.regex.find_iter(input) {
             let s = m.start();
             let bytes = m.as_str().as_bytes();
 
             // Match structure: name[pid]
             let bracket_pos = memchr(b'[', bytes).unwrap();
-            collector.push(s, s + bracket_pos, name);
-            collector.push(s + bracket_pos, s + bracket_pos + 1, bracket);
-            collector.push(s + bracket_pos + 1, m.end() - 1, id);
-            collector.push(m.end() - 1, m.end(), bracket);
+            collector.push(s, s + bracket_pos, self.name);
+            collector.push(s + bracket_pos, s + bracket_pos + 1, self.bracket);
+            collector.push(s + bracket_pos + 1, m.end() - 1, self.id);
+            collector.push(m.end() - 1, m.end(), self.bracket);
         }
     }
 }
@@ -51,11 +57,14 @@ mod tests {
     use crate::style::{Color, Style};
 
     fn make_finder() -> UnixProcessFinder {
-        UnixProcessFinder::new(UnixProcessConfig {
-            name: Style::new().fg(Color::Magenta),
-            id: Style::new().fg(Color::Green),
-            bracket: Style::new().fg(Color::Blue),
-        })
+        UnixProcessFinder::new(
+            UnixProcessConfig {
+                name: Style::new().fg(Color::Magenta),
+                id: Style::new().fg(Color::Green),
+                bracket: Style::new().fg(Color::Blue),
+            },
+            &mut Palette::new(),
+        )
     }
 
     #[test]

@@ -17,6 +17,7 @@ use crate::core::span_pipeline::finders::unix_path::UnixPathFinder;
 use crate::core::span_pipeline::finders::unix_process::UnixProcessFinder;
 use crate::core::span_pipeline::finders::url::UrlFinder;
 use crate::core::span_pipeline::finders::uuid::UuidFinder;
+use crate::core::span_pipeline::palette::Palette;
 use crate::core::span_pipeline::span::Finder;
 use std::borrow::Cow;
 use thiserror::Error;
@@ -52,6 +53,7 @@ impl Highlighter {
     pub const fn builder() -> HighlighterBuilder {
         HighlighterBuilder {
             finders: Vec::new(),
+            palette: Palette::new(),
             first_error: None,
         }
     }
@@ -116,104 +118,122 @@ impl Default for Highlighter {
 #[must_use]
 pub struct HighlighterBuilder {
     finders: Vec<Box<dyn Finder>>,
+    palette: Palette,
     first_error: Option<Error>,
 }
 
 impl HighlighterBuilder {
     /// Adds a highlighter for numbers.
     pub fn with_number_highlighter(mut self, config: NumberConfig) -> Self {
-        self.add_finder(NumberFinder::new(config));
+        let finder = NumberFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds a highlighter for UUIDs.
     pub fn with_uuid_highlighter(mut self, config: UuidConfig) -> Self {
-        self.add_finder(UuidFinder::new(config));
+        let finder = UuidFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds a highlighter for Unix file paths.
     pub fn with_unix_path_highlighter(mut self, config: UnixPathConfig) -> Self {
-        self.add_finder(UnixPathFinder::new(config));
+        let finder = UnixPathFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds a highlighter for Unix processes.
     pub fn with_unix_process_highlighter(mut self, config: UnixProcessConfig) -> Self {
-        self.add_finder(UnixProcessFinder::new(config));
+        let finder = UnixProcessFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds a highlighter for key-value pairs.
     pub fn with_key_value_highlighter(mut self, config: KeyValueConfig) -> Self {
-        self.add_finder(KeyValueFinder::new(config));
+        let finder = KeyValueFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds highlighters for dates and times.
     pub fn with_date_time_highlighters(mut self, config: DateTimeConfig) -> Self {
-        self.add_finder(DateTimeFinder::new(config));
-        self.add_finder(DateDashFinder::new(config));
+        let date_time = DateTimeFinder::new(config, &mut self.palette);
+        self.add_finder(date_time);
+        let date_dash = DateDashFinder::new(config, &mut self.palette);
+        self.add_finder(date_dash);
         self
     }
 
     /// Adds a highlighter for IPv6 addresses.
     pub fn with_ip_v6_highlighter(mut self, config: IpV6Config) -> Self {
-        self.add_finder(IpV6Finder::new(config));
+        let finder = IpV6Finder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds a highlighter for JVM stack traces (Java, Kotlin, Scala, etc.).
     pub fn with_jvm_stack_trace_highlighter(mut self, config: JvmStackTraceConfig) -> Self {
-        self.add_finder(JvmStackFinder::new(config));
+        let finder = JvmStackFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds a highlighter for IPv4 addresses.
     pub fn with_ip_v4_highlighter(mut self, config: IpV4Config) -> Self {
-        self.add_finder(IpV4Finder::new(config));
+        let finder = IpV4Finder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds a highlighter for URLs.
     pub fn with_url_highlighter(mut self, config: UrlConfig) -> Self {
-        self.add_finder(UrlFinder::new(config));
+        let finder = UrlFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds a highlighter for email addresses.
     pub fn with_email_highlighter(mut self, config: EmailConfig) -> Self {
-        self.add_finder(EmailFinder::new(config));
+        let finder = EmailFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds a highlighter for memory pointers.
     pub fn with_pointer_highlighter(mut self, config: PointerConfig) -> Self {
-        self.add_finder(PointerFinder::new(config));
+        let finder = PointerFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds a highlighter using a custom regex pattern.
     pub fn with_regex_highlighter(mut self, config: RegexConfig) -> Self {
-        self.try_add_finder(RegexFinder::new(&config.regex, config.style).map_err(Error::Regex));
+        let finder = RegexFinder::new(&config.regex, config.style, &mut self.palette).map_err(Error::Regex);
+        self.try_add_finder(finder);
         self
     }
 
     /// Adds a highlighter for quoted text.
     pub fn with_quote_highlighter(mut self, config: QuoteConfig) -> Self {
-        self.add_finder(QuoteFinder::new(config));
+        let finder = QuoteFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds a highlighter for JSON structures.
     pub fn with_json_highlighter(mut self, config: JsonConfig) -> Self {
-        self.add_finder(JsonFinder::new(config));
+        let finder = JsonFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
         self
     }
 
     /// Adds keyword highlighters.
     pub fn with_keyword_highlighter(mut self, keyword_configs: Vec<KeywordConfig>) -> Self {
-        self.try_add_finder(KeywordFinder::new(&keyword_configs).map_err(Error::Pattern));
+        let finder = KeywordFinder::new(&keyword_configs, &mut self.palette).map_err(Error::Pattern);
+        self.try_add_finder(finder);
         self
     }
 
@@ -223,7 +243,7 @@ impl HighlighterBuilder {
             Err(err)
         } else {
             Ok(Highlighter {
-                inner: Pipeline::new(self.finders),
+                inner: Pipeline::new(self.finders, self.palette),
             })
         }
     }

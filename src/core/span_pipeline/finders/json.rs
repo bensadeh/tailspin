@@ -2,16 +2,29 @@ use serde::Deserialize;
 
 use crate::core::config::JsonConfig;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug, Clone)]
 pub(crate) struct JsonFinder {
-    config: JsonConfig,
+    key: StyleId,
+    quote_token: StyleId,
+    curly_bracket: StyleId,
+    square_bracket: StyleId,
+    comma: StyleId,
+    colon: StyleId,
 }
 
 impl JsonFinder {
-    pub fn new(config: JsonConfig) -> Self {
-        Self { config }
+    pub fn new(config: JsonConfig, palette: &mut Palette) -> Self {
+        Self {
+            key: palette.intern(config.key),
+            quote_token: palette.intern(config.quote_token),
+            curly_bracket: palette.intern(config.curly_bracket),
+            square_bracket: palette.intern(config.square_bracket),
+            comma: palette.intern(config.comma),
+            colon: palette.intern(config.colon),
+        }
     }
 }
 
@@ -28,15 +41,6 @@ impl Finder for JsonFinder {
         if serde::de::IgnoredAny::deserialize(&mut de).is_err() || de.end().is_err() {
             return;
         }
-
-        let JsonConfig {
-            key,
-            quote_token,
-            curly_bracket,
-            square_bracket,
-            comma,
-            colon,
-        } = self.config;
 
         let bytes = input.as_bytes();
         let mut in_string = false;
@@ -56,7 +60,7 @@ impl Finder for JsonFinder {
                 if b == b'\\' {
                     escape_next = true;
                 } else if b == b'"' {
-                    collector.push(i, i + 1, quote_token);
+                    collector.push(i, i + 1, self.quote_token);
                     in_string = false;
                 }
                 i += 1;
@@ -64,12 +68,12 @@ impl Finder for JsonFinder {
             }
 
             match b {
-                b'{' | b'}' => collector.push(i, i + 1, curly_bracket),
-                b'[' | b']' => collector.push(i, i + 1, square_bracket),
-                b',' => collector.push(i, i + 1, comma),
-                b':' => collector.push(i, i + 1, colon),
+                b'{' | b'}' => collector.push(i, i + 1, self.curly_bracket),
+                b'[' | b']' => collector.push(i, i + 1, self.square_bracket),
+                b',' => collector.push(i, i + 1, self.comma),
+                b':' => collector.push(i, i + 1, self.colon),
                 b'"' => {
-                    collector.push(i, i + 1, quote_token);
+                    collector.push(i, i + 1, self.quote_token);
                     in_string = true;
 
                     // A quoted string is a key unless preceded by `:`.
@@ -92,9 +96,9 @@ impl Finder for JsonFinder {
                             }
                             if bytes[j] == b'"' {
                                 if start < j {
-                                    collector.push(start, j, key);
+                                    collector.push(start, j, self.key);
                                 }
-                                collector.push(j, j + 1, quote_token);
+                                collector.push(j, j + 1, self.quote_token);
                                 in_string = false;
                                 i = j;
                                 break;
@@ -118,14 +122,17 @@ mod tests {
     use crate::style::{Color, Style};
 
     fn make_finder() -> JsonFinder {
-        JsonFinder::new(JsonConfig {
-            key: Style::new().fg(Color::Yellow),
-            quote_token: Style::new().fg(Color::Blue),
-            curly_bracket: Style::new().fg(Color::Cyan),
-            square_bracket: Style::new().fg(Color::Green),
-            comma: Style::new().fg(Color::Red),
-            colon: Style::new().fg(Color::Magenta),
-        })
+        JsonFinder::new(
+            JsonConfig {
+                key: Style::new().fg(Color::Yellow),
+                quote_token: Style::new().fg(Color::Blue),
+                curly_bracket: Style::new().fg(Color::Cyan),
+                square_bracket: Style::new().fg(Color::Green),
+                comma: Style::new().fg(Color::Red),
+                colon: Style::new().fg(Color::Magenta),
+            },
+            &mut Palette::new(),
+        )
     }
 
     #[test]

@@ -1,5 +1,6 @@
 pub(crate) mod finders;
 pub(crate) mod merge;
+pub(crate) mod palette;
 pub(crate) mod render;
 pub(crate) mod span;
 
@@ -7,6 +8,7 @@ use std::borrow::Cow;
 use std::cell::RefCell;
 
 use merge::merge_spans;
+use palette::Palette;
 use render::render;
 use span::{Collector, Finder, Span};
 
@@ -36,15 +38,17 @@ thread_local! {
 ///
 /// All finders run on the original unstyled input and produce spans.
 /// A merge step resolves overlaps by priority, and a single render pass
-/// produces the ANSI-colored output.
+/// produces the ANSI-colored output. Spans carry interned style ids; the
+/// palette maps them back to precomputed ANSI prefixes at render time.
 #[derive(Debug, Clone)]
 pub(crate) struct Pipeline {
     finders: Vec<Box<dyn Finder>>,
+    palette: Palette,
 }
 
 impl Pipeline {
-    pub(crate) fn new(finders: Vec<Box<dyn Finder>>) -> Self {
-        Self { finders }
+    pub(crate) fn new(finders: Vec<Box<dyn Finder>>, palette: Palette) -> Self {
+        Self { finders, palette }
     }
 
     /// Apply all finders sequentially, merge, render.
@@ -71,7 +75,7 @@ impl Pipeline {
             }
 
             let resolved = merge_spans(input.len(), &s.all_spans);
-            render(input, &resolved)
+            render(input, &resolved, &self.palette)
         })
     }
 }
@@ -94,11 +98,34 @@ mod tests {
         }
     }
 
+    fn cyan_number(palette: &mut Palette) -> NumberFinder {
+        NumberFinder::new(
+            NumberConfig {
+                style: Style::new().fg(Color::Cyan),
+            },
+            palette,
+        )
+    }
+
+    fn yellow_quote(palette: &mut Palette) -> QuoteFinder {
+        QuoteFinder::new(
+            QuoteConfig {
+                quote_token: b'"',
+                style: Style::new().fg(Color::Yellow),
+            },
+            palette,
+        )
+    }
+
+    fn keyword(configs: &[KeywordConfig], palette: &mut Palette) -> KeywordFinder {
+        KeywordFinder::new(configs, palette).unwrap()
+    }
+
     #[test]
     fn end_to_end_number_highlighter() {
-        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(NumberConfig {
-            style: Style::new().fg(Color::Cyan),
-        }))]);
+        let mut palette = Palette::new();
+        let number = cyan_number(&mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(number)], palette);
 
         let result = highlighter.apply("hello 42 world");
         assert_eq!(result.to_string().convert_escape_codes(), "hello [cyan]42[reset] world");
@@ -106,9 +133,9 @@ mod tests {
 
     #[test]
     fn no_match_returns_borrowed() {
-        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(NumberConfig {
-            style: Style::new().fg(Color::Cyan),
-        }))]);
+        let mut palette = Palette::new();
+        let number = cyan_number(&mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(number)], palette);
 
         let result = highlighter.apply("no numbers here");
         assert!(matches!(result, Cow::Borrowed(_)));
@@ -117,15 +144,10 @@ mod tests {
     #[test]
     fn number_plus_quote_priority() {
         // Number (priority 0) should win inside quoted region (priority 1)
-        let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(NumberConfig {
-                style: Style::new().fg(Color::Cyan),
-            })),
-            Box::new(QuoteFinder::new(QuoteConfig {
-                quote_token: b'"',
-                style: Style::new().fg(Color::Yellow),
-            })),
-        ]);
+        let mut palette = Palette::new();
+        let number = cyan_number(&mut palette);
+        let quote = yellow_quote(&mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(number), Box::new(quote)], palette);
 
         let result = highlighter.apply(r#"count is "value 42 here" end"#);
         let readable = result.to_string().convert_escape_codes();
@@ -139,15 +161,10 @@ mod tests {
 
     #[test]
     fn multiple_numbers_inside_quotes() {
-        let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(NumberConfig {
-                style: Style::new().fg(Color::Cyan),
-            })),
-            Box::new(QuoteFinder::new(QuoteConfig {
-                quote_token: b'"',
-                style: Style::new().fg(Color::Yellow),
-            })),
-        ]);
+        let mut palette = Palette::new();
+        let number = cyan_number(&mut palette);
+        let quote = yellow_quote(&mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(number), Box::new(quote)], palette);
 
         let result = highlighter.apply(r#""port 8080 and 443""#);
         let readable = result.to_string().convert_escape_codes();
@@ -159,15 +176,10 @@ mod tests {
 
     #[test]
     fn no_quotes_only_numbers() {
-        let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(NumberConfig {
-                style: Style::new().fg(Color::Cyan),
-            })),
-            Box::new(QuoteFinder::new(QuoteConfig {
-                quote_token: b'"',
-                style: Style::new().fg(Color::Yellow),
-            })),
-        ]);
+        let mut palette = Palette::new();
+        let number = cyan_number(&mut palette);
+        let quote = yellow_quote(&mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(number), Box::new(quote)], palette);
 
         let result = highlighter.apply("status 200 ok");
         assert_eq!(result.to_string().convert_escape_codes(), "status [cyan]200[reset] ok");
@@ -175,9 +187,9 @@ mod tests {
 
     #[test]
     fn keyword_with_background_gets_padding() {
-        let highlighter = Pipeline::new(vec![Box::new(
-            KeywordFinder::new(&[kw(&["ERROR"], Style::new().on(Color::Red))]).unwrap(),
-        )]);
+        let mut palette = Palette::new();
+        let keyword = keyword(&[kw(&["ERROR"], Style::new().on(Color::Red))], &mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(keyword)], palette);
 
         let result = highlighter.apply("level ERROR here");
         assert_eq!(
@@ -188,9 +200,9 @@ mod tests {
 
     #[test]
     fn keyword_without_background_no_padding() {
-        let highlighter = Pipeline::new(vec![Box::new(
-            KeywordFinder::new(&[kw(&["ERROR"], Style::new().fg(Color::Red))]).unwrap(),
-        )]);
+        let mut palette = Palette::new();
+        let keyword = keyword(&[kw(&["ERROR"], Style::new().fg(Color::Red))], &mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(keyword)], palette);
 
         let result = highlighter.apply("level ERROR here");
         assert_eq!(
@@ -204,10 +216,10 @@ mod tests {
         // Finder 0 matches "ERROR" (later in string), finder 1 matches "WARN" (earlier).
         // Padded spans reach merge in finder order, not position order.
         // Both must still get badge padding.
-        let highlighter = Pipeline::new(vec![
-            Box::new(KeywordFinder::new(&[kw(&["ERROR"], Style::new().on(Color::Red))]).unwrap()),
-            Box::new(KeywordFinder::new(&[kw(&["WARN"], Style::new().on(Color::Yellow))]).unwrap()),
-        ]);
+        let mut palette = Palette::new();
+        let error = keyword(&[kw(&["ERROR"], Style::new().on(Color::Red))], &mut palette);
+        let warn = keyword(&[kw(&["WARN"], Style::new().on(Color::Yellow))], &mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(error), Box::new(warn)], palette);
 
         let result = highlighter.apply("WARN then ERROR");
         let readable = result.to_string().convert_escape_codes();
@@ -217,11 +229,11 @@ mod tests {
     #[test]
     fn three_keyword_groups_padding_interleaved() {
         // Three finders whose matches appear in reverse finder order by position.
-        let highlighter = Pipeline::new(vec![
-            Box::new(KeywordFinder::new(&[kw(&["TRACE"], Style::new().on(Color::Blue))]).unwrap()),
-            Box::new(KeywordFinder::new(&[kw(&["WARN"], Style::new().on(Color::Yellow))]).unwrap()),
-            Box::new(KeywordFinder::new(&[kw(&["DEBUG"], Style::new().on(Color::Cyan))]).unwrap()),
-        ]);
+        let mut palette = Palette::new();
+        let trace = keyword(&[kw(&["TRACE"], Style::new().on(Color::Blue))], &mut palette);
+        let warn = keyword(&[kw(&["WARN"], Style::new().on(Color::Yellow))], &mut palette);
+        let debug = keyword(&[kw(&["DEBUG"], Style::new().on(Color::Cyan))], &mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(trace), Box::new(warn), Box::new(debug)], palette);
 
         let result = highlighter.apply("DEBUG WARN TRACE");
         let readable = result.to_string().convert_escape_codes();
@@ -233,16 +245,11 @@ mod tests {
 
     #[test]
     fn empty_input_returns_borrowed() {
-        let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(NumberConfig {
-                style: Style::new().fg(Color::Cyan),
-            })),
-            Box::new(KeywordFinder::new(&[kw(&["ERROR"], Style::new().on(Color::Red))]).unwrap()),
-            Box::new(QuoteFinder::new(QuoteConfig {
-                quote_token: b'"',
-                style: Style::new().fg(Color::Yellow),
-            })),
-        ]);
+        let mut palette = Palette::new();
+        let number = cyan_number(&mut palette);
+        let keyword = keyword(&[kw(&["ERROR"], Style::new().on(Color::Red))], &mut palette);
+        let quote = yellow_quote(&mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(number), Box::new(keyword), Box::new(quote)], palette);
 
         let result = highlighter.apply("");
         assert!(matches!(result, Cow::Borrowed(_)));
@@ -252,16 +259,11 @@ mod tests {
     #[test]
     fn three_finders_overlapping_same_region() {
         // Number (priority 0), keyword (priority 1), quote (priority 2) all cover "200"
-        let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(NumberConfig {
-                style: Style::new().fg(Color::Cyan),
-            })),
-            Box::new(KeywordFinder::new(&[kw(&["200"], Style::new().fg(Color::Green))]).unwrap()),
-            Box::new(QuoteFinder::new(QuoteConfig {
-                quote_token: b'"',
-                style: Style::new().fg(Color::Yellow),
-            })),
-        ]);
+        let mut palette = Palette::new();
+        let number = cyan_number(&mut palette);
+        let keyword = keyword(&[kw(&["200"], Style::new().fg(Color::Green))], &mut palette);
+        let quote = yellow_quote(&mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(number), Box::new(keyword), Box::new(quote)], palette);
 
         // "200" is inside quotes, matched by all three finders — number (priority 0) wins
         let result = highlighter.apply(r#""status 200 ok""#);
@@ -274,9 +276,9 @@ mod tests {
 
     #[test]
     fn multibyte_utf8_with_numbers() {
-        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(NumberConfig {
-            style: Style::new().fg(Color::Cyan),
-        }))]);
+        let mut palette = Palette::new();
+        let number = cyan_number(&mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(number)], palette);
 
         let result = highlighter.apply("café 42 résumé");
         assert_eq!(result.to_string().convert_escape_codes(), "café [cyan]42[reset] résumé");
@@ -284,15 +286,10 @@ mod tests {
 
     #[test]
     fn multibyte_utf8_with_quotes() {
-        let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(NumberConfig {
-                style: Style::new().fg(Color::Cyan),
-            })),
-            Box::new(QuoteFinder::new(QuoteConfig {
-                quote_token: b'"',
-                style: Style::new().fg(Color::Yellow),
-            })),
-        ]);
+        let mut palette = Palette::new();
+        let number = cyan_number(&mut palette);
+        let quote = yellow_quote(&mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(number), Box::new(quote)], palette);
 
         let result = highlighter.apply(r#"日本語 "hello 42" 世界"#);
         let readable = result.to_string().convert_escape_codes();
@@ -304,9 +301,9 @@ mod tests {
 
     #[test]
     fn keyword_badge_is_entire_input() {
-        let highlighter = Pipeline::new(vec![Box::new(
-            KeywordFinder::new(&[kw(&["ERROR"], Style::new().on(Color::Red))]).unwrap(),
-        )]);
+        let mut palette = Palette::new();
+        let keyword = keyword(&[kw(&["ERROR"], Style::new().on(Color::Red))], &mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(keyword)], palette);
 
         let result = highlighter.apply("ERROR");
         assert_eq!(result.to_string().convert_escape_codes(), "[bg_red] ERROR [reset]");
@@ -316,10 +313,10 @@ mod tests {
     fn regex_partially_overrides_keyword_badge() {
         // Regex (priority 0) overlaps the start of a padded keyword (priority 1).
         // The keyword fragment should NOT get badge padding.
-        let highlighter = Pipeline::new(vec![
-            Box::new(RegexFinder::new("ERR", Style::new().fg(Color::Cyan)).unwrap()),
-            Box::new(KeywordFinder::new(&[kw(&["ERROR"], Style::new().on(Color::Red))]).unwrap()),
-        ]);
+        let mut palette = Palette::new();
+        let regex = RegexFinder::new("ERR", Style::new().fg(Color::Cyan), &mut palette).unwrap();
+        let keyword = keyword(&[kw(&["ERROR"], Style::new().on(Color::Red))], &mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(regex), Box::new(keyword)], palette);
 
         let result = highlighter.apply("level ERROR here");
         let readable = result.to_string().convert_escape_codes();
@@ -331,12 +328,10 @@ mod tests {
     fn number_fully_overrides_keyword_badge() {
         // Number (priority 0) covers the exact same range as a padded keyword (priority 1).
         // The number style wins but the padded range still matches exactly — padding applies.
-        let highlighter = Pipeline::new(vec![
-            Box::new(NumberFinder::new(NumberConfig {
-                style: Style::new().fg(Color::Cyan),
-            })),
-            Box::new(KeywordFinder::new(&[kw(&["200"], Style::new().on(Color::Red))]).unwrap()),
-        ]);
+        let mut palette = Palette::new();
+        let number = cyan_number(&mut palette);
+        let keyword = keyword(&[kw(&["200"], Style::new().on(Color::Red))], &mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(number), Box::new(keyword)], palette);
 
         let result = highlighter.apply("status 200 ok");
         let readable = result.to_string().convert_escape_codes();
@@ -348,10 +343,10 @@ mod tests {
         // Finder 0's badge wins its whole range and stays intact — it must
         // keep its padding. Finder 1's badge is fragmented down to "SEE "
         // and loses its padding.
-        let highlighter = Pipeline::new(vec![
-            Box::new(KeywordFinder::new(&[kw(&["ERROR NOW"], Style::new().on(Color::Red))]).unwrap()),
-            Box::new(KeywordFinder::new(&[kw(&["SEE ERROR"], Style::new().on(Color::Yellow))]).unwrap()),
-        ]);
+        let mut palette = Palette::new();
+        let error = keyword(&[kw(&["ERROR NOW"], Style::new().on(Color::Red))], &mut palette);
+        let see = keyword(&[kw(&["SEE ERROR"], Style::new().on(Color::Yellow))], &mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(error), Box::new(see)], palette);
 
         let result = highlighter.apply("SEE ERROR NOW");
         assert_eq!(
@@ -366,9 +361,9 @@ mod tests {
         // matches — real keyword finders can't produce byte-adjacent same-style
         // badges, which is the only thing the collector's padded-coalesce path
         // would merge. Nothing matches, so the input passes through untouched.
-        let highlighter = Pipeline::new(vec![Box::new(
-            KeywordFinder::new(&[kw(&["INFO", "WARN"], Style::new().on(Color::Red))]).unwrap(),
-        )]);
+        let mut palette = Palette::new();
+        let keyword = keyword(&[kw(&["INFO", "WARN"], Style::new().on(Color::Red))], &mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(keyword)], palette);
 
         let result = highlighter.apply("INFOWARN");
         assert!(matches!(result, Cow::Borrowed(_)));
@@ -379,9 +374,9 @@ mod tests {
     fn ansi_input_passes_through() {
         // Pre-styled input: finders won't match inside ANSI codes,
         // but the pipeline should not panic or corrupt output
-        let highlighter = Pipeline::new(vec![Box::new(NumberFinder::new(NumberConfig {
-            style: Style::new().fg(Color::Cyan),
-        }))]);
+        let mut palette = Palette::new();
+        let number = cyan_number(&mut palette);
+        let highlighter = Pipeline::new(vec![Box::new(number)], palette);
 
         let input = "\x1b[31mhello\x1b[0m 42";
         let result = highlighter.apply(input);

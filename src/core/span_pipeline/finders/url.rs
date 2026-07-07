@@ -5,17 +5,24 @@ use regex::Regex;
 
 use crate::core::config::UrlConfig;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug, Clone)]
 pub(crate) struct UrlFinder {
     url_regex: Regex,
     query_params_regex: Regex,
-    config: UrlConfig,
+    http: StyleId,
+    https: StyleId,
+    host: StyleId,
+    path: StyleId,
+    query_params_key: StyleId,
+    query_params_value: StyleId,
+    symbols: StyleId,
 }
 
 impl UrlFinder {
-    pub fn new(config: UrlConfig) -> Self {
+    pub fn new(config: UrlConfig, palette: &mut Palette) -> Self {
         let url_pattern = r"(?x)
             (?P<protocol>https?) (:) (//)
             (?P<host>[A-Za-z0-9._\-]+)
@@ -34,7 +41,13 @@ impl UrlFinder {
         Self {
             url_regex,
             query_params_regex,
-            config,
+            http: palette.intern(config.http),
+            https: palette.intern(config.https),
+            host: palette.intern(config.host),
+            path: palette.intern(config.path),
+            query_params_key: palette.intern(config.query_params_key),
+            query_params_value: palette.intern(config.query_params_value),
+            symbols: palette.intern(config.symbols),
         }
     }
 }
@@ -59,35 +72,29 @@ impl Finder for UrlFinder {
             return;
         }
 
-        let UrlConfig {
-            http,
-            https,
-            host,
-            path,
-            query_params_key,
-            query_params_value,
-            symbols,
-        } = self.config;
-
         for caps in self.url_regex.captures_iter(input) {
             let full_match = caps.get(0).unwrap();
             let full_str = full_match.as_str();
             let trim_count = count_unbalanced_trailing_parens(full_str);
 
             if let Some(protocol) = caps.name("protocol") {
-                let style = if protocol.as_str() == "https" { https } else { http };
+                let style = if protocol.as_str() == "https" {
+                    self.https
+                } else {
+                    self.http
+                };
                 collector.push(protocol.start(), protocol.end(), style);
                 // "://" is not styled — left as plain text
             }
 
             if let Some(host_match) = caps.name("host") {
-                collector.push(host_match.start(), host_match.end(), host);
+                collector.push(host_match.start(), host_match.end(), self.host);
             }
 
             if let Some(port) = caps.name("port") {
                 let sep = caps.name("port_sep").unwrap();
-                collector.push(sep.start(), sep.end(), symbols);
-                collector.push(port.start(), port.end(), host);
+                collector.push(sep.start(), sep.end(), self.symbols);
+                collector.push(port.start(), port.end(), self.host);
             }
 
             if let Some(path_match) = caps.name("path") {
@@ -97,7 +104,7 @@ impl Finder for UrlFinder {
                     path_match.end()
                 };
                 if path_match.start() < end {
-                    collector.push(path_match.start(), end, path);
+                    collector.push(path_match.start(), end, self.path);
                 }
             }
 
@@ -112,20 +119,24 @@ impl Finder for UrlFinder {
 
                 for query_caps in self.query_params_regex.captures_iter(query_str) {
                     if let Some(d) = query_caps.name("delimiter") {
-                        collector.push(query_offset + d.start(), query_offset + d.end(), symbols);
+                        collector.push(query_offset + d.start(), query_offset + d.end(), self.symbols);
                     }
                     if let Some(k) = query_caps.name("key")
                         && !k.as_str().is_empty()
                     {
-                        collector.push(query_offset + k.start(), query_offset + k.end(), query_params_key);
+                        collector.push(query_offset + k.start(), query_offset + k.end(), self.query_params_key);
                     }
                     if let Some(e) = query_caps.name("equal") {
-                        collector.push(query_offset + e.start(), query_offset + e.end(), symbols);
+                        collector.push(query_offset + e.start(), query_offset + e.end(), self.symbols);
                     }
                     if let Some(v) = query_caps.name("value")
                         && !v.as_str().is_empty()
                     {
-                        collector.push(query_offset + v.start(), query_offset + v.end(), query_params_value);
+                        collector.push(
+                            query_offset + v.start(),
+                            query_offset + v.end(),
+                            self.query_params_value,
+                        );
                     }
                 }
             }
@@ -140,15 +151,18 @@ mod tests {
     use crate::style::{Color, Style};
 
     fn finder() -> UrlFinder {
-        UrlFinder::new(UrlConfig {
-            http: Style::new().fg(Color::Red),
-            https: Style::new().fg(Color::Green),
-            host: Style::new().fg(Color::Blue),
-            path: Style::new().fg(Color::Cyan),
-            query_params_key: Style::new().fg(Color::Magenta),
-            query_params_value: Style::new().fg(Color::Yellow),
-            symbols: Style::new().fg(Color::White),
-        })
+        UrlFinder::new(
+            UrlConfig {
+                http: Style::new().fg(Color::Red),
+                https: Style::new().fg(Color::Green),
+                host: Style::new().fg(Color::Blue),
+                path: Style::new().fg(Color::Cyan),
+                query_params_key: Style::new().fg(Color::Magenta),
+                query_params_value: Style::new().fg(Color::Yellow),
+                symbols: Style::new().fg(Color::White),
+            },
+            &mut Palette::new(),
+        )
     }
 
     #[test]

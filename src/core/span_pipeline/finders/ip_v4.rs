@@ -4,16 +4,18 @@ use regex::Regex;
 
 use crate::core::config::IpV4Config;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug, Clone)]
 pub(crate) struct IpV4Finder {
     regex: Regex,
-    config: IpV4Config,
+    number: StyleId,
+    separator: StyleId,
 }
 
 impl IpV4Finder {
-    pub fn new(config: IpV4Config) -> Self {
+    pub fn new(config: IpV4Config, palette: &mut Palette) -> Self {
         let pattern = r"(?x)\b
             (?P<o1>\d{1,3})(?P<d1>\.)
             (?P<o2>\d{1,3})(?P<d2>\.)
@@ -23,7 +25,11 @@ impl IpV4Finder {
             \b";
         let regex = build_regex(pattern);
 
-        Self { regex, config }
+        Self {
+            regex,
+            number: palette.intern(config.number),
+            separator: palette.intern(config.separator),
+        }
     }
 }
 
@@ -32,8 +38,6 @@ impl Finder for IpV4Finder {
         if memchr(b'.', input.as_bytes()).is_none() {
             return;
         }
-
-        let IpV4Config { number, separator } = self.config;
 
         let octets = ["o1", "o2", "o3", "o4"];
         let dots = ["d1", "d2", "d3"];
@@ -49,15 +53,15 @@ impl Finder for IpV4Finder {
             if valid_octets && valid_mask {
                 for (i, &name) in octets.iter().enumerate() {
                     let octet = caps.name(name).unwrap();
-                    collector.push(octet.start(), octet.end(), number);
+                    collector.push(octet.start(), octet.end(), self.number);
                     if let Some(dot) = dots.get(i).and_then(|&d| caps.name(d)) {
-                        collector.push(dot.start(), dot.end(), separator);
+                        collector.push(dot.start(), dot.end(), self.separator);
                     }
                 }
                 if let Some(slash) = caps.name("slash") {
-                    collector.push(slash.start(), slash.end(), separator);
+                    collector.push(slash.start(), slash.end(), self.separator);
                     let mask = caps.name("mask").unwrap();
-                    collector.push(mask.start(), mask.end(), number);
+                    collector.push(mask.start(), mask.end(), self.number);
                 }
             }
         }
@@ -71,10 +75,13 @@ mod tests {
     use crate::style::{Color, Style};
 
     fn make_finder() -> IpV4Finder {
-        IpV4Finder::new(IpV4Config {
-            number: Style::new().fg(Color::Blue),
-            separator: Style::new().fg(Color::Red),
-        })
+        IpV4Finder::new(
+            IpV4Config {
+                number: Style::new().fg(Color::Blue),
+                separator: Style::new().fg(Color::Red),
+            },
+            &mut Palette::new(),
+        )
     }
 
     #[test]

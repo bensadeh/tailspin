@@ -2,24 +2,27 @@ use memchr::memchr_iter;
 
 use crate::core::config::QuoteConfig;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug, Clone)]
 pub(crate) struct QuoteFinder {
-    config: QuoteConfig,
+    quote_token: u8,
+    style: StyleId,
 }
 
 impl QuoteFinder {
-    pub fn new(config: QuoteConfig) -> Self {
-        Self { config }
+    pub fn new(config: QuoteConfig, palette: &mut Palette) -> Self {
+        Self {
+            quote_token: config.quote_token,
+            style: palette.intern(config.style),
+        }
     }
 }
 
 impl Finder for QuoteFinder {
     fn find_spans(&self, input: &str, collector: &mut Collector) {
-        let QuoteConfig { quote_token, style } = self.config;
-
-        let positions: Vec<usize> = memchr_iter(quote_token, input.as_bytes()).collect();
+        let positions: Vec<usize> = memchr_iter(self.quote_token, input.as_bytes()).collect();
 
         if positions.len() < 2 || !positions.len().is_multiple_of(2) {
             return;
@@ -27,7 +30,7 @@ impl Finder for QuoteFinder {
 
         for pair in positions.chunks(2) {
             // Span covers opening quote through closing quote (inclusive)
-            collector.push(pair[0], pair[1] + 1, style);
+            collector.push(pair[0], pair[1] + 1, self.style);
         }
     }
 }
@@ -39,10 +42,13 @@ mod tests {
     use crate::style::{Color, Style};
 
     fn make_finder(quote_token: u8) -> QuoteFinder {
-        QuoteFinder::new(QuoteConfig {
-            quote_token,
-            style: Style::new().fg(Color::Yellow),
-        })
+        QuoteFinder::new(
+            QuoteConfig {
+                quote_token,
+                style: Style::new().fg(Color::Yellow),
+            },
+            &mut Palette::new(),
+        )
     }
 
     #[test]

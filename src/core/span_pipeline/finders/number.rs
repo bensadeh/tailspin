@@ -3,16 +3,17 @@ use regex::Regex;
 
 use crate::core::config::NumberConfig;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug, Clone)]
 pub(crate) struct NumberFinder {
     regex: Regex,
-    config: NumberConfig,
+    style: StyleId,
 }
 
 impl NumberFinder {
-    pub fn new(config: NumberConfig) -> Self {
+    pub fn new(config: NumberConfig, palette: &mut Palette) -> Self {
         let pattern = r"(?x)
             \b          # start of number
             \d+         # integer part
@@ -22,7 +23,10 @@ impl NumberFinder {
 
         let regex = build_regex(pattern);
 
-        Self { regex, config }
+        Self {
+            regex,
+            style: palette.intern(config.style),
+        }
     }
 }
 
@@ -32,10 +36,8 @@ impl Finder for NumberFinder {
             return;
         }
 
-        let NumberConfig { style } = self.config;
-
         for m in self.regex.find_iter(input) {
-            collector.push(m.start(), m.end(), style);
+            collector.push(m.start(), m.end(), self.style);
         }
     }
 }
@@ -47,9 +49,12 @@ mod tests {
     use crate::style::{Color, Style};
 
     fn make_finder() -> NumberFinder {
-        NumberFinder::new(NumberConfig {
-            style: Style::new().fg(Color::Cyan),
-        })
+        NumberFinder::new(
+            NumberConfig {
+                style: Style::new().fg(Color::Cyan),
+            },
+            &mut Palette::new(),
+        )
     }
 
     #[test]

@@ -2,6 +2,7 @@ use regex::{Error, Regex};
 
 use crate::style::Style;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 /// With exactly one capture group, only the captured portion is styled
@@ -10,17 +11,17 @@ use super::super::span::{Collector, Finder};
 #[derive(Debug, Clone)]
 pub(crate) struct RegexFinder {
     regex: Regex,
-    style: Style,
+    style: StyleId,
     single_capture_group: bool,
 }
 
 impl RegexFinder {
-    pub fn new(pattern: &str, style: Style) -> Result<Self, Error> {
+    pub fn new(pattern: &str, style: Style, palette: &mut Palette) -> Result<Self, Error> {
         let regex = Regex::new(pattern)?;
         Ok(Self {
             single_capture_group: regex.captures_len() == 2,
             regex,
-            style,
+            style: palette.intern(style),
         })
     }
 }
@@ -45,7 +46,7 @@ mod tests {
     use crate::style::Color;
 
     fn span_texts<'a>(input: &'a str, pattern: &str) -> Vec<&'a str> {
-        let finder = RegexFinder::new(pattern, Style::new().fg(Color::Red)).unwrap();
+        let finder = RegexFinder::new(pattern, Style::new().fg(Color::Red), &mut Palette::new()).unwrap();
         super::super::span_texts(input, &finder)
     }
 

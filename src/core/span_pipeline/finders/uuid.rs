@@ -4,20 +4,28 @@ use regex::Regex;
 
 use crate::core::config::UuidConfig;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug, Clone)]
 pub(crate) struct UuidFinder {
     regex: Regex,
-    config: UuidConfig,
+    number: StyleId,
+    letter: StyleId,
+    separator: StyleId,
 }
 
 impl UuidFinder {
-    pub fn new(config: UuidConfig) -> Self {
+    pub fn new(config: UuidConfig, palette: &mut Palette) -> Self {
         let pattern = r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b";
         let regex = build_regex(pattern);
 
-        Self { regex, config }
+        Self {
+            regex,
+            number: palette.intern(config.number),
+            letter: palette.intern(config.letter),
+            separator: palette.intern(config.separator),
+        }
     }
 }
 
@@ -27,19 +35,13 @@ impl Finder for UuidFinder {
             return;
         }
 
-        let UuidConfig {
-            number,
-            letter,
-            separator,
-        } = self.config;
-
         for m in self.regex.find_iter(input) {
             let matched = m.as_str();
             for (i, c) in matched.char_indices() {
                 let style = match c {
-                    '0'..='9' => number,
-                    'a'..='f' | 'A'..='F' => letter,
-                    '-' => separator,
+                    '0'..='9' => self.number,
+                    'a'..='f' | 'A'..='F' => self.letter,
+                    '-' => self.separator,
                     _ => continue,
                 };
                 collector.push(m.start() + i, m.start() + i + c.len_utf8(), style);
@@ -55,11 +57,15 @@ mod tests {
 
     #[test]
     fn finds_uuid_with_coalesced_spans() {
-        let finder = UuidFinder::new(UuidConfig {
-            number: Style::new().fg(Color::Blue),
-            letter: Style::new().fg(Color::Yellow),
-            separator: Style::new().fg(Color::Red),
-        });
+        let mut palette = Palette::new();
+        let finder = UuidFinder::new(
+            UuidConfig {
+                number: Style::new().fg(Color::Blue),
+                letter: Style::new().fg(Color::Yellow),
+                separator: Style::new().fg(Color::Red),
+            },
+            &mut palette,
+        );
         let input = "id=550e8400-e29b-41d4-a716-446655440000 done";
         let mut collector = Collector::new();
         finder.find_spans(input, &mut collector);
@@ -74,16 +80,19 @@ mod tests {
         // Verify first span covers leading digits "550"
         let first = &spans[0];
         assert_eq!(&input[first.start..first.end], "550");
-        assert_eq!(first.style, Style::new().fg(Color::Blue));
+        assert_eq!(first.style, palette.intern(Style::new().fg(Color::Blue)));
     }
 
     #[test]
     fn no_match_without_enough_dashes() {
-        let finder = UuidFinder::new(UuidConfig {
-            number: Style::new().fg(Color::Blue),
-            letter: Style::new().fg(Color::Yellow),
-            separator: Style::new().fg(Color::Red),
-        });
+        let finder = UuidFinder::new(
+            UuidConfig {
+                number: Style::new().fg(Color::Blue),
+                letter: Style::new().fg(Color::Yellow),
+                separator: Style::new().fg(Color::Red),
+            },
+            &mut Palette::new(),
+        );
         assert!(super::super::span_texts("no dashes here at all", &finder).is_empty());
     }
 }

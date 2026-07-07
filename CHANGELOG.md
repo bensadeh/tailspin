@@ -20,6 +20,7 @@
 - Batch lines in a shared buffer instead of allocating one string per line
 - Skip the JVM exception header scan on lines without `Exception` or `Error`
 - Highlight batches through per-thread highlighter clones to avoid regex cache contention
+- Intern styles into a build-time palette so render resolves ANSI prefixes by index
 
 ### Fixed
 

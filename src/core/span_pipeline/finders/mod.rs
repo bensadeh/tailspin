@@ -1,3 +1,11 @@
+//! One finder per pattern kind, all built to the same shape: the constructor
+//! takes the finder's config plus the pipeline's `Palette`, interns each
+//! configured style once, and keeps the returned `StyleId` handles — style
+//! resolution happens here so the per-line hot path never looks anything up.
+//! `find_spans` scans the original unstyled input and pushes
+//! `(start, end, style)` byte ranges into the `Collector`; finders never see
+//! each other's spans. `number.rs` is the minimal example.
+
 use ::regex::{Regex, RegexBuilder};
 
 pub(crate) mod date_dash;

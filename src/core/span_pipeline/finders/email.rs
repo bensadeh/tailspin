@@ -4,21 +4,31 @@ use regex::Regex;
 
 use crate::core::config::EmailConfig;
 
+use super::super::palette::{Palette, StyleId};
 use super::super::span::{Collector, Finder};
 
 #[derive(Debug, Clone)]
 pub(crate) struct EmailFinder {
     regex: Regex,
-    config: EmailConfig,
+    local_part: StyleId,
+    at_sign: StyleId,
+    domain: StyleId,
+    dot: StyleId,
 }
 
 impl EmailFinder {
-    pub fn new(config: EmailConfig) -> Self {
+    pub fn new(config: EmailConfig, palette: &mut Palette) -> Self {
         // Match structure: local@domain — we find '@' in the match to split the parts.
         let pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}";
         let regex = build_regex(pattern);
 
-        Self { regex, config }
+        Self {
+            regex,
+            local_part: palette.intern(config.local_part),
+            at_sign: palette.intern(config.at_sign),
+            domain: palette.intern(config.domain),
+            dot: palette.intern(config.dot),
+        }
     }
 }
 
@@ -28,20 +38,13 @@ impl Finder for EmailFinder {
             return;
         }
 
-        let EmailConfig {
-            local_part,
-            at_sign,
-            domain,
-            dot,
-        } = self.config;
-
         for m in self.regex.find_iter(input) {
             let s = m.start();
             let bytes = m.as_str().as_bytes();
             let at = memchr(b'@', bytes).unwrap();
 
-            collector.push(s, s + at, local_part);
-            collector.push(s + at, s + at + 1, at_sign);
+            collector.push(s, s + at, self.local_part);
+            collector.push(s + at, s + at + 1, self.at_sign);
 
             // Domain: highlight segments and dots separately
             let domain_offset = s + at + 1;
@@ -52,10 +55,10 @@ impl Finder for EmailFinder {
                     pos += 1;
                     continue;
                 }
-                collector.push(domain_offset + pos, domain_offset + pos + segment.len(), domain);
+                collector.push(domain_offset + pos, domain_offset + pos + segment.len(), self.domain);
                 pos += segment.len();
                 if pos < domain_bytes.len() {
-                    collector.push(domain_offset + pos, domain_offset + pos + 1, dot);
+                    collector.push(domain_offset + pos, domain_offset + pos + 1, self.dot);
                     pos += 1;
                 }
             }
@@ -70,12 +73,15 @@ mod tests {
     use crate::style::{Color, Style};
 
     fn make_finder() -> EmailFinder {
-        EmailFinder::new(EmailConfig {
-            local_part: Style::new().fg(Color::Cyan),
-            at_sign: Style::new().fg(Color::Red),
-            domain: Style::new().fg(Color::Green),
-            dot: Style::new().fg(Color::Yellow),
-        })
+        EmailFinder::new(
+            EmailConfig {
+                local_part: Style::new().fg(Color::Cyan),
+                at_sign: Style::new().fg(Color::Red),
+                domain: Style::new().fg(Color::Green),
+                dot: Style::new().fg(Color::Yellow),
+            },
+            &mut Palette::new(),
+        )
     }
 
     #[test]
