@@ -10,7 +10,7 @@ expression: readable(&output)
 ␛[31mERROR␛[0m Connection refused: ␛[33m"retry in ␛[0m␛[34m5␛[0m␛[3;35ms␛[0m␛[33m"␛[0m ␛[3;31mnull␛[0m
 ␛[35m12␛[0m␛[2m/␛[0m␛[35m31␛[0m␛[2m/␛[0m␛[35m2023␛[0m␛[31m ␛[0m␛[34m23␛[0m␛[2m:␛[0m␛[34m59␛[0m␛[2m:␛[0m␛[34m59␛[0m job finished ␛[3;32mtrue␛[0m
 pointer ␛[3;34m0␛[0m␛[31mx␛[0m␛[3;35mDEADBEEF␛[0m seen near {␛[33m"level"␛[0m:␛[33m"info"␛[0m,␛[33m"count"␛[0m:␛[36m7␛[0m}
-peer ␛[36m2001␛[0m:db8::ff00:␛[36m42␛[0m:␛[36m8329␛[0m handshake ok
-java.io.IOException: pipe closed
-        at com.example.EmailService.send(EmailService.kt:␛[36m171␛[0m)
+peer ␛[3;34m2001␛[0m␛[31m:␛[0m␛[3;35mdb␛[0m␛[3;34m8␛[0m␛[31m::␛[0m␛[3;35mff␛[0m␛[3;34m00␛[0m␛[31m:␛[0m␛[3;34m42␛[0m␛[31m:␛[0m␛[3;34m8329␛[0m handshake ok
+␛[2;31mjava.io.␛[0m␛[31mIOException␛[0m␛[2;31m:␛[0m pipe closed
+        ␛[2;31mat com.example.EmailService.send(␛[0m␛[33mEmailService.kt␛[0m␛[2;31m:␛[0m␛[36m171␛[0m␛[2;31m)␛[0m
 ␛[2m{"level":␛[0m ␛[2m"␛[0m␛[33minfo␛[0m␛[2m",␛[0m ␛[2m"retries":␛[0m ␛[36m3␛[0m␛[2m,␛[0m ␛[2m"ok":␛[0m ␛[3;32mtrue␛[0m␛[2m}␛[0m

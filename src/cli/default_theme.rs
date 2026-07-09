@@ -9,25 +9,26 @@ use tailspin::style::Style;
 /// so the output cannot drift from the code.
 ///
 /// The exhaustive destructure below fails to compile when `Theme` gains a
-/// field, forcing new highlight groups to be added here.
+/// field, and a field that is never emitted is an unused-variable warning
+/// (an error under CI's `-D warnings`).
 pub fn default_theme_toml() -> String {
     let Theme {
         keywords: _,
         regexes: _,
-        numbers: _,
-        uuids: _,
-        quotes: _,
-        ip_addresses: _,
-        dates: _,
-        durations: _,
-        paths: _,
-        urls: _,
-        emails: _,
-        pointers: _,
-        processes: _,
-        key_value_pairs: _,
-        json: _,
-        jvm_stack_traces: _,
+        numbers,
+        uuids,
+        quotes,
+        ip_addresses,
+        dates,
+        durations,
+        paths,
+        urls,
+        emails,
+        pointers,
+        processes,
+        key_value_pairs,
+        json,
+        jvm_stack_traces,
     } = Theme::default();
 
     let mut out = String::from(
@@ -44,20 +45,20 @@ pub fn default_theme_toml() -> String {
 ",
     );
 
-    push_table(&mut out, "numbers", &[("number", NumberConfig::default().style)]);
-    push_config(&mut out, "uuids", &UuidConfig::default());
-    push_quotes(&mut out, QuoteConfig::default());
-    push_config(&mut out, "ip_addresses", &IpV6Config::default());
-    push_config(&mut out, "dates", &DateTimeConfig::default());
-    push_config(&mut out, "durations", &DurationConfig::default());
-    push_config(&mut out, "paths", &UnixPathConfig::default());
-    push_config(&mut out, "urls", &UrlConfig::default());
-    push_config(&mut out, "emails", &EmailConfig::default());
-    push_config(&mut out, "pointers", &PointerConfig::default());
-    push_config(&mut out, "processes", &UnixProcessConfig::default());
-    push_config(&mut out, "key_value_pairs", &KeyValueConfig::default());
-    push_config(&mut out, "json", &JsonConfig::default());
-    push_config(&mut out, "jvm_stack_traces", &JvmStackTraceConfig::default());
+    push_table(&mut out, "numbers", &[("number", NumberConfig::from(numbers).style)]);
+    push_config(&mut out, "uuids", &uuids);
+    push_quotes(&mut out, QuoteConfig::from(quotes));
+    push_config(&mut out, "ip_addresses", &IpV6Config::from(ip_addresses));
+    push_config(&mut out, "dates", &dates);
+    push_config(&mut out, "durations", &durations);
+    push_config(&mut out, "paths", &paths);
+    push_config(&mut out, "urls", &urls);
+    push_config(&mut out, "emails", &emails);
+    push_config(&mut out, "pointers", &pointers);
+    push_config(&mut out, "processes", &processes);
+    push_config(&mut out, "key_value_pairs", &key_value_pairs);
+    push_config(&mut out, "json", &json);
+    push_config(&mut out, "jvm_stack_traces", &jvm_stack_traces);
 
     out
 }

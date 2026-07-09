@@ -3,6 +3,8 @@ mod completions;
 mod default_theme;
 mod highlighter;
 pub(crate) mod keywords;
+#[cfg(test)]
+mod parity;
 pub(crate) mod resolution;
 mod styles;
 

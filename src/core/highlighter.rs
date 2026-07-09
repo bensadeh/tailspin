@@ -69,19 +69,22 @@ impl Highlighter {
 impl Default for Highlighter {
     /// Creates a default `Highlighter` with common patterns.
     ///
+    /// The groups and their precedence mirror the `tspin` CLI's defaults,
+    /// minus its builtin keywords.
+    ///
     /// This operation is expensive and should be done once and reused.
     fn default() -> Self {
         Highlighter::builder()
             .with_json_highlighter(JsonConfig::default())
             .with_date_time_highlighters(DateTimeConfig::default())
+            .with_ip_v4_highlighter(IpV4Config::default())
             .with_url_highlighter(UrlConfig::default())
             .with_email_highlighter(EmailConfig::default())
-            .with_ip_v4_highlighter(IpV4Config::default())
+            .with_unix_path_highlighter(UnixPathConfig::default())
+            .with_key_value_highlighter(KeyValueConfig::default())
             .with_uuid_highlighter(UuidConfig::default())
             .with_pointer_highlighter(PointerConfig::default())
-            .with_unix_path_highlighter(UnixPathConfig::default())
             .with_unix_process_highlighter(UnixProcessConfig::default())
-            .with_key_value_highlighter(KeyValueConfig::default())
             .with_duration_highlighter(DurationConfig::default())
             .with_number_highlighter(NumberConfig::default())
             .with_quote_highlighter(QuoteConfig::default())

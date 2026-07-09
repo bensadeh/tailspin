@@ -30,6 +30,12 @@ impl BaseSet {
     pub(crate) fn contains(&self, base: Base) -> bool {
         self.0.contains(&base)
     }
+
+    /// An empty set, for tests that isolate extras or single groups.
+    #[cfg(test)]
+    pub(crate) fn none() -> Self {
+        Self(HashSet::new())
+    }
 }
 
 pub(crate) fn resolve_extras(extras: &[Extra]) -> HashSet<Extra> {

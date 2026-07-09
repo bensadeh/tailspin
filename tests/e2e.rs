@@ -41,6 +41,17 @@ fn file_input_highlights_with_default_theme() {
 }
 
 #[test]
+fn file_input_highlights_with_all_extras() {
+    let output = tspin()
+        .args(["-p", "--extras", "ipv6,jvm-stack-trace", FIXTURE])
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    insta::assert_snapshot!(readable(&output));
+}
+
+#[test]
 fn stdin_input_is_highlighted() {
     let output = tspin().write_stdin("status 200 null\n").output().unwrap();
 

@@ -27,11 +27,11 @@ fn full_highlighter(keyword_style: Style) -> Highlighter {
         .with_url_highlighter(UrlConfig::default())
         .with_email_highlighter(EmailConfig::default())
         .with_unix_path_highlighter(UnixPathConfig::default())
-        .with_duration_highlighter(DurationConfig::default())
         .with_key_value_highlighter(KeyValueConfig::default())
         .with_uuid_highlighter(UuidConfig::default())
         .with_pointer_highlighter(PointerConfig::default())
         .with_unix_process_highlighter(UnixProcessConfig::default())
+        .with_duration_highlighter(DurationConfig::default())
         .with_number_highlighter(NumberConfig::default())
         .with_keyword_highlighter(vec![KeywordConfig {
             words: vec!["ERROR".to_string(), "GET".to_string(), "null".to_string()],

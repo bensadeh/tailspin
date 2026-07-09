@@ -6,3 +6,7 @@ sshd[4242]: Accepted publickey for root
 ERROR Connection refused: "retry in 5s" null
 12/31/2023 23:59:59 job finished true
 pointer 0xDEADBEEF seen near {"level":"info","count":7}
+peer 2001:db8::ff00:42:8329 handshake ok
+java.io.IOException: pipe closed
+        at com.example.EmailService.send(EmailService.kt:171)
+{"level": "info", "retries": 3, "ok": true}
