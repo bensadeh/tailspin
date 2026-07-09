@@ -65,9 +65,9 @@ pub use core::highlighter::{Error, Highlighter, HighlighterBuilder};
 /// Configuration support for custom highlighting themes and regex rules.
 pub mod config {
     pub use super::core::config::{
-        DateTimeConfig, EmailConfig, IpV4Config, IpV6Config, JsonConfig, JvmStackTraceConfig, KeyValueConfig,
-        KeywordConfig, NumberConfig, PointerConfig, QuoteConfig, RegexConfig, UnixPathConfig, UnixProcessConfig,
-        UrlConfig, UuidConfig,
+        DateTimeConfig, DurationConfig, EmailConfig, IpV4Config, IpV6Config, JsonConfig, JvmStackTraceConfig,
+        KeyValueConfig, KeywordConfig, NumberConfig, PointerConfig, QuoteConfig, RegexConfig, UnixPathConfig,
+        UnixProcessConfig, UrlConfig, UuidConfig,
     };
 }
 

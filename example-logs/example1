@@ -52,6 +52,13 @@ Value must be between 1 and 10, received: 15
 Records created: 1000
 Calculation result: 3.14159
 
+# Durations
+Request completed in 150ms
+Retrying in 2.5s after timeout
+GC pause took 300us
+Query planning finished in 980ns
+Session expires in 1h, next sync in 30m
+
 # URL
 http://example.com/path/to/resource?param1=value1&param2=value2
 http://api.example.com/v2/resources?search=keyword&page=1

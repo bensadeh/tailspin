@@ -132,6 +132,23 @@ fn bench_individual_highlighters(c: &mut Criterion) {
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
+    group.bench_function("duration", |b| {
+        let h = Highlighter::builder()
+            .with_duration_highlighter(DurationConfig::default())
+            .build()
+            .unwrap();
+        b.iter(|| h.apply(black_box(LOG_LINE)));
+    });
+
+    group.bench_function("duration_match", |b| {
+        let h = Highlighter::builder()
+            .with_duration_highlighter(DurationConfig::default())
+            .build()
+            .unwrap();
+        let duration_input = "request took 150ms, retried after 2.5s, timeout 1h, backoff 300us";
+        b.iter(|| h.apply(black_box(duration_input)));
+    });
+
     group.bench_function("quote", |b| {
         let h = Highlighter::builder()
             .with_quote_highlighter(QuoteConfig::default())

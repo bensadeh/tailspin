@@ -2,6 +2,7 @@ use crate::core::config::*;
 use crate::core::span_pipeline::Pipeline;
 use crate::core::span_pipeline::finders::date_dash::DateDashFinder;
 use crate::core::span_pipeline::finders::date_time::DateTimeFinder;
+use crate::core::span_pipeline::finders::duration::DurationFinder;
 use crate::core::span_pipeline::finders::email::EmailFinder;
 use crate::core::span_pipeline::finders::ip_v4::IpV4Finder;
 use crate::core::span_pipeline::finders::ip_v6::IpV6Finder;
@@ -81,6 +82,7 @@ impl Default for Highlighter {
             .with_unix_path_highlighter(UnixPathConfig::default())
             .with_unix_process_highlighter(UnixProcessConfig::default())
             .with_key_value_highlighter(KeyValueConfig::default())
+            .with_duration_highlighter(DurationConfig::default())
             .with_number_highlighter(NumberConfig::default())
             .with_quote_highlighter(QuoteConfig::default())
             .build()
@@ -147,6 +149,13 @@ impl HighlighterBuilder {
     /// Adds a highlighter for Unix processes.
     pub fn with_unix_process_highlighter(mut self, config: UnixProcessConfig) -> Self {
         let finder = UnixProcessFinder::new(config, &mut self.palette);
+        self.add_finder(finder);
+        self
+    }
+
+    /// Adds a highlighter for durations.
+    pub fn with_duration_highlighter(mut self, config: DurationConfig) -> Self {
+        let finder = DurationFinder::new(config, &mut self.palette);
         self.add_finder(finder);
         self
     }

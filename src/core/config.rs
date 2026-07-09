@@ -20,6 +20,18 @@ pub struct UuidConfig {
     pub separator: Style,
 }
 
+/// Configuration for highlighting durations (e.g. `150ms`, `2.5s`).
+#[derive(Debug, Clone, Copy, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct DurationConfig {
+    /// Style applied to the numeric value.
+    pub value: Style,
+    /// Style applied to the decimal separator (`.`).
+    pub separator: Style,
+    /// Style applied to the time unit (`ns`, `us`, `ms`, `s`, `m`, `h`).
+    pub unit: Style,
+}
+
 /// Configuration for highlighting email addresses.
 #[derive(Debug, Clone, Copy, Deserialize)]
 #[serde(default, deny_unknown_fields)]
@@ -203,6 +215,16 @@ impl Default for NumberConfig {
     fn default() -> Self {
         NumberConfig {
             style: Style::new().fg(Color::Cyan),
+        }
+    }
+}
+
+impl Default for DurationConfig {
+    fn default() -> Self {
+        DurationConfig {
+            value: Style::new().fg(Color::Blue),
+            separator: Style::new().fg(Color::Magenta),
+            unit: Style::new().fg(Color::Magenta).italic(),
         }
     }
 }

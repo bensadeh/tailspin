@@ -129,6 +129,7 @@ pub enum Base {
     Emails,
     Pointers,
     Dates,
+    Durations,
     Paths,
     Quotes,
     KeyValuePairs,

@@ -5,6 +5,7 @@
 ### Added
 
 - `Highlighter` implements `Clone`
+- Added `Duration` highlighter
 
 ### Changed
 

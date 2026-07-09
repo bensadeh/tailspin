@@ -20,6 +20,7 @@ pub(crate) fn build_highlighter(
         quotes,
         ip_addresses,
         dates,
+        durations,
         paths,
         urls,
         emails,
@@ -72,6 +73,9 @@ pub(crate) fn build_highlighter(
     }
     if base.contains(Base::Processes) {
         b = b.with_unix_process_highlighter(processes);
+    }
+    if base.contains(Base::Durations) {
+        b = b.with_duration_highlighter(durations);
     }
     if base.contains(Base::Numbers) {
         b = b.with_number_highlighter(numbers.into());

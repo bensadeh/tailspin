@@ -61,13 +61,13 @@ _--enable=[HIGHLIGHT_GROUP]_::
 Disable all highlighting groups except the ones specified.
 Comma separated list of groups.
 Cannot be used with *--disable=[HIGHLIGHT_GROUP]*.
-Possible groups: numbers, urls, emails, pointers, dates, paths, quotes, key-value-pairs, uuids, ipv4, processes, json.
+Possible groups: numbers, urls, emails, pointers, dates, durations, paths, quotes, key-value-pairs, uuids, ipv4, processes, json.
 
 _--disable=[HIGHLIGHT_GROUP]_::
 Disable the specified highlighting groups.
 Comma separated list of groups.
 Cannot be used with *--enable=[HIGHLIGHT_GROUP]*.
-Possible groups: numbers, urls, emails, pointers, dates, paths, quotes, key-value-pairs, uuids, ipv4, processes, json.
+Possible groups: numbers, urls, emails, pointers, dates, durations, paths, quotes, key-value-pairs, uuids, ipv4, processes, json.
 
 _--extras=[EXTRA]_::
 Enable extra highlighters.

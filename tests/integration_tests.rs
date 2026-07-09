@@ -50,12 +50,14 @@ fn no_highlights_should_return_borrowed() {
         "not ==> equal",
         // Contains 'x' → Pointer runs its regex.
         "extra context",
+        // Digit followed by a unit letter → Duration runs its regex.
+        "took 9mx",
         // All trigger characters present — every highlighter reaches its regex.
         //   :  → DateTime                .  → IpV4
         //   -  → DateDash (×4 for UUID) /  → UnixPath
         //   [  → UnixProcess            =  → KeyValue
-        //   x  → Pointer
-        "mix: [note] x.y a-b-c-d-e ==> w/q",
+        //   x  → Pointer                9m → Duration
+        "mix: [note] x.y a-b-c-d-e ==> w/q 9mx",
     ];
 
     for input in inputs {

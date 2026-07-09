@@ -10,6 +10,7 @@ use ::regex::{Regex, RegexBuilder};
 
 pub(crate) mod date_dash;
 pub(crate) mod date_time;
+pub(crate) mod duration;
 pub(crate) mod email;
 pub(crate) mod ip_v4;
 pub(crate) mod ip_v6;

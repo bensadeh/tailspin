@@ -27,6 +27,7 @@ fn full_highlighter(keyword_style: Style) -> Highlighter {
         .with_url_highlighter(UrlConfig::default())
         .with_email_highlighter(EmailConfig::default())
         .with_unix_path_highlighter(UnixPathConfig::default())
+        .with_duration_highlighter(DurationConfig::default())
         .with_key_value_highlighter(KeyValueConfig::default())
         .with_uuid_highlighter(UuidConfig::default())
         .with_pointer_highlighter(PointerConfig::default())
@@ -67,6 +68,8 @@ const FRAGMENTS: &[&str] = &[
     "true",
     "trace-42",
     "3.14",
+    "150ms",
+    "2.5s",
     "550e8400-e29b-41d4-a716-446655440000",
     "0xdeadbeef",
     "0xd7b3b2f446e2c21b",

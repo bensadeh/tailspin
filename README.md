@@ -119,6 +119,12 @@ The following highlight groups are enabled by default and can be toggled with `-
   <img src="assets/examples/dates.png" width="600"/>
 </p>
 
+#### Durations
+
+<p align="center">
+  <img src="assets/examples/durations.png" width="600"/>
+</p>
+
 #### Keywords
 
 <p align="center">
@@ -263,6 +269,11 @@ symbols = { fg = "red" }
 
 [numbers]
 number = { fg = "cyan" }
+
+[durations]
+value = { fg = "blue" }
+separator = { fg = "magenta" }
+unit = { fg = "magenta", italic = true }
 
 [ip_addresses]
 number = { fg = "blue", italic = true }

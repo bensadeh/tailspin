@@ -5,12 +5,12 @@
 .\"     Title: tspin
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.26
-.\"      Date: 2026-05-14
+.\"      Date: 2026-07-09
 .\"    Manual: tailspin
-.\"    Source: tailspin 6.1.0
+.\"    Source: tailspin 6.2.0
 .\"  Language: English
 .\"
-.TH "TSPIN" "1" "2026-05-14" "tailspin 6.1.0" "tailspin"
+.TH "TSPIN" "1" "2026-07-09" "tailspin 6.2.0" "tailspin"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -97,7 +97,7 @@ tspin logfile.txt \-\-highlight red:error,fail \-\-highlight green:success,ok
 Disable all highlighting groups except the ones specified.
 Comma separated list of groups.
 Cannot be used with \fB\-\-disable=[HIGHLIGHT_GROUP]\fP.
-Possible groups: numbers, urls, emails, pointers, dates, paths, quotes, key\-value\-pairs, uuids, ipv4, processes, json.
+Possible groups: numbers, urls, emails, pointers, dates, durations, paths, quotes, key\-value\-pairs, uuids, ipv4, processes, json.
 .RE
 .sp
 \fI\-\-disable=[HIGHLIGHT_GROUP]\fP
@@ -105,7 +105,7 @@ Possible groups: numbers, urls, emails, pointers, dates, paths, quotes, key\-val
 Disable the specified highlighting groups.
 Comma separated list of groups.
 Cannot be used with \fB\-\-enable=[HIGHLIGHT_GROUP]\fP.
-Possible groups: numbers, urls, emails, pointers, dates, paths, quotes, key\-value\-pairs, uuids, ipv4, processes, json.
+Possible groups: numbers, urls, emails, pointers, dates, durations, paths, quotes, key\-value\-pairs, uuids, ipv4, processes, json.
 .RE
 .sp
 \fI\-\-extras=[EXTRA]\fP

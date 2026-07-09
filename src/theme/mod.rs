@@ -18,6 +18,7 @@ pub struct Theme {
     pub quotes: QuotesToml,
     pub ip_addresses: IpToml,
     pub dates: DateTimeConfig,
+    pub durations: DurationConfig,
     pub paths: UnixPathConfig,
     pub urls: UrlConfig,
     pub emails: EmailConfig,

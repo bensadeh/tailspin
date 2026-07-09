@@ -113,6 +113,14 @@ fn bench_no_match(c: &mut Criterion) {
         b.iter(|| h.apply(black_box(LOG_LINE)));
     });
 
+    group.bench_function("duration", |b| {
+        let h = Highlighter::builder()
+            .with_duration_highlighter(DurationConfig::default())
+            .build()
+            .unwrap();
+        b.iter(|| h.apply(black_box(LOG_LINE)));
+    });
+
     group.bench_function("quote", |b| {
         let h = Highlighter::builder()
             .with_quote_highlighter(QuoteConfig::default())
