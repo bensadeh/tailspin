@@ -1,5 +1,5 @@
 use crate::style::{Color, Style};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Configuration for highlighting numeric values.
 #[derive(Debug, Clone, Copy)]
@@ -9,7 +9,7 @@ pub struct NumberConfig {
 }
 
 /// Configuration for highlighting UUIDs.
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct UuidConfig {
     /// Style applied to numeric characters.
@@ -21,7 +21,7 @@ pub struct UuidConfig {
 }
 
 /// Configuration for highlighting durations (e.g. `150ms`, `2.5s`).
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct DurationConfig {
     /// Style applied to the numeric value.
@@ -33,7 +33,7 @@ pub struct DurationConfig {
 }
 
 /// Configuration for highlighting email addresses.
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct EmailConfig {
     /// Style for the local part (before `@`).
@@ -47,7 +47,7 @@ pub struct EmailConfig {
 }
 
 /// Configuration for highlighting key-value pairs.
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct KeyValueConfig {
     /// Style for the key portion.
@@ -57,7 +57,7 @@ pub struct KeyValueConfig {
 }
 
 /// Configuration for highlighting date-time strings.
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct DateTimeConfig {
     /// Style for dates.
@@ -80,7 +80,7 @@ pub struct IpV4Config {
 }
 
 /// Configuration for highlighting IPv6 addresses.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize)]
 pub struct IpV6Config {
     /// Style for numeric characters.
     pub number: Style,
@@ -91,7 +91,7 @@ pub struct IpV6Config {
 }
 
 /// Configuration for highlighting URLs.
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct UrlConfig {
     /// Style for "http" scheme.
@@ -111,7 +111,7 @@ pub struct UrlConfig {
 }
 
 /// Configuration for highlighting Unix file paths.
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct UnixPathConfig {
     /// Style for path segments.
@@ -121,7 +121,7 @@ pub struct UnixPathConfig {
 }
 
 /// Configuration for highlighting memory pointers.
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct PointerConfig {
     /// Style for numeric digits.
@@ -133,7 +133,7 @@ pub struct PointerConfig {
 }
 
 /// Configuration for highlighting Unix processes.
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct UnixProcessConfig {
     /// Style for process name.
@@ -145,7 +145,7 @@ pub struct UnixProcessConfig {
 }
 
 /// Configuration for highlighting JSON structures.
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct JsonConfig {
     /// Style for JSON keys.
@@ -172,7 +172,7 @@ pub struct QuoteConfig {
 }
 
 /// Configuration for highlighting JVM stack traces (Java, Kotlin, Scala, etc.).
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct JvmStackTraceConfig {
     /// Style for the `Caused by:` marker that prefixes nested exception headers.

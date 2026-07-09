@@ -238,84 +238,9 @@ highlight group, add the following to your `theme.toml`:
 date = { fg = "green" }
 ```
 
-Expand the section below to see the default config for the highlight groups:
-
-<details>
-<summary>Default highlight groups settings</summary>
-
-```toml
-[dates]
-date = { fg = "magenta" }
-time = { fg = "blue" }
-zone = { fg = "red" }
-separator = { faint = true }
-
-[[keywords]]
-words = ['null', 'true', 'false']
-style = { fg = "red", italic = true }
-
-[[keywords]]
-words = ['GET']
-style = { fg = "black", bg = "green" }
-
-[urls]
-http = { fg = "red", faint = true }
-https = { fg = "green", faint = true }
-host = { fg = "blue", faint = true }
-path = { fg = "blue" }
-query_params_key = { fg = "magenta" }
-query_params_value = { fg = "cyan" }
-symbols = { fg = "red" }
-
-[numbers]
-number = { fg = "cyan" }
-
-[durations]
-value = { fg = "blue" }
-separator = { fg = "magenta" }
-unit = { fg = "magenta", italic = true }
-
-[ip_addresses]
-number = { fg = "blue", italic = true }
-letter = { fg = "magenta", italic = true }
-separator = { fg = "red" }
-
-[quotes]
-style = { fg = "yellow" }
-quote_token = '"'
-
-[paths]
-segment = { fg = "green", italic = true }
-separator = { fg = "yellow" }
-
-[uuids]
-number = { fg = "blue", italic = true }
-letter = { fg = "magenta", italic = true }
-separator = { fg = "red" }
-
-[pointers]
-number = { fg = "blue", italic = true }
-letter = { fg = "magenta", italic = true }
-
-[key_value_pairs]
-key = { faint = true }
-separator = { fg = "white" }
-
-[processes]
-name = { fg = "green" }
-bracket = { fg = "red" }
-id = { fg = "yellow" }
-
-[json]
-key = { fg = "yellow" }
-quote_token = { fg = "yellow", faint = true }
-curly_bracket = { faint = true }
-square_bracket = { faint = true }
-comma = { faint = true }
-colon = { faint = true }
-```
-
-</details>
+The default style of every highlight group is listed in [`default-theme.toml`](default-theme.toml). The file is
+generated from the code, so it is always in sync with the actual defaults — copy it to
+`~/.config/tailspin/theme.toml` and edit the styles you want to change.
 
 ### Disabling Highlight Groups
 

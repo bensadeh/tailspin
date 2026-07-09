@@ -6,6 +6,7 @@
 
 - `Highlighter` implements `Clone`
 - Added `Duration` highlighter
+- Generate `default-theme.toml` with the default style of every highlight group
 
 ### Changed
 

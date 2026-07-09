@@ -34,6 +34,7 @@ _tspin() {
 '--generate-bash-completions[Print bash completions to stdout]' \
 '--generate-fish-completions[Print fish completions to stdout]' \
 '--generate-zsh-completions[Print zsh completions to stdout]' \
+'--generate-default-theme[Print the default theme as a theme.toml to stdout]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '-V[Print version]' \

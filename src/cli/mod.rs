@@ -1,5 +1,6 @@
 mod builtins;
 mod completions;
+mod default_theme;
 mod highlighter;
 pub(crate) mod keywords;
 pub(crate) mod resolution;
@@ -92,6 +93,10 @@ pub struct Arguments {
     /// Print zsh completions to stdout
     #[clap(long = "generate-zsh-completions", hide = true)]
     pub generate_zsh_completions: bool,
+
+    /// Print the default theme as a theme.toml to stdout
+    #[clap(long = "generate-default-theme", hide = true)]
+    pub generate_default_theme: bool,
 }
 
 fn parse_highlight(s: &str) -> Result<(KeywordColor, Vec<String>), Box<dyn Error + Send + Sync>> {
@@ -149,6 +154,11 @@ pub fn get_config() -> Result<FullConfig> {
     let cli = Arguments::parse();
 
     generate_shell_completions_and_exit_or_continue(&cli);
+
+    if cli.generate_default_theme {
+        print!("{}", default_theme::default_theme_toml());
+        std::process::exit(0);
+    }
 
     let std_in_has_data = !stdin().is_terminal();
     if cli.file_path.is_none() && cli.exec.is_none() && !std_in_has_data {

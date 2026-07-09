@@ -330,6 +330,36 @@ fn pager_killed_by_ctrl_c_is_a_quiet_quit() {
 }
 
 #[test]
+fn generated_default_theme_matches_the_committed_file() {
+    let output = tspin().arg("--generate-default-theme").output().unwrap();
+
+    assert!(output.status.success());
+    let committed = std::fs::read_to_string("default-theme.toml").unwrap();
+    assert_eq!(
+        stdout_of(&output),
+        committed,
+        "default-theme.toml is stale — run util/generate_default_theme.sh"
+    );
+}
+
+#[test]
+fn generated_default_theme_is_a_noop() {
+    let dir = tempfile::tempdir().unwrap();
+    let theme = dir.path().join("theme.toml");
+    let generated = tspin().arg("--generate-default-theme").output().unwrap();
+    std::fs::write(&theme, stdout_of(&generated)).unwrap();
+
+    let with_theme = tspin()
+        .args(["-p", FIXTURE, "--config-path", theme.to_str().unwrap()])
+        .output()
+        .unwrap();
+    let without_theme = tspin().args(["-p", FIXTURE]).output().unwrap();
+
+    assert!(with_theme.status.success());
+    assert_eq!(stdout_of(&with_theme), stdout_of(&without_theme));
+}
+
+#[test]
 fn custom_theme_overrides_default_style() {
     let dir = tempfile::tempdir().unwrap();
     let theme = dir.path().join("theme.toml");

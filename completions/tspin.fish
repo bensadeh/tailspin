@@ -38,5 +38,6 @@ complete -c tspin -l disable-builtin-keywords -d 'Disable the highlighting of al
 complete -c tspin -l generate-bash-completions -d 'Print bash completions to stdout'
 complete -c tspin -l generate-fish-completions -d 'Print fish completions to stdout'
 complete -c tspin -l generate-zsh-completions -d 'Print zsh completions to stdout'
+complete -c tspin -l generate-default-theme -d 'Print the default theme as a theme.toml to stdout'
 complete -c tspin -s h -l help -d 'Print help'
 complete -c tspin -s V -l version -d 'Print version'

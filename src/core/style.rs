@@ -1,5 +1,5 @@
 use nu_ansi_term::{Color as NuColor, Style as NuStyle};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Defines the styling attributes for highlighted text.
 ///
@@ -15,14 +15,20 @@ use serde::Deserialize;
 ///
 /// let style = Style::default().fg(Color::Blue).bold();
 /// ```
-#[derive(PartialEq, Eq, Debug, Clone, Copy, Default, Deserialize)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct Style {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub fg: Option<Color>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub bg: Option<Color>,
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub bold: bool,
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub faint: bool,
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub italic: bool,
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
     pub underline: bool,
 }
 
@@ -77,7 +83,7 @@ impl Style {
 ///
 /// let cyan = Color::Cyan;
 /// ```
-#[derive(PartialEq, Eq, Debug, Clone, Copy, Default, Deserialize)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy, Default, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Color {
     #[default]
