@@ -183,7 +183,7 @@ pub fn get_config() -> Result<FullConfig> {
     let extras = resolve_extras(&cli.extras);
 
     let theme = reader::parse_theme(cli.config_path.as_ref())?;
-    let highlighter = build_highlighter(&cli, &base, &extras, theme)?;
+    let highlighter = build_highlighter(&base, &extras, theme, &cli.color_word, cli.disable_builtin_keywords)?;
 
     Ok(FullConfig {
         source,

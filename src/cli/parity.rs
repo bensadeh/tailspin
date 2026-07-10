@@ -7,9 +7,9 @@
 
 use crate::cli::highlighter::build_highlighter;
 use crate::cli::resolution::{BaseSet, resolve_extras};
-use crate::cli::{Arguments, Base, Extra};
+use crate::cli::{Base, Extra};
 use crate::theme::Theme;
-use clap::{Parser, ValueEnum};
+use clap::ValueEnum;
 use tailspin::Highlighter;
 
 /// A line each base group must visibly highlight when enabled alone.
@@ -41,8 +41,7 @@ fn extra_exemplar(extra: Extra) -> &'static str {
 /// Builtin keywords are disabled and the theme is empty, so only the groups
 /// under test can produce highlights.
 fn build(base: &BaseSet, extras: &[Extra]) -> Highlighter {
-    let cli = Arguments::try_parse_from(["tspin", "--disable-builtin-keywords"]).unwrap();
-    build_highlighter(&cli, base, &resolve_extras(extras), Theme::default()).unwrap()
+    build_highlighter(base, &resolve_extras(extras), Theme::default(), &[], true).unwrap()
 }
 
 fn only(base: Base) -> BaseSet {

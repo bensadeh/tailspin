@@ -1,12 +1,16 @@
+use crate::cli::KeywordColor;
 use crate::cli::builtins::get_builtin_keywords;
-use crate::cli::{Arguments, KeywordColor};
 use std::collections::HashSet;
 use tailspin::config::KeywordConfig;
 use tailspin::style::{Color, Style};
 
-pub fn collect_keywords(cli: &Arguments, theme_keywords: Vec<KeywordConfig>) -> Vec<KeywordConfig> {
-    let builtin = get_builtin_keywords(cli.disable_builtin_keywords);
-    let from_cli = get_keywords_from_cli(cli);
+pub fn collect_keywords(
+    color_word: &[(KeywordColor, Vec<String>)],
+    disable_builtin_keywords: bool,
+    theme_keywords: Vec<KeywordConfig>,
+) -> Vec<KeywordConfig> {
+    let builtin = get_builtin_keywords(disable_builtin_keywords);
+    let from_cli = get_keywords_from_cli(color_word);
 
     dedupe_last_wins(builtin.into_iter().chain(theme_keywords).chain(from_cli).collect())
 }
@@ -20,8 +24,8 @@ fn dedupe_last_wins(mut configs: Vec<KeywordConfig>) -> Vec<KeywordConfig> {
     configs
 }
 
-fn get_keywords_from_cli(cli: &Arguments) -> Vec<KeywordConfig> {
-    cli.color_word
+fn get_keywords_from_cli(color_word: &[(KeywordColor, Vec<String>)]) -> Vec<KeywordConfig> {
+    color_word
         .iter()
         .flat_map(|(color, words)| {
             words.iter().map(move |word| KeywordConfig {

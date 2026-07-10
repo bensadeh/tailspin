@@ -60,6 +60,22 @@ fn stdin_input_is_highlighted() {
 }
 
 #[test]
+fn stdin_edge_inputs_roundtrip() {
+    let cases = [
+        ("Hello null", "Hello \u{1b}[3;31mnull\u{1b}[0m"),
+        ("Hello world", "Hello world"),
+        ("", ""),
+    ];
+
+    for (input, expected) in cases {
+        let output = tspin().write_stdin(input).output().unwrap();
+
+        assert!(output.status.success());
+        assert_eq!(stdout_of(&output).trim_end_matches('\n'), expected, "input: {input:?}");
+    }
+}
+
+#[test]
 fn custom_pager_receives_highlighted_file() {
     let output = tspin().arg(FIXTURE).args(["--pager", "cat [FILE]"]).output().unwrap();
 
