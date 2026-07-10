@@ -5,6 +5,7 @@
 //! exercise it, the library default must include it, and the man page must
 //! list it.
 
+use crate::cli::builtins::get_builtin_keywords;
 use crate::cli::highlighter::build_highlighter;
 use crate::cli::resolution::{BaseSet, resolve_extras};
 use crate::cli::{Base, Extra};
@@ -131,6 +132,23 @@ fn library_default_matches_the_cli_default_configuration() {
             default.apply(line),
             "CLI defaults and Highlighter::default() diverge on `{line}`"
         );
+    }
+}
+
+/// Anchored on the builtin data itself rather than a hand-written list, so
+/// new builtin groups are covered automatically.
+#[test]
+fn every_builtin_keyword_highlights_by_default() {
+    let h = build_highlighter(&BaseSet::none(), &resolve_extras(&[]), Theme::default(), &[], false).unwrap();
+
+    for group in get_builtin_keywords(false) {
+        for word in &group.words {
+            assert_ne!(
+                h.apply(word).as_ref(),
+                word.as_str(),
+                "builtin keyword `{word}` does not highlight"
+            );
+        }
     }
 }
 
