@@ -30,6 +30,9 @@
 
 - Every theme config struct now derives `Serialize` and `Deserialize`, so `theme.toml` tables
   deserialize directly into the config structs
+- `HighlighterBuilder::with_date_time_highlighters` renamed to `with_date_time_highlighter`
+- `HighlighterBuilder::with_keyword_highlighter` renamed to `with_keyword_highlighters`, matching
+  its `Vec<KeywordConfig>` parameter
 
 ### Changed
 

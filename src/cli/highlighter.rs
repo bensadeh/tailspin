@@ -43,7 +43,7 @@ pub(crate) fn build_highlighter(
     b = regexes.into_iter().fold(b, HighlighterBuilder::with_regex_highlighter);
 
     if base.contains(Base::Dates) {
-        b = b.with_date_time_highlighters(dates);
+        b = b.with_date_time_highlighter(dates);
     }
     if base.contains(Base::Ipv4) {
         b = b.with_ip_v4_highlighter(ipv4);
@@ -82,7 +82,7 @@ pub(crate) fn build_highlighter(
         b = b.with_number_highlighter(numbers);
     }
 
-    b = b.with_keyword_highlighter(keywords);
+    b = b.with_keyword_highlighters(keywords);
 
     if base.contains(Base::Quotes) {
         b = b.with_quote_highlighter(quotes);

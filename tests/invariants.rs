@@ -20,7 +20,7 @@ fn full_highlighter(keyword_style: Style) -> Highlighter {
             regex: r"\btrace-\d+\b".to_string(),
             style: Style::new().fg(Color::Magenta),
         })
-        .with_date_time_highlighters(DateTimeConfig::default())
+        .with_date_time_highlighter(DateTimeConfig::default())
         .with_ip_v4_highlighter(IpV4Config::default())
         .with_ip_v6_highlighter(IpV6Config::default())
         .with_jvm_stack_trace_highlighter(JvmStackTraceConfig::default())
@@ -33,7 +33,7 @@ fn full_highlighter(keyword_style: Style) -> Highlighter {
         .with_unix_process_highlighter(UnixProcessConfig::default())
         .with_duration_highlighter(DurationConfig::default())
         .with_number_highlighter(NumberConfig::default())
-        .with_keyword_highlighter(vec![KeywordConfig {
+        .with_keyword_highlighters(vec![KeywordConfig {
             words: vec!["ERROR".to_string(), "GET".to_string(), "null".to_string()],
             style: keyword_style,
         }])

@@ -76,7 +76,7 @@ impl Default for Highlighter {
     fn default() -> Self {
         Highlighter::builder()
             .with_json_highlighter(JsonConfig::default())
-            .with_date_time_highlighters(DateTimeConfig::default())
+            .with_date_time_highlighter(DateTimeConfig::default())
             .with_ip_v4_highlighter(IpV4Config::default())
             .with_url_highlighter(UrlConfig::default())
             .with_email_highlighter(EmailConfig::default())
@@ -170,8 +170,8 @@ impl HighlighterBuilder {
         self
     }
 
-    /// Adds highlighters for dates and times.
-    pub fn with_date_time_highlighters(mut self, config: DateTimeConfig) -> Self {
+    /// Adds a highlighter for dates and times.
+    pub fn with_date_time_highlighter(mut self, config: DateTimeConfig) -> Self {
         let date_time = DateTimeFinder::new(config, &mut self.palette);
         self.add_finder(date_time);
         let date_dash = DateDashFinder::new(config, &mut self.palette);
@@ -243,7 +243,7 @@ impl HighlighterBuilder {
     }
 
     /// Adds keyword highlighters.
-    pub fn with_keyword_highlighter(mut self, keyword_configs: Vec<KeywordConfig>) -> Self {
+    pub fn with_keyword_highlighters(mut self, keyword_configs: Vec<KeywordConfig>) -> Self {
         let finder = KeywordFinder::new(&keyword_configs, &mut self.palette).map_err(Error::Pattern);
         self.try_add_finder(finder);
         self
@@ -375,7 +375,7 @@ mod tests {
                 regex: "(unclosed".to_string(),
                 style: Style::default(),
             })
-            .with_keyword_highlighter(vec![kw(&["ok"], Style::default())])
+            .with_keyword_highlighters(vec![kw(&["ok"], Style::default())])
             .build();
 
         assert!(matches!(result, Err(Error::Regex(_))));

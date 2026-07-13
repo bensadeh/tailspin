@@ -19,7 +19,7 @@ fn bench_no_match(c: &mut Criterion) {
 
     group.bench_function("date_time", |b| {
         let h = Highlighter::builder()
-            .with_date_time_highlighters(DateTimeConfig::default())
+            .with_date_time_highlighter(DateTimeConfig::default())
             .build()
             .unwrap();
         b.iter(|| h.apply(black_box(LOG_LINE)));
@@ -142,7 +142,7 @@ fn bench_no_match(c: &mut Criterion) {
 
     group.bench_function("keyword", |b| {
         let h = Highlighter::builder()
-            .with_keyword_highlighter(vec![
+            .with_keyword_highlighters(vec![
                 KeywordConfig {
                     words: vec![
                         "ERROR".into(),

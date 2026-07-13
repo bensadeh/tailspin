@@ -13,7 +13,7 @@ fn build_4h() -> Highlighter {
     Highlighter::builder()
         .with_number_highlighter(NumberConfig::default())
         .with_uuid_highlighter(UuidConfig::default())
-        .with_keyword_highlighter(vec![
+        .with_keyword_highlighters(vec![
             KeywordConfig {
                 words: vec![
                     "ERROR".into(),

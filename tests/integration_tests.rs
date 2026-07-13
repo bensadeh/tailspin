@@ -101,7 +101,7 @@ fn regex_overriding_keyword_badge_suppresses_padding() {
             regex: "ERR".to_string(),
             style: Style::new().fg(Color::Green),
         })
-        .with_keyword_highlighter(vec![KeywordConfig {
+        .with_keyword_highlighters(vec![KeywordConfig {
             words: vec!["ERROR".to_string()],
             style: Style::new().on(Color::Red).fg(Color::White),
         }])
@@ -125,7 +125,7 @@ fn keyword_badge_without_overlap_still_padded() {
     // Verify the fix didn't break normal (unfragmented) badge padding.
     let highlighter = Highlighter::builder()
         .with_number_highlighter(NumberConfig::default())
-        .with_keyword_highlighter(vec![KeywordConfig {
+        .with_keyword_highlighters(vec![KeywordConfig {
             words: vec!["ERROR".to_string()],
             style: Style::new().on(Color::Red).fg(Color::White),
         }])
