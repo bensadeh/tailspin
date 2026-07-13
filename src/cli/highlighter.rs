@@ -79,13 +79,13 @@ pub(crate) fn build_highlighter(
         b = b.with_duration_highlighter(durations);
     }
     if base.contains(Base::Numbers) {
-        b = b.with_number_highlighter(numbers.into());
+        b = b.with_number_highlighter(numbers);
     }
 
     b = b.with_keyword_highlighter(keywords);
 
     if base.contains(Base::Quotes) {
-        b = b.with_quote_highlighter(quotes.into());
+        b = b.with_quote_highlighter(quotes);
     }
 
     b.build()

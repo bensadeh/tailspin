@@ -2,7 +2,8 @@ use crate::style::{Color, Style};
 use serde::{Deserialize, Serialize};
 
 /// Configuration for highlighting numeric values.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct NumberConfig {
     /// Style applied to numbers.
     pub style: Style,
@@ -165,12 +166,37 @@ pub struct JsonConfig {
 }
 
 /// Configuration for highlighting quoted text.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct QuoteConfig {
-    /// ASCII byte used as quote delimiter.
+    /// ASCII byte used as quote delimiter. Serialized as a one-character
+    /// string; non-ASCII characters are rejected at parse time.
+    #[serde(with = "ascii_char")]
     pub quote_token: u8,
     /// Style applied to quoted text.
     pub style: Style,
+}
+
+mod ascii_char {
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<u8, D::Error> {
+        let ch = char::deserialize(deserializer)?;
+
+        if ch.is_ascii() {
+            Ok(ch as u8)
+        } else {
+            Err(serde::de::Error::custom(format!(
+                "quote_token must be an ASCII character, got `{ch}`"
+            )))
+        }
+    }
+
+    // serde's serialize_with contract passes the field by reference.
+    #[allow(clippy::trivially_copy_pass_by_ref)]
+    pub fn serialize<S: Serializer>(byte: &u8, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_char(*byte as char)
+    }
 }
 
 /// Configuration for highlighting JVM stack traces (Java, Kotlin, Scala, etc.).

@@ -1,21 +1,18 @@
 use serde::Deserialize;
 use tailspin::config::*;
-use tailspin::style::Style;
 
 pub mod reader;
 
-/// `theme.toml` as written by the user. Most tables deserialize directly into
-/// the core config structs; the `*Toml` wrappers below exist only where the
-/// TOML shape differs from the config struct it produces. The builder converts
-/// those wrappers at point of use (see `cli::highlighter`).
+/// `theme.toml` as written by the user. Every table deserializes directly
+/// into the core config struct it styles.
 #[derive(Deserialize, Debug, Default)]
 #[serde(default, deny_unknown_fields)]
 pub struct Theme {
     pub keywords: Vec<KeywordConfig>,
     pub regexes: Vec<RegexConfig>,
-    pub numbers: NumberToml,
+    pub numbers: NumberConfig,
     pub uuids: UuidConfig,
-    pub quotes: QuotesToml,
+    pub quotes: QuoteConfig,
     pub ipv4: IpV4Config,
     pub ipv6: IpV6Config,
     pub dates: DateTimeConfig,
@@ -30,62 +27,10 @@ pub struct Theme {
     pub jvm_stack_traces: JvmStackTraceConfig,
 }
 
-/// `[numbers]` styles its single field under the key `number`, while
-/// `NumberConfig` calls it `style`.
-#[derive(Deserialize, Debug, Default)]
-#[serde(deny_unknown_fields)]
-pub struct NumberToml {
-    pub number: Option<Style>,
-}
-
-impl From<NumberToml> for NumberConfig {
-    fn from(toml: NumberToml) -> Self {
-        NumberConfig {
-            style: toml.number.unwrap_or(NumberConfig::default().style),
-        }
-    }
-}
-
-/// `[quotes]` takes the quote character as a `char`, while `QuoteConfig`
-/// stores an ASCII byte. Non-ASCII characters are rejected at parse time.
-#[derive(Deserialize, Debug, Default)]
-#[serde(deny_unknown_fields)]
-pub struct QuotesToml {
-    #[serde(default, deserialize_with = "ascii_char")]
-    pub quote_token: Option<u8>,
-    pub style: Option<Style>,
-}
-
-fn ascii_char<'de, D>(deserializer: D) -> Result<Option<u8>, D::Error>
-where
-    D: serde::Deserializer<'de>,
-{
-    let ch = char::deserialize(deserializer)?;
-
-    if ch.is_ascii() {
-        Ok(Some(ch as u8))
-    } else {
-        Err(serde::de::Error::custom(format!(
-            "quote_token must be an ASCII character, got `{ch}`"
-        )))
-    }
-}
-
-impl From<QuotesToml> for QuoteConfig {
-    fn from(toml: QuotesToml) -> Self {
-        let default = QuoteConfig::default();
-
-        QuoteConfig {
-            quote_token: toml.quote_token.unwrap_or(default.quote_token),
-            style: toml.style.unwrap_or(default.style),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tailspin::style::Color;
+    use tailspin::style::{Color, Style};
 
     fn parse(input: &str) -> Theme {
         toml::from_str::<Theme>(input).unwrap()
@@ -98,7 +43,7 @@ mod tests {
         assert!(theme.keywords.is_empty());
         assert!(theme.regexes.is_empty());
         assert_eq!(theme.uuids.letter, UuidConfig::default().letter);
-        assert_eq!(QuoteConfig::from(theme.quotes).quote_token, b'"');
+        assert_eq!(theme.quotes.quote_token, b'"');
     }
 
     #[test]
@@ -118,6 +63,8 @@ number = { fg = "red" }"#,
         assert!(toml::from_str::<Theme>("bogus = 1").is_err());
         assert!(toml::from_str::<Theme>("[uuids]\nbogus = { fg = \"red\" }").is_err());
         assert!(toml::from_str::<Theme>("[uuids]\nnumber = { fg = \"red\", itallic = true }").is_err());
+        // The pre-7.0 key for the numbers style.
+        assert!(toml::from_str::<Theme>("[numbers]\nnumber = { fg = \"red\" }").is_err());
     }
 
     #[test]
@@ -144,13 +91,13 @@ letter = { fg = "green" }"#,
     }
 
     #[test]
-    fn numbers_table_uses_the_number_key() {
+    fn numbers_table_uses_the_style_key() {
         let theme = parse(
             r#"[numbers]
-number = { fg = "green" }"#,
+style = { fg = "green" }"#,
         );
 
-        assert_eq!(NumberConfig::from(theme.numbers).style, Style::new().fg(Color::Green));
+        assert_eq!(theme.numbers.style, Style::new().fg(Color::Green));
     }
 
     #[test]
@@ -182,7 +129,8 @@ style = { fg = "blue" }"#,
 quote_token = "'""#,
         );
 
-        assert_eq!(QuoteConfig::from(theme.quotes).quote_token, b'\'');
+        assert_eq!(theme.quotes.quote_token, b'\'');
+        assert_eq!(theme.quotes.style, QuoteConfig::default().style);
     }
 
     #[test]

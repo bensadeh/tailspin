@@ -46,9 +46,9 @@ pub fn default_theme_toml() -> String {
 ",
     );
 
-    push_table(&mut out, "numbers", &[("number", NumberConfig::from(numbers).style)]);
+    push_config(&mut out, "numbers", &numbers);
     push_config(&mut out, "uuids", &uuids);
-    push_quotes(&mut out, QuoteConfig::from(quotes));
+    push_quotes(&mut out, quotes);
     push_config(&mut out, "ipv4", &ipv4);
     push_config(&mut out, "ipv6", &ipv6);
     push_config(&mut out, "dates", &dates);
@@ -115,8 +115,8 @@ mod tests {
 
         assert_eq!(theme.uuids.letter, UuidConfig::default().letter);
         assert_eq!(theme.durations.unit, DurationConfig::default().unit);
-        assert_eq!(NumberConfig::from(theme.numbers).style, NumberConfig::default().style);
-        assert_eq!(QuoteConfig::from(theme.quotes).quote_token, b'"');
+        assert_eq!(theme.numbers.style, NumberConfig::default().style);
+        assert_eq!(theme.quotes.quote_token, b'"');
         assert_eq!(theme.ipv4.separator, IpV4Config::default().separator);
         assert_eq!(theme.ipv6.letter, IpV6Config::default().letter);
     }

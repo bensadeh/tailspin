@@ -9,7 +9,7 @@
 # See the README for their syntax.
 
 [numbers]
-number = { fg = "cyan" }
+style = { fg = "cyan" }
 
 [uuids]
 number = { fg = "blue", italic = true }

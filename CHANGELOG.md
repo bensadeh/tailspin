@@ -14,6 +14,7 @@
   `--generate-zsh-completions` flags have been replaced by `--completions <shell>`
 - The `[ip_addresses]` theme table has been split into `[ipv4]` and `[ipv6]`, matching the
   highlight group names; each table now styles only its own highlighter
+- The `number` key in the `[numbers]` theme table has been renamed to `style`
 
 ### Added
 
@@ -24,6 +25,11 @@
 - `Highlighter` implements `Clone`
 - Added `Duration` highlighter
 - Generate `default-theme.toml` with the default style of every highlight group
+
+### Crate
+
+- Every theme config struct now derives `Serialize` and `Deserialize`, so `theme.toml` tables
+  deserialize directly into the config structs
 
 ### Changed
 

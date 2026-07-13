@@ -435,7 +435,7 @@ fn generated_default_theme_is_a_noop() {
 fn custom_theme_overrides_default_style() {
     let dir = tempfile::tempdir().unwrap();
     let theme = dir.path().join("theme.toml");
-    std::fs::write(&theme, "[numbers]\nnumber = { fg = \"green\" }\n").unwrap();
+    std::fs::write(&theme, "[numbers]\nstyle = { fg = \"green\" }\n").unwrap();
 
     let output = tspin()
         .args(["--theme", theme.to_str().unwrap()])
@@ -454,7 +454,7 @@ fn custom_theme_overrides_default_style() {
 fn tailspin_theme_env_var_loads_the_theme() {
     let dir = tempfile::tempdir().unwrap();
     let theme = dir.path().join("theme.toml");
-    std::fs::write(&theme, "[numbers]\nnumber = { fg = \"green\" }\n").unwrap();
+    std::fs::write(&theme, "[numbers]\nstyle = { fg = \"green\" }\n").unwrap();
 
     let output = tspin()
         .env("TAILSPIN_THEME", theme.to_str().unwrap())
