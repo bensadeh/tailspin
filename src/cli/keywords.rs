@@ -1,15 +1,21 @@
 use crate::cli::KeywordColor;
-use crate::cli::builtins::get_builtin_keywords;
+use crate::cli::builtins::builtin_keywords;
 use std::collections::HashSet;
 use tailspin::config::KeywordConfig;
 use tailspin::style::{Color, Style};
 
+/// Builtin keywords ride the `keywords` highlight group; keywords the user
+/// asked for explicitly (theme `[[keywords]]` and `--highlight`) always apply.
 pub fn collect_keywords(
     color_word: &[(KeywordColor, Vec<String>)],
-    disable_builtin_keywords: bool,
+    include_builtins: bool,
     theme_keywords: Vec<KeywordConfig>,
 ) -> Vec<KeywordConfig> {
-    let builtin = get_builtin_keywords(disable_builtin_keywords);
+    let builtin = if include_builtins {
+        builtin_keywords()
+    } else {
+        Vec::new()
+    };
     let from_cli = get_keywords_from_cli(color_word);
 
     dedupe_last_wins(builtin.into_iter().chain(theme_keywords).chain(from_cli).collect())

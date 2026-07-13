@@ -76,6 +76,34 @@ fn stdin_edge_inputs_roundtrip() {
 }
 
 #[test]
+fn disabling_the_keywords_group_turns_off_builtin_keywords() {
+    let output = tspin()
+        .args(["--disable", "keywords"])
+        .write_stdin("Hello null\n")
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    assert_eq!(stdout_of(&output).trim_end_matches('\n'), "Hello null");
+}
+
+#[test]
+fn highlight_flag_applies_even_with_keywords_disabled() {
+    let output = tspin()
+        .args(["--disable", "keywords", "--highlight", "red:foo"])
+        .write_stdin("foo null\n")
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    assert_eq!(
+        stdout_of(&output).trim_end_matches('\n'),
+        "\u{1b}[31mfoo\u{1b}[0m null",
+        "--highlight keywords must survive --disable keywords"
+    );
+}
+
+#[test]
 fn custom_pager_receives_highlighted_file() {
     let output = tspin().arg(FIXTURE).args(["--pager", "cat [FILE]"]).output().unwrap();
 

@@ -22,15 +22,14 @@ _tspin() {
 '-e+[Run command and view the output in a pager]:EXEC:_default' \
 '--exec=[Run command and view the output in a pager]:EXEC:_default' \
 '*--highlight=[Highlights in the form color\:word1,word2]:COLOR_WORD:_default' \
-'*--enable=[Enable specific highlighters]:ENABLED:(numbers urls emails pointers dates durations paths quotes key-value-pairs uuids ipv4 processes json)' \
-'*--disable=[Disable specific highlighters]:DISABLED:(numbers urls emails pointers dates durations paths quotes key-value-pairs uuids ipv4 processes json)' \
+'*--enable=[Enable specific highlighters]:ENABLED:(numbers urls emails pointers dates durations paths quotes key-value-pairs uuids ipv4 processes json keywords)' \
+'*--disable=[Disable specific highlighters]:DISABLED:(numbers urls emails pointers dates durations paths quotes key-value-pairs uuids ipv4 processes json keywords)' \
 '*--extras=[Enable extra highlighters (e.g., --extras ipv6)]:EXTRAS:(ipv6 jvm-stack-trace)' \
 '--pager=[Override the default pager command used by tspin. (e.g. \`--pager="ov -f \[FILE\]"\`)]:PAGER:_default' \
 '-f[Follow the contents of a file]' \
 '--follow[Follow the contents of a file]' \
 '-p[Print the output to stdout]' \
 '--print[Print the output to stdout]' \
-'--disable-builtin-keywords[Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)]' \
 '--generate-bash-completions[Print bash completions to stdout]' \
 '--generate-fish-completions[Print fish completions to stdout]' \
 '--generate-zsh-completions[Print zsh completions to stdout]' \

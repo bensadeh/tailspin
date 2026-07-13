@@ -1,15 +1,7 @@
 use tailspin::config::KeywordConfig;
 use tailspin::style::{Color, Style};
 
-pub fn get_builtin_keywords(disable_builtin_keywords: bool) -> Vec<KeywordConfig> {
-    if disable_builtin_keywords {
-        vec![]
-    } else {
-        builtin_keywords()
-    }
-}
-
-fn builtin_keywords() -> Vec<KeywordConfig> {
+pub fn builtin_keywords() -> Vec<KeywordConfig> {
     let severity_levels = vec![
         KeywordConfig {
             words: vec!["ERROR".to_string()],

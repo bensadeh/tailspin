@@ -61,13 +61,14 @@ _--enable=[HIGHLIGHT_GROUP]_::
 Disable all highlighting groups except the ones specified.
 Comma separated list of groups.
 Cannot be used with *--disable=[HIGHLIGHT_GROUP]*.
-Possible groups: numbers, urls, emails, pointers, dates, durations, paths, quotes, key-value-pairs, uuids, ipv4, processes, json.
+Possible groups: numbers, urls, emails, pointers, dates, durations, paths, quotes, key-value-pairs, uuids, ipv4, processes, json, keywords.
 
 _--disable=[HIGHLIGHT_GROUP]_::
 Disable the specified highlighting groups.
 Comma separated list of groups.
 Cannot be used with *--enable=[HIGHLIGHT_GROUP]*.
-Possible groups: numbers, urls, emails, pointers, dates, durations, paths, quotes, key-value-pairs, uuids, ipv4, processes, json.
+The _keywords_ group controls the builtin keywords (booleans, nulls, log severities and common REST verbs); keywords from the config file and the *--highlight* flag always apply.
+Possible groups: numbers, urls, emails, pointers, dates, durations, paths, quotes, key-value-pairs, uuids, ipv4, processes, json, keywords.
 
 _--extras=[EXTRA]_::
 Enable extra highlighters.
@@ -84,9 +85,6 @@ The command must include the string _[FILE]_ which will be replaced with the fil
 ----
 tspin logfile.txt --pager "ov -f [FILE]"
 ----
-
-_--disable-builtin-keywords_::
-Disables the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs).
 
 == ENVIRONMENT VARIABLES
 

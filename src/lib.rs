@@ -22,7 +22,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! tailspin = { version = "6.0", default-features = false }
+//! tailspin = { version = "7.0", default-features = false }
 //! ```
 //!
 //!

@@ -15,7 +15,8 @@ key-value-pairs\t''
 uuids\t''
 ipv4\t''
 processes\t''
-json\t''"
+json\t''
+keywords\t''"
 complete -c tspin -l disable -d 'Disable specific highlighters' -r -f -a "numbers\t''
 urls\t''
 emails\t''
@@ -28,13 +29,13 @@ key-value-pairs\t''
 uuids\t''
 ipv4\t''
 processes\t''
-json\t''"
+json\t''
+keywords\t''"
 complete -c tspin -l extras -d 'Enable extra highlighters (e.g., --extras ipv6)' -r -f -a "ipv6\t''
 jvm-stack-trace\t''"
 complete -c tspin -l pager -d 'Override the default pager command used by tspin. (e.g. `--pager="ov -f [FILE]"`)' -r
 complete -c tspin -s f -l follow -d 'Follow the contents of a file'
 complete -c tspin -s p -l print -d 'Print the output to stdout'
-complete -c tspin -l disable-builtin-keywords -d 'Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)'
 complete -c tspin -l generate-bash-completions -d 'Print bash completions to stdout'
 complete -c tspin -l generate-fish-completions -d 'Print fish completions to stdout'
 complete -c tspin -l generate-zsh-completions -d 'Print zsh completions to stdout'

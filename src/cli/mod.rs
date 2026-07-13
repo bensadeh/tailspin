@@ -76,10 +76,6 @@ pub struct Arguments {
     #[clap(long = "extras", value_enum, use_value_delimiter = true, env = "TAILSPIN_EXTRAS")]
     pub extras: Vec<Extra>,
 
-    /// Disable the highlighting of all builtin keyword groups (booleans, nulls, log severities and common REST verbs)
-    #[clap(long = "disable-builtin-keywords")]
-    pub disable_builtin_keywords: bool,
-
     /// Override the default pager command used by tspin. (e.g. `--pager="ov -f [FILE]"`)
     #[clap(long = "pager", env = "TAILSPIN_PAGER")]
     pub pager: Option<String>,
@@ -144,6 +140,7 @@ pub enum Base {
     Ipv4,
     Processes,
     Json,
+    Keywords,
 }
 
 pub struct FullConfig {
@@ -183,7 +180,7 @@ pub fn get_config() -> Result<FullConfig> {
     let extras = resolve_extras(&cli.extras);
 
     let theme = reader::parse_theme(cli.config_path.as_ref())?;
-    let highlighter = build_highlighter(&base, &extras, theme, &cli.color_word, cli.disable_builtin_keywords)?;
+    let highlighter = build_highlighter(&base, &extras, theme, &cli.color_word)?;
 
     Ok(FullConfig {
         source,

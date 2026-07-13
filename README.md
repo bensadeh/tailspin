@@ -111,7 +111,8 @@ Binary will be placed in `~/.cargo/bin`, make sure you add the folder to your `P
 
 ### Defaults
 
-The following highlight groups are enabled by default and can be toggled with `--enable` and `--disable`:
+The following highlight groups are enabled by default and can be toggled with `--enable` and `--disable`. The
+`keywords` group covers the builtin keywords: log severities, booleans, nulls and the HTTP methods.
 
 #### Dates
 
@@ -394,7 +395,6 @@ TAILSPIN_PAGER="ov -f [FILE]" tspin example-logs/example1
                                  (e.g. `--disable keywords,urls`)
     --extras [EXTRA]             Enable extra highlight groups on top of the current configuration
                                  (e.g. `--extras ipv6`)
-    --disable-builtin-keywords   Disable the highlighting of booleans, nulls, log severities and common REST verbs
 ```
 
 

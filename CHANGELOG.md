@@ -1,6 +1,14 @@
 # Changelog
 
-## 6.2.0 (Unreleased)
+## 7.0.0 (Unreleased)
+
+### Breaking
+
+- The builtin keywords (log severities, booleans, nulls and common REST verbs) are now a regular
+  highlight group named `keywords`: use `--disable keywords` instead of the removed
+  `--disable-builtin-keywords`
+- `--enable` now also governs the builtin keywords: an exclusive `--enable` list no longer keeps
+  them on implicitly — include `keywords` in the list to keep them
 
 ### Added
 

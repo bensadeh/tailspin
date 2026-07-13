@@ -5,7 +5,7 @@
 //! exercise it, the library default must include it, and the man page must
 //! list it.
 
-use crate::cli::builtins::get_builtin_keywords;
+use crate::cli::builtins::builtin_keywords;
 use crate::cli::highlighter::build_highlighter;
 use crate::cli::resolution::{BaseSet, resolve_extras};
 use crate::cli::{Base, Extra};
@@ -29,6 +29,7 @@ fn exemplar(base: Base) -> &'static str {
         Base::Ipv4 => "192.168.0.1",
         Base::Processes => "sshd[4242]",
         Base::Json => r#"{"level": "info"}"#,
+        Base::Keywords => "ERROR",
     }
 }
 
@@ -39,10 +40,10 @@ fn extra_exemplar(extra: Extra) -> &'static str {
     }
 }
 
-/// Builtin keywords are disabled and the theme is empty, so only the groups
-/// under test can produce highlights.
+/// The theme is empty and builtin keywords ride the `keywords` group, so
+/// only the groups under test can produce highlights.
 fn build(base: &BaseSet, extras: &[Extra]) -> Highlighter {
-    build_highlighter(base, &resolve_extras(extras), Theme::default(), &[], true).unwrap()
+    build_highlighter(base, &resolve_extras(extras), Theme::default(), &[]).unwrap()
 }
 
 fn only(base: Base) -> BaseSet {
@@ -102,6 +103,11 @@ fn library_default_covers_every_base_group() {
     let default = Highlighter::default();
 
     for &base in Base::value_variants() {
+        // The builtin keywords are a CLI concern; the library default adds none.
+        if base == Base::Keywords {
+            continue;
+        }
+
         let input = exemplar(base);
         assert_ne!(
             default.apply(input).into_owned(),
@@ -116,7 +122,7 @@ fn library_default_covers_every_base_group() {
 /// The seeds exercise overlaps where precedence order shows.
 #[test]
 fn library_default_matches_the_cli_default_configuration() {
-    let cli = build(&BaseSet::resolve(&[], &[]).unwrap(), &[]);
+    let cli = build(&BaseSet::resolve(&[], &[Base::Keywords]).unwrap(), &[]);
     let default = Highlighter::default();
 
     let fixture = fixture();
@@ -139,9 +145,9 @@ fn library_default_matches_the_cli_default_configuration() {
 /// new builtin groups are covered automatically.
 #[test]
 fn every_builtin_keyword_highlights_by_default() {
-    let h = build_highlighter(&BaseSet::none(), &resolve_extras(&[]), Theme::default(), &[], false).unwrap();
+    let h = build(&BaseSet::resolve(&[], &[]).unwrap(), &[]);
 
-    for group in get_builtin_keywords(false) {
+    for group in builtin_keywords() {
         for word in &group.words {
             assert_ne!(
                 h.apply(word).as_ref(),

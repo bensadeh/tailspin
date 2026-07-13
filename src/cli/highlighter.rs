@@ -11,7 +11,6 @@ pub(crate) fn build_highlighter(
     extras: &HashSet<Extra>,
     theme: Theme,
     color_word: &[(KeywordColor, Vec<String>)],
-    disable_builtin_keywords: bool,
 ) -> Result<Highlighter, tailspin::Error> {
     let Theme {
         keywords,
@@ -32,7 +31,7 @@ pub(crate) fn build_highlighter(
         jvm_stack_traces,
     } = theme;
 
-    let keywords = collect_keywords(color_word, disable_builtin_keywords, keywords);
+    let keywords = collect_keywords(color_word, base.contains(Base::Keywords), keywords);
 
     let mut b = Highlighter::builder();
 
