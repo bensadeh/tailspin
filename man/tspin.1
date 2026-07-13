@@ -134,6 +134,18 @@ tspin logfile.txt \-\-pager "ov \-f [FILE]"
 .fi
 .if n .RE
 .RE
+.sp
+\fI\-\-completions\fP \fBSHELL\fP
+.RS 4
+Print shell completions to stdout.
+Possible values: bash, elvish, fish, powershell, zsh.
+.RE
+.sp
+\fI\-\-generate\-default\-theme\fP
+.RS 4
+Print the default theme as a theme.toml to stdout.
+Every value in the output is a default: copy it to \fB~/.config/tailspin/theme.toml\fP and edit the styles you want to override.
+.RE
 .SH "ENVIRONMENT VARIABLES"
 .sp
 \fBTAILSPIN_PAGER\fP

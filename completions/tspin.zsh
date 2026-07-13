@@ -26,13 +26,11 @@ _tspin() {
 '*--disable=[Disable specific highlighters]:DISABLED:(numbers urls emails pointers dates durations paths quotes key-value-pairs uuids ipv4 processes json keywords)' \
 '*--extras=[Enable extra highlighters (e.g., --extras ipv6)]:EXTRAS:(ipv6 jvm-stack-trace)' \
 '--pager=[Override the default pager command used by tspin. (e.g. \`--pager="ov -f \[FILE\]"\`)]:PAGER:_default' \
+'--completions=[Print shell completions to stdout]:SHELL:(bash elvish fish powershell zsh)' \
 '-f[Follow the contents of a file]' \
 '--follow[Follow the contents of a file]' \
 '-p[Print the output to stdout]' \
 '--print[Print the output to stdout]' \
-'--generate-bash-completions[Print bash completions to stdout]' \
-'--generate-fish-completions[Print fish completions to stdout]' \
-'--generate-zsh-completions[Print zsh completions to stdout]' \
 '--generate-default-theme[Print the default theme as a theme.toml to stdout]' \
 '-h[Print help]' \
 '--help[Print help]' \

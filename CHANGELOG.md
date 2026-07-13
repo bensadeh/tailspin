@@ -10,10 +10,14 @@
 - `--enable` now also governs the builtin keywords: an exclusive `--enable` list no longer keeps
   them on implicitly — include `keywords` in the list to keep them
 - `--config-path` has been renamed to `--theme`
+- The hidden `--generate-bash-completions`, `--generate-fish-completions` and
+  `--generate-zsh-completions` flags have been replaced by `--completions <shell>`
 
 ### Added
 
 - `TAILSPIN_THEME` environment variable to set the theme path without the `--theme` flag
+- `--completions <shell>` prints shell completions to stdout, now also for `elvish` and `powershell`
+- `--generate-default-theme` is no longer hidden and is documented in the man page
 
 - `Highlighter` implements `Clone`
 - Added `Duration` highlighter

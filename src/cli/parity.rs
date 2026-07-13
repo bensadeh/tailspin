@@ -184,4 +184,14 @@ fn man_page_lists_every_group_and_extra() {
         adoc.contains(&expected),
         "the --extras list in util/tspin.adoc is stale"
     );
+
+    let shells: Vec<String> = clap_complete::Shell::value_variants()
+        .iter()
+        .map(|shell| name(shell.to_possible_value().unwrap()))
+        .collect();
+    let expected = format!("Possible values: {}.", shells.join(", "));
+    assert!(
+        adoc.contains(&expected),
+        "the --completions shell list in util/tspin.adoc is stale"
+    );
 }

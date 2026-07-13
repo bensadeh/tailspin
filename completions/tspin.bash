@@ -25,7 +25,7 @@ _tspin() {
 
     case "${cmd}" in
         tspin)
-            opts="-f -p -e -h -V --follow --print --theme --exec --highlight --enable --disable --extras --pager --generate-bash-completions --generate-fish-completions --generate-zsh-completions --generate-default-theme --help --version"
+            opts="-f -p -e -h -V --follow --print --theme --exec --highlight --enable --disable --extras --pager --completions --generate-default-theme --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -61,6 +61,10 @@ _tspin() {
                     ;;
                 --pager)
                     COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --completions)
+                    COMPREPLY=($(compgen -W "bash elvish fish powershell zsh" -- "${cur}"))
                     return 0
                     ;;
                 *)

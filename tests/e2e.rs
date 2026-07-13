@@ -389,6 +389,19 @@ fn pager_killed_by_ctrl_c_is_a_quiet_quit() {
 }
 
 #[test]
+fn completions_print_for_every_supported_shell() {
+    for shell in ["bash", "elvish", "fish", "powershell", "zsh"] {
+        let output = tspin().args(["--completions", shell]).output().unwrap();
+
+        assert!(output.status.success(), "--completions {shell} failed");
+        assert!(
+            stdout_of(&output).contains("tspin"),
+            "--completions {shell} printed no completions"
+        );
+    }
+}
+
+#[test]
 fn generated_default_theme_matches_the_committed_file() {
     let output = tspin().arg("--generate-default-theme").output().unwrap();
 

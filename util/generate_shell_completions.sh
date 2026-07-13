@@ -12,9 +12,9 @@ cargo build --manifest-path "$PROJECT_DIR/Cargo.toml"
 spin_path="$PROJECT_DIR/target/debug/tspin"
 
 # Generate shell completions
-"$spin_path" --generate-zsh-completions > "$PROJECT_DIR/completions/tspin.zsh"
-"$spin_path" --generate-bash-completions > "$PROJECT_DIR/completions/tspin.bash"
-"$spin_path" --generate-fish-completions > "$PROJECT_DIR/completions/tspin.fish"
+"$spin_path" --completions zsh > "$PROJECT_DIR/completions/tspin.zsh"
+"$spin_path" --completions bash > "$PROJECT_DIR/completions/tspin.bash"
+"$spin_path" --completions fish > "$PROJECT_DIR/completions/tspin.fish"
 
 # Inject a do-not-edit header. zsh requires `#compdef` on line 1, so the
 # header is inserted after that line; bash and fish get it at the top.

@@ -87,6 +87,14 @@ The command must include the string _[FILE]_ which will be replaced with the fil
 tspin logfile.txt --pager "ov -f [FILE]"
 ----
 
+_--completions_ *SHELL*::
+Print shell completions to stdout.
+Possible values: bash, elvish, fish, powershell, zsh.
+
+_--generate-default-theme_::
+Print the default theme as a theme.toml to stdout.
+Every value in the output is a default: copy it to *~/.config/tailspin/theme.toml* and edit the styles you want to override.
+
 == ENVIRONMENT VARIABLES
 
 *TAILSPIN_PAGER*::

@@ -241,7 +241,11 @@ date = { fg = "green" }
 
 The default style of every highlight group is listed in [`default-theme.toml`](default-theme.toml). The file is
 generated from the code, so it is always in sync with the actual defaults — copy it to
-`~/.config/tailspin/theme.toml` and edit the styles you want to change.
+`~/.config/tailspin/theme.toml` and edit the styles you want to change, or generate it locally:
+
+```console
+tspin --generate-default-theme > ~/.config/tailspin/theme.toml
+```
 
 To load a theme from a different location, use the `--theme` flag or the `TAILSPIN_THEME` environment variable.
 
@@ -397,6 +401,9 @@ TAILSPIN_PAGER="ov -f [FILE]" tspin example-logs/example1
                                  (e.g. `--disable keywords,urls`)
     --extras [EXTRA]             Enable extra highlight groups on top of the current configuration
                                  (e.g. `--extras ipv6`)
+    --completions [SHELL]        Print shell completions to stdout
+                                 (e.g. `--completions zsh`)
+    --generate-default-theme     Print the default theme as a theme.toml to stdout
 ```
 
 

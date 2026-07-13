@@ -80,20 +80,12 @@ pub struct Arguments {
     #[clap(long = "pager", env = "TAILSPIN_PAGER")]
     pub pager: Option<String>,
 
-    /// Print bash completions to stdout
-    #[clap(long = "generate-bash-completions", hide = true)]
-    pub generate_bash_completions: bool,
-
-    /// Print fish completions to stdout
-    #[clap(long = "generate-fish-completions", hide = true)]
-    pub generate_fish_completions: bool,
-
-    /// Print zsh completions to stdout
-    #[clap(long = "generate-zsh-completions", hide = true)]
-    pub generate_zsh_completions: bool,
+    /// Print shell completions to stdout
+    #[clap(long = "completions", value_enum, value_name = "SHELL")]
+    pub completions: Option<clap_complete::Shell>,
 
     /// Print the default theme as a theme.toml to stdout
-    #[clap(long = "generate-default-theme", hide = true)]
+    #[clap(long = "generate-default-theme")]
     pub generate_default_theme: bool,
 }
 
