@@ -71,7 +71,8 @@ pub struct DateTimeConfig {
 }
 
 /// Configuration for highlighting IPv4 addresses.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct IpV4Config {
     /// Style for numeric segments.
     pub number: Style,
@@ -80,7 +81,8 @@ pub struct IpV4Config {
 }
 
 /// Configuration for highlighting IPv6 addresses.
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct IpV6Config {
     /// Style for numeric characters.
     pub number: Style,

@@ -20,7 +20,11 @@ separator = { fg = "red" }
 quote_token = '"'
 style = { fg = "yellow" }
 
-[ip_addresses]
+[ipv4]
+number = { fg = "blue", italic = true }
+separator = { fg = "red" }
+
+[ipv6]
 number = { fg = "blue", italic = true }
 letter = { fg = "magenta", italic = true }
 separator = { fg = "red" }

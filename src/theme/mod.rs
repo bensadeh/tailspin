@@ -16,7 +16,8 @@ pub struct Theme {
     pub numbers: NumberToml,
     pub uuids: UuidConfig,
     pub quotes: QuotesToml,
-    pub ip_addresses: IpToml,
+    pub ipv4: IpV4Config,
+    pub ipv6: IpV6Config,
     pub dates: DateTimeConfig,
     pub durations: DurationConfig,
     pub paths: UnixPathConfig,
@@ -81,39 +82,6 @@ impl From<QuotesToml> for QuoteConfig {
     }
 }
 
-/// The single `[ip_addresses]` table styles both IPv4 and IPv6 addresses;
-/// `letter` only applies to IPv6.
-#[derive(Deserialize, Debug, Default, Clone, Copy)]
-#[serde(deny_unknown_fields)]
-pub struct IpToml {
-    pub number: Option<Style>,
-    pub letter: Option<Style>,
-    pub separator: Option<Style>,
-}
-
-impl From<IpToml> for IpV4Config {
-    fn from(toml: IpToml) -> Self {
-        let default = IpV4Config::default();
-
-        IpV4Config {
-            number: toml.number.unwrap_or(default.number),
-            separator: toml.separator.unwrap_or(default.separator),
-        }
-    }
-}
-
-impl From<IpToml> for IpV6Config {
-    fn from(toml: IpToml) -> Self {
-        let default = IpV6Config::default();
-
-        IpV6Config {
-            number: toml.number.unwrap_or(default.number),
-            letter: toml.letter.unwrap_or(default.letter),
-            separator: toml.separator.unwrap_or(default.separator),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -153,24 +121,26 @@ number = { fg = "red" }"#,
     }
 
     #[test]
-    fn ip_addresses_table_styles_both_v4_and_v6() {
+    fn ipv4_and_ipv6_tables_parse_independently() {
         let theme = parse(
-            r#"[ip_addresses]
-separator = { fg = "yellow" }"#,
+            r#"[ipv4]
+separator = { fg = "yellow" }
+
+[ipv6]
+letter = { fg = "green" }"#,
         );
 
-        assert_eq!(
-            IpV4Config::from(theme.ip_addresses).separator,
-            Style::new().fg(Color::Yellow)
-        );
-        assert_eq!(
-            IpV6Config::from(theme.ip_addresses).separator,
-            Style::new().fg(Color::Yellow)
-        );
-        assert_eq!(
-            IpV6Config::from(theme.ip_addresses).letter,
-            IpV6Config::default().letter
-        );
+        assert_eq!(theme.ipv4.separator, Style::new().fg(Color::Yellow));
+        assert_eq!(theme.ipv4.number, IpV4Config::default().number);
+        assert_eq!(theme.ipv6.letter, Style::new().fg(Color::Green));
+        assert_eq!(theme.ipv6.separator, IpV6Config::default().separator);
+    }
+
+    #[test]
+    fn the_removed_ip_addresses_table_is_rejected() {
+        let error = toml::from_str::<Theme>("[ip_addresses]\nseparator = { fg = \"red\" }").unwrap_err();
+
+        assert!(error.to_string().contains("ip_addresses"));
     }
 
     #[test]

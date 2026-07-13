@@ -470,13 +470,14 @@ fn tailspin_theme_env_var_loads_the_theme() {
 }
 
 #[test]
-fn ip_addresses_table_styles_both_v4_and_v6() {
-    // A single `[ip_addresses]` table feeds both the v4 highlighter (a base,
-    // on by default) and the v6 one (an extra). Guards the fan-out in the
-    // builder, where one parsed table is converted into both configs.
+fn ipv4_and_ipv6_theme_tables_style_independently() {
     let dir = tempfile::tempdir().unwrap();
     let theme = dir.path().join("theme.toml");
-    std::fs::write(&theme, "[ip_addresses]\nseparator = { fg = \"magenta\" }\n").unwrap();
+    std::fs::write(
+        &theme,
+        "[ipv4]\nseparator = { fg = \"magenta\" }\n\n[ipv6]\nseparator = { fg = \"green\" }\n",
+    )
+    .unwrap();
 
     let output = tspin()
         .args(["--extras", "ipv6", "--theme", theme.to_str().unwrap()])
@@ -488,10 +489,10 @@ fn ip_addresses_table_styles_both_v4_and_v6() {
     let stdout = stdout_of(&output);
     assert!(
         stdout.contains("\x1b[35m.\x1b[0m"),
-        "ipv4 separators should take the [ip_addresses] color"
+        "ipv4 separators should take the [ipv4] color"
     );
     assert!(
-        stdout.contains("\x1b[35m::\x1b[0m"),
-        "ipv6 separators should take the same [ip_addresses] table"
+        stdout.contains("\x1b[32m::\x1b[0m"),
+        "ipv6 separators should take the [ipv6] color"
     );
 }

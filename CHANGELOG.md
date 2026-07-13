@@ -12,6 +12,8 @@
 - `--config-path` has been renamed to `--theme`
 - The hidden `--generate-bash-completions`, `--generate-fish-completions` and
   `--generate-zsh-completions` flags have been replaced by `--completions <shell>`
+- The `[ip_addresses]` theme table has been split into `[ipv4]` and `[ipv6]`, matching the
+  highlight group names; each table now styles only its own highlighter
 
 ### Added
 
