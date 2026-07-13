@@ -50,9 +50,9 @@ pub struct Arguments {
     #[clap(short = 'p', long = "print")]
     pub to_stdout: bool,
 
-    /// Provide a custom path to a configuration file
-    #[clap(long = "config-path")]
-    pub config_path: Option<PathBuf>,
+    /// Provide a custom path to a theme file
+    #[clap(long = "theme", env = "TAILSPIN_THEME")]
+    pub theme: Option<PathBuf>,
 
     /// Run command and view the output in a pager
     #[clap(short = 'e', long = "exec")]
@@ -179,7 +179,7 @@ pub fn get_config() -> Result<FullConfig> {
     let base = BaseSet::resolve(&cli.enabled, &cli.disabled)?;
     let extras = resolve_extras(&cli.extras);
 
-    let theme = reader::parse_theme(cli.config_path.as_ref())?;
+    let theme = reader::parse_theme(cli.theme.as_ref())?;
     let highlighter = build_highlighter(&base, &extras, theme, &cli.color_word)?;
 
     Ok(FullConfig {

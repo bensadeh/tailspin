@@ -15,7 +15,8 @@ fn tspin() -> Command {
     let mut cmd = Command::cargo_bin("tspin").unwrap();
     cmd.env("XDG_CONFIG_HOME", EMPTY_CONFIG_DIR.path())
         .env_remove("TAILSPIN_PAGER")
-        .env_remove("TAILSPIN_EXTRAS");
+        .env_remove("TAILSPIN_EXTRAS")
+        .env_remove("TAILSPIN_THEME");
     cmd
 }
 
@@ -164,9 +165,9 @@ fn missing_file_errors() {
 }
 
 #[test]
-fn missing_config_path_errors_with_the_path() {
+fn missing_theme_path_errors_with_the_path() {
     let output = tspin()
-        .args(["--config-path", "/definitely/not/a/theme.toml"])
+        .args(["--theme", "/definitely/not/a/theme.toml"])
         .write_stdin("x\n")
         .output()
         .unwrap();
@@ -182,7 +183,7 @@ fn malformed_theme_errors_with_unknown_field() {
     std::fs::write(&theme, "bogus = 1\n").unwrap();
 
     let output = tspin()
-        .args(["--config-path", theme.to_str().unwrap()])
+        .args(["--theme", theme.to_str().unwrap()])
         .write_stdin("x\n")
         .output()
         .unwrap();
@@ -198,6 +199,7 @@ fn spawn_tspin(args: &[&str]) -> std::process::Child {
         .env("XDG_CONFIG_HOME", EMPTY_CONFIG_DIR.path())
         .env_remove("TAILSPIN_PAGER")
         .env_remove("TAILSPIN_EXTRAS")
+        .env_remove("TAILSPIN_THEME")
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
@@ -314,6 +316,7 @@ fn tspin_survives_sigint_while_pager_runs() {
         .env("XDG_CONFIG_HOME", EMPTY_CONFIG_DIR.path())
         .env_remove("TAILSPIN_PAGER")
         .env_remove("TAILSPIN_EXTRAS")
+        .env_remove("TAILSPIN_THEME")
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
@@ -351,6 +354,7 @@ fn pager_killed_by_ctrl_c_is_a_quiet_quit() {
         .env("XDG_CONFIG_HOME", EMPTY_CONFIG_DIR.path())
         .env_remove("TAILSPIN_PAGER")
         .env_remove("TAILSPIN_EXTRAS")
+        .env_remove("TAILSPIN_THEME")
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
@@ -405,7 +409,7 @@ fn generated_default_theme_is_a_noop() {
     std::fs::write(&theme, stdout_of(&generated)).unwrap();
 
     let with_theme = tspin()
-        .args(["-p", FIXTURE, "--config-path", theme.to_str().unwrap()])
+        .args(["-p", FIXTURE, "--theme", theme.to_str().unwrap()])
         .output()
         .unwrap();
     let without_theme = tspin().args(["-p", FIXTURE]).output().unwrap();
@@ -421,7 +425,7 @@ fn custom_theme_overrides_default_style() {
     std::fs::write(&theme, "[numbers]\nnumber = { fg = \"green\" }\n").unwrap();
 
     let output = tspin()
-        .args(["--config-path", theme.to_str().unwrap()])
+        .args(["--theme", theme.to_str().unwrap()])
         .write_stdin("count 42\n")
         .output()
         .unwrap();
@@ -430,6 +434,25 @@ fn custom_theme_overrides_default_style() {
     assert!(
         stdout_of(&output).contains("\x1b[32m42\x1b[0m"),
         "numbers should be green, not the default cyan"
+    );
+}
+
+#[test]
+fn tailspin_theme_env_var_loads_the_theme() {
+    let dir = tempfile::tempdir().unwrap();
+    let theme = dir.path().join("theme.toml");
+    std::fs::write(&theme, "[numbers]\nnumber = { fg = \"green\" }\n").unwrap();
+
+    let output = tspin()
+        .env("TAILSPIN_THEME", theme.to_str().unwrap())
+        .write_stdin("count 42\n")
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    assert!(
+        stdout_of(&output).contains("\x1b[32m42\x1b[0m"),
+        "the theme from TAILSPIN_THEME should apply"
     );
 }
 
@@ -443,7 +466,7 @@ fn ip_addresses_table_styles_both_v4_and_v6() {
     std::fs::write(&theme, "[ip_addresses]\nseparator = { fg = \"magenta\" }\n").unwrap();
 
     let output = tspin()
-        .args(["--extras", "ipv6", "--config-path", theme.to_str().unwrap()])
+        .args(["--extras", "ipv6", "--theme", theme.to_str().unwrap()])
         .write_stdin("ipv4 1.2.3.4 ipv6 2001:db8::1\n")
         .output()
         .unwrap();

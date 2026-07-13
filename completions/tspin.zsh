@@ -18,7 +18,7 @@ _tspin() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
-'--config-path=[Provide a custom path to a configuration file]:CONFIG_PATH:_files' \
+'--theme=[Provide a custom path to a theme file]:THEME:_files' \
 '-e+[Run command and view the output in a pager]:EXEC:_default' \
 '--exec=[Run command and view the output in a pager]:EXEC:_default' \
 '*--highlight=[Highlights in the form color\:word1,word2]:COLOR_WORD:_default' \

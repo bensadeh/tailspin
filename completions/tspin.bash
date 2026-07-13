@@ -25,13 +25,13 @@ _tspin() {
 
     case "${cmd}" in
         tspin)
-            opts="-f -p -e -h -V --follow --print --config-path --exec --highlight --enable --disable --extras --pager --generate-bash-completions --generate-fish-completions --generate-zsh-completions --generate-default-theme --help --version"
+            opts="-f -p -e -h -V --follow --print --theme --exec --highlight --enable --disable --extras --pager --generate-bash-completions --generate-fish-completions --generate-zsh-completions --generate-default-theme --help --version"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
-                --config-path)
+                --theme)
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;

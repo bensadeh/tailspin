@@ -33,9 +33,10 @@ _-p, --print_::
 Print the output to stdout instead of viewing the contents in the pager _less_.
 Always true if using stdin.
 
-_--config-path_ *CONFIG_PATH*::
-Specify the path to a custom configuration file.
+_--theme_ *PATH*::
+Specify the path to a custom theme file.
 Defaults to *XDG_CONFIG_HOME/tailspin/theme.toml* or *~/.config/tailspin/theme.toml* if not set.
+Can also be set via the _TAILSPIN_THEME_ environment variable.
 
 _-e, --exec_ *COMMAND*::
 Run command and view the output in a pager.
@@ -98,6 +99,10 @@ For example, _"ov -f [FILE]"_.
 Comma separated list of extras to enable by default.
 Equivalent to the *--extras* flag.
 For example, _"jvm-stack-trace"_ or _"ipv6,jvm-stack-trace"_.
+
+*TAILSPIN_THEME*::
+Path to the theme file to use.
+Equivalent to the *--theme* flag.
 
 == SEE ALSO
 

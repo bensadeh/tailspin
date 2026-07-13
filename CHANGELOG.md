@@ -9,8 +9,11 @@
   `--disable-builtin-keywords`
 - `--enable` now also governs the builtin keywords: an exclusive `--enable` list no longer keeps
   them on implicitly — include `keywords` in the list to keep them
+- `--config-path` has been renamed to `--theme`
 
 ### Added
+
+- `TAILSPIN_THEME` environment variable to set the theme path without the `--theme` flag
 
 - `Highlighter` implements `Clone`
 - Added `Duration` highlighter

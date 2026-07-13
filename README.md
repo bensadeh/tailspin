@@ -243,6 +243,8 @@ The default style of every highlight group is listed in [`default-theme.toml`](d
 generated from the code, so it is always in sync with the actual defaults — copy it to
 `~/.config/tailspin/theme.toml` and edit the styles you want to change.
 
+To load a theme from a different location, use the `--theme` flag or the `TAILSPIN_THEME` environment variable.
+
 ### Disabling Highlight Groups
 
 To individually disable or enable default highlight groups, use the `--enable` and `--disable` flags:
@@ -384,7 +386,7 @@ TAILSPIN_PAGER="ov -f [FILE]" tspin example-logs/example1
 -p, --print                      Print the output to stdout
 -e, --exec='[CMD]'               Run command and view the output in a pager
                                  (e.g. `tspin --exec 'kubectl logs -f pod_name'`)
-    --config-path=[PATH]         Use the configuration file from the provided path
+    --theme=[PATH]               Use the theme file from the provided path
     --pager=[CUSTOM_PAGER]       Set a custom pager
                                  (e.g. `--pager="ov -f [FILE]"`)
     --highlight=[COLOR]:[WORDS]  Highlight the provided comma-separated words in the specified color

@@ -52,10 +52,11 @@ Print the output to stdout instead of viewing the contents in the pager \fIless\
 Always true if using stdin.
 .RE
 .sp
-\fI\-\-config\-path\fP \fBCONFIG_PATH\fP
+\fI\-\-theme\fP \fBPATH\fP
 .RS 4
-Specify the path to a custom configuration file.
+Specify the path to a custom theme file.
 Defaults to \fBXDG_CONFIG_HOME/tailspin/theme.toml\fP or \fB~/.config/tailspin/theme.toml\fP if not set.
+Can also be set via the \fITAILSPIN_THEME\fP environment variable.
 .RE
 .sp
 \fI\-e, \-\-exec\fP \fBCOMMAND\fP
@@ -148,6 +149,12 @@ For example, \fI"ov \-f [FILE]"\fP.
 Comma separated list of extras to enable by default.
 Equivalent to the \fB\-\-extras\fP flag.
 For example, \fI"jvm\-stack\-trace"\fP or \fI"ipv6,jvm\-stack\-trace"\fP.
+.RE
+.sp
+\fBTAILSPIN_THEME\fP
+.RS 4
+Path to the theme file to use.
+Equivalent to the \fB\-\-theme\fP flag.
 .RE
 .SH "SEE ALSO"
 .sp
