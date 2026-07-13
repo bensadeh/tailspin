@@ -21,6 +21,7 @@ use std::error::Error;
 use std::io::{IsTerminal, stdin};
 use std::path::PathBuf;
 use tailspin::Highlighter;
+use tailspin::style::Color;
 
 #[derive(Parser)]
 #[command(
@@ -60,9 +61,9 @@ pub struct Arguments {
 
     /// Highlights in the form color:word1,word2
     ///
-    /// [possible values: red, green, yellow, blue, magenta, cyan]
+    /// [possible colors: black, red, green, yellow, blue, magenta, cyan, white, optionally prefixed with bright_]
     #[arg(long = "highlight", value_parser = parse_highlight)]
-    pub color_word: Vec<(KeywordColor, Vec<String>)>,
+    pub color_word: Vec<(Color, Vec<String>)>,
 
     /// Enable specific highlighters
     #[clap(long = "enable", value_enum, use_value_delimiter = true)]
@@ -89,26 +90,41 @@ pub struct Arguments {
     pub generate_default_theme: bool,
 }
 
-fn parse_highlight(s: &str) -> Result<(KeywordColor, Vec<String>), Box<dyn Error + Send + Sync>> {
+fn parse_highlight(s: &str) -> Result<(Color, Vec<String>), Box<dyn Error + Send + Sync>> {
     let (color_str, words_str) = s
         .split_once(':')
         .ok_or_else(|| format!("Expected format COLOR:word1,word2,... found `{s}`"))?;
 
-    let color = KeywordColor::from_str(color_str, true)?;
+    let color = parse_color(color_str)?;
 
     let words = words_str.split(',').map(str::to_owned).collect();
 
     Ok((color, words))
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Hash)]
-pub enum KeywordColor {
-    Red,
-    Green,
-    Yellow,
-    Blue,
-    Magenta,
-    Cyan,
+/// The same `snake_case` color names `theme.toml` accepts, minus `default`.
+fn parse_color(s: &str) -> Result<Color, String> {
+    match s.to_lowercase().as_str() {
+        "black" => Ok(Color::Black),
+        "red" => Ok(Color::Red),
+        "green" => Ok(Color::Green),
+        "yellow" => Ok(Color::Yellow),
+        "blue" => Ok(Color::Blue),
+        "magenta" => Ok(Color::Magenta),
+        "cyan" => Ok(Color::Cyan),
+        "white" => Ok(Color::White),
+        "bright_black" => Ok(Color::BrightBlack),
+        "bright_red" => Ok(Color::BrightRed),
+        "bright_green" => Ok(Color::BrightGreen),
+        "bright_yellow" => Ok(Color::BrightYellow),
+        "bright_blue" => Ok(Color::BrightBlue),
+        "bright_magenta" => Ok(Color::BrightMagenta),
+        "bright_cyan" => Ok(Color::BrightCyan),
+        "bright_white" => Ok(Color::BrightWhite),
+        other => Err(format!(
+            "unknown color `{other}` (expected black, red, green, yellow, blue, magenta, cyan or white, optionally prefixed with bright_)"
+        )),
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Hash)]
@@ -185,4 +201,49 @@ pub fn get_config() -> Result<FullConfig> {
 fn verify_app() {
     use clap::CommandFactory;
     Arguments::command().debug_assert();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn every_palette_color_parses() {
+        for color in [
+            "black",
+            "red",
+            "green",
+            "yellow",
+            "blue",
+            "magenta",
+            "cyan",
+            "white",
+            "bright_black",
+            "bright_red",
+            "bright_green",
+            "bright_yellow",
+            "bright_blue",
+            "bright_magenta",
+            "bright_cyan",
+            "bright_white",
+        ] {
+            let input = format!("{color}:foo");
+            parse_highlight(&input).unwrap_or_else(|_| panic!("`{color}` should parse"));
+        }
+    }
+
+    #[test]
+    fn colors_parse_case_insensitively() {
+        let (color, words) = parse_highlight("RED:foo,bar").unwrap();
+
+        assert_eq!(color, Color::Red);
+        assert_eq!(words, vec!["foo".to_string(), "bar".to_string()]);
+    }
+
+    #[test]
+    fn unknown_and_default_colors_are_rejected() {
+        assert!(parse_highlight("pink:foo").is_err());
+        assert!(parse_highlight("default:foo").is_err());
+        assert!(parse_highlight("no-colon").is_err());
+    }
 }

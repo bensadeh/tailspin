@@ -20,6 +20,8 @@
 
 - `TAILSPIN_THEME` environment variable to set the theme path without the `--theme` flag
 - `--completions <shell>` prints shell completions to stdout, now also for `elvish` and `powershell`
+- `--highlight` accepts the full 16-color palette (e.g. `bright_red`), using the same color names
+  as `theme.toml`
 - `--generate-default-theme` is no longer hidden and is documented in the man page
 
 - `Highlighter` implements `Clone`

@@ -1,4 +1,3 @@
-use crate::cli::KeywordColor;
 use crate::cli::builtins::builtin_keywords;
 use std::collections::HashSet;
 use tailspin::config::KeywordConfig;
@@ -7,7 +6,7 @@ use tailspin::style::{Color, Style};
 /// Builtin keywords ride the `keywords` highlight group; keywords the user
 /// asked for explicitly (theme `[[keywords]]` and `--highlight`) always apply.
 pub fn collect_keywords(
-    color_word: &[(KeywordColor, Vec<String>)],
+    color_word: &[(Color, Vec<String>)],
     include_builtins: bool,
     theme_keywords: Vec<KeywordConfig>,
 ) -> Vec<KeywordConfig> {
@@ -30,29 +29,16 @@ fn dedupe_last_wins(mut configs: Vec<KeywordConfig>) -> Vec<KeywordConfig> {
     configs
 }
 
-fn get_keywords_from_cli(color_word: &[(KeywordColor, Vec<String>)]) -> Vec<KeywordConfig> {
+fn get_keywords_from_cli(color_word: &[(Color, Vec<String>)]) -> Vec<KeywordConfig> {
     color_word
         .iter()
         .flat_map(|(color, words)| {
             words.iter().map(move |word| KeywordConfig {
-                style: Style::new().fg(Color::from(*color)),
+                style: Style::new().fg(*color),
                 words: vec![word.clone()],
             })
         })
         .collect()
-}
-
-impl From<KeywordColor> for Color {
-    fn from(value: KeywordColor) -> Self {
-        match value {
-            KeywordColor::Red => Self::Red,
-            KeywordColor::Green => Self::Green,
-            KeywordColor::Yellow => Self::Yellow,
-            KeywordColor::Blue => Self::Blue,
-            KeywordColor::Magenta => Self::Magenta,
-            KeywordColor::Cyan => Self::Cyan,
-        }
-    }
 }
 
 #[cfg(test)]

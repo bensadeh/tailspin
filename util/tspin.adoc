@@ -50,7 +50,7 @@ tspin --exec 'kubectl logs -f pod_name'
 
 _--highlight_ *COLOR1*:__word1,word2,...__ *COLOR2*:__word3,word4,...__::
 Highlight the provided comma-separated words in the specified color.
-Possible colors are red, green, yellow, blue, magenta, and cyan.
+Possible colors are black, red, green, yellow, blue, magenta, cyan, and white, optionally prefixed with bright_ (e.g. bright_red).
 
 +
 .Example:

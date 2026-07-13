@@ -105,6 +105,21 @@ fn highlight_flag_applies_even_with_keywords_disabled() {
 }
 
 #[test]
+fn highlight_flag_accepts_bright_colors() {
+    let output = tspin()
+        .args(["--highlight", "bright_red:alert"])
+        .write_stdin("alert raised\n")
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    assert!(
+        stdout_of(&output).contains("\u{1b}[91malert\u{1b}[0m"),
+        "bright_red should paint with the bright ANSI code"
+    );
+}
+
+#[test]
 fn custom_pager_receives_highlighted_file() {
     let output = tspin().arg(FIXTURE).args(["--pager", "cat [FILE]"]).output().unwrap();
 

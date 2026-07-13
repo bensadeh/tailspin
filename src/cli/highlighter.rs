@@ -1,8 +1,9 @@
 use crate::cli::keywords::collect_keywords;
 use crate::cli::resolution::BaseSet;
-use crate::cli::{Base, Extra, KeywordColor};
+use crate::cli::{Base, Extra};
 use crate::theme::Theme;
 use std::collections::HashSet;
+use tailspin::style::Color;
 use tailspin::{Highlighter, HighlighterBuilder};
 
 // Registration order below is highlight precedence: earlier finders win overlaps.
@@ -10,7 +11,7 @@ pub(crate) fn build_highlighter(
     base: &BaseSet,
     extras: &HashSet<Extra>,
     theme: Theme,
-    color_word: &[(KeywordColor, Vec<String>)],
+    color_word: &[(Color, Vec<String>)],
 ) -> Result<Highlighter, tailspin::Error> {
     let Theme {
         keywords,
