@@ -19,10 +19,12 @@ pub fn parse_theme(custom_theme_path: Option<&PathBuf>) -> Result<Theme, ThemeEr
     }
 }
 
+// XDG_CONFIG_HOME and HOME cover Unix (and Git Bash on Windows, which sets
+// HOME); %APPDATA% is the Windows convention for user configuration.
 fn get_config_dir() -> Result<PathBuf, ThemeError> {
     expand_var_os("XDG_CONFIG_HOME")
         .or_else(|| expand_var_os("HOME").map(|home| home.join(".config")))
-        .or_else(|| expand_var_os("USERPROFILE"))
+        .or_else(|| expand_var_os("APPDATA"))
         .ok_or(ThemeError::HomeEnvironment(VarError::NotPresent))
 }
 

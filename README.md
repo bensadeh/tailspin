@@ -223,7 +223,7 @@ export TAILSPIN_EXTRAS=jvm-stack-trace
 
 ### Overview
 
-Create a `theme.toml` in `~/.config/tailspin` to customize highlight groups.
+Create a `theme.toml` in `~/.config/tailspin` (on Windows: `%APPDATA%\tailspin`) to customize highlight groups.
 
 Styles have the following shape:
 

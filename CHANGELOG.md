@@ -15,6 +15,8 @@
 - The `[ip_addresses]` theme table has been split into `[ipv4]` and `[ipv6]`, matching the
   highlight group names; each table now styles only its own highlighter
 - The `number` key in the `[numbers]` theme table has been renamed to `style`
+- On Windows, the theme now resolves to `%APPDATA%\tailspin\theme.toml` instead of
+  `%USERPROFILE%\tailspin\theme.toml`, following the platform convention
 
 ### Added
 

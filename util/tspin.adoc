@@ -36,6 +36,7 @@ Always true if using stdin.
 _--theme_ *PATH*::
 Specify the path to a custom theme file.
 Defaults to *XDG_CONFIG_HOME/tailspin/theme.toml* or *~/.config/tailspin/theme.toml* if not set.
+On Windows, defaults to *%APPDATA%\tailspin\theme.toml*.
 Can also be set via the _TAILSPIN_THEME_ environment variable.
 
 _-e, --exec_ *COMMAND*::

@@ -485,6 +485,33 @@ fn tailspin_theme_env_var_loads_the_theme() {
 }
 
 #[test]
+fn appdata_is_the_theme_fallback_when_home_is_unset() {
+    // The %APPDATA% branch is Windows-only in practice, but the lookup is
+    // plain env vars, so it is exercised on every platform.
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::create_dir_all(dir.path().join("tailspin")).unwrap();
+    std::fs::write(
+        dir.path().join("tailspin/theme.toml"),
+        "[numbers]\nstyle = { fg = \"green\" }\n",
+    )
+    .unwrap();
+
+    let output = tspin()
+        .env_remove("XDG_CONFIG_HOME")
+        .env_remove("HOME")
+        .env("APPDATA", dir.path())
+        .write_stdin("count 42\n")
+        .output()
+        .unwrap();
+
+    assert!(output.status.success());
+    assert!(
+        stdout_of(&output).contains("\x1b[32m42\x1b[0m"),
+        "the theme under %APPDATA% should apply"
+    );
+}
+
+#[test]
 fn ipv4_and_ipv6_theme_tables_style_independently() {
     let dir = tempfile::tempdir().unwrap();
     let theme = dir.path().join("theme.toml");
