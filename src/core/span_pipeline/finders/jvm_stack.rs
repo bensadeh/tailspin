@@ -12,7 +12,6 @@ pub(crate) struct JvmStackFinder {
     marker_regex: Regex,
     header_regex: Regex,
     frame_regex: Regex,
-    file_line_regex: Regex,
     more_regex: Regex,
     caused_by: StyleId,
     package: StyleId,
@@ -31,36 +30,28 @@ impl JvmStackFinder {
         let header_pattern = r"(?x)
             \b
             (?P<package>(?:[a-z][a-zA-Z0-9_$]*\.)+)
-            (?P<class>[A-Z][a-zA-Z0-9_$]*)
+            (?P<class>(?:[A-Z][a-zA-Z0-9_$]*)?(?:Exception|Error))
             (?P<colon>:)
         ";
         let header_regex = build_regex(header_pattern);
 
         let frame_pattern = r"(?xm)
-            ^(?P<indent>\s+)
+            ^\s+
             (?P<at>at\s+)
-            (?P<fqname>
-                (?:[a-zA-Z_$][a-zA-Z0-9_$.]*/)?              # optional JDK module/loader prefix
-                [a-zA-Z_$][a-zA-Z0-9_$]*
-                (?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*
-                \.(?:[a-zA-Z_$][a-zA-Z0-9_$\-]*|<(?:init|clinit)>) # final segment: '-' permits Kotlin inline-class mangling; <init>/<clinit> are constructor/static-init
-            )
+            (?:[a-zA-Z_$][a-zA-Z0-9_$.]*/)?              # optional JDK module/loader prefix
+            [a-zA-Z_$][a-zA-Z0-9_$]*
+            (?:\.[a-zA-Z_$][a-zA-Z0-9_$]*)*
+            \.(?:[a-zA-Z_$][a-zA-Z0-9_$\-]*|<(?:init|clinit)>) # final segment: '-' permits Kotlin inline-class mangling; <init>/<clinit> are constructor/static-init
             (?P<open>\()
-            (?P<contents>(?u:[^)\n]*))   # (?u:) because a byte-mode negated class could match invalid UTF-8, which the str API rejects
+            (?:
+                (?P<unknown>Unknown\ Source|<generated>|Native\ Method)
+              | (?P<file>[A-Za-z_$][A-Za-z0-9_$.]*\.[a-zA-Z][a-zA-Z0-9]*)
+                (?:(?P<colon>:)(?P<line>\d+)(?:(?P<col_colon>:)(?P<col>\d+))?)?
+              | (?u:[^)\n]*)               # (?u:) because a byte-mode negated class could match invalid UTF-8, which the str API rejects
+            )
             (?P<close>\))
         ";
         let frame_regex = build_regex(frame_pattern);
-
-        let file_line_pattern = r"(?x)
-            ^
-            (?P<file>[A-Za-z_$][A-Za-z0-9_$.]*\.[a-zA-Z][a-zA-Z0-9]*)
-            (?:
-                (?P<colon>:)(?P<line>\d+)
-                (?:(?P<col_colon>:)(?P<col>\d+))?
-            )?
-            $
-        ";
-        let file_line_regex = build_regex(file_line_pattern);
 
         let more_pattern = r"(?m)^\s+(?P<ellipsis>\.\.\.)\s+(?P<count>\d+)\s+(?P<more>more)\s*$";
         let more_regex = build_regex(more_pattern);
@@ -69,7 +60,6 @@ impl JvmStackFinder {
             marker_regex,
             header_regex,
             frame_regex,
-            file_line_regex,
             more_regex,
             caused_by: palette.intern(config.caused_by),
             package: palette.intern(config.package),
@@ -98,10 +88,6 @@ impl Finder for JvmStackFinder {
                 let pkg = caps.name("package").unwrap();
                 let cls = caps.name("class").unwrap();
                 let colon = caps.name("colon").unwrap();
-                let cls_text = cls.as_str();
-                if !cls_text.ends_with("Exception") && !cls_text.ends_with("Error") {
-                    continue;
-                }
                 collector.push(pkg.start(), pkg.end(), self.package);
                 collector.push(cls.start(), cls.end(), self.exception);
                 collector.push(colon.start(), colon.end(), self.frame);
@@ -115,23 +101,19 @@ impl Finder for JvmStackFinder {
             collector.push(at.start(), open.end(), self.frame);
             collector.push(close.start(), close.end(), self.frame);
 
-            let contents = caps.name("contents").unwrap();
-            let cstart = contents.start();
-            let cstr = contents.as_str();
-
-            if cstr == "Unknown Source" || cstr == "<generated>" || cstr == "Native Method" {
-                collector.push(cstart, contents.end(), self.unknown_source);
-            } else if let Some(inner) = self.file_line_regex.captures(cstr) {
-                let file_match = inner.name("file").unwrap();
-                collector.push(cstart + file_match.start(), cstart + file_match.end(), self.file);
-                if let (Some(c), Some(ln)) = (inner.name("colon"), inner.name("line")) {
-                    collector.push(cstart + c.start(), cstart + c.end(), self.frame);
-                    collector.push(cstart + ln.start(), cstart + ln.end(), self.line_number);
-                }
-                if let (Some(c), Some(col)) = (inner.name("col_colon"), inner.name("col")) {
-                    collector.push(cstart + c.start(), cstart + c.end(), self.frame);
-                    collector.push(cstart + col.start(), cstart + col.end(), self.line_number);
-                }
+            if let Some(unknown) = caps.name("unknown") {
+                collector.push(unknown.start(), unknown.end(), self.unknown_source);
+            }
+            if let Some(file) = caps.name("file") {
+                collector.push(file.start(), file.end(), self.file);
+            }
+            if let (Some(c), Some(line)) = (caps.name("colon"), caps.name("line")) {
+                collector.push(c.start(), c.end(), self.frame);
+                collector.push(line.start(), line.end(), self.line_number);
+            }
+            if let (Some(c), Some(col)) = (caps.name("col_colon"), caps.name("col")) {
+                collector.push(c.start(), c.end(), self.frame);
+                collector.push(col.start(), col.end(), self.line_number);
             }
         }
 
