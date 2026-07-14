@@ -1,20 +1,21 @@
 # Changelog
 
-## 7.0.0 (Unreleased)
+## 7.0.0
 
 This release marks almost four years since the first version of `tailspin`. Since then, there have been many changes and
 many refinements´, so for 7.0.0, thought it would be a good time to reflect a bit on the journey.
 
 Starting out, I read lots of colorless logs in the terminal in very different formats. After a while, I got a very
 simple idea: I know what a timestamp / IP address / UUID etc. looks like. I recognize this and this part of the log line
-as distinct things, and if I can distinguish these different elements from each other, then surely a cli should.
+as distinct things, and if I can distinguish these different elements from each other, then surely a cli should be able
+to as well.
 
 The first version of `tailspin` (`1.0`) was written in Go and focused on highlighting the correct elements without
 producing false positives. This version was unnecessarily inefficient because the regexes were re-compiled each line
 and the engine was single threaded. However, the cli did the job for me, logs were easier to read and I didn't have to
 think about what schema or format the log was in.
 
-Since then, the cli has been re-written in rust and become a lot faster, but the core is still the same:
+Since then, the cli has been re-written in Rust and become a lot faster, but the core is still the same:
 "I know what a timestamp looks like--color it".
 
 Below is a benchmark test ran over a 44 MB log file on the same machine.
