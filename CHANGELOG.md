@@ -1,8 +1,9 @@
 # Changelog
 ## 7.1.0
 
+### Changed
 
-
+- Restyled and clarified the `--help` output
 
 ## 7.0.0
 

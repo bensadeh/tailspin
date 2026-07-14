@@ -60,7 +60,7 @@ tspin logfile.txt --highlight red:error,fail --highlight green:success,ok
 ----
 
 _--enable=[HIGHLIGHT_GROUP]_::
-Disable all highlighting groups except the ones specified.
+Enable only the specified highlighting groups, disabling all others.
 Comma separated list of groups.
 Cannot be used with *--disable=[HIGHLIGHT_GROUP]*.
 Possible groups: numbers, urls, emails, pointers, dates, durations, paths, quotes, key-value-pairs, uuids, ipv4, processes, json, keywords.

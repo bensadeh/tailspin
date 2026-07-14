@@ -11,10 +11,13 @@ mod styles;
 use crate::cli::completions::generate_shell_completions_and_exit_or_continue;
 use crate::cli::highlighter::build_highlighter;
 use crate::cli::resolution::{BaseSet, resolve_extras};
-use crate::cli::styles::get_styles;
+use crate::cli::styles::{
+    get_styles, help_with_env, help_with_possible_values, help_with_possible_values_and_env, help_with_value_list,
+};
 use crate::io::routing::{self, IoArgs, Source, Target};
 use crate::theme::reader;
 use anyhow::Result;
+use clap::builder::StyledStr;
 use clap::{ArgAction, Parser, ValueEnum};
 use nu_ansi_term::Style;
 use std::error::Error;
@@ -22,6 +25,10 @@ use std::io::{IsTerminal, stdin};
 use std::path::PathBuf;
 use tailspin::Highlighter;
 use tailspin::style::Color;
+
+const THEME_ENV: &str = "TAILSPIN_THEME";
+const EXTRAS_ENV: &str = "TAILSPIN_EXTRAS";
+const PAGER_ENV: &str = "TAILSPIN_PAGER";
 
 #[derive(Parser)]
 #[command(
@@ -51,43 +58,68 @@ pub struct Arguments {
     #[clap(short = 'p', long = "print")]
     pub to_stdout: bool,
 
-    /// Provide a custom path to a theme file
-    #[clap(long = "theme", env = "TAILSPIN_THEME")]
+    #[clap(long = "theme", value_name = "PATH", env = THEME_ENV, hide_env = true,
+           help = help_with_env("Provide a custom path to a theme file", THEME_ENV))]
     pub theme: Option<PathBuf>,
 
     /// Run command and view the output in a pager
-    #[clap(short = 'e', long = "exec")]
+    #[clap(short = 'e', long = "exec", value_name = "COMMAND")]
     pub exec: Option<String>,
 
-    /// Highlights in the form color:word1,word2
-    ///
-    /// [possible colors: black, red, green, yellow, blue, magenta, cyan, white, optionally prefixed with bright_]
-    #[arg(long = "highlight", value_parser = parse_highlight)]
+    #[arg(long = "highlight", value_name = "COLOR:WORDS", value_parser = parse_highlight, help = highlight_help())]
     pub color_word: Vec<(Color, Vec<String>)>,
 
-    /// Enable specific highlighters
-    #[clap(long = "enable", value_enum, use_value_delimiter = true)]
+    #[clap(long = "enable", value_enum, use_value_delimiter = true, hide_possible_values = true,
+           help = help_with_possible_values::<Base>("Enable only the specified highlighters (disables the rest)"))]
     pub enabled: Vec<Base>,
 
-    /// Disable specific highlighters
-    #[clap(long = "disable", value_enum, use_value_delimiter = true)]
+    #[clap(long = "disable", value_enum, use_value_delimiter = true, hide_possible_values = true,
+           help = help_with_possible_values::<Base>("Disable the specified highlighters (keeps the rest)"))]
     pub disabled: Vec<Base>,
 
-    /// Enable extra highlighters (e.g., --extras ipv6)
-    #[clap(long = "extras", value_enum, use_value_delimiter = true, env = "TAILSPIN_EXTRAS")]
+    #[clap(long = "extras", value_enum, use_value_delimiter = true, env = EXTRAS_ENV,
+           hide_env = true, hide_possible_values = true,
+           help = help_with_possible_values_and_env::<Extra>("Enable extra highlighters (e.g., --extras ipv6)", EXTRAS_ENV))]
     pub extras: Vec<Extra>,
 
-    /// Override the default pager command used by tspin. (e.g. `--pager="ov -f [FILE]"`)
-    #[clap(long = "pager", env = "TAILSPIN_PAGER")]
+    #[clap(long = "pager", value_name = "COMMAND", env = PAGER_ENV, hide_env = true,
+           help = help_with_env("Override the default pager command used by tspin. (e.g. `--pager=\"ov -f [FILE]\"`)", PAGER_ENV))]
     pub pager: Option<String>,
 
-    /// Print shell completions to stdout
-    #[clap(long = "completions", value_enum, value_name = "SHELL")]
+    #[clap(long = "completions", value_enum, value_name = "SHELL", hide_possible_values = true,
+           help = help_with_possible_values::<clap_complete::Shell>("Print shell completions to stdout"))]
     pub completions: Option<clap_complete::Shell>,
 
     /// Print the default theme as a theme.toml to stdout
     #[clap(long = "generate-default-theme")]
     pub generate_default_theme: bool,
+}
+
+const HIGHLIGHT_COLORS: [&str; 16] = [
+    "black",
+    "red",
+    "green",
+    "yellow",
+    "blue",
+    "magenta",
+    "cyan",
+    "white",
+    "bright_black",
+    "bright_red",
+    "bright_green",
+    "bright_yellow",
+    "bright_blue",
+    "bright_magenta",
+    "bright_cyan",
+    "bright_white",
+];
+
+fn highlight_help() -> StyledStr {
+    help_with_value_list(
+        "Highlights in the form color:word1,word2",
+        "possible colors",
+        &HIGHLIGHT_COLORS,
+    )
 }
 
 fn parse_highlight(s: &str) -> Result<(Color, Vec<String>), Box<dyn Error + Send + Sync>> {
@@ -209,24 +241,7 @@ mod tests {
 
     #[test]
     fn every_palette_color_parses() {
-        for color in [
-            "black",
-            "red",
-            "green",
-            "yellow",
-            "blue",
-            "magenta",
-            "cyan",
-            "white",
-            "bright_black",
-            "bright_red",
-            "bright_green",
-            "bright_yellow",
-            "bright_blue",
-            "bright_magenta",
-            "bright_cyan",
-            "bright_white",
-        ] {
+        for color in HIGHLIGHT_COLORS {
             let input = format!("{color}:foo");
             parse_highlight(&input).unwrap_or_else(|_| panic!("`{color}` should parse"));
         }
