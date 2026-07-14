@@ -2,41 +2,68 @@
 
 ## 7.0.0 (Unreleased)
 
-### Breaking
+This release marks almost four years since the first version of `tailspin`. Since then, there have been many changes and
+many refinements´, so for 7.0.0, thought it would be a good time to reflect a bit on the journey.
 
-- The builtin keywords (log severities, booleans, nulls and common REST verbs) are now a regular
+Starting out, I read lots of colorless logs in the terminal in very different formats. After a while, I got a very
+simple idea: I know what a timestamp / IP address / UUID etc. looks like. I recognize this and this part of the log line
+as distinct things, and if I can distinguish these different elements from each other, then surely a cli should.
+
+The first version of `tailspin` (`1.0`) was written in Go and focused on highlighting the correct elements without
+producing false positives. This version was unnecessarily inefficient because the regexes were re-compiled each line
+and the engine was single threaded. However, the cli did the job for me, logs were easier to read and I didn't have to
+think about what schema or format the log was in.
+
+Since then, the cli has been re-written in rust and become a lot faster, but the core is still the same:
+"I know what a timestamp looks like--color it".
+
+Below is a benchmark test ran over a 44 MB log file on the same machine.
+
+| version    | date     | wall time | highlights                                                        |
+|------------|----------|-----------|-------------------------------------------------------------------|
+| `0.1` (go) | sep 2023 | `74.90` s | original go version; single-threaded, regexes recompiled per line |
+| `1.6.1`    | nov 2023 | `08.80` s | rust rewrite; compile regexes once                                |
+| `2.3.0`    | jan 2024 | `01.40` s | parallel highlighting with rayon                                  |
+| `2.4.0`    | jan 2024 | `01.70` s | added more highlighters                                           |
+| `3.0.2`    | aug 2024 | `02.20` s | added more highlighters                                           |
+| `4.0.0`    | oct 2024 | `01.40` s | highlighting moved to inlet_manifold                              |
+| `5.5.0`    | aug 2025 | `00.90` s | use aho-corasick for keyword highlighting                         |
+| `6.0.0`    | apr 2026 | `00.40` s | span pipeline: match once, merge, render                          |
+| `6.1.0`    | may 2026 | `00.38` s | cached style prefixes, pooled scratch buffers                     |
+| `7.0.0`    | jul 2026 | `00.15` s | single keyword automaton, batched reads, per-thread highlighters  |
+
+### Breaking Changes
+
+- Builtin keywords (log severities, booleans, nulls and common rest verbs) are now a regular
   highlight group named `keywords`: use `--disable keywords` instead of the removed
   `--disable-builtin-keywords`
-- `--enable` now also governs the builtin keywords: an exclusive `--enable` list no longer keeps
-  them on implicitly — include `keywords` in the list to keep them
 - `--config-path` has been renamed to `--theme`
-- The hidden `--generate-bash-completions`, `--generate-fish-completions` and
+- the hidden `--generate-bash-completions`, `--generate-fish-completions` and
   `--generate-zsh-completions` flags have been replaced by `--completions <shell>`
-- The `[ip_addresses]` theme table has been split into `[ipv4]` and `[ipv6]`, matching the
+- the `[ip_addresses]` theme table has been split into `[ipv4]` and `[ipv6]`, matching the
   highlight group names; each table now styles only its own highlighter
-- The `number` key in the `[numbers]` theme table has been renamed to `style`
-- On Windows, the theme now resolves to `%APPDATA%\tailspin\theme.toml` instead of
-  `%USERPROFILE%\tailspin\theme.toml`, following the platform convention
+- the `number` key in the `[numbers]` theme table has been renamed to `style`
+- Windows: the theme now resolves to `%appdata%\tailspin\theme.toml` instead of
+  `%userprofile%\tailspin\theme.toml`, following the platform convention
 
-### Added
+### New Features
 
-- `TAILSPIN_THEME` environment variable to set the theme path without the `--theme` flag
+- `tailspin_theme` environment variable to set the theme path without the `--theme` flag
 - `--completions <shell>` prints shell completions to stdout, now also for `elvish` and `powershell`
 - `--highlight` accepts the full 16-color palette (e.g. `bright_red`), using the same color names
   as `theme.toml`
 - `--generate-default-theme` is no longer hidden and is documented in the man page
-
-- `Highlighter` implements `Clone`
-- Added `Duration` highlighter
+- `highlighter` implements `clone`
+- Added `duration` highlighter
 - Generate `default-theme.toml` with the default style of every highlight group
 
 ### Crate
 
-- Every theme config struct now derives `Serialize` and `Deserialize`, so `theme.toml` tables
+- theme config struct now derives `serialize` and `deserialize`, so `theme.toml` tables
   deserialize directly into the config structs
-- `HighlighterBuilder::with_date_time_highlighters` renamed to `with_date_time_highlighter`
-- `HighlighterBuilder::with_keyword_highlighter` renamed to `with_keyword_highlighters`, matching
-  its `Vec<KeywordConfig>` parameter
+- `highlighterbuilder::with_date_time_highlighters` renamed to `with_date_time_highlighter`
+- `highlighterbuilder::with_keyword_highlighter` renamed to `with_keyword_highlighters`, matching
+  its `vec<keywordconfig>` parameter
 
 ### Changed
 
