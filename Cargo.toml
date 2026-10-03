@@ -35,27 +35,27 @@ codegen-units = 1
 strip = true
 
 [dependencies]
-aho-corasick = "1.1.4"
-anyhow = { version = "1.0.103", optional = true }
-clap = { version = "4.6.1", features = ["derive", "env", "wrap_help"], optional = true }
-clap_complete = { version = "4.6.7", optional = true }
+aho-corasick = "1.1.5"
+anyhow = { version = "1.0.104", optional = true }
+clap = { version = "4.6.7", features = ["derive", "env", "wrap_help"], optional = true }
+clap_complete = { version = "4.6.11", optional = true }
 memchr = "2.8.3"
 nu-ansi-term = "0.50.3"
 rayon = { version = "1.12.0", optional = true }
-regex = "1.13.0"
-serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.150"
-shared_child = { version = "1.1.1", optional = true }
+regex = "1.13.1"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+shared_child = { version = "1.1.2", optional = true }
 shell-words = { version = "1.1.1", optional = true }
 shellexpand = { version = "3.1.2", optional = true }
 tempfile = { version = "3.27.0", optional = true }
-thiserror = "2.0.18"
-toml = { version = "1.1.2", features = ["preserve_order"], optional = true }
+thiserror = "2.0.21"
+toml = { version = "1.1.6", features = ["preserve_order"], optional = true }
 
 [dev-dependencies]
 assert_cmd = "2.2.2"
 criterion = "0.8.2"
-insta = "1.48.0"
+insta = "1.49.0"
 proptest = "1.11.0"
 tempfile = "3.27.0"
 
