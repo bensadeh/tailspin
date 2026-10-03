@@ -272,13 +272,15 @@ mod tests {
     #[test]
     fn empty_input_no_spans() {
         let input = "";
-        assert!(spans(input).is_empty());
+        let result = spans(input);
+        assert!(result.is_empty(), "{result:?}");
     }
 
     #[test]
     fn line_without_dot_is_skipped() {
         let input = "no exceptions or stack frames here";
-        assert!(spans(input).is_empty());
+        let result = spans(input);
+        assert!(result.is_empty(), "{result:?}");
     }
 
     #[test]

@@ -68,7 +68,7 @@ impl Finder for EmailFinder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn no_email_no_match() {
-        assert!(span_texts("No email here!", &make_finder()).is_empty());
+        assert_no_spans("No email here!", &make_finder());
     }
 
     #[test]

@@ -37,7 +37,7 @@ impl Finder for QuoteFinder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -59,7 +59,7 @@ mod tests {
 
     #[test]
     fn odd_quotes_produces_no_spans() {
-        assert!(span_texts(r#"hello "world end"#, &make_finder(b'"')).is_empty());
+        assert_no_spans(r#"hello "world end"#, &make_finder(b'"'));
     }
 
     #[test]
@@ -90,6 +90,6 @@ mod tests {
     #[test]
     fn three_quotes_produces_no_spans() {
         // 3 quotes is odd — should produce no spans
-        assert!(span_texts(r#"a "b" c "d"#, &make_finder(b'"')).is_empty());
+        assert_no_spans(r#"a "b" c "d"#, &make_finder(b'"'));
     }
 }

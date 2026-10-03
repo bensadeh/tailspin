@@ -70,7 +70,7 @@ impl Finder for IpV4Finder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -107,21 +107,21 @@ mod tests {
 
     #[test]
     fn octet_over_255_no_match() {
-        assert!(span_texts("256.1.1.1", &make_finder()).is_empty());
+        assert_no_spans("256.1.1.1", &make_finder());
     }
 
     #[test]
     fn all_999_no_match() {
-        assert!(span_texts("999.999.999.999", &make_finder()).is_empty());
+        assert_no_spans("999.999.999.999", &make_finder());
     }
 
     #[test]
     fn mask_over_32_no_match() {
-        assert!(span_texts("192.168.0.1/33", &make_finder()).is_empty());
+        assert_no_spans("192.168.0.1/33", &make_finder());
     }
 
     #[test]
     fn partial_address_no_match() {
-        assert!(span_texts("1.2.3", &make_finder()).is_empty());
+        assert_no_spans("1.2.3", &make_finder());
     }
 }

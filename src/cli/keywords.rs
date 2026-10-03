@@ -121,6 +121,6 @@ mod tests {
     #[test]
     fn empty_input_returns_empty() {
         let result = dedupe_last_wins(Vec::new());
-        assert!(result.is_empty());
+        assert!(result.is_empty(), "{result:?}");
     }
 }

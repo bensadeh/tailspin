@@ -106,7 +106,7 @@ mod tests {
     #[test]
     fn empty_spans() {
         let result = merge_spans(10, &[]);
-        assert!(result.is_empty());
+        assert!(result.is_empty(), "{result:?}");
     }
 
     fn resolved(start: usize, end: usize, style: StyleId) -> ResolvedSpan {

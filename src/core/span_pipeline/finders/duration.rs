@@ -61,7 +61,7 @@ impl Finder for DurationFinder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -90,16 +90,16 @@ mod tests {
 
     #[test]
     fn plain_numbers_are_not_durations() {
-        assert!(span_texts("status 200 port 8080", &make_finder()).is_empty());
+        assert_no_spans("status 200 port 8080", &make_finder());
     }
 
     #[test]
     fn compound_durations_do_not_match() {
-        assert!(span_texts("waited 1h30m", &make_finder()).is_empty());
+        assert_no_spans("waited 1h30m", &make_finder());
     }
 
     #[test]
     fn unit_must_terminate_the_word() {
-        assert!(span_texts("5management 3msg", &make_finder()).is_empty());
+        assert_no_spans("5management 3msg", &make_finder());
     }
 }

@@ -70,7 +70,7 @@ impl Finder for UnixPathFinder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -144,21 +144,21 @@ mod tests {
 
     #[test]
     fn three_segments_without_leading_slash_no_match() {
-        assert!(span_texts("a/b/c", &make_finder()).is_empty());
+        assert_no_spans("a/b/c", &make_finder());
     }
 
     #[test]
     fn single_segment_no_match() {
-        assert!(span_texts("justtext", &make_finder()).is_empty());
+        assert_no_spans("justtext", &make_finder());
     }
 
     #[test]
     fn two_segments_without_leading_slash_no_match() {
-        assert!(span_texts("name/name", &make_finder()).is_empty());
+        assert_no_spans("name/name", &make_finder());
     }
 
     #[test]
     fn slash_separated_numbers_no_match() {
-        assert!(span_texts("123/234/345/456", &make_finder()).is_empty());
+        assert_no_spans("123/234/345/456", &make_finder());
     }
 }

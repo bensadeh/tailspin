@@ -75,7 +75,7 @@ impl Finder for DateDashFinder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -116,27 +116,27 @@ mod tests {
 
     #[test]
     fn invalid_year_no_match() {
-        assert!(span_texts("3022-09-09", &make_finder()).is_empty());
+        assert_no_spans("3022-09-09", &make_finder());
     }
 
     #[test]
     fn invalid_month_no_match() {
-        assert!(span_texts("2022-19-39", &make_finder()).is_empty());
+        assert_no_spans("2022-19-39", &make_finder());
     }
 
     #[test]
     fn invalid_year_branch_b_no_match() {
-        assert!(span_texts("19/39/3023", &make_finder()).is_empty());
+        assert_no_spans("19/39/3023", &make_finder());
     }
 
     #[test]
     fn no_dates_no_match() {
-        assert!(span_texts("No dates here!", &make_finder()).is_empty());
+        assert_no_spans("No dates here!", &make_finder());
     }
 
     #[test]
     fn embedded_in_longer_number_no_match() {
-        assert!(span_texts("12022-09-09", &make_finder()).is_empty());
+        assert_no_spans("12022-09-09", &make_finder());
     }
 
     #[test]

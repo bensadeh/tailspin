@@ -178,7 +178,8 @@ mod tests {
         let mut collector = Collector::new();
         collector.push_padded(0, 3, style);
         collector.reset();
-        assert!(collector.into_spans().is_empty());
+        let spans = collector.into_spans();
+        assert!(spans.is_empty(), "{spans:?}");
     }
 
     #[test]

@@ -93,6 +93,6 @@ mod tests {
             },
             &mut Palette::new(),
         );
-        assert!(super::super::span_texts("no dashes here at all", &finder).is_empty());
+        super::super::assert_no_spans("no dashes here at all", &finder);
     }
 }

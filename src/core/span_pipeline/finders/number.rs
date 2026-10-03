@@ -44,7 +44,7 @@ impl Finder for NumberFinder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -65,6 +65,6 @@ mod tests {
 
     #[test]
     fn no_match_produces_no_spans() {
-        assert!(span_texts("no numbers here", &make_finder()).is_empty());
+        assert_no_spans("no numbers here", &make_finder());
     }
 }

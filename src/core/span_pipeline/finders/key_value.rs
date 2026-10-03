@@ -49,7 +49,7 @@ impl Finder for KeyValueFinder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -83,6 +83,6 @@ mod tests {
 
     #[test]
     fn no_key_value_no_match() {
-        assert!(span_texts("No numbers here!", &make_finder()).is_empty());
+        assert_no_spans("No numbers here!", &make_finder());
     }
 }

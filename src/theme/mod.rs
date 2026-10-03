@@ -40,8 +40,8 @@ mod tests {
     fn empty_input_yields_defaults() {
         let theme = parse("");
 
-        assert!(theme.keywords.is_empty());
-        assert!(theme.regexes.is_empty());
+        assert!(theme.keywords.is_empty(), "{:?}", theme.keywords);
+        assert!(theme.regexes.is_empty(), "{:?}", theme.regexes);
         assert_eq!(theme.uuids.letter, UuidConfig::default().letter);
         assert_eq!(theme.quotes.quote_token, b'"');
     }

@@ -43,3 +43,11 @@ pub(crate) fn span_texts<'a>(input: &'a str, finder: &impl super::span::Finder) 
     finder.find_spans(input, &mut collector);
     collector.into_spans().iter().map(|s| &input[s.start..s.end]).collect()
 }
+
+/// Asserts that a finder produces no spans for `input`, printing any it did produce.
+#[cfg(test)]
+#[track_caller]
+pub(crate) fn assert_no_spans(input: &str, finder: &impl super::span::Finder) {
+    let texts = span_texts(input, finder);
+    assert!(texts.is_empty(), "expected no spans in {input:?}, got {texts:?}");
+}

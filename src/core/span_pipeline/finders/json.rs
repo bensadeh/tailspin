@@ -117,7 +117,7 @@ impl Finder for JsonFinder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -161,7 +161,7 @@ mod tests {
         let texts = span_texts(input, &make_finder());
         assert!(texts.contains(&"a"));
         // Structural tokens are present
-        assert!(!texts.is_empty());
+        assert!(!texts.is_empty(), "expected spans");
     }
 
     #[test]
@@ -170,7 +170,7 @@ mod tests {
         let texts = span_texts(input, &make_finder());
         assert!(texts.contains(&"key"));
         // Should not panic or produce broken spans
-        assert!(!texts.is_empty());
+        assert!(!texts.is_empty(), "expected spans");
     }
 
     #[test]
@@ -190,16 +190,12 @@ mod tests {
 
     #[test]
     fn not_json_no_match() {
-        let mut collector = Collector::new();
-        make_finder().find_spans("No jsons here!", &mut collector);
-        assert!(collector.into_spans().is_empty());
+        assert_no_spans("No jsons here!", &make_finder());
     }
 
     #[test]
     fn invalid_json_no_match() {
-        let mut collector = Collector::new();
-        make_finder().find_spans("{not valid json", &mut collector);
-        assert!(collector.into_spans().is_empty());
+        assert_no_spans("{not valid json", &make_finder());
     }
 
     #[test]

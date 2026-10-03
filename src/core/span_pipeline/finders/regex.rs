@@ -73,7 +73,7 @@ mod tests {
     #[test]
     fn no_match_no_spans() {
         let texts = span_texts("nothing here", "xyz");
-        assert!(texts.is_empty());
+        assert!(texts.is_empty(), "{texts:?}");
     }
 
     #[test]

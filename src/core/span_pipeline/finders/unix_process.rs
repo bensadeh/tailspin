@@ -52,7 +52,7 @@ impl Finder for UnixProcessFinder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -82,12 +82,11 @@ mod tests {
     #[test]
     fn does_not_match_ip_in_brackets() {
         // [192.168.1.22] should not match — requires digits only inside brackets
-        let texts = span_texts("[192.168.1.22]:12345", &make_finder());
-        assert!(texts.is_empty());
+        assert_no_spans("[192.168.1.22]:12345", &make_finder());
     }
 
     #[test]
     fn no_process_no_match() {
-        assert!(span_texts("No process here!", &make_finder()).is_empty());
+        assert_no_spans("No process here!", &make_finder());
     }
 }

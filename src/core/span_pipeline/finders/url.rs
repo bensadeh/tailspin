@@ -146,7 +146,7 @@ impl Finder for UrlFinder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -201,10 +201,7 @@ mod tests {
 
     #[test]
     fn no_match_returns_no_spans() {
-        let f = finder();
-        let mut collector = Collector::new();
-        f.find_spans("no urls here", &mut collector);
-        assert!(collector.into_spans().is_empty());
+        assert_no_spans("no urls here", &finder());
     }
 
     #[test]

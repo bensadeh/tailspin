@@ -95,7 +95,7 @@ impl Finder for DateTimeFinder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::span_texts;
+    use super::super::{assert_no_spans, span_texts};
     use super::*;
     use crate::style::{Color, Style};
 
@@ -165,11 +165,11 @@ mod tests {
     #[test]
     fn ipv6_should_not_match_as_time() {
         // IPv6 addresses contain colons but should not be matched by DateTime
-        assert!(span_texts("2001:db8::ff00:42:8329", &make_finder()).is_empty());
+        assert_no_spans("2001:db8::ff00:42:8329", &make_finder());
     }
 
     #[test]
     fn no_time_no_match() {
-        assert!(span_texts("No time here!", &make_finder()).is_empty());
+        assert_no_spans("No time here!", &make_finder());
     }
 }
